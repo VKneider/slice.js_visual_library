@@ -2,39 +2,39 @@
 export const visualComponentsRoutes = {
    // Ruta por defecto
    defaultRoute: {
-      path: '/components',
-      component: 'VisualComponentsHome',
-      title: 'Visual Components Library'
+      path: '/library',
+      component: 'ComponentsHome',
+      title: 'Visual Library'
    },
 
    // Sección de Input Components
    inputComponents: {
       title: 'Input Components',
-      path: '/components/input',
+      path: '/library/input',
       items: [
          { 
             title: 'Button', 
-            path: '/components/input/button', 
+            path: '/library/input/button', 
             component: 'ButtonDocumentation' 
          },
          { 
             title: 'Input', 
-            path: '/components/input/input', 
+            path: '/library/input/input', 
             component: 'InputDocumentation' 
          },
          { 
             title: 'Select', 
-            path: '/components/input/select', 
+            path: '/library/input/select', 
             component: 'SelectDocumentation' 
          },
          { 
             title: 'Checkbox', 
-            path: '/components/input/checkbox', 
+            path: '/library/input/checkbox', 
             component: 'CheckboxDocumentation' 
          },
          { 
             title: 'Switch', 
-            path: '/components/input/switch', 
+            path: '/library/input/switch', 
             component: 'SwitchDocumentation' 
          }
       ]
@@ -43,16 +43,16 @@ export const visualComponentsRoutes = {
    // Sección de Navigation Components
    navigationComponents: {
       title: 'Navigation',
-      path: '/components/navigation',
+      path: '/library/navigation',
       items: [
          { 
             title: 'Navbar', 
-            path: '/components/navigation/navbar', 
+            path: '/library/navigation/navbar', 
             component: 'NavBarDocumentation' 
          },
          { 
             title: 'TreeView', 
-            path: '/components/navigation/treeview', 
+            path: '/library/navigation/treeview', 
             component: 'TreeViewDocumentation' 
          }
       ]
@@ -61,26 +61,26 @@ export const visualComponentsRoutes = {
    // Sección de Layout Components
    layoutComponents: {
       title: 'Layout',
-      path: '/components/layout',
+      path: '/library/layout',
       items: [
          { 
             title: 'Card', 
-            path: '/components/layout/card', 
+            path: '/library/layout/card', 
             component: 'CardDocumentation' 
          },
          { 
             title: 'Grid', 
-            path: '/components/layout/grid', 
+            path: '/library/layout/grid', 
             component: 'GridDocumentation' 
          },
          { 
             title: 'Layout', 
-            path: '/components/layout/layout', 
+            path: '/library/layout/layout', 
             component: 'LayoutDocumentation' 
          },
          { 
             title: 'Details', 
-            path: '/components/layout/details', 
+            path: '/library/layout/details', 
             component: 'DetailsDocumentation' 
          }
       ]
@@ -89,16 +89,16 @@ export const visualComponentsRoutes = {
    // Sección de Display Components
    displayComponents: {
       title: 'Display',
-      path: '/components/display',
+      path: '/library/display',
       items: [
          { 
             title: 'Loading', 
-            path: '/components/display/loading', 
+            path: '/library/display/loading', 
             component: 'LoadingDocumentation' 
          },
          { 
             title: 'CodeVisualizer', 
-            path: '/components/display/code-visualizer', 
+            path: '/library/display/code-visualizer', 
             component: 'CodeVisualizerDocumentation' 
          }
       ]
@@ -107,16 +107,16 @@ export const visualComponentsRoutes = {
    // Sección de Routing Components
    routingComponents: {
       title: 'Routing',
-      path: '/components/routing',
+      path: '/library/routing',
       items: [
          { 
             title: 'Route', 
-            path: '/components/routing/route', 
+            path: '/library/routing/route', 
             component: 'RouteDocumentation' 
          },
          { 
             title: 'MultiRoute', 
-            path: '/components/routing/multiroute', 
+            path: '/library/routing/multiroute', 
             component: 'MultiRouteDocumentation' 
          }
       ]
