@@ -39,6 +39,10 @@
             "Service":{
                 "path":"/Components/Service",
                 "type":"Service"
+            },
+            "DocumentationPages":{
+                "path":"/Components/DocumentationPages",
+                "type":"Visual"
             }
         },
         "themes": "/Themes",

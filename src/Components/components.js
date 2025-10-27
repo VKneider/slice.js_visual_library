@@ -27,7 +27,19 @@ const components = {
   "IndexedDbManager": "Service",
   "Link": "Service",
   "LocalStorageManager": "Service",
-  "Translator": "Service"
+  "Translator": "Service",
+  "ButtonDocumentation": "DocumentationPages",
+  "CardDocumentation": "DocumentationPages",
+  "CheckboxDocumentation": "DocumentationPages",
+  "DetailsDocumentation": "DocumentationPages",
+  "GridDocumentation": "DocumentationPages",
+  "InputDocumentation": "DocumentationPages",
+  "LayoutDocumentation": "DocumentationPages",
+  "MultiRouteDocumentation": "DocumentationPages",
+  "NavBarDocumentation": "DocumentationPages",
+  "SelectDocumentation": "DocumentationPages",
+  "SwitchDocumentation": "DocumentationPages",
+  "TreeViewDocumentation": "DocumentationPages"
 };
 
 export default components;
