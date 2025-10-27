@@ -1,6 +1,6 @@
 const routes = [
    // Rutas principales
-   { path: '/', component: 'VisualLibraryHome' },
+   { path: '/', component: 'App' },
    { 
       path: '/library', 
       component: 'ComponentsPage',

@@ -1,5 +1,5 @@
 const components = {
-  "ComponentsHome": "AppComponents",
+  "App": "AppComponents",
   "ComponentsPage": "AppComponents",
   "MainMenu": "AppComponents",
   "MyNavigation": "AppComponents",
