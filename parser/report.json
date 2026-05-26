@@ -1,0 +1,44 @@
+{
+  "generated": [
+    {
+      "filePath": "src/markdown/button.md",
+      "component": "ButtonDocumentation"
+    },
+    {
+      "filePath": "src/markdown/card.md",
+      "component": "CardDocumentation"
+    },
+    {
+      "filePath": "src/markdown/input.md",
+      "component": "InputDocumentation"
+    },
+    {
+      "filePath": "src/markdown/library-home.md",
+      "component": "DocumentationLibraryHome"
+    },
+    {
+      "filePath": "src/markdown/navbar.md",
+      "component": "NavbarDocumentation"
+    },
+    {
+      "filePath": "src/markdown/parser-rules.md",
+      "component": "MarkdownParserRulesDocumentation"
+    },
+    {
+      "filePath": "src/markdown/select.md",
+      "component": "SelectDocumentation"
+    },
+    {
+      "filePath": "src/markdown/tabs.md",
+      "component": "TabsDocumentation"
+    }
+  ],
+  "validationErrors": [],
+  "markdownCandidates": [],
+  "requiresCustomBlocks": [
+    {
+      "filePath": "C:\\Users\\vkneider\\Desktop\\Proyectos\\Slice\\slice.js_visual_library\\src\\Components\\DocumentationPages\\MultiRouteDocumentation\\MultiRouteDocumentation.js",
+      "reason": "Interactive MultiRoute demo likely needs :::component or :::html block"
+    }
+  ]
+}

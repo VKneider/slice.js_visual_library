@@ -153,10 +153,9 @@ export default class MultiRoute extends HTMLElement {
             }
 
             // Crear el componente con los parámetros y metadata de la ruta
-            const newComponent = await slice.build(component, { 
-               sliceId: component,
-               params: params, // ✅ Pasar los parámetros al componente
-               metadata: metadata || {} // ✅ Pasar metadata al componente
+            const newComponent = await slice.build(component, {
+               params: params,
+               metadata: metadata || {}
             });
             
             this.innerHTML = '';

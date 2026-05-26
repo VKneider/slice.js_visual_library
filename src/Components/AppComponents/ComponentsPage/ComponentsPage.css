@@ -1,0 +1,35 @@
+slice-components-page {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+slice-components-page slice-layout {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+slice-components-page slice-multi-route {
+  display: block;
+  position: relative;
+  z-index: 10;
+  margin: 84px 18% 0 18%;
+  padding: 20px 22px 28px;
+  min-height: calc(100vh - 96px);
+  box-sizing: border-box;
+}
+
+@media only screen and (max-width: 1200px) {
+  slice-components-page slice-multi-route {
+    margin-right: 19%;
+    margin-left: 20%;
+  }
+}
+
+@media only screen and (max-width: 770px) {
+  slice-components-page slice-multi-route {
+    margin: 72px 0 0 0;
+    padding: 14px 12px 24px;
+  }
+}

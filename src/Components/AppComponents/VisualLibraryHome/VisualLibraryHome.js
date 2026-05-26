@@ -16,7 +16,7 @@ export default class VisualLibraryHome extends HTMLElement {
          },
          items: [
             { text: "Home", path: "/" },
-            { text: "Components", path: "/library" },
+            { text: "Components", path: "/docs" },
             { text: "Documentation", path: "/docs" },
          ],
          buttons: [
@@ -39,7 +39,7 @@ export default class VisualLibraryHome extends HTMLElement {
       // Crear botones CTA
       const browseButton = await slice.build("Button", {
          value: "Browse Components",
-         onClickCallback: () => slice.router.navigate("/library"),
+         onClickCallback: () => slice.router.navigate("/docs"),
          customColor: {
             button: "var(--primary-color)",
             label: "var(--primary-color-contrast)"
@@ -124,42 +124,42 @@ export default class VisualLibraryHome extends HTMLElement {
             icon: "⌨️",
             description: "Interactive form elements for user input",
             components: ["Button", "Input", "Select", "Checkbox", "Switch", "Radio"],
-            path: "/library/input"
+            path: "/docs/input"
          },
          {
             name: "Navigation",
             icon: "🧭",
             description: "Components for app navigation and routing",
             components: ["Navbar", "Sidebar", "Breadcrumb", "Tabs"],
-            path: "/library/navigation"
+            path: "/docs/navigation"
          },
          {
             name: "Layout",
             icon: "📐",
             description: "Structure and organize your content",
             components: ["Card", "Grid", "Container", "Divider"],
-            path: "/library/layout"
+            path: "/docs/layout"
          },
          {
             name: "Display",
             icon: "📺",
             description: "Present information to users",
             components: ["Badge", "Avatar", "Icon", "Image"],
-            path: "/library/display"
+            path: "/docs/display"
          },
          {
             name: "Feedback",
             icon: "💬",
             description: "User notifications and feedback",
             components: ["Alert", "Toast", "Modal", "Tooltip"],
-            path: "/library/feedback"
+            path: "/docs/feedback"
          },
          {
             name: "Data Display",
             icon: "📊",
             description: "Charts, tables, and data visualization",
             components: ["Table", "List", "Progress", "Spinner"],
-            path: "/library/data"
+            path: "/docs/data"
          }
       ];
 

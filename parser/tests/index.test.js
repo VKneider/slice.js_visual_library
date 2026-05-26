@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { validateFrontMatter, mergeComponentsRegistry } from '../index.js';
+import { validateFrontMatter, mergeComponentsRegistry, lintMarkdownSourceForManualPropsTable } from '../index.js';
 import { buildStaticPropsSectionForFrontMatter } from '../lib/staticPropsDocs.js';
 
 test('validateFrontMatter reports missing required fields', () => {
@@ -224,4 +224,31 @@ test('buildStaticPropsSectionForFrontMatter renders nested schema and array item
   assert.match(section, /`steps\[\]\.state`/);
   assert.match(section, /`light`, `dark`/);
   assert.match(section, /`pending`, `done`/);
+});
+
+test('lint rejects markdown with manual props table pattern', () => {
+  const markdown = `---
+title: Button
+route: /docs/input/button
+section: Input
+group: Basic
+order: 1
+component: ButtonDocumentation
+---
+
+# Button
+
+## API
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| variant | string | primary |
+`;
+
+  const errors = lintMarkdownSourceForManualPropsTable(markdown, 'src/markdown/button.md');
+
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /src\/markdown\/button\.md/);
+  assert.match(errors[0], /Manual props table detected/);
+  assert.match(errors[0], /Props \(Generated from static props\)/);
 });

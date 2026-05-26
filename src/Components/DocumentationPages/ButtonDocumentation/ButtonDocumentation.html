@@ -1,45 +1,28 @@
-<h1 id="sliceButton">Slice Button</h1>
-<div class="myButton">
-  <p>
-    To build a simple Slice Button you only need to use the "slice.build"
-    method, just like that you have a Slice Button that you can customize with a
-    value prop. The Button component automatically applies default values 
-    and provides enhanced debugging capabilities through Static Props.
-  </p>
-</div>
-<div class="colorButton">
-  <h2 id="customization">Customization</h2>
-  <p>
-    You can also customize your Slice Button specifying its background color
-    with "customColor.button" and its font color with "customColor.label". 
-    Static Props ensure that the customColor property is properly typed as an object 
-    and defaults to null when not specified.
-  </p>
-</div>
-<div class="onClick">
-  <h2 id="onClickCallback">onClickCallback</h2>
-  <p>
-    At last but not least you can add a function to your button with the prop
-    "onClickCallback". The Static Props system types this callback as a function 
-    and defaults to null, with automatic validation in development mode.
-  </p>
-</div>
+<div class="documentation-content buttondocumentation">
 
-<h2 id="staticPropsOverview">Static Props Integration</h2>
-<p>
-  The Button component leverages Static Props for improved developer experience:
-</p>
-<ul>
-  <li><strong>Automatic defaults:</strong> All props have sensible defaults applied automatically</li>
-  <li><strong>Type validation:</strong> Development-time warnings for incorrect prop types</li>
-  <li><strong>Enhanced debugging:</strong> Right-click any button to see detailed prop information</li>
-  <li><strong>Self-documenting:</strong> Props are clearly defined with types and defaults</li>
-</ul>
-
-<h3>Button Static Props Configuration:</h3>
-<pre><code>static props = {
-   value: { type: 'string', default: 'Button', required: false },
-   onClickCallback: { type: 'function', default: null },
-   customColor: { type: 'object', default: null },
-   icon: { type: 'object', default: null }
-};</code></pre>
+<div class="doc-title-bar">
+  <h1 id="button">
+    <span class="doc-title-text">Button</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>The <code>Button</code> component renders an action trigger and supports text, callback, icon and custom colors.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>Button</code> dispatches action intent through <code>onClickCallback</code> while keeping visual state driven by props.</li><li>Style variants are controlled with <code>customColor</code> and optional icon metadata for call-to-action and utility patterns.</li><li>Use script scenarios below as the living behavior contract; static props are documented in the generated props section.</li></ul>
+<h2 id="basic-usage">Basic Usage</h2>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Prefer explicit <code>onClickCallback</code> instead of manually attaching listeners outside the component.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not pass non-object values into <code>customColor</code> or <code>icon</code>. Static props validation reports type warnings.</div>
+<h2 id="props-generated-from-static-props">Props (Generated from static props)</h2>
+<div class="table-block" data-block-id="doc-block-8"></div>
+</div>

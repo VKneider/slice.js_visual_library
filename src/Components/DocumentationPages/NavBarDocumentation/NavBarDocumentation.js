@@ -1,295 +1,202 @@
-export default class NavBarDocumentation extends HTMLElement {
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      slice.controller.setComponentProps(this, props);
-      this.debuggerProps = [];
-   }
+export default class NavbarDocumentation extends HTMLElement {
+  constructor(props) {
+    super();
+    slice.attachTemplate(this);
+    slice.controller.setComponentProps(this, props);
+    this.debuggerProps = [];
+    this.scriptScenarios = [{"label":"Product docs navbar","expected":"fixed navbar with product sections","kind":"script","content":"const nav = await slice.build('Navbar', {\n  position: 'fixed',\n  logo: { src: '/images/Slice.js-logo.png', path: '/' },\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Components', path: '/docs/input/button' },\n    { text: 'Architecture', path: '/docs/internal/markdown-parser-rules' }\n  ]\n});\n\nconst host = document.createElement('div');\nhost.appendChild(nav);\nreturn host;"},{"label":"Navbar with dropdown + actions","expected":"mix of text links, dropdown and CTA buttons","kind":"script","content":"const nav = await slice.build('Navbar', {\n  items: [\n    { text: 'Overview', path: '/docs' },\n    {\n      text: 'Guides',\n      type: 'dropdown',\n      options: [\n        { text: 'Input', path: '/docs/input/input' },\n        { text: 'Select', path: '/docs/input/select' },\n        { text: 'Card', path: '/docs/layout/card' }\n      ]\n    }\n  ],\n  buttons: [\n    { value: 'Try CLI', color: { button: '#2563eb', label: '#ffffff' } },\n    { value: 'GitHub' }\n  ]\n});\n\nreturn nav;"},{"label":"Dashboard navbar","expected":"compact top navigation for admin contexts","kind":"script","content":"const nav = await slice.build('Navbar', {\n  direction: 'normal',\n  items: [\n    { text: 'Dashboard', path: '/docs' },\n    { text: 'Users', path: '/docs/input/select' },\n    { text: 'Logs', path: '/docs/internal/markdown-parser-rules' }\n  ],\n  buttons: [\n    {\n      value: 'Theme',\n      onClickCallback: () => {\n        const current = slice.stylesManager.themeManager.currentTheme;\n        if (current === 'Slice') {\n          slice.setTheme('Light');\n        } else {\n          slice.setTheme('Slice');\n        }\n      }\n    }\n  ]\n});\n\nreturn nav;"}];
+  }
 
-   async init() {
-      // Ejemplo básico - solo items
-      await this.createNavbarExample(
-         this.querySelector(".myNavbar"),
-         {
-            items: [
-               { text: "Home", path: "/" },
-               { text: "About", path: "/about" },
-               { text: "Contact", path: "/contact" }
-            ]
-         },
-         `{
-   items: [
-      { text: "Home", path: "/" },
-      { text: "About", path: "/about" },
-      { text: "Contact", path: "/contact" }
-   ]
-   // Static Props defaults:
-   // logo: null
-   // buttons: []
-   // position: "static"
-   // direction: "normal"
-}`
-      );
-
-      // Ejemplo con logo
-      await this.createNavbarExample(
-         this.querySelector(".logoNavbar"),
-         {
-            logo: {
-               src: "/images/Slice.js-logo.png",
-               path: "/"
-            },
-            items: [
-               { text: "Home", path: "/" },
-               { text: "Documentation", path: "/docs" }
-            ]
-         },
-         `{
-   logo: {
-      src: "/images/Slice.js-logo.png",
-      path: "/"
-   },
-   items: [
-      { text: "Home", path: "/" },
-      { text: "Documentation", path: "/docs" }
-   ]
-   // Static Props Configuration:
-   // logo: { type: "object", default: null }
-   // items: { type: "array", default: [] }
-}`
-      );
-
-      // Ejemplo completo - con logo, items y buttons
-      await this.createNavbarExample(
-         this.querySelector(".fullNavbar"),
-         {
-            logo: {
-               src: "/images/Slice.js-logo.png",
-               path: "/"
-            },
-            items: [
-               { text: "Home", path: "/" },
-               { text: "Documentation", path: "/docs" },
-               { text: "Playground", path: "/playground" }
-            ],
-            buttons: [
-               {
-                  value: "Get Started",
-                  onClickCallback: () => {
-                     console.log("Get Started clicked!");
-                  }
-               }
-            ]
-         },
-         `{
-   logo: {
-      src: "/images/Slice.js-logo.png",
-      path: "/"
-   },
-   items: [
-      { text: "Home", path: "/" },
-      { text: "Documentation", path: "/docs" },
-      { text: "Playground", path: "/playground" }
-   ],
-   buttons: [
+  async init() {
+    this.markdownPath = "navbar.md";
+    this.markdownContent = "---\ntitle: Navbar\nroute: /docs/navigation/navbar\nnavLabel: Navbar\nsection: Navigation\ngroup: Core\norder: 30\ndescription: Navbar component documentation with practical setup examples.\ncomponent: NavbarDocumentation\ngenerate: true\ntags: [navbar, navigation]\n---\n\n# Navbar\n\n## Overview\n`Navbar` provides top-level navigation with optional logo, menu items and action buttons.\n\n## Core Behavior\n- `Navbar` organizes top-level navigation with optional branding, route links, dropdown groups and action buttons.\n- Layout behavior is controlled by positioning and direction settings to support product sites and internal dashboards.\n- Scenarios below focus on real navigation compositions rather than static prop duplication.\n\n## Basic Usage\n```javascript title=\"Build navbar\"\nconst nav = await slice.build('Navbar', {\n  position: 'fixed',\n  items: [\n    { text: 'Home', path: '/' },\n    { text: 'Docs', path: '/docs' }\n  ]\n});\n\nthis.appendChild(nav);\n```\n\n## Practical Setups\n:::script label=\"Product docs navbar\" expected=\"fixed navbar with product sections\"\nconst nav = await slice.build('Navbar', {\n  position: 'fixed',\n  logo: { src: '/images/Slice.js-logo.png', path: '/' },\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Components', path: '/docs/input/button' },\n    { text: 'Architecture', path: '/docs/internal/markdown-parser-rules' }\n  ]\n});\n\nconst host = document.createElement('div');\nhost.appendChild(nav);\nreturn host;\n:::\n\n:::script label=\"Navbar with dropdown + actions\" expected=\"mix of text links, dropdown and CTA buttons\"\nconst nav = await slice.build('Navbar', {\n  items: [\n    { text: 'Overview', path: '/docs' },\n    {\n      text: 'Guides',\n      type: 'dropdown',\n      options: [\n        { text: 'Input', path: '/docs/input/input' },\n        { text: 'Select', path: '/docs/input/select' },\n        { text: 'Card', path: '/docs/layout/card' }\n      ]\n    }\n  ],\n  buttons: [\n    { value: 'Try CLI', color: { button: '#2563eb', label: '#ffffff' } },\n    { value: 'GitHub' }\n  ]\n});\n\nreturn nav;\n:::\n\n:::script label=\"Dashboard navbar\" expected=\"compact top navigation for admin contexts\"\nconst nav = await slice.build('Navbar', {\n  direction: 'normal',\n  items: [\n    { text: 'Dashboard', path: '/docs' },\n    { text: 'Users', path: '/docs/input/select' },\n    { text: 'Logs', path: '/docs/internal/markdown-parser-rules' }\n  ],\n  buttons: [\n    {\n      value: 'Theme',\n      onClickCallback: () => {\n        const current = slice.stylesManager.themeManager.currentTheme;\n        if (current === 'Slice') {\n          slice.setTheme('Light');\n        } else {\n          slice.setTheme('Slice');\n        }\n      }\n    }\n  ]\n});\n\nreturn nav;\n:::\n";
+    if (true) {
+      await this.setupCopyButton();
+    }
       {
-         value: "Get Started",
-         onClickCallback: () => {
-            console.log("Get Started clicked!");
+         const container = this.querySelector('[data-block-id="doc-block-1"]');
+         if (container) {
+            const code = await slice.build('CodeVisualizer', {
+               value: "const nav = await slice.build('Navbar', {\n  position: 'fixed',\n  items: [\n    { text: 'Home', path: '/' },\n    { text: 'Docs', path: '/docs' }\n  ]\n});\n\nthis.appendChild(nav);",
+               language: "javascript"
+            });
+            if ("Build navbar") {
+               const label = document.createElement('div');
+               label.classList.add('code-block-title');
+               label.textContent = "Build navbar";
+               container.appendChild(label);
+            }
+            container.appendChild(code);
          }
       }
-   ]
-   // Static Props provide automatic validation
-   // buttons: { type: "array", default: [] }
-}`
-      );
-
-      // Ejemplo con posición fija
-      await this.createNavbarExample(
-         this.querySelector(".fixedNavbar"),
-         {
-            position: "fixed",
-            logo: {
-               src: "/images/Slice.js-logo.png",
-               path: "/"
-            },
-            items: [
-               { text: "Home", path: "/" },
-               { text: "About", path: "/about" }
-            ]
-         },
-         `{
-   position: "fixed",
-   logo: {
-      src: "/images/Slice.js-logo.png",
-      path: "/"
-   },
-   items: [
-      { text: "Home", path: "/" },
-      { text: "About", path: "/about" }
-   ]
-   // Static Props Configuration:
-   // position: { type: "string", default: "static" }
-   // Values: "static" | "fixed"
-}`
-      );
-
-      // Ejemplo con dirección reversa
-      await this.createNavbarExample(
-         this.querySelector(".reverseNavbar"),
-         {
-            direction: "reverse",
-            logo: {
-               src: "/images/Slice.js-logo.png",
-               path: "/"
-            },
-            items: [
-               { text: "Home", path: "/" },
-               { text: "About", path: "/about" }
-            ]
-         },
-         `{
-   direction: "reverse",
-   logo: {
-      src: "/images/Slice.js-logo.png",
-      path: "/"
-   },
-   items: [
-      { text: "Home", path: "/" },
-      { text: "About", path: "/about" }
-   ]
-   // Static Props Configuration:
-   // direction: { type: "string", default: "normal" }
-   // Values: "normal" | "reverse"
-}`
-      );
-
-      // Añadir ejemplo de static props avanzado
-      await this.createStaticPropsExample();
-   }
-
-   async createStaticPropsExample() {
-      const staticPropsContainer = this.querySelector(".static-props-example");
-      if (!staticPropsContainer) return;
-
-      // Ejemplo mostrando todas las props con defaults
-      const defaultsExample = await slice.build("CodeVisualizer", {
-         value: `// Navbar Static Props Configuration:
-export default class Navbar extends HTMLElement {
-   static props = {
-      logo: { 
-         type: "object", 
-         default: null, 
-         required: false 
-      },
-      items: { 
-         type: "array", 
-         default: [], 
-         required: false 
-      },
-      buttons: { 
-         type: "array", 
-         default: [], 
-         required: false 
-      },
-      position: { 
-         type: "string", 
-         default: "static", 
-         required: false 
-      },
-      direction: { 
-         type: "string", 
-         default: "normal", 
-         required: false 
-      }
-   };
-}
-
-// Example with automatic defaults:
-const navbar1 = await slice.build("Navbar", {
-   items: [
-      { text: "Home", path: "/" }
-   ]
-   // All other props use automatic defaults:
-   // logo: null
-   // buttons: []
-   // position: "static"
-   // direction: "normal"
-});
-
-// Example with all features:
-const navbar2 = await slice.build("Navbar", {
-   position: "fixed",
-   direction: "reverse",
-   logo: {
-      src: "/logo.png",
-      path: "/"
-   },
-   items: [
-      { text: "Home", path: "/" },
-      { text: "Docs", path: "/docs" }
-   ],
-   buttons: [
       {
-         value: "Login",
-         onClickCallback: () => console.log("Login")
+         const container = this.querySelector('[data-block-id="doc-block-5"]');
+         if (container) {
+            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `buttons` | `array` | `false` | `` | - |","| `direction` | `string` | `false` | `normal` | - |","| `items` | `array` | `false` | `` | - |","| `logo` | `object` | `false` | `null` | - |","| `position` | `string` | `false` | `static` | - |"];
+            const clean = (line) => {
+               let value = line.trim();
+               if (value.startsWith('|')) {
+                  value = value.slice(1);
+               }
+               if (value.endsWith('|')) {
+                  value = value.slice(0, -1);
+               }
+               return value.split('|').map((cell) => cell.trim());
+            };
+
+            const formatCell = (text) => {
+               let output = text
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
+
+               const applyBold = (input) => {
+                  let result = '';
+                  let index = 0;
+                  while (index < input.length) {
+                     const start = input.indexOf('**', index);
+                     if (start === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     const end = input.indexOf('**', start + 2);
+                     if (end === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
+                     index = end + 2;
+                  }
+                  return result;
+               };
+
+               const applyInlineCode = (input) => {
+                  const parts = input.split(String.fromCharCode(96));
+                  if (parts.length === 1) return input;
+                  return parts
+                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
+                     .join('');
+               };
+
+               output = applyBold(output);
+               output = applyInlineCode(output);
+               return output;
+            };
+
+            const headers = lines.length > 0 ? clean(lines[0]) : [];
+            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
+            const table = await slice.build('Table', { headers, rows });
+            container.appendChild(table);
+         }
       }
-   ]
-});`,
-         language: "javascript"
+    await this.renderScriptScenarios();
+  }
+
+  async update() {
+    // Refresh dynamic content here if needed
+  }
+
+  beforeDestroy() {
+    // Cleanup timers, listeners, or pending work here
+  }
+
+  async setupCopyButton() {
+    const container = this.querySelector('[data-copy-md]');
+    if (!container) return;
+
+    const copyMenu = await slice.build('CopyMarkdownMenu', {
+      markdownPath: this.markdownPath,
+      markdownContent: this.markdownContent,
+      label: '❐'
+    });
+
+    container.appendChild(copyMenu);
+  }
+
+  async renderScriptScenarios() {
+    if (!Array.isArray(this.scriptScenarios) || this.scriptScenarios.length === 0) return;
+    const host = this.querySelector('.documentation-content');
+    if (!host) return;
+
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+    const section = document.createElement('section');
+    section.classList.add('doc-script-scenarios');
+
+    const title = document.createElement('h2');
+    title.textContent = 'Prop Scenarios';
+    section.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.classList.add('doc-script-subtitle');
+    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    section.appendChild(subtitle);
+
+    for (const scenario of this.scriptScenarios) {
+      const card = document.createElement('article');
+      card.classList.add('doc-script-card');
+
+      const header = document.createElement('div');
+      header.classList.add('doc-script-header');
+
+      const heading = document.createElement('h3');
+      heading.classList.add('doc-script-title');
+      heading.textContent = scenario.label;
+      header.appendChild(heading);
+
+      card.appendChild(header);
+
+      const preview = document.createElement('div');
+      preview.classList.add('doc-script-preview');
+      const errorMessage = document.createElement('p');
+      errorMessage.classList.add('doc-script-error');
+      errorMessage.hidden = true;
+
+      const executeScenario = async () => {
+        preview.innerHTML = '';
+        errorMessage.hidden = true;
+        errorMessage.textContent = '';
+
+        const mount = (node) => {
+          if (node instanceof Node) {
+            preview.appendChild(node);
+          }
+        };
+
+        try {
+          const fn = new AsyncFunction('component', 'slice', 'document', 'mount', scenario.content);
+          const result = await fn(this, slice, document, mount);
+
+          if (result instanceof Node) {
+            preview.appendChild(result);
+          } else if (Array.isArray(result)) {
+            result.forEach((item) => {
+              if (item instanceof Node) {
+                preview.appendChild(item);
+              }
+            });
+          }
+        } catch (error) {
+          errorMessage.textContent = 'Live preview error: ' + error.message;
+          errorMessage.hidden = false;
+        }
+      };
+
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
       });
+      card.appendChild(code);
+      card.appendChild(preview);
+      card.appendChild(errorMessage);
 
-      staticPropsContainer.appendChild(defaultsExample);
+      section.appendChild(card);
 
-      // Características responsivas
-      const responsiveInfo = document.createElement("div");
-      responsiveInfo.innerHTML = `
-         <h4>Responsive Features</h4>
-         <ul>
-            <li><strong>Desktop Mode (>1020px):</strong> Full horizontal navigation bar</li>
-            <li><strong>Mobile Mode (≤1020px):</strong> Automatic hamburger menu with slide-in navigation</li>
-            <li><strong>Auto-detection:</strong> Switches automatically based on screen width</li>
-         </ul>
-      `;
-      staticPropsContainer.appendChild(responsiveInfo);
+      await executeScenario();
+    }
 
-      // Props details
-      const propsDetails = document.createElement("div");
-      propsDetails.innerHTML = `
-         <h4>Props Details</h4>
-         <ul>
-            <li><strong>logo:</strong> Object with "src" (image path) and "path" (navigation link)</li>
-            <li><strong>items:</strong> Array of navigation items with "text" and "path"</li>
-            <li><strong>buttons:</strong> Array of button objects with "value" and "onClickCallback"</li>
-            <li><strong>position:</strong> "static" or "fixed" - defines navbar positioning</li>
-            <li><strong>direction:</strong> "normal" or "reverse" - reverses the order of logo and menu</li>
-         </ul>
-      `;
-      staticPropsContainer.appendChild(propsDetails);
-   }
-
-   async createNavbarExample(appendTo, navbarProps, codeProps) {
-      const navbar = await slice.build("Navbar", navbarProps);
-
-      const componentCode = await slice.build("CodeVisualizer", {
-         value: `const navbar = await slice.build("Navbar", ${codeProps});`,
-         language: "javascript",
-      });
-
-      const div = document.createElement("div");
-      div.classList.add("navbarContainer");
-      
-      const exampleDiv = document.createElement("div");
-      exampleDiv.classList.add("navbarExample");
-      exampleDiv.appendChild(navbar);
-      
-      div.appendChild(exampleDiv);
-      div.appendChild(componentCode);
-
-      if (appendTo) {
-         appendTo.appendChild(div);
-      }
-   }
+    host.appendChild(section);
+  }
 }
 
-customElements.define("slice-navbardocumentation", NavBarDocumentation);
+customElements.define('slice-navbardocumentation', NavbarDocumentation);

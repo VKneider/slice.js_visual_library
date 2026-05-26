@@ -12,9 +12,9 @@ export default class App extends HTMLElement {
             src: '/images/Slice.js-logo.png',
             path: '/',
          },
-         items: [
-            { text: 'Home', path: '/' },
-            { text: 'Components', path: '/library' }
+          items: [
+             { text: 'Home', path: '/' },
+             { text: 'Components', path: '/docs' }
          ],
          buttons: [
             {
@@ -45,11 +45,11 @@ export default class App extends HTMLElement {
                component: 'VisualLibraryHome',
                title: 'Slice.js - Home'
             },
-            {
-               path: '/library',
-               component: 'ComponentsPage',
-               title: 'Components Library'
-            }
+             {
+                path: '/docs',
+                component: 'ComponentsPage',
+                title: 'Components Library'
+             }
          ]
       });
 

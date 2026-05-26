@@ -1,4 +1,4 @@
-import { visualComponentsRoutes, getAllRoutes, createTreeViewItems } from './visualComponentRoutes.js';
+import { visualComponentsRoutes, getAllRoutes, createTreeViewItems, resolveInitialDocsPath } from './visualComponentRoutes.js';
 
 export default class ComponentsPage extends HTMLElement {
    constructor(props) {
@@ -21,8 +21,8 @@ export default class ComponentsPage extends HTMLElement {
          },
          items: [
             { text: 'Home', path: '/' },
-            { text: 'Components', path: '/library' }
-         ],
+            { text: 'Components', path: '/docs' }
+          ],
          buttons: [
             {
                value: 'Change Theme',
@@ -43,16 +43,25 @@ export default class ComponentsPage extends HTMLElement {
       // Obtener todas las rutas planas para el MultiRoute
       const multiRouteItems = getAllRoutes(routesConfig);
 
-      // Asegurarse que la ruta por defecto esté incluida
+      // Asegurarse que la ruta por defecto esté incluida (sin duplicar por path)
       if (!multiRouteItems.some(route => route.path === routesConfig.defaultRoute.path)) {
          multiRouteItems.push(routesConfig.defaultRoute);
       }
 
-      console.log('Visual Components MultiRoute items:', multiRouteItems);
+      // Evitar rutas duplicadas para prevenir dobles builds
+      const seenPaths = new Set();
+      const uniqueMultiRouteItems = multiRouteItems.filter((route) => {
+         if (!route?.path || !route?.component) return false;
+         if (seenPaths.has(route.path)) return false;
+         seenPaths.add(route.path);
+         return true;
+      });
+
+      console.log('Visual Components MultiRoute items:', uniqueMultiRouteItems);
 
       // Crear el MultiRoute con todas las rutas
       const visualComponentsMultiRoute = await slice.build('MultiRoute', {
-         routes: multiRouteItems
+         routes: uniqueMultiRouteItems
       });
 
       // Crear el TreeView con la estructura jerárquica
@@ -62,6 +71,9 @@ export default class ComponentsPage extends HTMLElement {
          onClickCallback: async (item) => {
             if (item.path) {
                await slice.router.navigate(item.path);
+               if (typeof mainMenu.handleCloseMenu === 'function') {
+                  mainMenu.handleCloseMenu();
+               }
             }
          },
       });
@@ -85,13 +97,19 @@ export default class ComponentsPage extends HTMLElement {
       layOut.onLayOut(navBar);
       layOut.onLayOut(myNavigation);
 
-      // Renderizar si estamos en la ruta /library
-      if (window.location.pathname === '/library' || window.location.pathname.startsWith('/library/')) {
-         await visualComponentsMultiRoute.renderIfCurrentRoute();
-      }
-
       // Añadir el Layout al componente
       this.appendChild(layOut);
+
+      const defaultDocsPath = routesConfig?.defaultRoute?.path || '/docs';
+      const initialPath = resolveInitialDocsPath(window.location.pathname, defaultDocsPath);
+
+      if (window.location.pathname !== initialPath) {
+         await slice.router.navigate(initialPath);
+      }
+
+      if (typeof visualComponentsMultiRoute.renderIfCurrentRoute === 'function') {
+         await visualComponentsMultiRoute.renderIfCurrentRoute();
+      }
    }
 }
 
