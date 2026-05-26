@@ -1,132 +1,24 @@
-<h1 id="sliceLayout">Slice Layout</h1>
-<div class="basicLayout">
-  <h2 id="basicUsage">Basic Layout with View</h2>
-  <p>
-    The simplest way to use Layout is with just a view prop. The <strong>VIEW</strong> (labeled in blue)
-    is the main content area. Notice the visual label <code>📄 VIEW</code> that identifies this element.
-  </p>
+<div class="documentation-content layoutdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="layout">
+    <span class="doc-title-text">Layout</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
 </div>
-
-<div class="layoutAndView">
-  <h2 id="layoutAndView">Layout with Navbar and View</h2>
-  <p>
-    This example shows both props in action. The <strong style="color: var(--success-color);">LAYOUT</strong> 
-    (navbar, labeled in green) is passed via the <code>layout</code> prop, while the 
-    <strong style="color: var(--primary-color);">VIEW</strong> (content, labeled in blue) is passed via 
-    the <code>view</code> prop. See how they're visually labeled and color-coded!
-  </p>
+<h2 id="overview">Overview</h2>
+<p><code>Layout</code> is a generic container that accepts a view node and swaps it on demand. It provides two methods: <code>onLayOut</code> for initial mounting and <code>showing</code> for replacing the current view.</p>
+<h2 id="api-and-behavior">API and Behavior</h2>
+<ul><li>Accepts <code>layout</code> (initial node) and <code>view</code> (active view node) as props.</li><li><code>showing(view)</code> replaces the current child with a new view node.</li><li><code>onLayOut(view)</code> appends a view (used for initial layout setup).</li><li>Both props and methods accept any DOM node.</li></ul>
+<h2 id="basic-usage">Basic Usage</h2>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>Layout</code> as a viewport controller when you need to swap entire sections of a page without full navigation.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>showing</code> removes the previous child. Ensure stateful views persist their data externally if needed.</div>
+<h2 id="props-generated-from-static-props">Props (Generated from static props)</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
 </div>
-
-<div class="onLayoutMethod">
-  <h2 id="onLayoutMethod">Multiple Fixed Elements with onLayOut()</h2>
-  <p>
-    Here's where it gets powerful! The <strong style="color: var(--warning-color);">onLayOut()</strong> 
-    method adds fixed elements (labeled in orange). In this example, both the navbar and sidebar are added 
-    with <code>onLayOut()</code>, while the main content is in the <strong style="color: var(--primary-color);">VIEW</strong> 
-    (labeled in blue). Notice how each element is clearly labeled with its method of addition!
-  </p>
-  <p>
-    <strong>Key point:</strong> Elements added with <code>onLayOut()</code> persist across all view changes.
-  </p>
-</div>
-
-<div class="showingMethod">
-  <h2 id="showingMethod">Interactive Demo: showing() Method</h2>
-  <p>
-    This interactive example demonstrates the <code>showing()</code> method. The navbar and control buttons 
-    are <strong style="color: var(--success-color);">FIXED</strong> (added with <code>onLayOut()</code>, labeled in green). 
-    The page content is the <strong>VIEW</strong> that changes.
-  </p>
-  <p>
-    <strong>Try it:</strong> Click the buttons below to switch between Home and About pages. 
-    Watch how only the <code>📄 VIEW</code> area changes while the fixed elements stay in place!
-  </p>
-</div>
-
-<h2 id="visualLegend">Visual Legend</h2>
-<div style="background-color: var(--secondary-background-color); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-  <p style="color: var(--font-secondary-color); margin-bottom: 15px;">
-    The examples above use color-coded labels to identify each type of element:
-  </p>
-  <ul style="list-style: none; padding: 0;">
-    <li style="margin: 10px 0; padding: 10px; background-color: var(--primary-background-color); border-radius: 4px; border-left: 4px solid var(--success-color);">
-      <strong style="color: var(--success-color);">🔧 LAYOUT</strong> or <strong style="color: var(--success-color);">🔒 FIXED</strong> 
-      <span style="color: var(--font-secondary-color);"> - Element passed via <code>layout</code> prop or added with <code>onLayOut()</code></span>
-    </li>
-    <li style="margin: 10px 0; padding: 10px; background-color: var(--primary-background-color); border-radius: 4px; border-left: 4px solid var(--primary-color);">
-      <strong style="color: var(--primary-color);">📄 VIEW</strong>
-      <span style="color: var(--font-secondary-color);"> - Main content area passed via <code>view</code> prop (can be changed with <code>showing()</code>)</span>
-    </li>
-    <li style="margin: 10px 0; padding: 10px; background-color: var(--primary-background-color); border-radius: 4px; border-left: 4px solid var(--warning-color);">
-      <strong style="color: var(--warning-color);">⚙️ Added with onLayOut()</strong>
-      <span style="color: var(--font-secondary-color);"> - Fixed element added dynamically with the <code>onLayOut()</code> method</span>
-    </li>
-  </ul>
-</div>
-
-<h2 id="staticPropsOverview">Static Props Integration</h2>
-<p>
-  The Layout component leverages Static Props for improved developer experience:
-</p>
-<ul>
-  <li><strong>Automatic defaults:</strong> All props have sensible defaults applied automatically</li>
-  <li><strong>Type validation:</strong> Development-time warnings for incorrect prop types</li>
-  <li><strong>Enhanced debugging:</strong> Right-click any layout to see detailed prop information</li>
-  <li><strong>Flexible structure:</strong> Accepts any HTMLElement or SliceJS component</li>
-</ul>
-
-<h3 id="staticPropsConfig">Layout Static Props Configuration:</h3>
-<div class="static-props-example"></div>
-
-<h2 id="keyDifferences">Key Differences</h2>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-  <div style="background-color: var(--secondary-background-color); padding: 20px; border-radius: 8px; border-top: 4px solid var(--primary-color);">
-    <h3 style="color: var(--primary-color); margin-top: 0;">layout prop</h3>
-    <ul>
-      <li>For a <strong>single</strong> fixed element</li>
-      <li>Set during initialization</li>
-      <li>Appears first in DOM order</li>
-      <li>Good for simple structures</li>
-    </ul>
-  </div>
-  <div style="background-color: var(--secondary-background-color); padding: 20px; border-radius: 8px; border-top: 4px solid var(--warning-color);">
-    <h3 style="color: var(--warning-color); margin-top: 0;">onLayOut() method</h3>
-    <ul>
-      <li>For <strong>multiple</strong> fixed elements</li>
-      <li>Can be called multiple times</li>
-      <li>Adds elements in call order</li>
-      <li>More flexible and powerful</li>
-    </ul>
-  </div>
-</div>
-
-<h2 id="methodBehavior">Method Behavior Explained</h2>
-<div style="background-color: var(--tertiary-background-color); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-  <h3 style="color: var(--warning-color);">onLayOut(element) - Additive</h3>
-  <ul>
-    <li>✅ Can be called multiple times</li>
-    <li>✅ Each call adds a new fixed element</li>
-    <li>✅ Elements persist across all view changes</li>
-    <li>✅ Perfect for navbars, sidebars, footers, control panels</li>
-  </ul>
-</div>
-
-<div style="background-color: var(--tertiary-background-color); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-  <h3 style="color: var(--primary-color);">showing(element) - Replacement</h3>
-  <ul>
-    <li>🔄 Replaces the current view completely</li>
-    <li>🔄 Only one view is visible at a time</li>
-    <li>🔄 Removes the previous view from DOM</li>
-    <li>🔄 Fixed elements from onLayOut() remain unchanged</li>
-    <li>🔄 Perfect for page navigation and content switching</li>
-  </ul>
-</div>
-
-<h2 id="useCases">Common Use Cases</h2>
-<ul>
-  <li><strong>Application Shell:</strong> Navbar + Sidebar + Dynamic Content</li>
-  <li><strong>Dashboard:</strong> Fixed navigation with switchable panels</li>
-  <li><strong>Documentation Site:</strong> Persistent menu with page content (like this site!)</li>
-  <li><strong>Multi-page App:</strong> Layout + MultiRoute for automatic routing</li>
-  <li><strong>Admin Panel:</strong> Header + Sidebar + Main content area</li>
-</ul>

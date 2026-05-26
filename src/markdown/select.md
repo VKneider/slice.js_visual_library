@@ -68,10 +68,6 @@ return select;
 
 :::script label="Select inside filter row" expected="select combined with search + action"
 const row = document.createElement('div');
-row.style.display = 'grid';
-row.style.gridTemplateColumns = '2fr 1fr auto';
-row.style.gap = '10px';
-row.style.maxWidth = '640px';
 
 const search = await slice.build('Input', {
   placeholder: 'Search docs',
@@ -96,4 +92,51 @@ row.appendChild(search);
 row.appendChild(select);
 row.appendChild(apply);
 return row;
+:::
+
+:::script label="Controlled default selection" expected="value can be initialized from option objects"
+const options = [
+  { label: 'Daily', key: 'daily' },
+  { label: 'Weekly', key: 'weekly' },
+  { label: 'Monthly', key: 'monthly' }
+];
+
+const select = await slice.build('Select', {
+  label: 'Report cadence',
+  visibleProp: 'label',
+  options
+});
+
+select.value = [options[1]];
+return select;
+:::
+
+:::script label="Multi-select + submit action" expected="selected values can be consumed by a follow-up action"
+const options = [
+  { label: 'Frontend', id: 'fe' },
+  { label: 'Backend', id: 'be' },
+  { label: 'Design', id: 'design' }
+];
+
+const picker = await slice.build('Select', {
+  label: 'Team roles',
+  multiple: true,
+  visibleProp: 'label',
+  options
+});
+
+const submit = await slice.build('Button', {
+  value: 'Save roles',
+  onClickCallback: () => {
+    const selected = picker.value;
+    if (Array.isArray(selected)) {
+      console.log('Selected roles:', selected.map((item) => item.label));
+    }
+  }
+});
+
+const host = document.createElement('div');
+host.appendChild(picker);
+host.appendChild(submit);
+return host;
 :::

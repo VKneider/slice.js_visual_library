@@ -5,6 +5,7 @@
   --doc-section-gap: 1.5em;
   --doc-border-color: var(--primary-color-shade);
   --doc-code-bg: var(--secondary-background-color);
+  --doc-radius: 8px;
 }
 
 .documentation-content {
@@ -94,12 +95,10 @@
 }
 
 .doc-script-card {
-  border: 1px solid color-mix(in srgb, var(--doc-border-color) 60%, transparent);
-  border-radius: 8px;
+  border-radius: var(--doc-radius);
   padding: 14px;
   margin-bottom: 14px;
   background: color-mix(in srgb, var(--primary-background-color) 96%, var(--secondary-background-color));
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .doc-script-header {
@@ -124,10 +123,13 @@
 .doc-script-preview {
   margin-top: 12px;
   padding: 12px;
-  border: 1px solid color-mix(in srgb, var(--doc-border-color) 55%, transparent);
   border-radius: 6px;
   background: color-mix(in srgb, var(--primary-background-color) 90%, var(--secondary-background-color));
   min-height: 56px;
+}
+
+.doc-script-scenarios > :first-child {
+  margin-top: 0;
 }
 
 .doc-script-preview > * + * {

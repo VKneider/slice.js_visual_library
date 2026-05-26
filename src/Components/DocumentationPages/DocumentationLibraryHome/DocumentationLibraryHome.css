@@ -1,70 +1,42 @@
-.documentationlibraryhome {
-  display: block;
+.doclib-home h1 {
+  margin-bottom: 0.25em;
 }
 
-.library-home-hero {
-  position: relative;
-  padding: 28px 28px 24px;
-  border: 1px solid color-mix(in srgb, var(--primary-color) 22%, transparent);
-  border-radius: 14px;
-  background:
-    radial-gradient(120% 180% at 5% 0%, color-mix(in srgb, var(--secondary-color) 24%, transparent), transparent 55%),
-    radial-gradient(140% 200% at 100% 20%, color-mix(in srgb, var(--primary-color) 12%, transparent), transparent 60%),
-    color-mix(in srgb, var(--primary-background-color) 94%, var(--secondary-background-color));
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
-}
-
-.library-home-kicker {
-  margin: 0 0 8px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--primary-color) 85%, var(--font-primary-color));
-}
-
-.library-home-hero h1 {
-  margin: 0;
-  border: 0;
-  padding: 0;
-  text-align: left;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
-}
-
-.library-home-intro {
-  margin: 14px 0 0;
-  max-width: 70ch;
+.doclib-subtitle {
   color: var(--font-secondary-color);
+  margin-top: 0;
+  margin-bottom: 2em;
 }
 
-.library-home-grid {
+.doclib-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5em;
 }
 
-.library-home-card {
-  padding: 16px 16px 14px;
-  border: 1px solid color-mix(in srgb, var(--primary-color-shade) 70%, transparent);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--primary-background-color) 98%, var(--secondary-background-color));
-}
-
-.library-home-card h2 {
-  margin: 0 0 8px;
+.doclib-section h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75em;
   border: 0;
   padding: 0;
-  font-size: 1.08rem;
 }
 
-.library-home-card p {
+.doclib-links {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  color: var(--font-secondary-color);
 }
 
-@media (max-width: 770px) {
-  .library-home-hero {
-    padding: 20px 18px;
-  }
+.doclib-links li {
+  margin-bottom: 0.4em;
+}
+
+.doclib-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.doclib-links a:hover {
+  text-decoration: underline;
 }

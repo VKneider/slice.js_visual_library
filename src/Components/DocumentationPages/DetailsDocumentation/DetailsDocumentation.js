@@ -1,428 +1,237 @@
 export default class DetailsDocumentation extends HTMLElement {
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      slice.controller.setComponentProps(this, props);
-      this.debuggerProps = [];
-   }
+  constructor(props) {
+    super();
+    slice.attachTemplate(this);
+    slice.controller.setComponentProps(this, props);
+    this.debuggerProps = [];
+    this.scriptScenarios = [{"label":"faq item","expected":"details renders title and expandable answer","kind":"script","content":"const details = await slice.build('Details', {\n  title: 'Can I use this in production?',\n  text: 'Yes, this component is intended for production usage.'\n});\n\nreturn details;"},{"label":"details with custom node","expected":"addDetail appends custom structured content","kind":"script","content":"const details = await slice.build('Details', {\n  title: 'Release checklist',\n  text: 'Main steps before deployment.'\n});\n\nconst list = document.createElement('ul');\n['Run tests', 'Generate docs', 'Verify routes'].forEach((item) => {\n  const li = document.createElement('li');\n  li.textContent = item;\n  list.appendChild(li);\n});\n\ndetails.addDetail(list);\nreturn details;"},{"label":"multiple details blocks","expected":"independent disclosure blocks can coexist","kind":"script","content":"const host = document.createElement('div');\n\nconst billing = await slice.build('Details', {\n  title: 'Billing policy',\n  text: 'Invoices are generated monthly.'\n});\n\nconst support = await slice.build('Details', {\n  title: 'Support policy',\n  text: 'Support available Monday to Friday.'\n});\n\nhost.appendChild(billing);\nhost.appendChild(support);\nreturn host;"}];
+  }
 
-   async init() {
-      // Ejemplo básico
-      await this.createDetailsExample(
-         this.querySelector(".myDetails"),
-         {
-            title: "What is Slice.js?",
-            text: "Click to expand and see more information"
-         },
-         `{
-   title: "What is Slice.js?",
-   text: "Click to expand and see more information"
-   // Static Props defaults:
-   // title: "" (default string)
-   // text: "" (default string)
-}`,
-         null,
-         "Basic expandable section - Click to toggle"
-      );
-
-      // Ejemplo con contenido básico
-      await this.createDetailsExample(
-         this.querySelector(".basicDetails"),
-         {
-            title: "Framework Features",
-            text: "Explore the key features of Slice.js"
-         },
-         `{
-   title: "Framework Features",
-   text: "Explore the key features of Slice.js"
-}
-
-// Add content using addDetail() method
-const features = document.createElement("p");
-features.textContent = "Component-based architecture...";
-myDetails.addDetail(features);`,
-         async (details) => {
-            const content = document.createElement("div");
-            content.style.padding = "15px";
-            content.innerHTML = `
-               <p style="color: var(--font-secondary-color); margin: 0;">
-                  <strong>Slice.js</strong> is a modern JavaScript framework featuring:
-                  component-based architecture, reactive data binding, built-in routing,
-                  and a comprehensive set of visual components.
-               </p>
-            `;
-            details.addDetail(content);
-         },
-         "Details with simple text content"
-      );
-
-      // Ejemplo con componente CodeVisualizer
-      await this.createDetailsExample(
-         this.querySelector(".withContentDetails"),
-         {
-            title: "How to Build a Component",
-            text: "Step-by-step guide with code example"
-         },
-         `{
-   title: "How to Build a Component",
-   text: "Step-by-step guide with code example"
-}
-
-// Add a CodeVisualizer component
-const codeExample = await slice.build("CodeVisualizer", {
-   value: "const button = await slice.build("Button", { value: "Click" });",
-   language: "javascript"
-});
-
-myDetails.addDetail(codeExample);`,
-         async (details) => {
-            const codeExample = await slice.build("CodeVisualizer", {
-               value: `// Building a component is simple
-const button = await slice.build("Button", {
-   value: "Click Me",
-   onClickCallback: () => {
-      console.log("Button clicked!");
-   }
-});
-
-// Append to DOM
-document.body.appendChild(button);`,
+  async init() {
+    this.markdownPath = "details.md";
+    this.markdownContent = "---\ntitle: Details\nroute: /docs/layout/details\nnavLabel: Details\nsection: Layout\ngroup: Containers\norder: 21\ndescription: Details component documentation with collapsible content scenarios.\ncomponent: DetailsDocumentation\ngenerate: true\ntags: [details, disclosure, layout]\n---\n\n# Details\n\n## Overview\n`Details` renders expandable sections for progressive disclosure of content.\n\n## Core Behavior\n- `title` defines the summary header.\n- `text` provides the default expanded description body.\n- `addDetail(node)` appends richer custom content into the expanded area.\n\n## Basic Usage\n```javascript title=\"Build details\"\nconst details = await slice.build('Details', {\n  title: 'What is included?',\n  text: 'Source code, tests, and docs.'\n});\n\nthis.appendChild(details);\n```\n\n## Prop Scenarios\n:::script label=\"faq item\" expected=\"details renders title and expandable answer\"\nconst details = await slice.build('Details', {\n  title: 'Can I use this in production?',\n  text: 'Yes, this component is intended for production usage.'\n});\n\nreturn details;\n:::\n\n:::script label=\"details with custom node\" expected=\"addDetail appends custom structured content\"\nconst details = await slice.build('Details', {\n  title: 'Release checklist',\n  text: 'Main steps before deployment.'\n});\n\nconst list = document.createElement('ul');\n['Run tests', 'Generate docs', 'Verify routes'].forEach((item) => {\n  const li = document.createElement('li');\n  li.textContent = item;\n  list.appendChild(li);\n});\n\ndetails.addDetail(list);\nreturn details;\n:::\n\n:::script label=\"multiple details blocks\" expected=\"independent disclosure blocks can coexist\"\nconst host = document.createElement('div');\n\nconst billing = await slice.build('Details', {\n  title: 'Billing policy',\n  text: 'Invoices are generated monthly.'\n});\n\nconst support = await slice.build('Details', {\n  title: 'Support policy',\n  text: 'Support available Monday to Friday.'\n});\n\nhost.appendChild(billing);\nhost.appendChild(support);\nreturn host;\n:::\n";
+    if (true) {
+      await this.setupCopyButton();
+    }
+      {
+         const container = this.querySelector('[data-block-id="doc-block-1"]');
+         if (container) {
+            const code = await slice.build('CodeVisualizer', {
+               value: "const details = await slice.build('Details', {\n  title: 'What is included?',\n  text: 'Source code, tests, and docs.'\n});\n\nthis.appendChild(details);",
                language: "javascript"
             });
-            details.addDetail(codeExample);
-         },
-         "Details with CodeVisualizer component"
-      );
-
-      // Ejemplo con múltiple contenido
-      await this.createDetailsExample(
-         this.querySelector(".multipleContentDetails"),
-         {
-            title: "Component Props",
-            text: "Learn about different prop types"
-         },
-         `{
-   title: "Component Props",
-   text: "Learn about different prop types"
-}
-
-// Add multiple content items
-myDetails.addDetail(titleElement);
-myDetails.addDetail(codeExample1);
-myDetails.addDetail(description);
-myDetails.addDetail(codeExample2);`,
-         async (details) => {
-            // Título
-            const title1 = document.createElement("h4");
-            title1.textContent = "1. String Props";
-            title1.style.color = "var(--primary-color)";
-            title1.style.marginTop = "10px";
-            details.addDetail(title1);
-
-            const code1 = await slice.build("CodeVisualizer", {
-               value: `const input = await slice.build("Input", {
-   placeholder: "Enter your name"
-});`,
-               language: "javascript"
-            });
-            details.addDetail(code1);
-
-            // Segundo ejemplo
-            const title2 = document.createElement("h4");
-            title2.textContent = "2. Function Props";
-            title2.style.color = "var(--primary-color)";
-            title2.style.marginTop = "20px";
-            details.addDetail(title2);
-
-            const code2 = await slice.build("CodeVisualizer", {
-               value: `const button = await slice.build("Button", {
-   value: "Submit",
-   onClickCallback: () => alert("Submitted!")
-});`,
-               language: "javascript"
-            });
-            details.addDetail(code2);
-         },
-         "Details with multiple content sections"
-      );
-
-      // Ejemplo anidado
-      await this.createDetailsExample(
-         this.querySelector(".nestedDetails"),
-         {
-            title: "Framework Architecture",
-            text: "Explore the different layers"
-         },
-         `{
-   title: "Framework Architecture",
-   text: "Explore the different layers"
-}
-
-// Nest Details inside Details
-const childDetails = await slice.build("Details", {
-   title: "Core Components",
-   text: "Learn about core components"
-});
-
-parentDetails.addDetail(childDetails);`,
-         async (details) => {
-            // Crear Details anidado
-            const nestedDetails1 = await slice.build("Details", {
-               title: "🔧 Core Layer",
-               text: "Router, Controller, and State Management"
-            });
-
-            const nestedContent1 = document.createElement("p");
-            nestedContent1.style.cssText = "padding: 10px; color: var(--font-secondary-color);";
-            nestedContent1.textContent = "The core layer handles routing, component lifecycle, and state management.";
-            nestedDetails1.addDetail(nestedContent1);
-
-            details.addDetail(nestedDetails1);
-
-            // Segundo Details anidado
-            const nestedDetails2 = await slice.build("Details", {
-               title: "🎨 Visual Layer",
-               text: "UI Components and Styling"
-            });
-
-            const nestedContent2 = document.createElement("p");
-            nestedContent2.style.cssText = "padding: 10px; color: var(--font-secondary-color);";
-            nestedContent2.textContent = "The visual layer provides ready-to-use UI components like Button, Input, Select, etc.";
-            nestedDetails2.addDetail(nestedContent2);
-
-            details.addDetail(nestedDetails2);
-         },
-         "Nested Details components for hierarchical content"
-      );
-
-      // Ejemplo con código complejo
-      await this.createDetailsExample(
-         this.querySelector(".codeExampleDetails"),
-         {
-            title: "Complete Component Example",
-            text: "Full implementation with all features"
-         },
-         `{
-   title: "Complete Component Example",
-   text: "Full implementation with all features"
-}
-
-// Add comprehensive code example
-const fullExample = await slice.build("CodeVisualizer", {
-   value: "...",
-   language: "javascript"
-});
-
-myDetails.addDetail(fullExample);`,
-         async (details) => {
-            const fullCode = await slice.build("CodeVisualizer", {
-               value: `// Complete Button component example
-export default class Button extends HTMLElement {
-   static props = {
-      value: { type: "string", default: "Button" },
-      onClickCallback: { type: "function", default: null },
-      customColor: { type: "object", default: null }
-   };
-
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      
-      this.$button = this.querySelector(".slice_button");
-      this.$value = this.querySelector(".slice_button_value");
-      
-      if (props.onClickCallback) {
-         this.$button.addEventListener("click", 
-            () => props.onClickCallback()
-         );
+            if ("Build details") {
+               const label = document.createElement('div');
+               label.classList.add('code-block-title');
+               label.textContent = "Build details";
+               container.appendChild(label);
+            }
+            container.appendChild(code);
+         }
       }
-      
-      slice.controller.setComponentProps(this, props);
-   }
+      {
+         const container = this.querySelector('[data-block-id="doc-block-5"]');
+         if (container) {
+            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `text` | `string` | `false` | `` | - |","| `title` | `string` | `false` | `` | - |"];
+            const clean = (line) => {
+               let value = line.trim();
+               if (value.startsWith('|')) {
+                  value = value.slice(1);
+               }
+               if (value.endsWith('|')) {
+                  value = value.slice(0, -1);
+               }
+               return value.split('|').map((cell) => cell.trim());
+            };
 
-   init() {
-      // Component initialization
-      if (this.customColor) {
-         this.applyCustomColors();
+            const formatCell = (text) => {
+               let output = text
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
+
+               const applyBold = (input) => {
+                  let result = '';
+                  let index = 0;
+                  while (index < input.length) {
+                     const start = input.indexOf('**', index);
+                     if (start === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     const end = input.indexOf('**', start + 2);
+                     if (end === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
+                     index = end + 2;
+                  }
+                  return result;
+               };
+
+               const applyInlineCode = (input) => {
+                  const parts = input.split(String.fromCharCode(96));
+                  if (parts.length === 1) return input;
+                  return parts
+                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
+                     .join('');
+               };
+
+               output = applyBold(output);
+               output = applyInlineCode(output);
+               return output;
+            };
+
+            const headers = lines.length > 0 ? clean(lines[0]) : [];
+            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
+            const table = await slice.build('Table', { headers, rows });
+            container.appendChild(table);
+         }
       }
-   }
+    await this.renderScriptScenarios();
+  }
 
-   get value() {
-      return this._value;
-   }
+  async update() {
+    // Refresh dynamic content here if needed
+  }
 
-   set value(val) {
-      this._value = val;
-      this.$value.textContent = val;
-   }
-}
+  beforeDestroy() {
+    // Cleanup timers, listeners, or pending work here
+  }
 
-customElements.define("slice-button", Button);`,
-               language: "javascript"
+  async setupCopyButton() {
+    const container = this.querySelector('[data-copy-md]');
+    if (!container) return;
+
+    const copyMenu = await slice.build('CopyMarkdownMenu', {
+      markdownPath: this.markdownPath,
+      markdownContent: this.markdownContent,
+      label: '❐'
+    });
+
+    container.appendChild(copyMenu);
+  }
+
+  async renderScriptScenarios() {
+    if (!Array.isArray(this.scriptScenarios) || this.scriptScenarios.length === 0) return;
+    const host = this.querySelector('.documentation-content');
+    if (!host) return;
+
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+    const section = document.createElement('section');
+    section.classList.add('doc-script-scenarios');
+
+    const title = document.createElement('h2');
+    title.textContent = 'Prop Scenarios';
+    section.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.classList.add('doc-script-subtitle');
+    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    section.appendChild(subtitle);
+
+    for (const scenario of this.scriptScenarios) {
+      const card = document.createElement('article');
+      card.classList.add('doc-script-card');
+
+      const header = document.createElement('div');
+      header.classList.add('doc-script-header');
+
+      const heading = document.createElement('h3');
+      heading.classList.add('doc-script-title');
+      heading.textContent = scenario.label;
+      header.appendChild(heading);
+
+      card.appendChild(header);
+
+      const preview = document.createElement('div');
+      preview.classList.add('doc-script-preview');
+      const errorMessage = document.createElement('p');
+      errorMessage.classList.add('doc-script-error');
+      errorMessage.hidden = true;
+
+      const executeScenario = async () => {
+        preview.innerHTML = '';
+        errorMessage.hidden = true;
+        errorMessage.textContent = '';
+
+        const createBuildFallbackNode = (name) => {
+          const fallback = document.createElement('div');
+          fallback.style.padding = '10px';
+          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.borderRadius = '8px';
+          fallback.style.background = '#fffbeb';
+          fallback.style.color = '#92400e';
+          fallback.textContent = String(name || '')
+            ? 'Component "' + String(name) + '" is not registered in this build yet.'
+            : 'Requested component is not registered in this build yet.';
+          return fallback;
+        };
+
+        const safeSlice = Object.create(slice);
+        safeSlice.build = async (name, props) => {
+          const built = await slice.build(name, props);
+          if (built instanceof Node) {
+            return built;
+          }
+          if (Array.isArray(built)) {
+            const fragment = document.createDocumentFragment();
+            let hasNode = false;
+            built.forEach((item) => {
+              if (item instanceof Node) {
+                fragment.appendChild(item);
+                hasNode = true;
+              }
             });
-            details.addDetail(fullCode);
+            if (hasNode) {
+              return fragment;
+            }
+          }
+          return createBuildFallbackNode(name);
+        };
 
-            const note = document.createElement("div");
-            note.className = "example-note";
-            note.innerHTML = `
-               <strong>💡 Best Practice:</strong> Use Static Props to define your component"s 
-               API clearly. This provides automatic defaults, type validation, and better 
-               debugging experience.
-            `;
-            details.addDetail(note);
-         },
-         "Details with comprehensive code documentation"
-      );
+        const mount = (node) => {
+          if (node instanceof Node) {
+            preview.appendChild(node);
+          }
+        };
 
-      // Añadir ejemplo de static props avanzado
-      await this.createStaticPropsExample();
-   }
+        try {
+          const fn = new AsyncFunction('component', 'slice', 'document', 'mount', scenario.content);
+          const result = await fn(this, safeSlice, document, mount);
 
-   async createStaticPropsExample() {
-      const staticPropsContainer = this.querySelector(".static-props-example");
-      if (!staticPropsContainer) return;
+          if (result instanceof Node) {
+            preview.appendChild(result);
+          } else if (Array.isArray(result)) {
+            result.forEach((item) => {
+              if (item instanceof Node) {
+                preview.appendChild(item);
+              }
+            });
+          }
+        } catch (error) {
+          errorMessage.textContent = 'Live preview error: ' + error.message;
+          errorMessage.hidden = false;
+        }
+      };
 
-      // Ejemplo mostrando toda la configuración
-      const configExample = await slice.build("CodeVisualizer", {
-         value: `// Details Static Props Configuration:
-export default class Details extends HTMLElement {
-   static props = {
-      title: { 
-         type: "string", 
-         default: "", 
-         required: false 
-      },
-      text: { 
-         type: "string", 
-         default: "", 
-         required: false 
-      }
-   };
-
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      
-      // DOM references
-      this.$detailsTitle = this.querySelector(".details_title");
-      this.$detailsText = this.querySelector(".details_text");
-      this.$details = this.querySelector(".full_details");
-      this.$summary = this.querySelector(".details_summary");
-      this.$container = this.querySelector(".details_container");
-      
-      // Event listeners
-      this.$summary.addEventListener("click", () => {
-         this.toggleDetails();
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
       });
-      
-      slice.controller.setComponentProps(this, props);
-   }
+      card.appendChild(preview);
+      card.appendChild(code);
+      card.appendChild(errorMessage);
 
-   // Toggle expand/collapse with smooth animation
-   toggleDetails() {
-      const isOpen = this.$container.classList.toggle("details_open");
-      // ... animation logic
-   }
+      section.appendChild(card);
 
-   // Add content dynamically
-   addDetail(element) {
-      this.$details.appendChild(element);
-   }
+      await executeScenario();
+    }
+
+    host.appendChild(section);
+  }
 }
 
-// Example usage with automatic defaults:
-const details = await slice.build("Details", {
-   title: "Expandable Section",
-   text: "Click to see more"
-   // All props use automatic defaults if not specified
-});
-
-// Add content dynamically
-const content = document.createElement("p");
-content.textContent = "Additional information here";
-details.addDetail(content);
-
-// Add Slice components
-const button = await slice.build("Button", { value: "Action" });
-details.addDetail(button);
-
-// Add multiple items
-details.addDetail(codeExample);
-details.addDetail(description);
-details.addDetail(anotherComponent);`,
-         language: "javascript"
-      });
-
-      staticPropsContainer.appendChild(configExample);
-
-      // Características adicionales
-      const additionalInfo = document.createElement("div");
-      additionalInfo.innerHTML = `
-         <h4>Key Features</h4>
-         <ul>
-            <li><strong>Smooth animations:</strong> Built-in expand/collapse animations with CSS transitions</li>
-            <li><strong>Flexible content:</strong> Add any HTML element or Slice component using addDetail()</li>
-            <li><strong>Nested support:</strong> Details can be nested inside each other for hierarchical content</li>
-            <li><strong>Automatic state:</strong> Handles open/closed state automatically with visual indicators</li>
-            <li><strong>Accessible:</strong> Keyboard navigation and screen reader friendly</li>
-         </ul>
-         
-         <h4>Common Use Cases</h4>
-         <ul>
-            <li><strong>FAQs:</strong> Create expandable question-answer sections</li>
-            <li><strong>Documentation:</strong> Progressive disclosure of complex information</li>
-            <li><strong>Code examples:</strong> Combine with CodeVisualizer for interactive tutorials</li>
-            <li><strong>Feature lists:</strong> Show detailed information on demand</li>
-            <li><strong>Settings panels:</strong> Organize configuration options</li>
-         </ul>
-         
-         <h4>Methods</h4>
-         <ul>
-            <li><strong>addDetail(element):</strong> Add content inside the expandable section</li>
-            <li><strong>toggleDetails():</strong> Programmatically toggle open/closed state</li>
-         </ul>
-      `;
-      staticPropsContainer.appendChild(additionalInfo);
-   }
-
-   async createDetailsExample(appendTo, detailsProps, codeProps, contentCallback = null, description = "") {
-      const div = document.createElement("div");
-      div.classList.add("detailsContainer");
-      
-      const exampleDiv = document.createElement("div");
-      exampleDiv.classList.add("detailsExample");
-      
-      // Crear el componente Details
-      const details = await slice.build("Details", detailsProps);
-      
-      // Agregar contenido si se proporciona el callback
-      if (contentCallback) {
-         await contentCallback(details);
-      }
-      
-      exampleDiv.appendChild(details);
-      div.appendChild(exampleDiv);
-
-      // Nota descriptiva
-      if (description) {
-         const note = document.createElement("div");
-         note.className = "example-note";
-         note.innerHTML = `<strong>💡 Note:</strong> ${description}`;
-         div.appendChild(note);
-      }
-
-      // Código de ejemplo
-      const componentCode = await slice.build("CodeVisualizer", {
-         value: `const details = await slice.build("Details", ${codeProps});`,
-         language: "javascript",
-      });
-
-      div.appendChild(componentCode);
-
-      if (appendTo) {
-         appendTo.appendChild(div);
-      }
-   }
-}
-
-customElements.define("slice-detailsdocumentation", DetailsDocumentation);
+customElements.define('slice-detailsdocumentation', DetailsDocumentation);

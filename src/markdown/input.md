@@ -35,9 +35,6 @@ this.appendChild(input);
 ## Practical Setups
 :::script label="Login form fields" expected="email + password fields with proper input types"
 const wrapper = document.createElement('div');
-wrapper.style.display = 'grid';
-wrapper.style.gap = '12px';
-wrapper.style.maxWidth = '420px';
 
 const email = await slice.build('Input', {
   placeholder: 'Email',
@@ -59,10 +56,6 @@ return wrapper;
 
 :::script label="Search + filter toolbar" expected="search input paired with select control"
 const row = document.createElement('div');
-row.style.display = 'grid';
-row.style.gridTemplateColumns = '2fr 1fr';
-row.style.gap = '10px';
-row.style.maxWidth = '560px';
 
 const search = await slice.build('Input', {
   placeholder: 'Search components',
@@ -86,9 +79,6 @@ return row;
 
 :::script label="Validation ready email field" expected="input with regex conditions and status button"
 const wrapper = document.createElement('div');
-wrapper.style.display = 'grid';
-wrapper.style.gap = '8px';
-wrapper.style.maxWidth = '420px';
 
 const email = await slice.build('Input', {
   placeholder: 'Work email',
@@ -118,4 +108,39 @@ const input = await slice.build('Input', {
 });
 
 return input;
+:::
+
+:::script label="API key input with reveal" expected="secret field can be toggled in secure workflows"
+const apiKey = await slice.build('Input', {
+  placeholder: 'API Key',
+  type: 'password',
+  secret: true,
+  required: true
+});
+
+return apiKey;
+:::
+
+:::script label="Quick create form row" expected="two inputs and action button compose a compact form"
+const host = document.createElement('div');
+
+const name = await slice.build('Input', {
+  placeholder: 'Project name',
+  type: 'text',
+  required: true
+});
+
+const slug = await slice.build('Input', {
+  placeholder: 'project-slug',
+  type: 'text'
+});
+
+const create = await slice.build('Button', {
+  value: 'Create'
+});
+
+host.appendChild(name);
+host.appendChild(slug);
+host.appendChild(create);
+return host;
 :::

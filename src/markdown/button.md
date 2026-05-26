@@ -40,9 +40,6 @@ const secondary = await slice.build('Button', {
 });
 
 const row = document.createElement('div');
-row.style.display = 'flex';
-row.style.gap = '12px';
-row.style.flexWrap = 'wrap';
 row.appendChild(primary);
 row.appendChild(secondary);
 return row;
@@ -72,10 +69,10 @@ const cta = await slice.build('Button', {
   customColor: { button: '#16a34a', label: '#ffffff' }
 });
 
-const block = document.createElement('div');
-block.style.maxWidth = '320px';
 const text = document.createElement('p');
 text.textContent = 'Typical CTA usage with icon and branded color.';
+
+const block = document.createElement('div');
 block.appendChild(text);
 block.appendChild(cta);
 return block;
@@ -89,9 +86,6 @@ const actions = [
 ];
 
 const row = document.createElement('div');
-row.style.display = 'flex';
-row.style.gap = '10px';
-row.style.flexWrap = 'wrap';
 
 for (const config of actions) {
   const button = await slice.build('Button', config);
@@ -119,9 +113,6 @@ const reject = await slice.build('Button', {
 });
 
 const footer = document.createElement('div');
-footer.style.display = 'flex';
-footer.style.gap = '8px';
-footer.style.marginTop = '8px';
 footer.appendChild(approve);
 footer.appendChild(reject);
 
@@ -139,8 +130,6 @@ const iconConfigs = [
 ];
 
 const row = document.createElement('div');
-row.style.display = 'flex';
-row.style.gap = '8px';
 
 for (const iconConfig of iconConfigs) {
   const button = await slice.build('Button', {
@@ -152,6 +141,19 @@ for (const iconConfig of iconConfigs) {
 }
 
 return row;
+:::
+
+:::script label="async loading action" expected="button reflects loading-like action flow"
+const submit = await slice.build('Button', {
+  value: 'Submit',
+  onClickCallback: async () => {
+    submit.value = 'Submitting...';
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    submit.value = 'Submitted';
+  }
+});
+
+return submit;
 :::
 
 ## Best Practices

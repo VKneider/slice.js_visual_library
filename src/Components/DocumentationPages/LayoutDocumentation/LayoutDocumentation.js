@@ -1,440 +1,237 @@
 export default class LayoutDocumentation extends HTMLElement {
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      slice.controller.setComponentProps(this, props);
-      this.debuggerProps = [];
-   }
+  constructor(props) {
+    super();
+    slice.attachTemplate(this);
+    slice.controller.setComponentProps(this, props);
+    this.debuggerProps = [];
+    this.scriptScenarios = [{"label":"Swap views","expected":"renders layout and replaces initial view","kind":"script","content":"const layout = await slice.build('Layout', {});\n\nconst initial = document.createElement('p');\ninitial.textContent = 'First view';\nawait layout.showing(initial);\n\nconst replacement = document.createElement('p');\nreplacement.textContent = 'Replaced view';\nawait layout.showing(replacement);\n\nreturn layout;"},{"label":"Layout with card view","expected":"renders layout containing a card","kind":"script","content":"const layout = await slice.build('Layout', {});\n\nconst card = await slice.build('Card', {\n  title: 'Layout Demo',\n  text: 'This card is mounted inside a Layout container.',\n  variant: 'outlined'\n});\n\nawait layout.showing(card);\n\nreturn layout;"}];
+  }
 
-   async init() {
-      // Ejemplo básico con view
-      await this.createLayoutExample(
-         this.querySelector(".basicLayout"),
-         async () => {
-            // Crear el contenido con etiquetas explicativas
-            const content = document.createElement("div");
-            content.style.cssText = "padding: 30px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border-radius: 8px; text-align: center;";
-            
-            const label = document.createElement("div");
-            label.style.cssText = "background-color: var(--primary-background-color); color: var(--primary-color); padding: 8px 16px; border-radius: 20px; display: inline-block; font-weight: bold; font-size: 0.85em; margin-bottom: 15px;";
-            label.textContent = "📄 VIEW (content)";
-            
-            const title = document.createElement("h3");
-            title.style.cssText = "color: white; margin: 10px 0;";
-            title.textContent = "Main Content Area";
-            
-            const description = document.createElement("p");
-            description.style.cssText = "color: rgba(255,255,255,0.9); margin: 10px 0 0 0;";
-            description.textContent = "This is the view content passed to the Layout component";
-            
-            content.appendChild(label);
-            content.appendChild(title);
-            content.appendChild(description);
-
-            const layout = await slice.build("Layout", {
-               view: content
+  async init() {
+    this.markdownPath = "layout.md";
+    this.markdownContent = "---\ntitle: Layout\nroute: /docs/layout/layout\nnavLabel: Layout\nsection: Layout\ngroup: Containers\norder: 10\ndescription: Layout container documentation with view swapping scenarios.\ncomponent: LayoutDocumentation\ngenerate: true\ntags: [layout, container]\n---\n\n# Layout\n\n## Overview\n`Layout` is a generic container that accepts a view node and swaps it on demand. It provides two methods: `onLayOut` for initial mounting and `showing` for replacing the current view.\n\n## API and Behavior\n- Accepts `layout` (initial node) and `view` (active view node) as props.\n- `showing(view)` replaces the current child with a new view node.\n- `onLayOut(view)` appends a view (used for initial layout setup).\n- Both props and methods accept any DOM node.\n\n## Basic Usage\n```javascript title=\"Build layout\"\nconst layout = await slice.build('Layout', {});\n\nconst view = document.createElement('div');\nview.textContent = 'Page content';\n\nawait layout.showing(view);\n\nthis.appendChild(layout);\n```\n\n## Prop Scenarios\n:::script label=\"Swap views\" expected=\"renders layout and replaces initial view\"\nconst layout = await slice.build('Layout', {});\n\nconst initial = document.createElement('p');\ninitial.textContent = 'First view';\nawait layout.showing(initial);\n\nconst replacement = document.createElement('p');\nreplacement.textContent = 'Replaced view';\nawait layout.showing(replacement);\n\nreturn layout;\n:::\n\n:::script label=\"Layout with card view\" expected=\"renders layout containing a card\"\nconst layout = await slice.build('Layout', {});\n\nconst card = await slice.build('Card', {\n  title: 'Layout Demo',\n  text: 'This card is mounted inside a Layout container.',\n  variant: 'outlined'\n});\n\nawait layout.showing(card);\n\nreturn layout;\n:::\n\n## Best Practices\n:::tip\nUse `Layout` as a viewport controller when you need to swap entire sections of a page without full navigation.\n:::\n\n## Pitfalls\n:::warning\n`showing` removes the previous child. Ensure stateful views persist their data externally if needed.\n:::\n";
+    if (true) {
+      await this.setupCopyButton();
+    }
+      {
+         const container = this.querySelector('[data-block-id="doc-block-1"]');
+         if (container) {
+            const code = await slice.build('CodeVisualizer', {
+               value: "const layout = await slice.build('Layout', {});\n\nconst view = document.createElement('div');\nview.textContent = 'Page content';\n\nawait layout.showing(view);\n\nthis.appendChild(layout);",
+               language: "javascript"
             });
-            
-            return layout;
-         },
-         `// Create content element
-const content = document.createElement("div");
-content.innerHTML = "<h2>Main Content</h2>";
-
-// Build Layout with only view
-const layout = await slice.build("Layout", {
-   view: content  // ← This is the main content area
-});
-
-// Static Props defaults:
-// layout: null (no fixed elements)
-// view: null`
-      );
-
-      // Ejemplo con navbar y view
-      await this.createLayoutExample(
-         this.querySelector(".layoutAndView"),
-         async () => {
-            // Crear navbar con etiqueta
-            const navbarWrapper = document.createElement("div");
-            navbarWrapper.style.cssText = "position: relative;";
-            
-            const navbarLabel = document.createElement("div");
-            navbarLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--success-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            navbarLabel.textContent = "🔧 LAYOUT (navbar)";
-            
-            const navbar = await slice.build("Navbar", {
-               items: [
-                  { text: "Home", path: "/" },
-                  { text: "Docs", path: "/docs" },
-                  { text: "About", path: "/about" }
-               ]
-            });
-            
-            navbarWrapper.appendChild(navbarLabel);
-            navbarWrapper.appendChild(navbar);
-
-            // Crear contenido con etiqueta
-            const contentWrapper = document.createElement("div");
-            contentWrapper.style.cssText = "position: relative; margin-top: 40px;";
-            
-            const contentLabel = document.createElement("div");
-            contentLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            contentLabel.textContent = "📄 VIEW (content)";
-            
-            const content = document.createElement("div");
-            content.style.cssText = "padding: 40px; background-color: var(--secondary-background-color); border-radius: 8px; border: 2px solid var(--primary-color);";
-            content.innerHTML = "<h3 style='color: var(--primary-color); margin-top: 0;'>Page Content</h3><p style='color: var(--font-secondary-color);'>The <strong>layout</strong> (navbar) appears first and stays fixed.<br>The <strong>view</strong> (this content) is the main area that can change.</p>";
-            
-            contentWrapper.appendChild(contentLabel);
-            contentWrapper.appendChild(content);
-
-            const layout = await slice.build("Layout", {
-               layout: navbarWrapper,
-               view: contentWrapper
-            });
-            
-            return layout;
-         },
-         `// Create navbar (fixed element)
-const navbar = await slice.build("Navbar", {
-   items: [
-      { text: "Home", path: "/" },
-      { text: "Docs", path: "/docs" }
-   ]
-});
-
-// Create main content
-const content = document.createElement("div");
-content.innerHTML = "<h2>Page Content</h2>";
-
-// Build Layout with both
-const layout = await slice.build("Layout", {
-   layout: navbar,  // ← Fixed navbar (layout prop)
-   view: content    // ← Main content (view prop)
-});`
-      );
-
-      // Ejemplo usando onLayOut para múltiples elementos
-      await this.createLayoutExample(
-         this.querySelector(".onLayoutMethod"),
-         async () => {
-            // Navbar con etiqueta
-            const navbarWrapper = document.createElement("div");
-            navbarWrapper.style.cssText = "position: relative;";
-            
-            const navbarLabel = document.createElement("div");
-            navbarLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--warning-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            navbarLabel.textContent = "⚙️ Added with onLayOut() #1";
-            
-            const navbar = await slice.build("Navbar", {
-               items: [
-                  { text: "Dashboard", path: "/" },
-                  { text: "Profile", path: "/profile" }
-               ]
-            });
-            
-            navbarWrapper.appendChild(navbarLabel);
-            navbarWrapper.appendChild(navbar);
-
-            // Sidebar con etiqueta
-            const sidebarWrapper = document.createElement("div");
-            sidebarWrapper.style.cssText = "position: relative; margin-top: 40px;";
-            
-            const sidebarLabel = document.createElement("div");
-            sidebarLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--warning-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            sidebarLabel.textContent = "⚙️ Added with onLayOut() #2";
-            
-            const sidebar = document.createElement("div");
-            sidebar.style.cssText = "background-color: var(--tertiary-background-color); padding: 20px; border-radius: 8px; border: 2px solid var(--warning-color);";
-            sidebar.innerHTML = "<h4 style='color: var(--warning-color); margin: 0 0 15px 0;'>📁 Sidebar Menu</h4><div style='color: var(--font-secondary-color); font-size: 0.9em;'><p style='margin: 5px 0; padding: 8px; background-color: var(--secondary-background-color); border-radius: 4px;'>⚙️ Settings</p><p style='margin: 5px 0; padding: 8px; background-color: var(--secondary-background-color); border-radius: 4px;'>👤 Profile</p><p style='margin: 5px 0; padding: 8px; background-color: var(--secondary-background-color); border-radius: 4px;'>📊 Analytics</p></div>";
-            
-            sidebarWrapper.appendChild(sidebarLabel);
-            sidebarWrapper.appendChild(sidebar);
-
-            // Content con etiqueta
-            const contentWrapper = document.createElement("div");
-            contentWrapper.style.cssText = "position: relative; margin-top: 40px;";
-            
-            const contentLabel = document.createElement("div");
-            contentLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            contentLabel.textContent = "📄 VIEW (main content)";
-            
-            const content = document.createElement("div");
-            content.style.cssText = "padding: 40px; background-color: var(--secondary-background-color); border-radius: 8px; border: 2px solid var(--primary-color);";
-            content.innerHTML = "<h3 style='color: var(--primary-color); margin-top: 0;'>📊 Main Dashboard</h3><p style='color: var(--font-secondary-color);'><strong>Both navbar and sidebar are fixed</strong> using <code>onLayOut()</code><br><br>They will stay visible even when the view changes.<br>The view is the only part that gets replaced with <code>showing()</code></p>";
-            
-            contentWrapper.appendChild(contentLabel);
-            contentWrapper.appendChild(content);
-
-            const layout = await slice.build("Layout", {
-               view: contentWrapper
-            });
-
-            // Agregar elementos fijos
-            layout.onLayOut(navbarWrapper);
-            layout.onLayOut(sidebarWrapper);
-            
-            return layout;
-         },
-         `// Create fixed elements
-const navbar = await slice.build("Navbar", { ... });
-const sidebar = document.createElement("div");
-sidebar.innerHTML = "<h4>Menu</h4>";
-
-// Create main content
-const content = document.createElement("div");
-content.innerHTML = "<h2>Dashboard</h2>";
-
-// Build Layout with view only
-const layout = await slice.build("Layout", {
-   view: content  // ← Initial content
-});
-
-// Add multiple fixed elements
-layout.onLayOut(navbar);   // ← Fixed element #1
-layout.onLayOut(sidebar);  // ← Fixed element #2
-
-// Both navbar and sidebar persist
-// Only the view changes with showing()`
-      );
-
-      // Ejemplo interactivo con showing()
-      await this.createLayoutExample(
-         this.querySelector(".showingMethod"),
-         async () => {
-            // Navbar
-            const navbarWrapper = document.createElement("div");
-            navbarWrapper.style.cssText = "position: relative;";
-            
-            const navbarLabel = document.createElement("div");
-            navbarLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--success-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            navbarLabel.textContent = "🔒 FIXED with onLayOut()";
-            
-            const navbar = await slice.build("Navbar", {
-               items: [
-                  { text: "Home", path: "/" },
-                  { text: "About", path: "/about" }
-               ]
-            });
-            
-            navbarWrapper.appendChild(navbarLabel);
-            navbarWrapper.appendChild(navbar);
-
-            // Home Page
-            const homeWrapper = document.createElement("div");
-            homeWrapper.style.cssText = "position: relative;";
-            
-            const homeLabel = document.createElement("div");
-            homeLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--primary-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            homeLabel.textContent = "📄 VIEW - Home Page";
-            
-            const homePage = document.createElement("div");
-            homePage.style.cssText = "padding: 40px; background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); border-radius: 8px; color: white;";
-            homePage.innerHTML = "<h2 style='margin-top: 0; color: white;'>🏠 Home Page</h2><p style='color: rgba(255,255,255,0.9);'>This is the <strong>Home Page</strong> content in the view area.</p><p style='color: rgba(255,255,255,0.8); font-size: 0.9em;'>Click the buttons below to switch views!</p>";
-            
-            homeWrapper.appendChild(homeLabel);
-            homeWrapper.appendChild(homePage);
-
-            // About Page
-            const aboutWrapper = document.createElement("div");
-            aboutWrapper.style.cssText = "position: relative;";
-            
-            const aboutLabel = document.createElement("div");
-            aboutLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--secondary-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            aboutLabel.textContent = "📄 VIEW - About Page";
-            
-            const aboutPage = document.createElement("div");
-            aboutPage.style.cssText = "padding: 40px; background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); border-radius: 8px; color: white;";
-            aboutPage.innerHTML = "<h2 style='margin-top: 0; color: white;'>ℹ️ About Page</h2><p style='color: rgba(255,255,255,0.9);'>This is the <strong>About Page</strong> content in the view area.</p><p style='color: rgba(255,255,255,0.8); font-size: 0.9em;'>Notice the navbar stayed fixed! 🎯</p>";
-            
-            aboutWrapper.appendChild(aboutLabel);
-            aboutWrapper.appendChild(aboutPage);
-
-            const layout = await slice.build("Layout", {
-               view: homeWrapper
-            });
-            layout.onLayOut(navbarWrapper);
-
-            // Crear botones de control con etiqueta
-            const controlWrapper = document.createElement("div");
-            controlWrapper.style.cssText = "position: relative; margin-top: 40px;";
-            
-            const controlLabel = document.createElement("div");
-            controlLabel.style.cssText = "position: absolute; top: -30px; left: 0; background-color: var(--success-color); color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.75em; font-weight: bold; z-index: 10;";
-            controlLabel.textContent = "🔒 FIXED with onLayOut()";
-            
-            const buttonContainer = document.createElement("div");
-            buttonContainer.style.cssText = "display: flex; gap: 10px; padding: 20px; background-color: var(--tertiary-background-color); border-radius: 8px; border: 2px solid var(--success-color);";
-
-            const homeBtn = await slice.build("Button", {
-               value: "🏠 Show Home",
-               onClickCallback: async () => {
-                  await layout.showing(homeWrapper);
-               }
-            });
-
-            const aboutBtn = await slice.build("Button", {
-               value: "ℹ️ Show About",
-               onClickCallback: async () => {
-                  await layout.showing(aboutWrapper);
-               }
-            });
-
-            const info = document.createElement("p");
-            info.style.cssText = "margin: 0 0 0 20px; color: var(--font-secondary-color); font-size: 0.9em; display: flex; align-items: center;";
-            info.innerHTML = "👈 Click to switch views with <code>showing()</code>";
-
-            buttonContainer.appendChild(homeBtn);
-            buttonContainer.appendChild(aboutBtn);
-            buttonContainer.appendChild(info);
-            
-            controlWrapper.appendChild(controlLabel);
-            controlWrapper.appendChild(buttonContainer);
-            
-            layout.onLayOut(controlWrapper);
-            
-            return layout;
-         },
-         `// Create pages
-const homePage = document.createElement("div");
-homePage.innerHTML = "<h2>Home</h2>";
-
-const aboutPage = document.createElement("div");
-aboutPage.innerHTML = "<h2>About</h2>";
-
-// Create navbar
-const navbar = await slice.build("Navbar", { ... });
-
-// Build Layout
-const layout = await slice.build("Layout", {
-   view: homePage  // ← Initial view
-});
-
-// Add fixed navbar
-layout.onLayOut(navbar);
-
-// Switch views dynamically
-await layout.showing(homePage);   // ← Show home
-await layout.showing(aboutPage);  // ← Show about
-
-// The navbar stays fixed!
-// Only the view changes!`
-      );
-
-      // Añadir ejemplo de static props
-      await this.createStaticPropsExample();
-   }
-
-   async createLayoutExample(container, buildFunction, codeString) {
-      if (!container) {
-         console.error("Container not found for Layout example");
-         return;
+            if ("Build layout") {
+               const label = document.createElement('div');
+               label.classList.add('code-block-title');
+               label.textContent = "Build layout";
+               container.appendChild(label);
+            }
+            container.appendChild(code);
+         }
       }
+      {
+         const container = this.querySelector('[data-block-id="doc-block-4"]');
+         if (container) {
+            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `layout` | `object` | `false` | `null` | - |","| `view` | `object` | `false` | `null` | - |"];
+            const clean = (line) => {
+               let value = line.trim();
+               if (value.startsWith('|')) {
+                  value = value.slice(1);
+               }
+               if (value.endsWith('|')) {
+                  value = value.slice(0, -1);
+               }
+               return value.split('|').map((cell) => cell.trim());
+            };
 
-      // Crear el layout funcional
-      const layout = await buildFunction();
+            const formatCell = (text) => {
+               let output = text
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
 
-      // Crear el CodeVisualizer
-      const codeVisualizer = await slice.build("CodeVisualizer", {
-         value: `const layout = await slice.build("Layout", ${codeString});`,
-         language: "javascript"
+               const applyBold = (input) => {
+                  let result = '';
+                  let index = 0;
+                  while (index < input.length) {
+                     const start = input.indexOf('**', index);
+                     if (start === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     const end = input.indexOf('**', start + 2);
+                     if (end === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
+                     index = end + 2;
+                  }
+                  return result;
+               };
+
+               const applyInlineCode = (input) => {
+                  const parts = input.split(String.fromCharCode(96));
+                  if (parts.length === 1) return input;
+                  return parts
+                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
+                     .join('');
+               };
+
+               output = applyBold(output);
+               output = applyInlineCode(output);
+               return output;
+            };
+
+            const headers = lines.length > 0 ? clean(lines[0]) : [];
+            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
+            const table = await slice.build('Table', { headers, rows });
+            container.appendChild(table);
+         }
+      }
+    await this.renderScriptScenarios();
+  }
+
+  async update() {
+    // Refresh dynamic content here if needed
+  }
+
+  beforeDestroy() {
+    // Cleanup timers, listeners, or pending work here
+  }
+
+  async setupCopyButton() {
+    const container = this.querySelector('[data-copy-md]');
+    if (!container) return;
+
+    const copyMenu = await slice.build('CopyMarkdownMenu', {
+      markdownPath: this.markdownPath,
+      markdownContent: this.markdownContent,
+      label: '❐'
+    });
+
+    container.appendChild(copyMenu);
+  }
+
+  async renderScriptScenarios() {
+    if (!Array.isArray(this.scriptScenarios) || this.scriptScenarios.length === 0) return;
+    const host = this.querySelector('.documentation-content');
+    if (!host) return;
+
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+    const section = document.createElement('section');
+    section.classList.add('doc-script-scenarios');
+
+    const title = document.createElement('h2');
+    title.textContent = 'Prop Scenarios';
+    section.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.classList.add('doc-script-subtitle');
+    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    section.appendChild(subtitle);
+
+    for (const scenario of this.scriptScenarios) {
+      const card = document.createElement('article');
+      card.classList.add('doc-script-card');
+
+      const header = document.createElement('div');
+      header.classList.add('doc-script-header');
+
+      const heading = document.createElement('h3');
+      heading.classList.add('doc-script-title');
+      heading.textContent = scenario.label;
+      header.appendChild(heading);
+
+      card.appendChild(header);
+
+      const preview = document.createElement('div');
+      preview.classList.add('doc-script-preview');
+      const errorMessage = document.createElement('p');
+      errorMessage.classList.add('doc-script-error');
+      errorMessage.hidden = true;
+
+      const executeScenario = async () => {
+        preview.innerHTML = '';
+        errorMessage.hidden = true;
+        errorMessage.textContent = '';
+
+        const createBuildFallbackNode = (name) => {
+          const fallback = document.createElement('div');
+          fallback.style.padding = '10px';
+          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.borderRadius = '8px';
+          fallback.style.background = '#fffbeb';
+          fallback.style.color = '#92400e';
+          fallback.textContent = String(name || '')
+            ? 'Component "' + String(name) + '" is not registered in this build yet.'
+            : 'Requested component is not registered in this build yet.';
+          return fallback;
+        };
+
+        const safeSlice = Object.create(slice);
+        safeSlice.build = async (name, props) => {
+          const built = await slice.build(name, props);
+          if (built instanceof Node) {
+            return built;
+          }
+          if (Array.isArray(built)) {
+            const fragment = document.createDocumentFragment();
+            let hasNode = false;
+            built.forEach((item) => {
+              if (item instanceof Node) {
+                fragment.appendChild(item);
+                hasNode = true;
+              }
+            });
+            if (hasNode) {
+              return fragment;
+            }
+          }
+          return createBuildFallbackNode(name);
+        };
+
+        const mount = (node) => {
+          if (node instanceof Node) {
+            preview.appendChild(node);
+          }
+        };
+
+        try {
+          const fn = new AsyncFunction('component', 'slice', 'document', 'mount', scenario.content);
+          const result = await fn(this, safeSlice, document, mount);
+
+          if (result instanceof Node) {
+            preview.appendChild(result);
+          } else if (Array.isArray(result)) {
+            result.forEach((item) => {
+              if (item instanceof Node) {
+                preview.appendChild(item);
+              }
+            });
+          }
+        } catch (error) {
+          errorMessage.textContent = 'Live preview error: ' + error.message;
+          errorMessage.hidden = false;
+        }
+      };
+
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
       });
+      card.appendChild(preview);
+      card.appendChild(code);
+      card.appendChild(errorMessage);
 
-      // Crear contenedor del ejemplo
-      const exampleDiv = document.createElement("div");
-      exampleDiv.className = "layoutExample";
-      
-      const layoutContainer = document.createElement("div");
-      layoutContainer.className = "layoutPreview";
-      layoutContainer.appendChild(layout);
-      
-      exampleDiv.appendChild(layoutContainer);
-      exampleDiv.appendChild(codeVisualizer);
+      section.appendChild(card);
 
-      container.appendChild(exampleDiv);
-   }
+      await executeScenario();
+    }
 
-   async createStaticPropsExample() {
-      const staticPropsContainer = this.querySelector(".static-props-example");
-      if (!staticPropsContainer) {
-         console.error("Static props container not found");
-         return;
-      }
-
-      const defaultsExample = await slice.build("CodeVisualizer", {
-         value: `// Layout Static Props Configuration:
-export default class Layout extends HTMLElement {
-   static props = {
-      layout: { 
-         type: "object", 
-         default: null, 
-         required: false 
-      },
-      view: { 
-         type: "object", 
-         default: null, 
-         required: false 
-      }
-   };
+    host.appendChild(section);
+  }
 }
 
-// Example with automatic defaults:
-const layout1 = await slice.build("Layout", {
-   view: myContent
-   // layout uses automatic default: null
-});
-
-// Example with both props:
-const layout2 = await slice.build("Layout", {
-   layout: myNavbar,
-   view: myContent
-});
-
-// Props explained:
-// - layout: Initial fixed element (navbar, header)
-// - view: Main content area that changes
-// Both accept any HTMLElement or component`,
-         language: "javascript"
-      });
-
-      staticPropsContainer.appendChild(defaultsExample);
-
-      const featuresInfo = document.createElement("div");
-      featuresInfo.innerHTML = '<h4>Layout Features</h4>' +
-         '<ul>' +
-         '<li><strong>Flexible Structure:</strong> Combine fixed and dynamic elements</li>' +
-         '<li><strong>View Management:</strong> Easy content switching with showing()</li>' +
-         '<li><strong>Multiple Fixed Elements:</strong> Add multiple persistent components with onLayOut()</li>' +
-         '<li><strong>Static Props:</strong> Automatic validation and defaults</li>' +
-         '</ul>' +
-         '<h4>When to Use Layout</h4>' +
-         '<ul>' +
-         '<li>Building app structures with fixed navigation</li>' +
-         '<li>Creating pages with persistent sidebars</li>' +
-         '<li>Managing dynamic content areas</li>' +
-         '<li>Organizing complex multi-section applications</li>' +
-         '</ul>';
-
-      staticPropsContainer.appendChild(featuresInfo);
-
-      const methodsInfo = document.createElement("div");
-      methodsInfo.innerHTML = '<h4>Layout Methods</h4>' +
-         '<ul>' +
-         '<li><strong>onLayOut(element):</strong> Adds a fixed element (accumulative)</li>' +
-         '<li><strong>showing(element):</strong> Replaces the current view (only one at a time)</li>' +
-         '</ul>' +
-         '<h4>Best Practices</h4>' +
-         '<ul>' +
-         '<li>Use <code>layout</code> prop for single fixed element on init</li>' +
-         '<li>Use <code>onLayOut()</code> method for multiple fixed elements</li>' +
-         '<li>Use <code>view</code> prop for initial content on init</li>' +
-         '<li>Use <code>showing()</code> method to dynamically change content</li>' +
-         '<li>Combine Layout with MultiRoute for automatic routing</li>' +
-         '</ul>';
-
-      staticPropsContainer.appendChild(methodsInfo);
-   }
-}
-
-customElements.define("slice-layoutdocumentation", LayoutDocumentation);
+customElements.define('slice-layoutdocumentation', LayoutDocumentation);

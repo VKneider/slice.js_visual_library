@@ -9,36 +9,96 @@
       "component": "CardDocumentation"
     },
     {
+      "filePath": "src/markdown/carrousel.md",
+      "component": "ElementCarrouselDocumentation"
+    },
+    {
+      "filePath": "src/markdown/checkbox.md",
+      "component": "CheckboxDocumentation"
+    },
+    {
+      "filePath": "src/markdown/code-visualizer.md",
+      "component": "CodeVisualizerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/details.md",
+      "component": "DetailsDocumentation"
+    },
+    {
+      "filePath": "src/markdown/dropdown.md",
+      "component": "DropDownDocumentation"
+    },
+    {
+      "filePath": "src/markdown/grid.md",
+      "component": "GridDocumentation"
+    },
+    {
+      "filePath": "src/markdown/icon.md",
+      "component": "IconDocumentation"
+    },
+    {
       "filePath": "src/markdown/input.md",
       "component": "InputDocumentation"
     },
     {
-      "filePath": "src/markdown/library-home.md",
-      "component": "DocumentationLibraryHome"
+      "filePath": "src/markdown/layout.md",
+      "component": "LayoutDocumentation"
+    },
+    {
+      "filePath": "src/markdown/loading.md",
+      "component": "LoadingDocumentation"
+    },
+    {
+      "filePath": "src/markdown/multi-route.md",
+      "component": "MultiRouteDocumentation"
     },
     {
       "filePath": "src/markdown/navbar.md",
       "component": "NavbarDocumentation"
     },
     {
+      "filePath": "src/markdown/not-found.md",
+      "component": "NotFoundDocumentation"
+    },
+    {
       "filePath": "src/markdown/parser-rules.md",
       "component": "MarkdownParserRulesDocumentation"
+    },
+    {
+      "filePath": "src/markdown/route.md",
+      "component": "RouteDocumentation"
     },
     {
       "filePath": "src/markdown/select.md",
       "component": "SelectDocumentation"
     },
     {
+      "filePath": "src/markdown/switch.md",
+      "component": "SwitchDocumentation"
+    },
+    {
+      "filePath": "src/markdown/table.md",
+      "component": "TableDocumentation"
+    },
+    {
       "filePath": "src/markdown/tabs.md",
       "component": "TabsDocumentation"
+    },
+    {
+      "filePath": "src/markdown/tooltip.md",
+      "component": "ToolTipDocumentation"
+    },
+    {
+      "filePath": "src/markdown/treeview.md",
+      "component": "TreeViewDocumentation"
     }
   ],
   "validationErrors": [],
-  "markdownCandidates": [],
-  "requiresCustomBlocks": [
+  "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\vkneider\\Desktop\\Proyectos\\Slice\\slice.js_visual_library\\src\\Components\\DocumentationPages\\MultiRouteDocumentation\\MultiRouteDocumentation.js",
-      "reason": "Interactive MultiRoute demo likely needs :::component or :::html block"
+      "filePath": "C:\\Users\\vkneider\\Desktop\\Proyectos\\Slice\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "reason": "Details-based FAQ can map to :::details blocks"
     }
-  ]
+  ],
+  "requiresCustomBlocks": []
 }

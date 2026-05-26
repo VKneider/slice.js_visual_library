@@ -242,6 +242,41 @@ ${buildCodeBlocks || '    // No dynamic blocks'}
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
+        const createBuildFallbackNode = (name) => {
+          const fallback = document.createElement('div');
+          fallback.style.padding = '10px';
+          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.borderRadius = '8px';
+          fallback.style.background = '#fffbeb';
+          fallback.style.color = '#92400e';
+          fallback.textContent = String(name || '')
+            ? 'Component "' + String(name) + '" is not registered in this build yet.'
+            : 'Requested component is not registered in this build yet.';
+          return fallback;
+        };
+
+        const safeSlice = Object.create(slice);
+        safeSlice.build = async (name, props) => {
+          const built = await slice.build(name, props);
+          if (built instanceof Node) {
+            return built;
+          }
+          if (Array.isArray(built)) {
+            const fragment = document.createDocumentFragment();
+            let hasNode = false;
+            built.forEach((item) => {
+              if (item instanceof Node) {
+                fragment.appendChild(item);
+                hasNode = true;
+              }
+            });
+            if (hasNode) {
+              return fragment;
+            }
+          }
+          return createBuildFallbackNode(name);
+        };
+
         const mount = (node) => {
           if (node instanceof Node) {
             preview.appendChild(node);
@@ -250,7 +285,7 @@ ${buildCodeBlocks || '    // No dynamic blocks'}
 
         try {
           const fn = new AsyncFunction('component', 'slice', 'document', 'mount', scenario.content);
-          const result = await fn(this, slice, document, mount);
+          const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
             preview.appendChild(result);
@@ -271,8 +306,8 @@ ${buildCodeBlocks || '    // No dynamic blocks'}
         value: scenario.content,
         language: 'javascript'
       });
-      card.appendChild(code);
       card.appendChild(preview);
+      card.appendChild(code);
       card.appendChild(errorMessage);
 
       section.appendChild(card);

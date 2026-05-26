@@ -5,6 +5,49 @@ const documentationRoutes = {
     component: 'DocumentationLibraryHome',
     title: 'Documentation'
   },
+  Data: {
+    title: 'Data',
+    path: '/docs/data',
+    items: [
+      {
+        title: 'Table',
+        path: '/docs/data/table',
+        component: 'TableDocumentation'
+      },
+    ]
+  },
+  Display: {
+    title: 'Display',
+    path: '/docs/display',
+    items: [
+      {
+        title: 'CodeVisualizer',
+        path: '/docs/display/code-visualizer',
+        component: 'CodeVisualizerDocumentation'
+      },
+      {
+        title: 'Icon',
+        path: '/docs/display/icon',
+        component: 'IconDocumentation'
+      },
+      {
+        title: 'ToolTip',
+        path: '/docs/display/tooltip',
+        component: 'ToolTipDocumentation'
+      },
+    ]
+  },
+  Feedback: {
+    title: 'Feedback',
+    path: '/docs/feedback',
+    items: [
+      {
+        title: 'Loading',
+        path: '/docs/feedback/loading',
+        component: 'LoadingDocumentation'
+      },
+    ]
+  },
   InputComponents: {
     title: 'Input Components',
     path: '/docs/input-components',
@@ -24,6 +67,16 @@ const documentationRoutes = {
         path: '/docs/input/select',
         component: 'SelectDocumentation'
       },
+      {
+        title: 'Checkbox',
+        path: '/docs/input/checkbox',
+        component: 'CheckboxDocumentation'
+      },
+      {
+        title: 'Switch',
+        path: '/docs/input/switch',
+        component: 'SwitchDocumentation'
+      },
     ]
   },
   Internal: {
@@ -42,9 +95,29 @@ const documentationRoutes = {
     path: '/docs/layout',
     items: [
       {
+        title: 'Layout',
+        path: '/docs/layout/layout',
+        component: 'LayoutDocumentation'
+      },
+      {
         title: 'Card',
         path: '/docs/layout/card',
         component: 'CardDocumentation'
+      },
+      {
+        title: 'Details',
+        path: '/docs/layout/details',
+        component: 'DetailsDocumentation'
+      },
+      {
+        title: 'Grid',
+        path: '/docs/layout/grid',
+        component: 'GridDocumentation'
+      },
+      {
+        title: 'Carrousel',
+        path: '/docs/layout/element-carrousel',
+        component: 'ElementCarrouselDocumentation'
       },
     ]
   },
@@ -62,16 +135,36 @@ const documentationRoutes = {
         path: '/docs/navigation/tabs',
         component: 'TabsDocumentation'
       },
+      {
+        title: 'DropDown',
+        path: '/docs/navigation/dropdown',
+        component: 'DropDownDocumentation'
+      },
+      {
+        title: 'NotFound',
+        path: '/docs/navigation/not-found',
+        component: 'NotFoundDocumentation'
+      },
+      {
+        title: 'TreeView',
+        path: '/docs/navigation/treeview',
+        component: 'TreeViewDocumentation'
+      },
     ]
   },
-  Overview: {
-    title: 'Overview',
-    path: '/docs/overview',
+  Routing: {
+    title: 'Routing',
+    path: '/docs/routing',
     items: [
       {
-        title: 'Overview',
-        path: '/docs',
-        component: 'DocumentationLibraryHome'
+        title: 'Route',
+        path: '/docs/routing/route',
+        component: 'RouteDocumentation'
+      },
+      {
+        title: 'MultiRoute',
+        path: '/docs/routing/multi-route',
+        component: 'MultiRouteDocumentation'
       },
     ]
   },

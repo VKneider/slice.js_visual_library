@@ -37,9 +37,6 @@ this.appendChild(card);
 const variants = ['default', 'outlined', 'elevated'];
 
 const grid = document.createElement('div');
-grid.style.display = 'grid';
-grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
-grid.style.gap = '12px';
 
 for (const variant of variants) {
   const card = await slice.build('Card', {
@@ -55,15 +52,12 @@ return grid;
 
 :::script label="Status cards with badge + progress" expected="renders metrics cards with clear status"
 const cards = [
-  { title: 'Build Pipeline', badge: 'Healthy', progress: 82, customColor: { button: '#e2e8f0', label: '#0f172a' } },
-  { title: 'QA Coverage', badge: 'Warning', progress: 63, customColor: { button: '#fde68a', label: '#7c2d12' } },
-  { title: 'Deploy Queue', badge: 'Blocked', progress: 22, customColor: { button: '#fecaca', label: '#7f1d1d' } }
+  { title: 'Build Pipeline', badge: 'Healthy', progress: 82 },
+  { title: 'QA Coverage', badge: 'Warning', progress: 63 },
+  { title: 'Deploy Queue', badge: 'Blocked', progress: 22 }
 ];
 
 const grid = document.createElement('div');
-grid.style.display = 'grid';
-grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(240px, 1fr))';
-grid.style.gap = '12px';
 
 for (const config of cards) {
   const card = await slice.build('Card', {
@@ -79,47 +73,56 @@ for (const config of cards) {
 return grid;
 :::
 
-:::script label="Interactive card action" expected="card click toggles contextual message"
-const note = document.createElement('p');
-note.textContent = 'Click the card to change this message.';
-
+:::script label="Card with expandable details" expected="details panel can be toggled using card control"
 const card = await slice.build('Card', {
   title: 'Release Notes',
-  text: 'Tap to acknowledge latest update.',
-  variant: 'minimal',
-  onClick: () => {
-    note.textContent = note.textContent.includes('acknowledge')
-      ? 'Release acknowledged by reviewer.'
-      : 'Click the card to change this message.';
-  }
+  text: 'Version 1.0.1 includes route sync and parser hardening.',
+  details: 'Highlights: docs route auto-sync, tabs registration, script preview improvements.',
+  variant: 'outlined'
 });
 
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(card);
-return wrapper;
+return card;
 :::
 
-:::script label="Card with action footer" expected="renders card paired with action buttons"
+:::script label="Card with loading and disabled states" expected="loading and disabled visual states are applied"
 const card = await slice.build('Card', {
   title: 'Project Onboarding',
   text: 'Invite team members and configure permissions.',
-  variant: 'elevated'
+  variant: 'elevated',
+  loading: true,
+  disabled: true
 });
 
-const invite = await slice.build('Button', { value: 'Invite', customColor: { button: '#2563eb', label: '#ffffff' } });
-const permissions = await slice.build('Button', { value: 'Permissions' });
+return card;
+:::
 
-const actions = document.createElement('div');
-actions.style.display = 'flex';
-actions.style.gap = '8px';
-actions.style.marginTop = '8px';
-actions.appendChild(invite);
-actions.appendChild(permissions);
+:::script label="Card as notification item" expected="compact card for inbox and activity feeds"
+const card = await slice.build('Card', {
+  title: 'Deployment completed',
+  text: 'Version 1.0.1 is now live in production.',
+  badge: 'Success',
+  variant: 'outlined'
+});
+
+return card;
+:::
+
+:::script label="Card with CTA workflow" expected="card paired with follow-up action button"
+const card = await slice.build('Card', {
+  title: 'Customer interview notes',
+  text: 'Summarize findings and send to product team.',
+  variant: 'elevated',
+  details: 'Open questions: onboarding friction, pricing clarity, mobile navigation expectations.'
+});
+
+const action = await slice.build('Button', {
+  value: 'Open task',
+  customColor: { button: '#2563eb', label: '#ffffff' }
+});
 
 const host = document.createElement('div');
 host.appendChild(card);
-host.appendChild(actions);
+host.appendChild(action);
 return host;
 :::
 

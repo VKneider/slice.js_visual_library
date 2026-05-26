@@ -44,6 +44,18 @@ test('mergeComponentsRegistry injects documentation components and copy menu', (
   assert.equal(merged.CopyMarkdownMenu, 'AppComponents');
 });
 
+test('mergeComponentsRegistry preserves existing visual components like Tabs', () => {
+  const registry = {
+    Tabs: 'Visual',
+    Button: 'Visual'
+  };
+
+  const merged = mergeComponentsRegistry(registry, ['TabsDocumentation']);
+
+  assert.equal(merged.Tabs, 'Visual');
+  assert.equal(merged.TabsDocumentation, 'DocumentationPages');
+});
+
 test('buildStaticPropsSectionForFrontMatter renders Allowed values from static props', async () => {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-static-props-'));
   const srcDir = path.join(tmpRoot, 'src');

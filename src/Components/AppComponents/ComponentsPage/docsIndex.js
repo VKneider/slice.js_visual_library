@@ -1,5 +1,60 @@
 const docsIndex = [
   {
+    title: 'Table',
+    route: '/docs/data/table',
+    description: 'Table documentation with header and row rendering scenarios.',
+    section: 'Data',
+    group: 'Tables',
+    order: 10,
+    navLabel: 'Table',
+    component: 'TableDocumentation',
+    tags: ['table', 'data', 'display']
+  },
+  {
+    title: 'Icon',
+    route: '/docs/display/icon',
+    description: 'Icon documentation with name, size, color and style prop scenarios.',
+    section: 'Display',
+    group: 'Basic',
+    order: 20,
+    navLabel: 'Icon',
+    component: 'IconDocumentation',
+    tags: ['icon', 'display']
+  },
+  {
+    title: 'CodeVisualizer',
+    route: '/docs/display/code-visualizer',
+    description: 'CodeVisualizer documentation with syntax highlighting and copy scenarios.',
+    section: 'Display',
+    group: 'Code',
+    order: 10,
+    navLabel: 'CodeVisualizer',
+    component: 'CodeVisualizerDocumentation',
+    tags: ['code', 'syntax', 'highlight', 'display']
+  },
+  {
+    title: 'ToolTip',
+    route: '/docs/display/tooltip',
+    description: 'ToolTip documentation with hover and focus trigger scenarios.',
+    section: 'Display',
+    group: 'Overlay',
+    order: 10,
+    navLabel: 'ToolTip',
+    component: 'ToolTipDocumentation',
+    tags: ['tooltip', 'overlay', 'display']
+  },
+  {
+    title: 'Loading',
+    route: '/docs/feedback/loading',
+    description: 'Loading component documentation with activation and container usage scenarios.',
+    section: 'Feedback',
+    group: 'Status',
+    order: 40,
+    navLabel: 'Loading',
+    component: 'LoadingDocumentation',
+    tags: ['loading', 'feedback']
+  },
+  {
     title: 'Button',
     route: '/docs/input/button',
     description: 'Button documentation with executable prop scenarios.',
@@ -33,6 +88,28 @@ const docsIndex = [
     tags: ['select', 'forms']
   },
   {
+    title: 'Checkbox',
+    route: '/docs/input/checkbox',
+    description: 'Checkbox component documentation with practical prop scenarios.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 13,
+    navLabel: 'Checkbox',
+    component: 'CheckboxDocumentation',
+    tags: ['checkbox', 'input', 'forms']
+  },
+  {
+    title: 'Switch',
+    route: '/docs/input/switch',
+    description: 'Switch component documentation with practical interaction scenarios.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 14,
+    navLabel: 'Switch',
+    component: 'SwitchDocumentation',
+    tags: ['switch', 'input', 'toggle']
+  },
+  {
     title: 'Markdown Parser Rules',
     route: '/docs/internal/markdown-parser-rules',
     description: 'Contract, template, and generation rules for Slice.js documentation pages.',
@@ -44,6 +121,17 @@ const docsIndex = [
     tags: ['docs', 'parser', 'rules']
   },
   {
+    title: 'Layout',
+    route: '/docs/layout/layout',
+    description: 'Layout container documentation with view swapping scenarios.',
+    section: 'Layout',
+    group: 'Containers',
+    order: 10,
+    navLabel: 'Layout',
+    component: 'LayoutDocumentation',
+    tags: ['layout', 'container']
+  },
+  {
     title: 'Card',
     route: '/docs/layout/card',
     description: 'Card documentation with prop scenario scripts.',
@@ -53,6 +141,39 @@ const docsIndex = [
     navLabel: 'Card',
     component: 'CardDocumentation',
     tags: ['card', 'layout']
+  },
+  {
+    title: 'Details',
+    route: '/docs/layout/details',
+    description: 'Details component documentation with collapsible content scenarios.',
+    section: 'Layout',
+    group: 'Containers',
+    order: 21,
+    navLabel: 'Details',
+    component: 'DetailsDocumentation',
+    tags: ['details', 'disclosure', 'layout']
+  },
+  {
+    title: 'Grid',
+    route: '/docs/layout/grid',
+    description: 'Grid component documentation with layout composition scenarios.',
+    section: 'Layout',
+    group: 'Containers',
+    order: 22,
+    navLabel: 'Grid',
+    component: 'GridDocumentation',
+    tags: ['grid', 'layout']
+  },
+  {
+    title: 'ElementCarrousel',
+    route: '/docs/layout/element-carrousel',
+    description: 'ElementCarrousel documentation with slide navigation and indicator scenarios.',
+    section: 'Layout',
+    group: 'Containers',
+    order: 25,
+    navLabel: 'Carrousel',
+    component: 'ElementCarrouselDocumentation',
+    tags: ['carrousel', 'carousel', 'layout', 'navigation']
   },
   {
     title: 'Navbar',
@@ -77,15 +198,59 @@ const docsIndex = [
     tags: ['tabs', 'navigation', 'routing']
   },
   {
-    title: 'Slice.js Documentation Library',
-    route: '/docs',
-    description: 'Entry page for Slice.js component documentation and scenario testing.',
-    section: 'Overview',
-    group: 'Docs',
-    order: 0,
-    navLabel: 'Overview',
-    component: 'DocumentationLibraryHome',
-    tags: ['documentation', 'overview']
+    title: 'DropDown',
+    route: '/docs/navigation/dropdown',
+    description: 'DropDown component documentation with practical navigation scenarios.',
+    section: 'Navigation',
+    group: 'Core',
+    order: 32,
+    navLabel: 'DropDown',
+    component: 'DropDownDocumentation',
+    tags: ['dropdown', 'navigation']
+  },
+  {
+    title: 'NotFound',
+    route: '/docs/navigation/not-found',
+    description: 'NotFound 404 page documentation with route fallback scenarios.',
+    section: 'Navigation',
+    group: 'Core',
+    order: 40,
+    navLabel: 'NotFound',
+    component: 'NotFoundDocumentation',
+    tags: ['not-found', '404', 'navigation', 'routing']
+  },
+  {
+    title: 'TreeView',
+    route: '/docs/navigation/treeview',
+    description: 'TreeView documentation with nested item and navigation scenarios.',
+    section: 'Navigation',
+    group: 'Navigation',
+    order: 50,
+    navLabel: 'TreeView',
+    component: 'TreeViewDocumentation',
+    tags: ['treeview', 'navigation', 'tree']
+  },
+  {
+    title: 'Route',
+    route: '/docs/routing/route',
+    description: 'Route container documentation with dynamic path and metadata scenarios.',
+    section: 'Routing',
+    group: 'Containers',
+    order: 50,
+    navLabel: 'Route',
+    component: 'RouteDocumentation',
+    tags: ['route', 'routing', 'container']
+  },
+  {
+    title: 'MultiRoute',
+    route: '/docs/routing/multi-route',
+    description: 'MultiRoute container documentation with app-shell and dynamic route scenarios.',
+    section: 'Routing',
+    group: 'Containers',
+    order: 51,
+    navLabel: 'MultiRoute',
+    component: 'MultiRouteDocumentation',
+    tags: ['multiroute', 'routing', 'app-shell']
   },
 ];
 

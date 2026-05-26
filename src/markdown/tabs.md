@@ -42,7 +42,6 @@ const tabs = await slice.build('Tabs', {
 });
 
 const content = document.createElement('div');
-content.style.marginTop = '10px';
 content.textContent = 'Overview content';
 
 tabs.onTabChange = (tabId) => {
@@ -79,7 +78,6 @@ const tabs = await slice.build('Tabs', {
 });
 
 const panel = document.createElement('div');
-panel.style.marginTop = '8px';
 panel.textContent = `Current panel: ${active}`;
 
 const jumpToBilling = await slice.build('Button', {
@@ -92,8 +90,6 @@ const jumpToBilling = await slice.build('Button', {
 });
 
 const host = document.createElement('div');
-host.style.display = 'grid';
-host.style.gap = '10px';
 host.appendChild(tabs);
 host.appendChild(jumpToBilling);
 host.appendChild(panel);
@@ -128,7 +124,6 @@ return host;
 :::script label="lazy panel rendering" expected="panel content mounts only on first activation"
 const mounted = new Set();
 const panel = document.createElement('div');
-panel.style.marginTop = '8px';
 
 const renderPanel = (tabId) => {
   if (!mounted.has(tabId)) {
@@ -174,11 +169,22 @@ const card = await slice.build('Card', {
 });
 
 const host = document.createElement('div');
-host.style.display = 'grid';
-host.style.gap = '10px';
 host.appendChild(tabs);
 host.appendChild(card);
 return host;
+:::
+
+:::script label="tabs with static active panel" expected="active tab can be preselected by activeTab"
+const tabs = await slice.build('Tabs', {
+  items: [
+    { id: 'details', label: 'Details' },
+    { id: 'members', label: 'Members' },
+    { id: 'billing', label: 'Billing' }
+  ],
+  activeTab: 'members'
+});
+
+return tabs;
 :::
 
 ## Accessibility notes

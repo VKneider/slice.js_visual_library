@@ -1,0 +1,23 @@
+<div class="documentation-content routedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="route">
+    <span class="doc-title-text">Route</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>Route</code> renders a single component when the current URL matches a target path.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li>Registers its own <code>path</code> + <code>component</code> into router map when mounted.</li><li>Supports dynamic segments using <code>${param}</code> syntax.</li><li>Passes <code>params</code> and <code>metadata</code> to the routed component.</li><li>Reuses cached component instances and calls <code>update()</code> when needed.</li></ul>
+<h2 id="basic-usage">Basic Usage</h2>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>metadata</code> to keep guards and page policies declarative instead of hard-coding checks inside components.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Dynamic params use <code>${param}</code> syntax, not <code>:param</code>.</div>
+</div>

@@ -22,7 +22,8 @@ export default class DropDown extends HTMLElement {
       this.$label = this.querySelector('.slice_dropdown_label');
       this.$caret = this.querySelector('.caret');
 
-      this.addEventListener('click', () => {
+      this.$dropdown.addEventListener('click', (event) => {
+         event.stopPropagation();
          this.toggleDrop();
       });
 
@@ -33,7 +34,21 @@ export default class DropDown extends HTMLElement {
       slice.controller.setComponentProps(this, props);
    }
 
-   init() {}
+   init() {
+      this._outsideClickListener = (event) => {
+         if (!this.contains(event.target)) {
+            this.closeDrop();
+         }
+      };
+
+      document.addEventListener('click', this._outsideClickListener);
+   }
+
+   beforeDestroy() {
+      if (this._outsideClickListener) {
+         document.removeEventListener('click', this._outsideClickListener);
+      }
+   }
 
    get label() {
       return this._label;
@@ -49,15 +64,25 @@ export default class DropDown extends HTMLElement {
    }
 
    set options(values) {
-      this._options = values;
-      values.forEach((element) => {
+      this._options = Array.isArray(values) ? values : [];
+      this.$box.innerHTML = '';
+
+      this._options.forEach((element) => {
          const div = document.createElement('div');
          const e = document.createElement('a');
-         e.addEventListener('click', () => {
+
+         const text = element?.text || element?.label || '';
+         const href = element?.href || element?.path || '#';
+
+         e.addEventListener('click', async (event) => {
+            if (element?.path && slice?.router?.navigate) {
+               event.preventDefault();
+               await slice.router.navigate(element.path);
+            }
             this.closeDrop();
          });
-         e.textContent = element.text;
-         e.href = element.href;
+         e.textContent = text;
+         e.href = href;
          div.appendChild(e);
          this.$box.appendChild(div);
       });

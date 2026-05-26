@@ -1,292 +1,237 @@
 export default class GridDocumentation extends HTMLElement {
-   constructor(props) {
-      super();
-      slice.attachTemplate(this);
-      slice.controller.setComponentProps(this, props);
-      this.debuggerProps = [];
-   }
+  constructor(props) {
+    super();
+    slice.attachTemplate(this);
+    slice.controller.setComponentProps(this, props);
+    this.debuggerProps = [];
+    this.scriptScenarios = [{"label":"two-column card grid","expected":"grid renders card items in two columns","kind":"script","content":"const cardA = await slice.build('Card', {\n  title: 'Alpha',\n  text: 'First card',\n  variant: 'outlined'\n});\n\nconst cardB = await slice.build('Card', {\n  title: 'Beta',\n  text: 'Second card',\n  variant: 'outlined'\n});\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  gap: '12px',\n  items: [cardA, cardB]\n});\n\nreturn grid;"},{"label":"custom column template","expected":"columnTemplate overrides fixed columns repeat","kind":"script","content":"const a = document.createElement('div');\na.textContent = 'Main panel';\n\nconst b = document.createElement('div');\nb.textContent = 'Sidebar';\n\nconst grid = await slice.build('Grid', {\n  columnTemplate: '2fr 1fr',\n  rows: 1,\n  items: [a, b]\n});\n\nreturn grid;"},{"label":"dynamic grid update","expected":"items can be replaced by assigning new items array","kind":"script","content":"const first = document.createElement('div');\nfirst.textContent = 'Item 1';\n\nconst second = document.createElement('div');\nsecond.textContent = 'Item 2';\n\nconst third = document.createElement('div');\nthird.textContent = 'Item 3';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 2,\n  items: [first, second]\n});\n\ngrid.items = [first, second, third];\nreturn grid;"}];
+  }
 
-   async init() {
-      // Ejemplo básico - 2 columnas
-      await this.createGridExample(
-         this.querySelector(".basicGrid"),
-         async () => {
-            const grid = await slice.build("Grid", { 
-               columns: 2, 
-               rows: 1 
+  async init() {
+    this.markdownPath = "grid.md";
+    this.markdownContent = "---\ntitle: Grid\nroute: /docs/layout/grid\nnavLabel: Grid\nsection: Layout\ngroup: Containers\norder: 22\ndescription: Grid component documentation with layout composition scenarios.\ncomponent: GridDocumentation\ngenerate: true\ntags: [grid, layout]\n---\n\n# Grid\n\n## Overview\n`Grid` arranges content in structured rows and columns with configurable templates and spacing.\n\n## Core Behavior\n- `columns` and `rows` define the base matrix.\n- `gap` controls spacing between cells.\n- `items` appends DOM nodes as grid children.\n\n## Basic Usage\n```javascript title=\"Build grid\"\nconst one = document.createElement('div');\none.textContent = 'One';\n\nconst two = document.createElement('div');\ntwo.textContent = 'Two';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  items: [one, two]\n});\n\nthis.appendChild(grid);\n```\n\n## Prop Scenarios\n:::script label=\"two-column card grid\" expected=\"grid renders card items in two columns\"\nconst cardA = await slice.build('Card', {\n  title: 'Alpha',\n  text: 'First card',\n  variant: 'outlined'\n});\n\nconst cardB = await slice.build('Card', {\n  title: 'Beta',\n  text: 'Second card',\n  variant: 'outlined'\n});\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  gap: '12px',\n  items: [cardA, cardB]\n});\n\nreturn grid;\n:::\n\n:::script label=\"custom column template\" expected=\"columnTemplate overrides fixed columns repeat\"\nconst a = document.createElement('div');\na.textContent = 'Main panel';\n\nconst b = document.createElement('div');\nb.textContent = 'Sidebar';\n\nconst grid = await slice.build('Grid', {\n  columnTemplate: '2fr 1fr',\n  rows: 1,\n  items: [a, b]\n});\n\nreturn grid;\n:::\n\n:::script label=\"dynamic grid update\" expected=\"items can be replaced by assigning new items array\"\nconst first = document.createElement('div');\nfirst.textContent = 'Item 1';\n\nconst second = document.createElement('div');\nsecond.textContent = 'Item 2';\n\nconst third = document.createElement('div');\nthird.textContent = 'Item 3';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 2,\n  items: [first, second]\n});\n\ngrid.items = [first, second, third];\nreturn grid;\n:::\n";
+    if (true) {
+      await this.setupCopyButton();
+    }
+      {
+         const container = this.querySelector('[data-block-id="doc-block-1"]');
+         if (container) {
+            const code = await slice.build('CodeVisualizer', {
+               value: "const one = document.createElement('div');\none.textContent = 'One';\n\nconst two = document.createElement('div');\ntwo.textContent = 'Two';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  items: [one, two]\n});\n\nthis.appendChild(grid);",
+               language: "javascript"
             });
-
-            // Crear cards de ejemplo
-            for (let i = 1; i <= 2; i++) {
-               const card = document.createElement("div");
-               card.style.cssText = "background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); padding: 30px; border-radius: 8px; color: white; text-align: center; min-height: 150px; display: flex; align-items: center; justify-content: center;";
-               card.innerHTML = `<h3 style="margin: 0; color: white;">Card ${i}</h3>`;
-               await grid.setItem(card);
+            if ("Build grid") {
+               const label = document.createElement('div');
+               label.classList.add('code-block-title');
+               label.textContent = "Build grid";
+               container.appendChild(label);
             }
-
-            return grid;
-         },
-         `{
-   columns: 2,  // 2 columns
-   rows: 1      // 1 row
-}
-
-// Add items
-await grid.setItem(card1);
-await grid.setItem(card2);
-
-// Static Props defaults:
-// columns: 1
-// rows: 1
-// items: []`
-      );
-
-      // Ejemplo con 3 columnas
-      await this.createGridExample(
-         this.querySelector(".threeColumnsGrid"),
-         async () => {
-            const grid = await slice.build("Grid", { 
-               columns: 3, 
-               rows: 1 
-            });
-
-            // Crear cards de ejemplo
-            for (let i = 1; i <= 3; i++) {
-               const card = document.createElement("div");
-               card.style.cssText = `background-color: var(--${i === 1 ? 'primary' : i === 2 ? 'secondary' : 'success'}-color); padding: 20px; border-radius: 8px; color: white; text-align: center; min-height: 120px; display: flex; flex-direction: column; justify-content: center;`;
-               card.innerHTML = `<div style="font-size: 2em; margin-bottom: 10px;">${i === 1 ? '📊' : i === 2 ? '📈' : '📉'}</div><p style="margin: 0; color: white; font-weight: bold;">Metric ${i}</p>`;
-               await grid.setItem(card);
-            }
-
-            return grid;
-         },
-         `{
-   columns: 3,
-   rows: 1
-}
-
-// Perfect for dashboards with 3 metrics
-await grid.setItem(metricCard1);
-await grid.setItem(metricCard2);
-await grid.setItem(metricCard3);`
-      );
-
-      // Ejemplo con items en la inicialización
-      await this.createGridExample(
-         this.querySelector(".itemsInitGrid"),
-         async () => {
-            // Crear items primero
-            const items = [];
-            for (let i = 1; i <= 4; i++) {
-               const card = document.createElement("div");
-               card.style.cssText = "background-color: var(--tertiary-background-color); border: 2px solid var(--primary-color); padding: 20px; border-radius: 8px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center;";
-               card.innerHTML = `<p style="margin: 0; color: var(--primary-color); font-weight: bold;">Item ${i}</p>`;
-               items.push(card);
-            }
-
-            const grid = await slice.build("Grid", { 
-               columns: 2, 
-               rows: 2,
-               items: items  // Pasar items en la inicialización
-            });
-
-            return grid;
-         },
-         `// Create items first
-const card1 = await slice.build("Card", {...});
-const card2 = await slice.build("Card", {...});
-const card3 = await slice.build("Card", {...});
-const card4 = await slice.build("Card", {...});
-
-// Build Grid with items
-const grid = await slice.build("Grid", {
-   columns: 2,
-   rows: 2,
-   items: [card1, card2, card3, card4]
-});
-
-// Items are automatically added!
-// Static Props Configuration:
-// items: { type: "array", default: [] }`
-      );
-
-      // Ejemplo responsive
-      await this.createGridExample(
-         this.querySelector(".responsiveGrid"),
-         async () => {
-            const grid = await slice.build("Grid", { 
-               columns: window.innerWidth > 770 ? 4 : 2, 
-               rows: 1 
-            });
-
-            // Crear cards de ejemplo
-            for (let i = 1; i <= 4; i++) {
-               const card = document.createElement("div");
-               card.style.cssText = "background-color: var(--secondary-background-color); border: 1px solid var(--primary-color-shade); padding: 15px; border-radius: 8px; text-align: center; min-height: 80px; display: flex; align-items: center; justify-content: center;";
-               card.innerHTML = `<p style="margin: 0; color: var(--font-primary-color); font-size: 0.9em;">Product ${i}</p>`;
-               await grid.setItem(card);
-            }
-
-            // Info adicional
-            const info = document.createElement("div");
-            info.style.cssText = "margin-top: 15px; padding: 10px; background-color: var(--tertiary-background-color); border-radius: 4px; text-align: center;";
-            info.innerHTML = `<p style="margin: 0; color: var(--font-secondary-color); font-size: 0.85em;">📱 Current: ${window.innerWidth > 770 ? '4 columns (Desktop)' : '2 columns (Mobile)'}</p>`;
-            
-            const container = document.createElement("div");
-            container.appendChild(grid);
-            container.appendChild(info);
-
-            return container;
-         },
-         `// Responsive Grid
-const grid = await slice.build("Grid", {
-   columns: window.innerWidth > 770 ? 4 : 2,
-   rows: 1
-});
-
-// Listen to resize
-window.addEventListener('resize', () => {
-   grid.columns = window.innerWidth > 770 ? 4 : 2;
-});
-
-// Add items dynamically
-products.forEach(async (product) => {
-   const card = await slice.build("Card", product);
-   await grid.setItem(card);
-});`
-      );
-
-      // Añadir ejemplo de static props
-      await this.createStaticPropsExample();
-   }
-
-   async createGridExample(container, buildFunction, codeString) {
-      if (!container) {
-         console.error("Container not found for Grid example");
-         return;
+            container.appendChild(code);
+         }
       }
+      {
+         const container = this.querySelector('[data-block-id="doc-block-5"]');
+         if (container) {
+            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `columns` | `number` | `false` | `1` | - |","| `columnTemplate` | `string` | `false` | `null` | - |","| `gap` | `string` | `false` | `10px` | - |","| `items` | `array` | `false` | `` | - |","| `rows` | `number` | `false` | `1` | - |","| `rowTemplate` | `string` | `false` | `null` | - |"];
+            const clean = (line) => {
+               let value = line.trim();
+               if (value.startsWith('|')) {
+                  value = value.slice(1);
+               }
+               if (value.endsWith('|')) {
+                  value = value.slice(0, -1);
+               }
+               return value.split('|').map((cell) => cell.trim());
+            };
 
-      // Crear el grid funcional
-      const demo = await buildFunction();
+            const formatCell = (text) => {
+               let output = text
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
 
-      // Crear el CodeVisualizer
-      const codeVisualizer = await slice.build("CodeVisualizer", {
-         value: `const grid = await slice.build("Grid", ${codeString});`,
-         language: "javascript"
+               const applyBold = (input) => {
+                  let result = '';
+                  let index = 0;
+                  while (index < input.length) {
+                     const start = input.indexOf('**', index);
+                     if (start === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     const end = input.indexOf('**', start + 2);
+                     if (end === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
+                     index = end + 2;
+                  }
+                  return result;
+               };
+
+               const applyInlineCode = (input) => {
+                  const parts = input.split(String.fromCharCode(96));
+                  if (parts.length === 1) return input;
+                  return parts
+                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
+                     .join('');
+               };
+
+               output = applyBold(output);
+               output = applyInlineCode(output);
+               return output;
+            };
+
+            const headers = lines.length > 0 ? clean(lines[0]) : [];
+            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
+            const table = await slice.build('Table', { headers, rows });
+            container.appendChild(table);
+         }
+      }
+    await this.renderScriptScenarios();
+  }
+
+  async update() {
+    // Refresh dynamic content here if needed
+  }
+
+  beforeDestroy() {
+    // Cleanup timers, listeners, or pending work here
+  }
+
+  async setupCopyButton() {
+    const container = this.querySelector('[data-copy-md]');
+    if (!container) return;
+
+    const copyMenu = await slice.build('CopyMarkdownMenu', {
+      markdownPath: this.markdownPath,
+      markdownContent: this.markdownContent,
+      label: '❐'
+    });
+
+    container.appendChild(copyMenu);
+  }
+
+  async renderScriptScenarios() {
+    if (!Array.isArray(this.scriptScenarios) || this.scriptScenarios.length === 0) return;
+    const host = this.querySelector('.documentation-content');
+    if (!host) return;
+
+    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+    const section = document.createElement('section');
+    section.classList.add('doc-script-scenarios');
+
+    const title = document.createElement('h2');
+    title.textContent = 'Prop Scenarios';
+    section.appendChild(title);
+
+    const subtitle = document.createElement('p');
+    subtitle.classList.add('doc-script-subtitle');
+    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    section.appendChild(subtitle);
+
+    for (const scenario of this.scriptScenarios) {
+      const card = document.createElement('article');
+      card.classList.add('doc-script-card');
+
+      const header = document.createElement('div');
+      header.classList.add('doc-script-header');
+
+      const heading = document.createElement('h3');
+      heading.classList.add('doc-script-title');
+      heading.textContent = scenario.label;
+      header.appendChild(heading);
+
+      card.appendChild(header);
+
+      const preview = document.createElement('div');
+      preview.classList.add('doc-script-preview');
+      const errorMessage = document.createElement('p');
+      errorMessage.classList.add('doc-script-error');
+      errorMessage.hidden = true;
+
+      const executeScenario = async () => {
+        preview.innerHTML = '';
+        errorMessage.hidden = true;
+        errorMessage.textContent = '';
+
+        const createBuildFallbackNode = (name) => {
+          const fallback = document.createElement('div');
+          fallback.style.padding = '10px';
+          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.borderRadius = '8px';
+          fallback.style.background = '#fffbeb';
+          fallback.style.color = '#92400e';
+          fallback.textContent = String(name || '')
+            ? 'Component "' + String(name) + '" is not registered in this build yet.'
+            : 'Requested component is not registered in this build yet.';
+          return fallback;
+        };
+
+        const safeSlice = Object.create(slice);
+        safeSlice.build = async (name, props) => {
+          const built = await slice.build(name, props);
+          if (built instanceof Node) {
+            return built;
+          }
+          if (Array.isArray(built)) {
+            const fragment = document.createDocumentFragment();
+            let hasNode = false;
+            built.forEach((item) => {
+              if (item instanceof Node) {
+                fragment.appendChild(item);
+                hasNode = true;
+              }
+            });
+            if (hasNode) {
+              return fragment;
+            }
+          }
+          return createBuildFallbackNode(name);
+        };
+
+        const mount = (node) => {
+          if (node instanceof Node) {
+            preview.appendChild(node);
+          }
+        };
+
+        try {
+          const fn = new AsyncFunction('component', 'slice', 'document', 'mount', scenario.content);
+          const result = await fn(this, safeSlice, document, mount);
+
+          if (result instanceof Node) {
+            preview.appendChild(result);
+          } else if (Array.isArray(result)) {
+            result.forEach((item) => {
+              if (item instanceof Node) {
+                preview.appendChild(item);
+              }
+            });
+          }
+        } catch (error) {
+          errorMessage.textContent = 'Live preview error: ' + error.message;
+          errorMessage.hidden = false;
+        }
+      };
+
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
       });
+      card.appendChild(preview);
+      card.appendChild(code);
+      card.appendChild(errorMessage);
 
-      // Crear contenedor del ejemplo
-      const exampleDiv = document.createElement("div");
-      exampleDiv.className = "gridExample";
-      
-      const demoContainer = document.createElement("div");
-      demoContainer.className = "gridPreview";
-      demoContainer.appendChild(demo);
-      
-      exampleDiv.appendChild(demoContainer);
-      exampleDiv.appendChild(codeVisualizer);
+      section.appendChild(card);
 
-      container.appendChild(exampleDiv);
-   }
+      await executeScenario();
+    }
 
-   async createStaticPropsExample() {
-      const staticPropsContainer = this.querySelector(".static-props-example");
-      if (!staticPropsContainer) {
-         console.error("Static props container not found");
-         return;
-      }
-
-      const defaultsExample = await slice.build("CodeVisualizer", {
-         value: `// Grid Static Props Configuration:
-export default class Grid extends HTMLElement {
-   static props = {
-      columns: { 
-         type: "number", 
-         default: 1, 
-         required: false 
-      },
-      rows: { 
-         type: "number", 
-         default: 1, 
-         required: false 
-      },
-      items: { 
-         type: "array", 
-         default: [], 
-         required: false 
-      },
-      gap: {
-         type: "string",
-         default: "10px",
-         required: false
-      }
-   };
+    host.appendChild(section);
+  }
 }
 
-// Example with automatic defaults:
-const grid1 = await slice.build("Grid", {
-   columns: 3
-   // rows defaults to 1
-   // items defaults to []
-   // gap defaults to "10px"
-});
-
-// Example with all props:
-const grid2 = await slice.build("Grid", {
-   columns: 4,
-   rows: 2,
-   gap: "20px",
-   items: [card1, card2, card3, card4]
-});
-
-// Dynamic modification:
-grid.columns = 2;  // Change columns
-grid.rows = 3;     // Change rows
-await grid.setItem(newCard);  // Add item
-grid.clear();      // Remove all items`,
-         language: "javascript"
-      });
-
-      staticPropsContainer.appendChild(defaultsExample);
-
-      const methodsInfo = document.createElement("div");
-      methodsInfo.innerHTML = '<h4>Grid Methods</h4>' +
-         '<ul>' +
-         '<li><strong>setItem(item):</strong> Adds a single item to the grid</li>' +
-         '<li><strong>setItems(items):</strong> Adds multiple items to the grid</li>' +
-         '<li><strong>clear():</strong> Removes all items from the grid</li>' +
-         '</ul>' +
-         '<h4>Grid Properties</h4>' +
-         '<ul>' +
-         '<li><strong>columns:</strong> Number of columns in the grid</li>' +
-         '<li><strong>rows:</strong> Number of rows in the grid</li>' +
-         '<li><strong>items:</strong> Array of items to add on initialization</li>' +
-         '<li><strong>gap:</strong> Space between grid items (CSS value)</li>' +
-         '</ul>';
-
-      staticPropsContainer.appendChild(methodsInfo);
-
-      const useCasesInfo = document.createElement("div");
-      useCasesInfo.innerHTML = '<h4>Common Use Cases</h4>' +
-         '<ul>' +
-         '<li><strong>Dashboard Layouts:</strong> Display metrics, charts, and data cards</li>' +
-         '<li><strong>Product Galleries:</strong> Show products in organized grid</li>' +
-         '<li><strong>Card Collections:</strong> Organize cards with equal spacing</li>' +
-         '<li><strong>Image Galleries:</strong> Display images in structured layout</li>' +
-         '<li><strong>Feature Lists:</strong> Present features in organized sections</li>' +
-         '</ul>' +
-         '<h4>Best Practices</h4>' +
-         '<ul>' +
-         '<li>Use <code>columns</code> and <code>rows</code> for fixed layouts</li>' +
-         '<li>Pass <code>items</code> array for initialization, or use <code>setItem()</code> for dynamic addition</li>' +
-         '<li>Adjust columns based on screen width for responsive designs</li>' +
-         '<li>Use consistent gap values across your application</li>' +
-         '<li>Each grid item gets <code>grid-item</code> class automatically</li>' +
-         '<li>Call <code>clear()</code> before rebuilding grid content</li>' +
-         '</ul>';
-
-      staticPropsContainer.appendChild(useCasesInfo);
-   }
-}
-
-customElements.define("slice-griddocumentation", GridDocumentation);
+customElements.define('slice-griddocumentation', GridDocumentation);
