@@ -238,7 +238,7 @@ app.get('*', (req, res) => {
 
 function startServer() {
   server = app.listen(PORT, () => {
-    console.log('Security middleware: active (zero-config, automatic)');
+    console.log('Security middleware active (zero-config, automatic)');
     console.log(`Slice.js server running on port ${PORT}`);
   });
 }
