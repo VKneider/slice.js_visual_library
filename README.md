@@ -15,6 +15,8 @@
 
 ## About this repository
 
+_Deployment note:_ this repository is configured for Vercel serverless routing through `api/index`.
+
 This repository contains the official visual components library for Slice.js. It serves as the source of truth for component documentation, hosting the markdown sources that generate interactive documentation pages with live examples, API tables, and usage guides.
 
 The `slicejs-cli` registry points to this repository to resolve component metadata and documentation.
