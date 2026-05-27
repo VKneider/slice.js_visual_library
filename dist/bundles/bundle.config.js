@@ -1,0 +1,1221 @@
+/**
+ * Slice.js Bundle Configuration
+ * Generated: 2026-05-27T20:58:16.769Z
+ * Strategy: hybrid
+ */
+
+// Direct bundle configuration (no fetch required)
+export const SLICE_BUNDLE_CONFIG = {
+  "version": "2.0.0",
+  "format": "v2",
+  "loadingPolicy": "enabled",
+  "strategy": "hybrid",
+  "minified": true,
+  "obfuscated": true,
+  "production": true,
+  "generated": "2026-05-27T20:58:16.727Z",
+  "stats": {
+    "totalComponents": 72,
+    "totalRoutes": 29,
+    "sharedComponents": 2,
+    "sharedPercentage": "1.4",
+    "totalSize": 2137723,
+    "criticalSize": 42231
+  },
+  "bundles": {
+    "framework": {
+      "file": "slice-bundle.framework.js",
+      "size": 128229,
+      "hash": "85a5c200da1a845ebee121943926ade13c1962dbf4a0231ae07889f41d2a6d5a",
+      "integrity": "sha256:85a5c200da1a845ebee121943926ade13c1962dbf4a0231ae07889f41d2a6d5a",
+      "components": [
+        "Framework/Structural/ContextManager",
+        "Framework/Structural/Controller",
+        "Framework/Structural/EventManager",
+        "Framework/Structural/Logger",
+        "Framework/Structural/Router",
+        "Framework/Structural/StylesManager",
+        "Framework/Structural/EventManagerDebugger",
+        "Framework/Structural/ContextManagerDebugger",
+        "Framework/Structural/ThemeManager"
+      ]
+    },
+    "vendorShared": {
+      "bundleKey": "vendor-shared",
+      "type": "vendor-shared",
+      "file": "slice-bundle.vendor-shared.js",
+      "size": 7913,
+      "hash": "9b65b3ca39b42c49e93c5f986a2c11a62b6d6d08bf3266192737a4f21079eaa7",
+      "integrity": "sha256:9b65b3ca39b42c49e93c5f986a2c11a62b6d6d08bf3266192737a4f21079eaa7",
+      "dependencies": [
+        "Components/AppComponents/ComponentsPage/visualComponentRoutes.js"
+      ],
+      "dependencyCount": 1,
+      "routes": [
+        "home--p1",
+        "multiroute-ComponentsPage--p1"
+      ]
+    },
+    "critical": {
+      "file": "slice-bundle.critical.js",
+      "size": 42231,
+      "hash": "248f9847a609f9662531acd9dd6bf254f6251c18b59f2ab214032fddcb14b738",
+      "integrity": "sha256:248f9847a609f9662531acd9dd6bf254f6251c18b59f2ab214032fddcb14b738",
+      "components": [
+        "Loading",
+        "Layout"
+      ]
+    },
+    "routes": {
+      "home--p1": {
+        "path": [
+          "/"
+        ],
+        "file": "slice-bundle.home--p1.js",
+        "size": 75084,
+        "hash": "814159644c2f4c2924adb2a215a68c79db123a47e1a2901e2af9e0f78418f09d",
+        "integrity": "sha256:814159644c2f4c2924adb2a215a68c79db123a47e1a2901e2af9e0f78418f09d",
+        "components": [
+          "App",
+          "Button",
+          "Card",
+          "Checkbox",
+          "CodeVisualizer",
+          "ComponentsPage",
+          "DropDown"
+        ],
+        "dependencies": [
+          "critical",
+          "vendor-shared"
+        ]
+      },
+      "home--p2": {
+        "path": [
+          "/"
+        ],
+        "file": "slice-bundle.home--p2.js",
+        "size": 1466019,
+        "hash": "b17f88802797997efe5c8d20fd678e5d36e2a996275f7a34ddf88811a137683a",
+        "integrity": "sha256:b17f88802797997efe5c8d20fd678e5d36e2a996275f7a34ddf88811a137683a",
+        "components": [
+          "Icon"
+        ],
+        "dependencies": [
+          "critical"
+        ]
+      },
+      "home--p3": {
+        "path": [
+          "/"
+        ],
+        "file": "slice-bundle.home--p3.js",
+        "size": 73019,
+        "hash": "c5f8485cc8d97ccc2ea602f8840e4a1983b8103ac6fb2738e9c81a2722775191",
+        "integrity": "sha256:c5f8485cc8d97ccc2ea602f8840e4a1983b8103ac6fb2738e9c81a2722775191",
+        "components": [
+          "Input",
+          "Link",
+          "MainMenu",
+          "MultiRoute",
+          "MyNavigation",
+          "Navbar",
+          "Switch",
+          "TreeItem",
+          "TreeView",
+          "VisualLibraryHome"
+        ],
+        "dependencies": [
+          "critical"
+        ]
+      },
+      "misc": {
+        "path": [
+          "/404"
+        ],
+        "file": "slice-bundle.misc.js",
+        "size": 425,
+        "hash": "429ff882b2c0ebc368d2148cf13a45c0c16593b8c493b7a4dccdf05e37b35821",
+        "integrity": "sha256:429ff882b2c0ebc368d2148cf13a45c0c16593b8c493b7a4dccdf05e37b35821",
+        "components": [
+          "NotFound"
+        ],
+        "dependencies": [
+          "critical"
+        ]
+      },
+      "multiroute-ComponentsPage--p1": {
+        "path": [
+          "/docs",
+          "/docs/data/table",
+          "/docs/display/code-visualizer",
+          "/docs/display/icon",
+          "/docs/display/tooltip",
+          "/docs/feedback/loading",
+          "/docs/input/button",
+          "/docs/input/checkbox",
+          "/docs/input/input",
+          "/docs/input/select",
+          "/docs/input/switch",
+          "/docs/internal/markdown-parser-rules",
+          "/docs/layout/card",
+          "/docs/layout/details",
+          "/docs/layout/element-carrousel",
+          "/docs/layout/grid",
+          "/docs/layout/layout",
+          "/docs/navigation/dropdown",
+          "/docs/navigation/navbar",
+          "/docs/navigation/not-found",
+          "/docs/navigation/tabs",
+          "/docs/navigation/treeview",
+          "/docs/routing/multi-route",
+          "/docs/routing/route",
+          "/docs/${section}",
+          "/docs/${section}/${page}",
+          "/docs/${section}/${page}/${detail}"
+        ],
+        "file": "slice-bundle.multiroute-componentspage--p1.js",
+        "size": 31634,
+        "hash": "dc5ed0f3783852066caee3e81c62e26d611a65eea98564372fba130e55a3713c",
+        "integrity": "sha256:dc5ed0f3783852066caee3e81c62e26d611a65eea98564372fba130e55a3713c",
+        "components": [
+          "Button",
+          "ComponentsPage",
+          "DropDown"
+        ],
+        "dependencies": [
+          "critical",
+          "vendor-shared"
+        ]
+      },
+      "multiroute-ComponentsPage--p2": {
+        "path": [
+          "/docs",
+          "/docs/data/table",
+          "/docs/display/code-visualizer",
+          "/docs/display/icon",
+          "/docs/display/tooltip",
+          "/docs/feedback/loading",
+          "/docs/input/button",
+          "/docs/input/checkbox",
+          "/docs/input/input",
+          "/docs/input/select",
+          "/docs/input/switch",
+          "/docs/internal/markdown-parser-rules",
+          "/docs/layout/card",
+          "/docs/layout/details",
+          "/docs/layout/element-carrousel",
+          "/docs/layout/grid",
+          "/docs/layout/layout",
+          "/docs/navigation/dropdown",
+          "/docs/navigation/navbar",
+          "/docs/navigation/not-found",
+          "/docs/navigation/tabs",
+          "/docs/navigation/treeview",
+          "/docs/routing/multi-route",
+          "/docs/routing/route",
+          "/docs/${section}",
+          "/docs/${section}/${page}",
+          "/docs/${section}/${page}/${detail}"
+        ],
+        "file": "slice-bundle.multiroute-componentspage--p2.js",
+        "size": 1466019,
+        "hash": "728da92fda2a8bd51499d23e68ad9873ceed7bf6d3b336ffed885d1a3e4bd34b",
+        "integrity": "sha256:728da92fda2a8bd51499d23e68ad9873ceed7bf6d3b336ffed885d1a3e4bd34b",
+        "components": [
+          "Icon"
+        ],
+        "dependencies": [
+          "critical"
+        ]
+      },
+      "multiroute-ComponentsPage--p3": {
+        "path": [
+          "/docs",
+          "/docs/data/table",
+          "/docs/display/code-visualizer",
+          "/docs/display/icon",
+          "/docs/display/tooltip",
+          "/docs/feedback/loading",
+          "/docs/input/button",
+          "/docs/input/checkbox",
+          "/docs/input/input",
+          "/docs/input/select",
+          "/docs/input/switch",
+          "/docs/internal/markdown-parser-rules",
+          "/docs/layout/card",
+          "/docs/layout/details",
+          "/docs/layout/element-carrousel",
+          "/docs/layout/grid",
+          "/docs/layout/layout",
+          "/docs/navigation/dropdown",
+          "/docs/navigation/navbar",
+          "/docs/navigation/not-found",
+          "/docs/navigation/tabs",
+          "/docs/navigation/treeview",
+          "/docs/routing/multi-route",
+          "/docs/routing/route",
+          "/docs/${section}",
+          "/docs/${section}/${page}",
+          "/docs/${section}/${page}/${detail}"
+        ],
+        "file": "slice-bundle.multiroute-componentspage--p3.js",
+        "size": 34762,
+        "hash": "613d5ce9b22084c64d9e17258b0fd9982e12a72e4db8fbecab6cb4d720117ee7",
+        "integrity": "sha256:613d5ce9b22084c64d9e17258b0fd9982e12a72e4db8fbecab6cb4d720117ee7",
+        "components": [
+          "Link",
+          "MainMenu",
+          "MultiRoute",
+          "MyNavigation",
+          "Navbar",
+          "TreeItem",
+          "TreeView"
+        ],
+        "dependencies": [
+          "critical"
+        ]
+      }
+    }
+  },
+  "routeBundles": {
+    "/": [
+      "critical",
+      "vendor-shared",
+      "home--p1",
+      "home--p2",
+      "home--p3"
+    ],
+    "/404": [
+      "critical",
+      "misc"
+    ],
+    "/docs": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/data/table": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/display/code-visualizer": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/display/icon": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/display/tooltip": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/feedback/loading": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/input/button": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/input/checkbox": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/input/input": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/input/select": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/input/switch": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/internal/markdown-parser-rules": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/layout/card": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/layout/details": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/layout/element-carrousel": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/layout/grid": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/layout/layout": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/navigation/dropdown": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/navigation/navbar": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/navigation/not-found": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/navigation/tabs": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/navigation/treeview": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/routing/multi-route": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/routing/route": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/${section}": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/${section}/${page}": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ],
+    "/docs/${section}/${page}/${detail}": [
+      "critical",
+      "vendor-shared",
+      "multiroute-ComponentsPage--p1",
+      "multiroute-ComponentsPage--p2",
+      "multiroute-ComponentsPage--p3"
+    ]
+  },
+  "routeDependencyGraph": {
+    "/": {
+      "bundles": [
+        "home--p1",
+        "home--p2",
+        "home--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "home--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "home--p1"
+        },
+        {
+          "from": "critical",
+          "to": "home--p2"
+        },
+        {
+          "from": "critical",
+          "to": "home--p3"
+        }
+      ]
+    },
+    "/404": {
+      "bundles": [
+        "misc"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "misc"
+        }
+      ]
+    },
+    "/docs": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/data/table": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/display/code-visualizer": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/display/icon": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/display/tooltip": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/feedback/loading": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/input/button": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/input/checkbox": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/input/input": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/input/select": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/input/switch": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/internal/markdown-parser-rules": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/layout/card": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/layout/details": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/layout/element-carrousel": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/layout/grid": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/layout/layout": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/navigation/dropdown": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/navigation/navbar": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/navigation/not-found": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/navigation/tabs": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/navigation/treeview": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/routing/multi-route": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/routing/route": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/${section}": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/${section}/${page}": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    },
+    "/docs/${section}/${page}/${detail}": {
+      "bundles": [
+        "multiroute-ComponentsPage--p1",
+        "multiroute-ComponentsPage--p2",
+        "multiroute-ComponentsPage--p3"
+      ],
+      "edges": [
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "vendor-shared",
+          "to": "multiroute-ComponentsPage--p1"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p2"
+        },
+        {
+          "from": "critical",
+          "to": "multiroute-ComponentsPage--p3"
+        }
+      ]
+    }
+  }
+};
+
+// Auto-initialization if slice is available
+if (typeof window !== 'undefined' && window.slice && window.slice.controller) {
+  window.slice.controller.bundleConfig = SLICE_BUNDLE_CONFIG;
+
+  // Load critical bundle automatically
+  if (SLICE_BUNDLE_CONFIG.bundles.critical && !window.slice.controller.criticalBundleLoaded) {
+    (async () => {
+      const bundlePath = "/bundles/" + SLICE_BUNDLE_CONFIG.bundles.critical.file;
+      const integrity = SLICE_BUNDLE_CONFIG.bundles.critical.integrity;
+
+      if (typeof window.slice.controller.verifyBundleIntegrity === 'function') {
+        const ok = await window.slice.controller.verifyBundleIntegrity(bundlePath, integrity);
+        if (!ok) {
+          console.warn('Failed to load critical bundle: integrity check failed');
+          return;
+        }
+      }
+
+      import('./slice-bundle.critical.js').catch(err =>
+        console.warn('Failed to load critical bundle:', err)
+      );
+      window.slice.controller.criticalBundleLoaded = true;
+    })();
+  }
+}

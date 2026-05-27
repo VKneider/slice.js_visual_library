@@ -113,7 +113,7 @@ if (runMode === 'production') {
 app.use('/bundles/', (req, res, next) => {
   if (req.path.endsWith('.js') || req.path.endsWith('.mjs')) {
     const cleanedPath = req.path.replace(/^\//, '');
-    let filePath = path.join(__dirname, `../${folderDeployed}`, 'bundles', cleanedPath);
+    let filePath = path.join(__dirname, '../dist', 'bundles', cleanedPath);
 
     // Bundler v2 may emit this import relative to /bundles even when source file
     // lives under Components/AppComponents/ComponentsPage.
@@ -148,7 +148,7 @@ app.use('/bundles/', (req, res, next) => {
   next();
 });
 
-app.use('/bundles/', express.static(path.join(__dirname, `../${folderDeployed}`, 'bundles')));
+app.use('/bundles/', express.static(path.join(__dirname, '../dist', 'bundles')));
 
 if (runMode === 'development') {
   app.use('/Slice/', express.static(path.join(__dirname, '..', 'node_modules', 'slicejs-web-framework', 'Slice')));
@@ -201,7 +201,6 @@ if (runMode === 'development') {
   for (const folder of normalizedPublicFolders) {
     app.use(folder, express.static(path.join(__dirname, `../${folderDeployed}`, folder)));
   }
-  app.use('/bundles/', express.static(path.join(__dirname, `../${folderDeployed}`, 'bundles')));
   app.use('/dist/', express.static(path.join(__dirname, '..', 'dist')));
 }
 
