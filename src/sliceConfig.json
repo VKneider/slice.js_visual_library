@@ -7,6 +7,20 @@
         "enabled": false,
         "click": "right"
     },
+    "events": {
+        "enabled": true,
+        "ui": {
+            "enabled": true,
+            "shortcut": "alt+shift+e"
+        }
+    },
+    "context": {
+        "enabled": true,
+        "ui": {
+            "enabled": true,
+            "shortcut": "alt+shift+c"
+        }
+    },
     "stylesManager":{
         "requestedStyles":["sliceStyles", "DocumentationBase"]
     },
@@ -55,5 +69,11 @@
     },
     "loading":{
         "enabled": true
-    }
+    },
+    "publicFolders": [
+        "/Themes",
+        "/Styles",
+        "/images",
+        "/markdown"
+    ]
 }
