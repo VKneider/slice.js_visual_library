@@ -15,9 +15,8 @@ const app = express();
 // Parsear argumentos de línea de comandos
 const args = process.argv.slice(2);
 
-// Siempre usar development mode (ignorar argumentos de production)
-const runMode = 'development';
-const folderDeployed = 'src';
+const runMode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+const folderDeployed = runMode === 'production' ? 'dist' : 'src';
 
 // Obtener puerto desde sliceConfig.json, con fallback a process.env.PORT
 const PORT = sliceConfig.server?.port || process.env.PORT || 3001;
@@ -87,7 +86,7 @@ function startServer() {
     // Información del servidor
     console.log(`✅ Server running at ${'\x1b[36m'}http://localhost:${PORT}${'\x1b[0m'}`);
     console.log(`📂 Mode: ${'\x1b[32m'}${runMode}${'\x1b[0m'} (serving from ${'\x1b[33m'}/${folderDeployed}${'\x1b[0m'})`);
-    console.log(`🔄 ${'\x1b[32m'}Development mode${'\x1b[0m'}: Changes in /src are served instantly`);
+    console.log(`🔄 ${'\x1b[32m'}${runMode === 'production' ? 'Production' : 'Development'} mode${'\x1b[0m'}: serving from /${folderDeployed}`);
     console.log(`🛑 Press ${'\x1b[31m'}Ctrl+C${'\x1b[0m'} to stop\n`);
   });
 
@@ -96,10 +95,11 @@ function startServer() {
 }
 
 function showWelcomeBanner() {
+  const modeLabel = runMode === 'production' ? 'Production' : 'Development';
   const banner = `
 ${'\x1b[36m'}╔══════════════════════════════════════════════════╗${'\x1b[0m'}
 ${'\x1b[36m'}║${'\x1b[0m'}              ${'\x1b[1m'}🍰 SLICE.JS SERVER${'\x1b[0m'}                ${'\x1b[36m'}║${'\x1b[0m'}
-${'\x1b[36m'}║${'\x1b[0m'}            ${'\x1b[90m'}Development Environment${'\x1b[0m'}             ${'\x1b[36m'}║${'\x1b[0m'}
+${'\x1b[36m'}║${'\x1b[0m'}            ${'\x1b[90m'}${modeLabel} Environment${'\x1b[0m'}                ${'\x1b[36m'}║${'\x1b[0m'}
 ${'\x1b[36m'}╚══════════════════════════════════════════════════╝${'\x1b[0m'}
 `;
   console.log(banner);

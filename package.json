@@ -4,22 +4,26 @@
   "description": "Official Visual components library and documentation registry for Slice.js",
   "main": "src/Components/index.js",
   "scripts": {
+    "dev": "node ./node_modules/slicejs-cli/client.js dev",
+    "build": "node ./node_modules/slicejs-cli/client.js build",
+    "start": "node ./node_modules/slicejs-cli/client.js start",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "slice:init": "node node_modules/slicejs-cli/client.js init",
-    "slice:start": "node api/index.js --development",
-    "slice:version": "node node_modules/slicejs-cli/client.js version",
-    "slice:update": "node node_modules/slicejs-cli/client.js update",
-    "slice:create": "node node_modules/slicejs-cli/client.js component create",
-    "slice:list": "node node_modules/slicejs-cli/client.js component list",
-    "slice:delete": "node node_modules/slicejs-cli/client.js component delete",
-    "slice:get": "node node_modules/slicejs-cli/client.js get",
-    "slice:browse": "node node_modules/slicejs-cli/client.js browse",
-    "slice:sync": "node node_modules/slicejs-cli/client.js sync",
+    "slice:init": "node ./node_modules/slicejs-cli/client.js init",
+    "slice:dev": "node ./node_modules/slicejs-cli/client.js dev",
+    "slice:build": "node ./node_modules/slicejs-cli/client.js build",
+    "slice:start": "node ./node_modules/slicejs-cli/client.js start",
+    "slice:version": "node ./node_modules/slicejs-cli/client.js version",
+    "slice:update": "node ./node_modules/slicejs-cli/client.js update",
+    "slice:create": "node ./node_modules/slicejs-cli/client.js component create",
+    "slice:list": "node ./node_modules/slicejs-cli/client.js component list",
+    "slice:delete": "node ./node_modules/slicejs-cli/client.js component delete",
+    "slice:get": "node ./node_modules/slicejs-cli/client.js get",
+    "slice:browse": "node ./node_modules/slicejs-cli/client.js browse",
+    "slice:sync": "node ./node_modules/slicejs-cli/client.js sync",
     "docs:generate": "node parser/index.js",
     "docs:lint-md": "node parser/index.js --lint-only",
     "docs:sync-registry": "node parser/index.js --sync-only",
-    "dev": "concurrently \"npm:run\"",
-    "run": "node api/index.js --development"
+    "run": "node ./node_modules/slicejs-cli/client.js dev"
   },
   "author": "vkneider",
   "license": "ISC",
@@ -29,6 +33,6 @@
   },
   "dependencies": {
     "slicejs-cli": "^2.3.3",
-    "concurrently": "^8.2.0"
+    "slicejs-web-framework": "latest"
   }
 }
