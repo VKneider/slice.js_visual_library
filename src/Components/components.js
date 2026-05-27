@@ -27,7 +27,7 @@ const components = {
   "InputDocumentation": "DocumentationPages",
   "Layout": "Visual",
   "LayoutDocumentation": "DocumentationPages",
-  "Link": "Service",
+  "Link": "Visual",
   "Loading": "Visual",
   "LoadingDocumentation": "DocumentationPages",
   "LocalStorageManager": "Service",
