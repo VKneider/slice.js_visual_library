@@ -26,11 +26,12 @@
   "author": "vkneider",
   "license": "ISC",
   "type": "module",
+  "packageManager": "pnpm@11.3.0",
   "engines": {
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "slicejs-cli": "^3.1.0",
-    "slicejs-web-framework": "^3.2.2"
+    "slicejs-cli": "latest",
+    "slicejs-web-framework": "latest"
   }
 }
