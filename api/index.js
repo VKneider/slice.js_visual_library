@@ -108,7 +108,6 @@ if (runMode === 'production') {
   });
 
   app.use('/Slice', (req, res) => res.status(404).send('Not found'));
-  app.use('/Components', (req, res) => res.status(404).send('Not found'));
 }
 
 app.use('/bundles/', (req, res, next) => {
@@ -166,6 +165,7 @@ if (runMode === 'development') {
   app.use(express.static(path.join(__dirname, `../${folderDeployed}`)));
 } else {
   app.use('/App', express.static(path.join(__dirname, `../${folderDeployed}`, 'App')));
+  app.use('/Components', express.static(path.join(__dirname, `../${folderDeployed}`, 'Components')));
   app.get('/manifest.json', (req, res) => {
     const manifestPath = path.join(__dirname, `../${folderDeployed}`, 'manifest.json');
     if (fs.existsSync(manifestPath)) {
