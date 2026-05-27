@@ -114,7 +114,21 @@ if (runMode === 'production') {
 app.use('/bundles/', (req, res, next) => {
   if (req.path.endsWith('.js') || req.path.endsWith('.mjs')) {
     const cleanedPath = req.path.replace(/^\//, '');
-    const filePath = path.join(__dirname, `../${folderDeployed}`, 'bundles', cleanedPath);
+    let filePath = path.join(__dirname, `../${folderDeployed}`, 'bundles', cleanedPath);
+
+    // Bundler v2 may emit this import relative to /bundles even when source file
+    // lives under Components/AppComponents/ComponentsPage.
+    if (cleanedPath === 'documentationRoutes.generated.js') {
+      const generatedRoutesPath = path.join(
+        __dirname,
+        `../${folderDeployed}`,
+        'Components',
+        'AppComponents',
+        'ComponentsPage',
+        'documentationRoutes.generated.js'
+      );
+      filePath = generatedRoutesPath;
+    }
 
     if (fs.existsSync(filePath)) {
       try {
