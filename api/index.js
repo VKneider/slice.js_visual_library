@@ -215,7 +215,7 @@ app.get('/api/status', (req, res) => {
 // SPA FALLBACK
 // ==============================================
 
-app.get('*', (req, res) => {
+app.use((req, res) => {
   const indexPath = path.join(__dirname, `../${folderDeployed}`, 'App', 'index.html');
   res.sendFile(indexPath, (err) => {
     if (err) {
