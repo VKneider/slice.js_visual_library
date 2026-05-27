@@ -1,5 +1,5 @@
-onlyBuiltDependencies:
-  - slicejs-cli
+allowBuilds:
+  slicejs-cli: true
 
 minimumReleaseAgeExclude:
   - slicejs-cli@3.3.0
