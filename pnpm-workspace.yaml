@@ -1,3 +1,6 @@
+onlyBuiltDependencies:
+  - slicejs-cli
+
 minimumReleaseAgeExclude:
   - slicejs-cli@3.3.0
   - slicejs-web-framework@3.2.3
