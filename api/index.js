@@ -253,6 +253,8 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
 
 export default app;
