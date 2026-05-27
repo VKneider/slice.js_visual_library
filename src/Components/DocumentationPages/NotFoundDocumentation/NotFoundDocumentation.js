@@ -69,41 +69,36 @@ export default class NotFoundDocumentation extends HTMLElement {
 
     const subtitle = document.createElement('p');
     subtitle.classList.add('doc-script-subtitle');
-    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    subtitle.textContent = 'Interactive demos validating component behavior.';
     section.appendChild(subtitle);
 
     for (const scenario of this.scriptScenarios) {
-      const card = document.createElement('article');
-      card.classList.add('doc-script-card');
+      const demobox = await slice.build('DemoBox', {
+        label: scenario.label,
+        expected: scenario.expected || ''
+      });
 
-      const header = document.createElement('div');
-      header.classList.add('doc-script-header');
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
+      });
 
-      const heading = document.createElement('h3');
-      heading.classList.add('doc-script-title');
-      heading.textContent = scenario.label;
-      header.appendChild(heading);
-
-      card.appendChild(header);
-
-      const preview = document.createElement('div');
-      preview.classList.add('doc-script-preview');
       const errorMessage = document.createElement('p');
       errorMessage.classList.add('doc-script-error');
       errorMessage.hidden = true;
 
       const executeScenario = async () => {
-        preview.innerHTML = '';
+        demobox.clear();
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
         const createBuildFallbackNode = (name) => {
           const fallback = document.createElement('div');
           fallback.style.padding = '10px';
-          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.border = '1px dashed var(--warning-color)';
           fallback.style.borderRadius = '8px';
-          fallback.style.background = '#fffbeb';
-          fallback.style.color = '#92400e';
+          fallback.style.background = 'color-mix(in srgb, var(--primary-background-color) 85%, var(--warning-color))';
+          fallback.style.color = 'var(--font-primary-color)';
           fallback.textContent = String(name || '')
             ? 'Component "' + String(name) + '" is not registered in this build yet.'
             : 'Requested component is not registered in this build yet.';
@@ -134,7 +129,7 @@ export default class NotFoundDocumentation extends HTMLElement {
 
         const mount = (node) => {
           if (node instanceof Node) {
-            preview.appendChild(node);
+            demobox.appendDemo(node);
           }
         };
 
@@ -143,11 +138,11 @@ export default class NotFoundDocumentation extends HTMLElement {
           const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
-            preview.appendChild(result);
+            demobox.appendDemo(result);
           } else if (Array.isArray(result)) {
             result.forEach((item) => {
               if (item instanceof Node) {
-                preview.appendChild(item);
+                demobox.appendDemo(item);
               }
             });
           }
@@ -157,15 +152,9 @@ export default class NotFoundDocumentation extends HTMLElement {
         }
       };
 
-      const code = await slice.build('CodeVisualizer', {
-        value: scenario.content,
-        language: 'javascript'
-      });
-      card.appendChild(preview);
-      card.appendChild(code);
-      card.appendChild(errorMessage);
-
-      section.appendChild(card);
+      section.appendChild(demobox);
+      demobox.appendCode(code);
+      section.appendChild(errorMessage);
 
       await executeScenario();
     }

@@ -11,6 +11,11 @@
 
 .slice_switch_container {
   width: fit-content;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--secondary-background-color) 72%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color-shade) 60%, transparent);
+  margin: 10px 0;
 }
 
 .slice_switch {
@@ -24,6 +29,7 @@
   margin: 5px;
   font-family: var(--font-family);
   color: var(--font-primary-color);
+  font-size: 0.95rem;
 }
 
 .slider {
@@ -32,7 +38,7 @@
   width: var(--button-width);
   height: var(--button-height);
   background-color: var(--secondary-background-color);
-  border: var(--slice-border) solid var(--primary-color);
+  border: var(--slice-border) solid color-mix(in srgb, var(--primary-color) 75%, transparent);
   border-radius: calc(var(--button-height) / 2);
   position: relative;
   transition: 0.3s all ease-in-out;
@@ -66,6 +72,10 @@
 
 .slice_switch input[type="checkbox"] {
   display: none;
+}
+
+.slice_switch_container:hover {
+  border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
 }
 
 .disabled {

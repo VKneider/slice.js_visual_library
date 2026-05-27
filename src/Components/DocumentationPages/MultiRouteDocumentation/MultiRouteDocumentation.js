@@ -4,12 +4,12 @@ export default class MultiRouteDocumentation extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
     this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"app shell sections","expected":"route list models section switching in a persistent shell","kind":"script","content":"const multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/docs', component: 'DocumentationLibraryHome' },\n    { path: '/docs/input/button', component: 'ButtonDocumentation' },\n    { path: '/docs/layout/card', component: 'CardDocumentation' }\n  ]\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `Registered route entries: ${multi.props.routes.length}`;\nreturn summary;"},{"label":"dynamic route matching","expected":"matchRoute resolves params for ${param} patterns","kind":"script","content":"const multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/projects/${projectId}', component: 'CardDocumentation' },\n    { path: '/teams/${teamId}', component: 'CardDocumentation' }\n  ]\n});\n\nconst result = multi.matchRoute('/projects/alpha-42');\nconst output = document.createElement('p');\noutput.textContent = result.route\n  ? `Matched ${result.route.path} with projectId=${result.params.projectId}`\n  : 'No route matched';\nreturn output;"},{"label":"metadata per route","expected":"each route can carry metadata for guards and UI","kind":"script","content":"const multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/admin', component: 'CardDocumentation', metadata: { private: true, title: 'Admin' } },\n    { path: '/public', component: 'CardDocumentation', metadata: { private: false, title: 'Public' } }\n  ]\n});\n\nconst route = multi.props.routes.find((entry) => entry.path === '/admin');\nconst note = document.createElement('p');\nnote.textContent = `Admin route private=${route.metadata.private}`;\nreturn note;"}];
+    this.scriptScenarios = [{"label":"app shell sections","expected":"route list models section switching in a persistent shell","kind":"script","content":"const multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/docs', component: 'DocumentationLibraryHome' },\n    { path: '/docs/input/button', component: 'ButtonDocumentation' },\n    { path: '/docs/layout/card', component: 'CardDocumentation' }\n  ]\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `Registered route entries: ${multi.props.routes.length}`;\nreturn summary;"},{"label":"dynamic route matching","expected":"matchRoute resolves params for ${param} patterns","kind":"script","content":"const multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/projects/${projectId}', component: 'CardDocumentation' },\n    { path: '/teams/${teamId}', component: 'CardDocumentation' }\n  ]\n});\n\nconst result = multi.matchRoute('/projects/alpha-42');\nconst output = document.createElement('p');\noutput.textContent = result.route\n  ? `Matched ${result.route.path} with projectId=${result.params.projectId}`\n  : 'No route matched';\nreturn output;"},{"label":"metadata per route","expected":"each route can carry metadata for guards and UI","kind":"script","content":"const multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/admin', component: 'CardDocumentation', metadata: { private: true, title: 'Admin' } },\n    { path: '/public', component: 'CardDocumentation', metadata: { private: false, title: 'Public' } }\n  ]\n});\n\nconst route = multi.props.routes.find((entry) => entry.path === '/admin');\nconst note = document.createElement('p');\nnote.textContent = `Admin route private=${route.metadata.private}`;\nreturn note;"},{"label":"tabs navigation showcase","expected":"tabs/buttons call await slice.router.navigate and MultiRoute switches content","kind":"script","content":"const tabs = document.createElement('div');\ntabs.style.display = 'flex';\ntabs.style.gap = '8px';\ntabs.style.marginBottom = '12px';\n\nconst routes = [\n  { path: '/docs/multiroute-showcase/overview', component: 'DemoRouteHome', metadata: { title: 'Overview' } },\n  { path: '/docs/multiroute-showcase/form', component: 'DemoRouteDetails', metadata: { title: 'Form' } },\n  { path: '/docs/multiroute-showcase/state', component: 'DemoRouteState', metadata: { title: 'State' } }\n];\n\nconst multi = await slice.build('MultiRoute', {\n  routes\n});\n\nfor (const entry of routes) {\n  const button = await slice.build('Button', {\n    value: entry.metadata.title,\n    onClickCallback: async () => {\n      await slice.router.navigate(entry.path);\n    }\n  });\n  tabs.appendChild(button);\n}\n\nconst host = document.createElement('div');\nconst note = document.createElement('p');\nnote.textContent = 'Use buttons to navigate between MultiRoute paths.';\nhost.appendChild(note);\nhost.appendChild(tabs);\nhost.appendChild(multi);\nreturn host;"}];
   }
 
   async init() {
     this.markdownPath = "multi-route.md";
-    this.markdownContent = "---\ntitle: MultiRoute\nroute: /docs/routing/multi-route\nnavLabel: MultiRoute\nsection: Routing\ngroup: Containers\norder: 51\ndescription: MultiRoute container documentation with app-shell and dynamic route scenarios.\ncomponent: MultiRouteDocumentation\ngenerate: true\ntags: [multiroute, routing, app-shell]\n---\n\n# MultiRoute\n\n## Overview\n`MultiRoute` maps multiple URL paths to components and renders only the active match.\n\n## Core Behavior\n- Registers each route entry in the runtime router.\n- Supports exact and dynamic `${param}` path matching.\n- Caches rendered components and calls `update()` when reusing.\n- Emits `route-rendered` with `path`, `component`, `params`, and `metadata`.\n\n## Basic Usage\n```javascript title=\"Build MultiRoute container\"\nconst sections = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/account', component: 'AccountPage' },\n    { path: '/billing', component: 'BillingPage' }\n  ]\n});\n\nthis.appendChild(sections);\n```\n\n## Prop Scenarios\n:::script label=\"app shell sections\" expected=\"route list models section switching in a persistent shell\"\nconst multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/docs', component: 'DocumentationLibraryHome' },\n    { path: '/docs/input/button', component: 'ButtonDocumentation' },\n    { path: '/docs/layout/card', component: 'CardDocumentation' }\n  ]\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `Registered route entries: ${multi.props.routes.length}`;\nreturn summary;\n:::\n\n:::script label=\"dynamic route matching\" expected=\"matchRoute resolves params for ${param} patterns\"\nconst multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/projects/${projectId}', component: 'CardDocumentation' },\n    { path: '/teams/${teamId}', component: 'CardDocumentation' }\n  ]\n});\n\nconst result = multi.matchRoute('/projects/alpha-42');\nconst output = document.createElement('p');\noutput.textContent = result.route\n  ? `Matched ${result.route.path} with projectId=${result.params.projectId}`\n  : 'No route matched';\nreturn output;\n:::\n\n:::script label=\"metadata per route\" expected=\"each route can carry metadata for guards and UI\"\nconst multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/admin', component: 'CardDocumentation', metadata: { private: true, title: 'Admin' } },\n    { path: '/public', component: 'CardDocumentation', metadata: { private: false, title: 'Public' } }\n  ]\n});\n\nconst route = multi.props.routes.find((entry) => entry.path === '/admin');\nconst note = document.createElement('p');\nnote.textContent = `Admin route private=${route.metadata.private}`;\nreturn note;\n:::\n\n## Best Practices\n:::tip\nUse `MultiRoute` inside app-shell layouts where navbar/sidebar stay mounted while inner sections switch by URL.\n:::\n\n## Pitfalls\n:::warning\nDo not register duplicate route paths in the same `routes` array; the first registration wins.\n:::\n";
+    this.markdownContent = "---\ntitle: MultiRoute\nroute: /docs/routing/multi-route\nnavLabel: MultiRoute\nsection: Routing\ngroup: Containers\norder: 51\ndescription: MultiRoute container documentation with app-shell and dynamic route scenarios.\ncomponent: MultiRouteDocumentation\ngenerate: true\ntags: [multiroute, routing, app-shell]\n---\n\n# MultiRoute\n\n## Overview\n`MultiRoute` maps multiple URL paths to components and renders only the active match.\n\n## Core Behavior\n- Registers each route entry in the runtime router.\n- Supports exact and dynamic `${param}` path matching.\n- Caches rendered components and calls `update()` when reusing.\n- Emits `route-rendered` with `path`, `component`, `params`, and `metadata`.\n\n## Basic Usage\n```javascript title=\"Build MultiRoute container\"\nconst sections = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/account', component: 'AccountPage' },\n    { path: '/billing', component: 'BillingPage' }\n  ]\n});\n\nthis.appendChild(sections);\n```\n\n## Prop Scenarios\n:::script label=\"app shell sections\" expected=\"route list models section switching in a persistent shell\"\nconst multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/docs', component: 'DocumentationLibraryHome' },\n    { path: '/docs/input/button', component: 'ButtonDocumentation' },\n    { path: '/docs/layout/card', component: 'CardDocumentation' }\n  ]\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `Registered route entries: ${multi.props.routes.length}`;\nreturn summary;\n:::\n\n:::script label=\"dynamic route matching\" expected=\"matchRoute resolves params for ${param} patterns\"\nconst multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/projects/${projectId}', component: 'CardDocumentation' },\n    { path: '/teams/${teamId}', component: 'CardDocumentation' }\n  ]\n});\n\nconst result = multi.matchRoute('/projects/alpha-42');\nconst output = document.createElement('p');\noutput.textContent = result.route\n  ? `Matched ${result.route.path} with projectId=${result.params.projectId}`\n  : 'No route matched';\nreturn output;\n:::\n\n:::script label=\"metadata per route\" expected=\"each route can carry metadata for guards and UI\"\nconst multi = await slice.build('MultiRoute', {\n  routes: [\n    { path: '/admin', component: 'CardDocumentation', metadata: { private: true, title: 'Admin' } },\n    { path: '/public', component: 'CardDocumentation', metadata: { private: false, title: 'Public' } }\n  ]\n});\n\nconst route = multi.props.routes.find((entry) => entry.path === '/admin');\nconst note = document.createElement('p');\nnote.textContent = `Admin route private=${route.metadata.private}`;\nreturn note;\n:::\n\n:::script label=\"tabs navigation showcase\" expected=\"tabs/buttons call await slice.router.navigate and MultiRoute switches content\"\nconst tabs = document.createElement('div');\ntabs.style.display = 'flex';\ntabs.style.gap = '8px';\ntabs.style.marginBottom = '12px';\n\nconst routes = [\n  { path: '/docs/multiroute-showcase/overview', component: 'DemoRouteHome', metadata: { title: 'Overview' } },\n  { path: '/docs/multiroute-showcase/form', component: 'DemoRouteDetails', metadata: { title: 'Form' } },\n  { path: '/docs/multiroute-showcase/state', component: 'DemoRouteState', metadata: { title: 'State' } }\n];\n\nconst multi = await slice.build('MultiRoute', {\n  routes\n});\n\nfor (const entry of routes) {\n  const button = await slice.build('Button', {\n    value: entry.metadata.title,\n    onClickCallback: async () => {\n      await slice.router.navigate(entry.path);\n    }\n  });\n  tabs.appendChild(button);\n}\n\nconst host = document.createElement('div');\nconst note = document.createElement('p');\nnote.textContent = 'Use buttons to navigate between MultiRoute paths.';\nhost.appendChild(note);\nhost.appendChild(tabs);\nhost.appendChild(multi);\nreturn host;\n:::\n\n## Best Practices\n:::tip\nUse `MultiRoute` inside app-shell layouts where navbar/sidebar stay mounted while inner sections switch by URL.\n:::\n\n## Pitfalls\n:::warning\nDo not register duplicate route paths in the same `routes` array; the first registration wins.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
@@ -69,41 +69,36 @@ export default class MultiRouteDocumentation extends HTMLElement {
 
     const subtitle = document.createElement('p');
     subtitle.classList.add('doc-script-subtitle');
-    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    subtitle.textContent = 'Interactive demos validating component behavior.';
     section.appendChild(subtitle);
 
     for (const scenario of this.scriptScenarios) {
-      const card = document.createElement('article');
-      card.classList.add('doc-script-card');
+      const demobox = await slice.build('DemoBox', {
+        label: scenario.label,
+        expected: scenario.expected || ''
+      });
 
-      const header = document.createElement('div');
-      header.classList.add('doc-script-header');
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
+      });
 
-      const heading = document.createElement('h3');
-      heading.classList.add('doc-script-title');
-      heading.textContent = scenario.label;
-      header.appendChild(heading);
-
-      card.appendChild(header);
-
-      const preview = document.createElement('div');
-      preview.classList.add('doc-script-preview');
       const errorMessage = document.createElement('p');
       errorMessage.classList.add('doc-script-error');
       errorMessage.hidden = true;
 
       const executeScenario = async () => {
-        preview.innerHTML = '';
+        demobox.clear();
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
         const createBuildFallbackNode = (name) => {
           const fallback = document.createElement('div');
           fallback.style.padding = '10px';
-          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.border = '1px dashed var(--warning-color)';
           fallback.style.borderRadius = '8px';
-          fallback.style.background = '#fffbeb';
-          fallback.style.color = '#92400e';
+          fallback.style.background = 'color-mix(in srgb, var(--primary-background-color) 85%, var(--warning-color))';
+          fallback.style.color = 'var(--font-primary-color)';
           fallback.textContent = String(name || '')
             ? 'Component "' + String(name) + '" is not registered in this build yet.'
             : 'Requested component is not registered in this build yet.';
@@ -134,7 +129,7 @@ export default class MultiRouteDocumentation extends HTMLElement {
 
         const mount = (node) => {
           if (node instanceof Node) {
-            preview.appendChild(node);
+            demobox.appendDemo(node);
           }
         };
 
@@ -143,11 +138,11 @@ export default class MultiRouteDocumentation extends HTMLElement {
           const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
-            preview.appendChild(result);
+            demobox.appendDemo(result);
           } else if (Array.isArray(result)) {
             result.forEach((item) => {
               if (item instanceof Node) {
-                preview.appendChild(item);
+                demobox.appendDemo(item);
               }
             });
           }
@@ -157,15 +152,9 @@ export default class MultiRouteDocumentation extends HTMLElement {
         }
       };
 
-      const code = await slice.build('CodeVisualizer', {
-        value: scenario.content,
-        language: 'javascript'
-      });
-      card.appendChild(preview);
-      card.appendChild(code);
-      card.appendChild(errorMessage);
-
-      section.appendChild(card);
+      section.appendChild(demobox);
+      demobox.appendCode(code);
+      section.appendChild(errorMessage);
 
       await executeScenario();
     }

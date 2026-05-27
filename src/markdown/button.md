@@ -65,7 +65,7 @@ return wrapper;
 :::script label="Icon + custom color use case" expected="renders call-to-action button with icon"
 const cta = await slice.build('Button', {
   value: 'Download package',
-  icon: { name: 'download', iconStyle: 'solid' },
+  icon: { name: 'download', iconStyle: 'filled' },
   customColor: { button: '#16a34a', label: '#ffffff' }
 });
 
@@ -80,9 +80,9 @@ return block;
 
 :::script label="Toolbar action group" expected="renders a compact row of related actions"
 const actions = [
-  { value: 'Edit' },
-  { value: 'Share', customColor: { button: '#2563eb', label: '#ffffff' } },
-  { value: 'Delete', customColor: { button: '#dc2626', label: '#ffffff' } }
+  { value: 'Edit', icon: { name: 'edit', iconStyle: 'filled' } },
+  { value: 'Share', icon: { name: 'share-nodes', iconStyle: 'filled' }, customColor: { button: '#2563eb', label: '#ffffff' } },
+  { value: 'Delete', icon: { name: 'trash-bin', iconStyle: 'filled' }, customColor: { button: '#dc2626', label: '#ffffff' } }
 ];
 
 const row = document.createElement('div');
@@ -124,9 +124,9 @@ return host;
 
 :::script label="Icon-only utility row" expected="small icon buttons for quick actions"
 const iconConfigs = [
-  { name: 'search', iconStyle: 'solid', color: '#0f172a' },
-  { name: 'download', iconStyle: 'solid', color: '#0f172a' },
-  { name: 'copy', iconStyle: 'solid', color: '#0f172a' }
+  { name: 'search', iconStyle: 'filled', color: '#0f172a' },
+  { name: 'download', iconStyle: 'filled', color: '#0f172a' },
+  { name: 'copy', iconStyle: 'filled', color: '#0f172a' }
 ];
 
 const row = document.createElement('div');

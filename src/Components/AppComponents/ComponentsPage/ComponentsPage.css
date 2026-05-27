@@ -2,6 +2,9 @@ slice-components-page {
   display: block;
   width: 100%;
   min-height: 100vh;
+  --docs-navbar-height: 72px;
+  --docs-sidebar-width: 17%;
+  --docs-shell-gap: 10px;
 }
 
 slice-components-page slice-layout {
@@ -13,23 +16,27 @@ slice-components-page slice-layout {
 slice-components-page slice-multi-route {
   display: block;
   position: relative;
-  z-index: 10;
-  margin: 84px 18% 0 18%;
-  padding: 20px 22px 28px;
-  min-height: calc(100vh - 96px);
+  z-index: 20;
+  margin: calc(var(--docs-navbar-height) + var(--docs-shell-gap)) var(--docs-sidebar-width) 0 var(--docs-sidebar-width);
+  padding: 12px 16px 24px;
+  min-height: calc(100vh - var(--docs-navbar-height));
   box-sizing: border-box;
 }
 
 @media only screen and (max-width: 1200px) {
+  slice-components-page {
+    --docs-sidebar-width: 19%;
+  }
+
   slice-components-page slice-multi-route {
-    margin-right: 19%;
-    margin-left: 20%;
+    margin-right: var(--docs-sidebar-width);
+    margin-left: var(--docs-sidebar-width);
   }
 }
 
 @media only screen and (max-width: 770px) {
   slice-components-page slice-multi-route {
-    margin: 72px 0 0 0;
+    margin: var(--docs-navbar-height) 0 0 0;
     padding: 14px 12px 24px;
   }
 }

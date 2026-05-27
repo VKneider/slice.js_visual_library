@@ -50,10 +50,6 @@ export default class Card extends HTMLElement {
          type: 'string',
          default: null
       },
-      progress: {
-         type: 'number',
-         default: null
-      },
       loading: {
          type: 'boolean',
          default: false
@@ -79,7 +75,6 @@ export default class Card extends HTMLElement {
       this.$detailsContent = this.querySelector('.card-details-content');
       this.$badge = this.querySelector('.card-badge');
       this.$toggle = this.querySelector('.card-toggle');
-      this.$progress = this.querySelector('.card-progress');
       this.$mediaContent = this.querySelector('.card-media-content');
       this.$actions = this.querySelector('.card-actions');
 
@@ -147,16 +142,6 @@ export default class Card extends HTMLElement {
             this.$badge.textContent = '';
          }
       }
-
-      if (this.$progress) {
-         if (this.progress !== null && this.progress >= 0 && this.progress <= 100) {
-            this.$progress.style.setProperty('--progress', this.progress);
-            this.$progress.setAttribute('data-progress', this.progress);
-         } else {
-            this.$progress.removeAttribute('data-progress');
-            this.$progress.style.removeProperty('--progress');
-         }
-      }
    }
 
    setupTextTooltip() {
@@ -207,7 +192,7 @@ export default class Card extends HTMLElement {
             name: this.icon.name,
             iconStyle: this.icon.iconStyle || 'filled',
             size: '32px',
-            color: 'var(--on-accent)'
+            color: 'var(--primary-color)'
          });
 
          if (iconElement) {
@@ -230,12 +215,14 @@ export default class Card extends HTMLElement {
 
       for (const action of this.actions) {
          try {
-            const button = await slice.build('Button', {
-               text: action.text || 'Action',
-               variant: action.variant || 'outlined',
-               size: 'small',
-               onClick: action.onClick || (() => {})
-            });
+            const opts = {
+               value: action.text || 'Action',
+               onClickCallback: action.onClick || (() => {})
+            };
+            if (action.color) {
+               opts.customColor = action.color;
+            }
+            const button = await slice.build('Button', opts);
             this.$actions.appendChild(button);
          } catch (error) {
             console.warn('Card: Failed to create action button', error);
@@ -422,14 +409,6 @@ export default class Card extends HTMLElement {
       }
    }
 
-   get progress() { return this._progress; }
-   set progress(value) {
-      this._progress = value;
-      if (this.$progress) {
-         this.setupContent();
-      }
-   }
-
    get interactive() { return this._interactive !== false; }
    set interactive(value) {
       this._interactive = Boolean(value);
@@ -488,10 +467,6 @@ export default class Card extends HTMLElement {
 
    toggle() {
       this.toggleOpen();
-   }
-
-   setProgress(value) {
-      this.progress = Math.max(0, Math.min(100, value));
    }
 
    updateActions(newActions) {

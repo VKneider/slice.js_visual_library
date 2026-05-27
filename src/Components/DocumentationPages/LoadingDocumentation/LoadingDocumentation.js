@@ -32,61 +32,16 @@ export default class LoadingDocumentation extends HTMLElement {
       {
          const container = this.querySelector('[data-block-id="doc-block-4"]');
          if (container) {
-            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `container` | `object` | `false` | `null` | - |","| `isActive` | `boolean` | `false` | `false` | - |"];
-            const clean = (line) => {
-               let value = line.trim();
-               if (value.startsWith('|')) {
-                  value = value.slice(1);
+            let props = {};
+            if ("{\"props\":[{\"path\":\"isActive\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"container\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {
+               try {
+                  props = JSON.parse("{\"props\":[{\"path\":\"isActive\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"container\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
                }
-               if (value.endsWith('|')) {
-                  value = value.slice(0, -1);
-               }
-               return value.split('|').map((cell) => cell.trim());
-            };
-
-            const formatCell = (text) => {
-               let output = text
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;');
-
-               const applyBold = (input) => {
-                  let result = '';
-                  let index = 0;
-                  while (index < input.length) {
-                     const start = input.indexOf('**', index);
-                     if (start === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     const end = input.indexOf('**', start + 2);
-                     if (end === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
-                     index = end + 2;
-                  }
-                  return result;
-               };
-
-               const applyInlineCode = (input) => {
-                  const parts = input.split(String.fromCharCode(96));
-                  if (parts.length === 1) return input;
-                  return parts
-                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
-                     .join('');
-               };
-
-               output = applyBold(output);
-               output = applyInlineCode(output);
-               return output;
-            };
-
-            const headers = lines.length > 0 ? clean(lines[0]) : [];
-            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
-            const table = await slice.build('Table', { headers, rows });
-            container.appendChild(table);
+            }
+            const component = await slice.build('PropsTable', props);
+            container.appendChild(component);
          }
       }
     await this.renderScriptScenarios();
@@ -129,41 +84,36 @@ export default class LoadingDocumentation extends HTMLElement {
 
     const subtitle = document.createElement('p');
     subtitle.classList.add('doc-script-subtitle');
-    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    subtitle.textContent = 'Interactive demos validating component behavior.';
     section.appendChild(subtitle);
 
     for (const scenario of this.scriptScenarios) {
-      const card = document.createElement('article');
-      card.classList.add('doc-script-card');
+      const demobox = await slice.build('DemoBox', {
+        label: scenario.label,
+        expected: scenario.expected || ''
+      });
 
-      const header = document.createElement('div');
-      header.classList.add('doc-script-header');
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
+      });
 
-      const heading = document.createElement('h3');
-      heading.classList.add('doc-script-title');
-      heading.textContent = scenario.label;
-      header.appendChild(heading);
-
-      card.appendChild(header);
-
-      const preview = document.createElement('div');
-      preview.classList.add('doc-script-preview');
       const errorMessage = document.createElement('p');
       errorMessage.classList.add('doc-script-error');
       errorMessage.hidden = true;
 
       const executeScenario = async () => {
-        preview.innerHTML = '';
+        demobox.clear();
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
         const createBuildFallbackNode = (name) => {
           const fallback = document.createElement('div');
           fallback.style.padding = '10px';
-          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.border = '1px dashed var(--warning-color)';
           fallback.style.borderRadius = '8px';
-          fallback.style.background = '#fffbeb';
-          fallback.style.color = '#92400e';
+          fallback.style.background = 'color-mix(in srgb, var(--primary-background-color) 85%, var(--warning-color))';
+          fallback.style.color = 'var(--font-primary-color)';
           fallback.textContent = String(name || '')
             ? 'Component "' + String(name) + '" is not registered in this build yet.'
             : 'Requested component is not registered in this build yet.';
@@ -194,7 +144,7 @@ export default class LoadingDocumentation extends HTMLElement {
 
         const mount = (node) => {
           if (node instanceof Node) {
-            preview.appendChild(node);
+            demobox.appendDemo(node);
           }
         };
 
@@ -203,11 +153,11 @@ export default class LoadingDocumentation extends HTMLElement {
           const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
-            preview.appendChild(result);
+            demobox.appendDemo(result);
           } else if (Array.isArray(result)) {
             result.forEach((item) => {
               if (item instanceof Node) {
-                preview.appendChild(item);
+                demobox.appendDemo(item);
               }
             });
           }
@@ -217,15 +167,9 @@ export default class LoadingDocumentation extends HTMLElement {
         }
       };
 
-      const code = await slice.build('CodeVisualizer', {
-        value: scenario.content,
-        language: 'javascript'
-      });
-      card.appendChild(preview);
-      card.appendChild(code);
-      card.appendChild(errorMessage);
-
-      section.appendChild(card);
+      section.appendChild(demobox);
+      demobox.appendCode(code);
+      section.appendChild(errorMessage);
 
       await executeScenario();
     }

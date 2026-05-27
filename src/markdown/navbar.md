@@ -87,10 +87,10 @@ const nav = await slice.build('Navbar', {
       value: 'Theme',
       onClickCallback: () => {
         const current = slice.stylesManager.themeManager.currentTheme;
-        if (current === 'Slice') {
-          slice.setTheme('Light');
+        if (current === 'Purple') {
+          slice.setTheme('PurpleDark');
         } else {
-          slice.setTheme('Slice');
+          slice.setTheme('Purple');
         }
       }
     }

@@ -50,11 +50,11 @@ for (const variant of variants) {
 return grid;
 :::
 
-:::script label="Status cards with badge + progress" expected="renders metrics cards with clear status"
+:::script label="Status cards with badge" expected="renders status cards with colored badges"
 const cards = [
-  { title: 'Build Pipeline', badge: 'Healthy', progress: 82 },
-  { title: 'QA Coverage', badge: 'Warning', progress: 63 },
-  { title: 'Deploy Queue', badge: 'Blocked', progress: 22 }
+  { title: 'Build Pipeline', badge: 'Healthy' },
+  { title: 'QA Coverage', badge: 'Warning' },
+  { title: 'Deploy Queue', badge: 'Blocked' }
 ];
 
 const grid = document.createElement('div');
@@ -64,7 +64,6 @@ for (const config of cards) {
     title: config.title,
     text: 'Operational metric snapshot',
     badge: config.badge,
-    progress: config.progress,
     variant: 'outlined'
   });
   grid.appendChild(card);

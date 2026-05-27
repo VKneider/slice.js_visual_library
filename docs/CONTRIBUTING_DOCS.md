@@ -57,7 +57,21 @@ This updates:
 - Confirm:
   - code block renders
   - live preview renders
+  - left menu search filters components by name/tags
   - no runtime errors in console
+
+## Static props generation behavior
+- Component props docs are generated from `static props` in source components.
+- For `object` props, generated output is hybrid:
+  - root row (for example `options`)
+  - flattened nested rows (for example `options.theme.mode`)
+  - a details block with schema JSON (`Schema: <prop>`)
+- For props with `allowedValues` or meaningful variant combinations, include one `:::script` scenario per relevant value/state.
+
+## Demo components for showcases
+- Keep reusable demo-only components under `src/Components/DemoComponents/`.
+- Register them in `src/Components/components.js` with category `DemoComponents`.
+- Use these demo components in navigation showcases (`Route`, `MultiRoute`, etc.) to avoid coupling demos to documentation pages.
 
 ## 10) Keep docs professional
 - Avoid heavy nested container styling in examples.

@@ -1,0 +1,1 @@
+export*from"./Visual";export*from"./Service";import*as VisualComponents from"./Visual/index.js";import*as ServiceComponents from"./Service/index.js";export const components={...VisualComponents,...ServiceComponents};export const categories={Visual:VisualComponents,Service:ServiceComponents};export default components;

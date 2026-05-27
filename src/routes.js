@@ -25,6 +25,9 @@ const routes = [
   { path: '/docs/navigation/treeview', component: 'ComponentsPage' },
   { path: '/docs/routing/multi-route', component: 'ComponentsPage' },
   { path: '/docs/routing/route', component: 'ComponentsPage' },
+  { path: '/docs/${section}', component: 'ComponentsPage' },
+  { path: '/docs/${section}/${page}', component: 'ComponentsPage' },
+  { path: '/docs/${section}/${page}/${detail}', component: 'ComponentsPage' },
   { path: '/404', component: 'NotFound' }
 ];
 

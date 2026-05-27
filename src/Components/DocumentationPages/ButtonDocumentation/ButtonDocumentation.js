@@ -4,12 +4,12 @@ export default class ButtonDocumentation extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
     this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Primary and secondary variants","expected":"renders two styled action buttons","kind":"script","content":"const primary = await slice.build('Button', { value: 'Primary Action' });\nconst secondary = await slice.build('Button', {\n  value: 'Secondary Action',\n  customColor: { button: '#5468ff', label: '#ffffff' }\n});\n\nconst row = document.createElement('div');\nrow.appendChild(primary);\nrow.appendChild(secondary);\nreturn row;"},{"label":"Button with callback state","expected":"click toggles button label","kind":"script","content":"const clickButton = await slice.build('Button', {\n  value: 'Click me',\n  onClickCallback: () => {\n    clickButton.value = clickButton.value === 'Click me' ? 'Clicked' : 'Click me';\n  }\n});\n\nconst helper = document.createElement('p');\nhelper.textContent = 'Click the button to toggle its text.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(helper);\nwrapper.appendChild(clickButton);\nreturn wrapper;"},{"label":"Icon + custom color use case","expected":"renders call-to-action button with icon","kind":"script","content":"const cta = await slice.build('Button', {\n  value: 'Download package',\n  icon: { name: 'download', iconStyle: 'solid' },\n  customColor: { button: '#16a34a', label: '#ffffff' }\n});\n\nconst text = document.createElement('p');\ntext.textContent = 'Typical CTA usage with icon and branded color.';\n\nconst block = document.createElement('div');\nblock.appendChild(text);\nblock.appendChild(cta);\nreturn block;"},{"label":"Toolbar action group","expected":"renders a compact row of related actions","kind":"script","content":"const actions = [\n  { value: 'Edit' },\n  { value: 'Share', customColor: { button: '#2563eb', label: '#ffffff' } },\n  { value: 'Delete', customColor: { button: '#dc2626', label: '#ffffff' } }\n];\n\nconst row = document.createElement('div');\n\nfor (const config of actions) {\n  const button = await slice.build('Button', config);\n  row.appendChild(button);\n}\n\nreturn row;"},{"label":"Button inside card footer","expected":"button used as secondary action in card","kind":"script","content":"const card = await slice.build('Card', {\n  title: 'Invoice #412',\n  text: 'Pending approval from accounting.',\n  variant: 'outlined'\n});\n\nconst approve = await slice.build('Button', {\n  value: 'Approve',\n  customColor: { button: '#15803d', label: '#ffffff' }\n});\n\nconst reject = await slice.build('Button', {\n  value: 'Reject',\n  customColor: { button: '#b91c1c', label: '#ffffff' }\n});\n\nconst footer = document.createElement('div');\nfooter.appendChild(approve);\nfooter.appendChild(reject);\n\nconst host = document.createElement('div');\nhost.appendChild(card);\nhost.appendChild(footer);\nreturn host;"},{"label":"Icon-only utility row","expected":"small icon buttons for quick actions","kind":"script","content":"const iconConfigs = [\n  { name: 'search', iconStyle: 'solid', color: '#0f172a' },\n  { name: 'download', iconStyle: 'solid', color: '#0f172a' },\n  { name: 'copy', iconStyle: 'solid', color: '#0f172a' }\n];\n\nconst row = document.createElement('div');\n\nfor (const iconConfig of iconConfigs) {\n  const button = await slice.build('Button', {\n    value: '',\n    icon: iconConfig,\n    customColor: { button: '#e2e8f0', label: '#0f172a' }\n  });\n  row.appendChild(button);\n}\n\nreturn row;"},{"label":"async loading action","expected":"button reflects loading-like action flow","kind":"script","content":"const submit = await slice.build('Button', {\n  value: 'Submit',\n  onClickCallback: async () => {\n    submit.value = 'Submitting...';\n    await new Promise((resolve) => setTimeout(resolve, 400));\n    submit.value = 'Submitted';\n  }\n});\n\nreturn submit;"}];
+    this.scriptScenarios = [{"label":"Primary and secondary variants","expected":"renders two styled action buttons","kind":"script","content":"const primary = await slice.build('Button', { value: 'Primary Action' });\nconst secondary = await slice.build('Button', {\n  value: 'Secondary Action',\n  customColor: { button: '#5468ff', label: '#ffffff' }\n});\n\nconst row = document.createElement('div');\nrow.appendChild(primary);\nrow.appendChild(secondary);\nreturn row;"},{"label":"Button with callback state","expected":"click toggles button label","kind":"script","content":"const clickButton = await slice.build('Button', {\n  value: 'Click me',\n  onClickCallback: () => {\n    clickButton.value = clickButton.value === 'Click me' ? 'Clicked' : 'Click me';\n  }\n});\n\nconst helper = document.createElement('p');\nhelper.textContent = 'Click the button to toggle its text.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(helper);\nwrapper.appendChild(clickButton);\nreturn wrapper;"},{"label":"Icon + custom color use case","expected":"renders call-to-action button with icon","kind":"script","content":"const cta = await slice.build('Button', {\n  value: 'Download package',\n  icon: { name: 'download', iconStyle: 'filled' },\n  customColor: { button: '#16a34a', label: '#ffffff' }\n});\n\nconst text = document.createElement('p');\ntext.textContent = 'Typical CTA usage with icon and branded color.';\n\nconst block = document.createElement('div');\nblock.appendChild(text);\nblock.appendChild(cta);\nreturn block;"},{"label":"Toolbar action group","expected":"renders a compact row of related actions","kind":"script","content":"const actions = [\n  { value: 'Edit', icon: { name: 'edit', iconStyle: 'filled' } },\n  { value: 'Share', icon: { name: 'share-nodes', iconStyle: 'filled' }, customColor: { button: '#2563eb', label: '#ffffff' } },\n  { value: 'Delete', icon: { name: 'trash-bin', iconStyle: 'filled' }, customColor: { button: '#dc2626', label: '#ffffff' } }\n];\n\nconst row = document.createElement('div');\n\nfor (const config of actions) {\n  const button = await slice.build('Button', config);\n  row.appendChild(button);\n}\n\nreturn row;"},{"label":"Button inside card footer","expected":"button used as secondary action in card","kind":"script","content":"const card = await slice.build('Card', {\n  title: 'Invoice #412',\n  text: 'Pending approval from accounting.',\n  variant: 'outlined'\n});\n\nconst approve = await slice.build('Button', {\n  value: 'Approve',\n  customColor: { button: '#15803d', label: '#ffffff' }\n});\n\nconst reject = await slice.build('Button', {\n  value: 'Reject',\n  customColor: { button: '#b91c1c', label: '#ffffff' }\n});\n\nconst footer = document.createElement('div');\nfooter.appendChild(approve);\nfooter.appendChild(reject);\n\nconst host = document.createElement('div');\nhost.appendChild(card);\nhost.appendChild(footer);\nreturn host;"},{"label":"Icon-only utility row","expected":"small icon buttons for quick actions","kind":"script","content":"const iconConfigs = [\n  { name: 'search', iconStyle: 'filled', color: '#0f172a' },\n  { name: 'download', iconStyle: 'filled', color: '#0f172a' },\n  { name: 'copy', iconStyle: 'filled', color: '#0f172a' }\n];\n\nconst row = document.createElement('div');\n\nfor (const iconConfig of iconConfigs) {\n  const button = await slice.build('Button', {\n    value: '',\n    icon: iconConfig,\n    customColor: { button: '#e2e8f0', label: '#0f172a' }\n  });\n  row.appendChild(button);\n}\n\nreturn row;"},{"label":"async loading action","expected":"button reflects loading-like action flow","kind":"script","content":"const submit = await slice.build('Button', {\n  value: 'Submit',\n  onClickCallback: async () => {\n    submit.value = 'Submitting...';\n    await new Promise((resolve) => setTimeout(resolve, 400));\n    submit.value = 'Submitted';\n  }\n});\n\nreturn submit;"}];
   }
 
   async init() {
     this.markdownPath = "button.md";
-    this.markdownContent = "---\ntitle: Button\nroute: /docs/input/button\nnavLabel: Button\nsection: Input Components\ngroup: Basic\norder: 10\ndescription: Button documentation with executable prop scenarios.\ncomponent: ButtonDocumentation\ngenerate: true\ntags: [button, input]\n---\n\n# Button\n\n## Overview\nThe `Button` component renders an action trigger and supports text, callback, icon and custom colors.\n\n## Core Behavior\n- `Button` dispatches action intent through `onClickCallback` while keeping visual state driven by props.\n- Style variants are controlled with `customColor` and optional icon metadata for call-to-action and utility patterns.\n- Use script scenarios below as the living behavior contract; static props are documented in the generated props section.\n\n## Basic Usage\n```javascript title=\"Build button\"\nconst saveButton = await slice.build('Button', {\n  value: 'Save',\n  onClickCallback: () => console.log('Saved')\n});\n\nthis.appendChild(saveButton);\n```\n\n## Prop Scenarios\n:::script label=\"Primary and secondary variants\" expected=\"renders two styled action buttons\"\nconst primary = await slice.build('Button', { value: 'Primary Action' });\nconst secondary = await slice.build('Button', {\n  value: 'Secondary Action',\n  customColor: { button: '#5468ff', label: '#ffffff' }\n});\n\nconst row = document.createElement('div');\nrow.appendChild(primary);\nrow.appendChild(secondary);\nreturn row;\n:::\n\n:::script label=\"Button with callback state\" expected=\"click toggles button label\"\nconst clickButton = await slice.build('Button', {\n  value: 'Click me',\n  onClickCallback: () => {\n    clickButton.value = clickButton.value === 'Click me' ? 'Clicked' : 'Click me';\n  }\n});\n\nconst helper = document.createElement('p');\nhelper.textContent = 'Click the button to toggle its text.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(helper);\nwrapper.appendChild(clickButton);\nreturn wrapper;\n:::\n\n:::script label=\"Icon + custom color use case\" expected=\"renders call-to-action button with icon\"\nconst cta = await slice.build('Button', {\n  value: 'Download package',\n  icon: { name: 'download', iconStyle: 'solid' },\n  customColor: { button: '#16a34a', label: '#ffffff' }\n});\n\nconst text = document.createElement('p');\ntext.textContent = 'Typical CTA usage with icon and branded color.';\n\nconst block = document.createElement('div');\nblock.appendChild(text);\nblock.appendChild(cta);\nreturn block;\n:::\n\n:::script label=\"Toolbar action group\" expected=\"renders a compact row of related actions\"\nconst actions = [\n  { value: 'Edit' },\n  { value: 'Share', customColor: { button: '#2563eb', label: '#ffffff' } },\n  { value: 'Delete', customColor: { button: '#dc2626', label: '#ffffff' } }\n];\n\nconst row = document.createElement('div');\n\nfor (const config of actions) {\n  const button = await slice.build('Button', config);\n  row.appendChild(button);\n}\n\nreturn row;\n:::\n\n:::script label=\"Button inside card footer\" expected=\"button used as secondary action in card\"\nconst card = await slice.build('Card', {\n  title: 'Invoice #412',\n  text: 'Pending approval from accounting.',\n  variant: 'outlined'\n});\n\nconst approve = await slice.build('Button', {\n  value: 'Approve',\n  customColor: { button: '#15803d', label: '#ffffff' }\n});\n\nconst reject = await slice.build('Button', {\n  value: 'Reject',\n  customColor: { button: '#b91c1c', label: '#ffffff' }\n});\n\nconst footer = document.createElement('div');\nfooter.appendChild(approve);\nfooter.appendChild(reject);\n\nconst host = document.createElement('div');\nhost.appendChild(card);\nhost.appendChild(footer);\nreturn host;\n:::\n\n:::script label=\"Icon-only utility row\" expected=\"small icon buttons for quick actions\"\nconst iconConfigs = [\n  { name: 'search', iconStyle: 'solid', color: '#0f172a' },\n  { name: 'download', iconStyle: 'solid', color: '#0f172a' },\n  { name: 'copy', iconStyle: 'solid', color: '#0f172a' }\n];\n\nconst row = document.createElement('div');\n\nfor (const iconConfig of iconConfigs) {\n  const button = await slice.build('Button', {\n    value: '',\n    icon: iconConfig,\n    customColor: { button: '#e2e8f0', label: '#0f172a' }\n  });\n  row.appendChild(button);\n}\n\nreturn row;\n:::\n\n:::script label=\"async loading action\" expected=\"button reflects loading-like action flow\"\nconst submit = await slice.build('Button', {\n  value: 'Submit',\n  onClickCallback: async () => {\n    submit.value = 'Submitting...';\n    await new Promise((resolve) => setTimeout(resolve, 400));\n    submit.value = 'Submitted';\n  }\n});\n\nreturn submit;\n:::\n\n## Best Practices\n:::tip\nPrefer explicit `onClickCallback` instead of manually attaching listeners outside the component.\n:::\n\n## Pitfalls\n:::warning\nDo not pass non-object values into `customColor` or `icon`. Static props validation reports type warnings.\n:::\n";
+    this.markdownContent = "---\ntitle: Button\nroute: /docs/input/button\nnavLabel: Button\nsection: Input Components\ngroup: Basic\norder: 10\ndescription: Button documentation with executable prop scenarios.\ncomponent: ButtonDocumentation\ngenerate: true\ntags: [button, input]\n---\n\n# Button\n\n## Overview\nThe `Button` component renders an action trigger and supports text, callback, icon and custom colors.\n\n## Core Behavior\n- `Button` dispatches action intent through `onClickCallback` while keeping visual state driven by props.\n- Style variants are controlled with `customColor` and optional icon metadata for call-to-action and utility patterns.\n- Use script scenarios below as the living behavior contract; static props are documented in the generated props section.\n\n## Basic Usage\n```javascript title=\"Build button\"\nconst saveButton = await slice.build('Button', {\n  value: 'Save',\n  onClickCallback: () => console.log('Saved')\n});\n\nthis.appendChild(saveButton);\n```\n\n## Prop Scenarios\n:::script label=\"Primary and secondary variants\" expected=\"renders two styled action buttons\"\nconst primary = await slice.build('Button', { value: 'Primary Action' });\nconst secondary = await slice.build('Button', {\n  value: 'Secondary Action',\n  customColor: { button: '#5468ff', label: '#ffffff' }\n});\n\nconst row = document.createElement('div');\nrow.appendChild(primary);\nrow.appendChild(secondary);\nreturn row;\n:::\n\n:::script label=\"Button with callback state\" expected=\"click toggles button label\"\nconst clickButton = await slice.build('Button', {\n  value: 'Click me',\n  onClickCallback: () => {\n    clickButton.value = clickButton.value === 'Click me' ? 'Clicked' : 'Click me';\n  }\n});\n\nconst helper = document.createElement('p');\nhelper.textContent = 'Click the button to toggle its text.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(helper);\nwrapper.appendChild(clickButton);\nreturn wrapper;\n:::\n\n:::script label=\"Icon + custom color use case\" expected=\"renders call-to-action button with icon\"\nconst cta = await slice.build('Button', {\n  value: 'Download package',\n  icon: { name: 'download', iconStyle: 'filled' },\n  customColor: { button: '#16a34a', label: '#ffffff' }\n});\n\nconst text = document.createElement('p');\ntext.textContent = 'Typical CTA usage with icon and branded color.';\n\nconst block = document.createElement('div');\nblock.appendChild(text);\nblock.appendChild(cta);\nreturn block;\n:::\n\n:::script label=\"Toolbar action group\" expected=\"renders a compact row of related actions\"\nconst actions = [\n  { value: 'Edit', icon: { name: 'edit', iconStyle: 'filled' } },\n  { value: 'Share', icon: { name: 'share-nodes', iconStyle: 'filled' }, customColor: { button: '#2563eb', label: '#ffffff' } },\n  { value: 'Delete', icon: { name: 'trash-bin', iconStyle: 'filled' }, customColor: { button: '#dc2626', label: '#ffffff' } }\n];\n\nconst row = document.createElement('div');\n\nfor (const config of actions) {\n  const button = await slice.build('Button', config);\n  row.appendChild(button);\n}\n\nreturn row;\n:::\n\n:::script label=\"Button inside card footer\" expected=\"button used as secondary action in card\"\nconst card = await slice.build('Card', {\n  title: 'Invoice #412',\n  text: 'Pending approval from accounting.',\n  variant: 'outlined'\n});\n\nconst approve = await slice.build('Button', {\n  value: 'Approve',\n  customColor: { button: '#15803d', label: '#ffffff' }\n});\n\nconst reject = await slice.build('Button', {\n  value: 'Reject',\n  customColor: { button: '#b91c1c', label: '#ffffff' }\n});\n\nconst footer = document.createElement('div');\nfooter.appendChild(approve);\nfooter.appendChild(reject);\n\nconst host = document.createElement('div');\nhost.appendChild(card);\nhost.appendChild(footer);\nreturn host;\n:::\n\n:::script label=\"Icon-only utility row\" expected=\"small icon buttons for quick actions\"\nconst iconConfigs = [\n  { name: 'search', iconStyle: 'filled', color: '#0f172a' },\n  { name: 'download', iconStyle: 'filled', color: '#0f172a' },\n  { name: 'copy', iconStyle: 'filled', color: '#0f172a' }\n];\n\nconst row = document.createElement('div');\n\nfor (const iconConfig of iconConfigs) {\n  const button = await slice.build('Button', {\n    value: '',\n    icon: iconConfig,\n    customColor: { button: '#e2e8f0', label: '#0f172a' }\n  });\n  row.appendChild(button);\n}\n\nreturn row;\n:::\n\n:::script label=\"async loading action\" expected=\"button reflects loading-like action flow\"\nconst submit = await slice.build('Button', {\n  value: 'Submit',\n  onClickCallback: async () => {\n    submit.value = 'Submitting...';\n    await new Promise((resolve) => setTimeout(resolve, 400));\n    submit.value = 'Submitted';\n  }\n});\n\nreturn submit;\n:::\n\n## Best Practices\n:::tip\nPrefer explicit `onClickCallback` instead of manually attaching listeners outside the component.\n:::\n\n## Pitfalls\n:::warning\nDo not pass non-object values into `customColor` or `icon`. Static props validation reports type warnings.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
@@ -32,61 +32,16 @@ export default class ButtonDocumentation extends HTMLElement {
       {
          const container = this.querySelector('[data-block-id="doc-block-9"]');
          if (container) {
-            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `customColor` | `object` | `false` | `null` | - |","| `icon` | `object` | `false` | `null` | - |","| `onClickCallback` | `function` | `false` | `null` | - |","| `value` | `string` | `false` | `Button` | - |"];
-            const clean = (line) => {
-               let value = line.trim();
-               if (value.startsWith('|')) {
-                  value = value.slice(1);
+            let props = {};
+            if ("{\"props\":[{\"path\":\"value\",\"type\":\"string\",\"required\":false,\"default\":\"Button\",\"allowedValues\":[]},{\"path\":\"onClickCallback\",\"type\":\"function\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"customColor\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"icon\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {
+               try {
+                  props = JSON.parse("{\"props\":[{\"path\":\"value\",\"type\":\"string\",\"required\":false,\"default\":\"Button\",\"allowedValues\":[]},{\"path\":\"onClickCallback\",\"type\":\"function\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"customColor\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"icon\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
                }
-               if (value.endsWith('|')) {
-                  value = value.slice(0, -1);
-               }
-               return value.split('|').map((cell) => cell.trim());
-            };
-
-            const formatCell = (text) => {
-               let output = text
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;');
-
-               const applyBold = (input) => {
-                  let result = '';
-                  let index = 0;
-                  while (index < input.length) {
-                     const start = input.indexOf('**', index);
-                     if (start === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     const end = input.indexOf('**', start + 2);
-                     if (end === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
-                     index = end + 2;
-                  }
-                  return result;
-               };
-
-               const applyInlineCode = (input) => {
-                  const parts = input.split(String.fromCharCode(96));
-                  if (parts.length === 1) return input;
-                  return parts
-                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
-                     .join('');
-               };
-
-               output = applyBold(output);
-               output = applyInlineCode(output);
-               return output;
-            };
-
-            const headers = lines.length > 0 ? clean(lines[0]) : [];
-            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
-            const table = await slice.build('Table', { headers, rows });
-            container.appendChild(table);
+            }
+            const component = await slice.build('PropsTable', props);
+            container.appendChild(component);
          }
       }
     await this.renderScriptScenarios();
@@ -129,41 +84,36 @@ export default class ButtonDocumentation extends HTMLElement {
 
     const subtitle = document.createElement('p');
     subtitle.classList.add('doc-script-subtitle');
-    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    subtitle.textContent = 'Interactive demos validating component behavior.';
     section.appendChild(subtitle);
 
     for (const scenario of this.scriptScenarios) {
-      const card = document.createElement('article');
-      card.classList.add('doc-script-card');
+      const demobox = await slice.build('DemoBox', {
+        label: scenario.label,
+        expected: scenario.expected || ''
+      });
 
-      const header = document.createElement('div');
-      header.classList.add('doc-script-header');
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
+      });
 
-      const heading = document.createElement('h3');
-      heading.classList.add('doc-script-title');
-      heading.textContent = scenario.label;
-      header.appendChild(heading);
-
-      card.appendChild(header);
-
-      const preview = document.createElement('div');
-      preview.classList.add('doc-script-preview');
       const errorMessage = document.createElement('p');
       errorMessage.classList.add('doc-script-error');
       errorMessage.hidden = true;
 
       const executeScenario = async () => {
-        preview.innerHTML = '';
+        demobox.clear();
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
         const createBuildFallbackNode = (name) => {
           const fallback = document.createElement('div');
           fallback.style.padding = '10px';
-          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.border = '1px dashed var(--warning-color)';
           fallback.style.borderRadius = '8px';
-          fallback.style.background = '#fffbeb';
-          fallback.style.color = '#92400e';
+          fallback.style.background = 'color-mix(in srgb, var(--primary-background-color) 85%, var(--warning-color))';
+          fallback.style.color = 'var(--font-primary-color)';
           fallback.textContent = String(name || '')
             ? 'Component "' + String(name) + '" is not registered in this build yet.'
             : 'Requested component is not registered in this build yet.';
@@ -194,7 +144,7 @@ export default class ButtonDocumentation extends HTMLElement {
 
         const mount = (node) => {
           if (node instanceof Node) {
-            preview.appendChild(node);
+            demobox.appendDemo(node);
           }
         };
 
@@ -203,11 +153,11 @@ export default class ButtonDocumentation extends HTMLElement {
           const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
-            preview.appendChild(result);
+            demobox.appendDemo(result);
           } else if (Array.isArray(result)) {
             result.forEach((item) => {
               if (item instanceof Node) {
-                preview.appendChild(item);
+                demobox.appendDemo(item);
               }
             });
           }
@@ -217,15 +167,9 @@ export default class ButtonDocumentation extends HTMLElement {
         }
       };
 
-      const code = await slice.build('CodeVisualizer', {
-        value: scenario.content,
-        language: 'javascript'
-      });
-      card.appendChild(preview);
-      card.appendChild(code);
-      card.appendChild(errorMessage);
-
-      section.appendChild(card);
+      section.appendChild(demobox);
+      demobox.appendCode(code);
+      section.appendChild(errorMessage);
 
       await executeScenario();
     }

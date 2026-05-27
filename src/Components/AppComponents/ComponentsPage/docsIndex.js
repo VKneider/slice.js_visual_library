@@ -13,13 +13,13 @@ const docsIndex = [
   {
     title: 'Icon',
     route: '/docs/display/icon',
-    description: 'Icon documentation with name, size, color and style prop scenarios.',
+    description: 'Complete icon reference with all 291 symbols, usage patterns, and style variants.',
     section: 'Display',
     group: 'Basic',
     order: 20,
     navLabel: 'Icon',
     component: 'IconDocumentation',
-    tags: ['icon', 'display']
+    tags: ['icon', 'display', 'reference']
   },
   {
     title: 'CodeVisualizer',

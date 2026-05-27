@@ -1,4 +1,5 @@
 import documentationRoutes from './documentationRoutes.generated.js';
+import docsIndex from './docsIndex.js';
 
 const baseVisualRoutes = {
   defaultRoute: {
@@ -49,6 +50,85 @@ const mergeGeneratedDocumentation = (baseRoutes, generatedRoutes) => {
 
 export const visualComponentsRoutes = mergeGeneratedDocumentation(baseVisualRoutes, documentationRoutes);
 
+const COMPACT_NAV_GROUPS = [
+  {
+    value: 'UI Components',
+    sections: ['Display', 'Input Components', 'Navigation', 'Feedback']
+  },
+  {
+    value: 'Layout & Structure',
+    sections: ['Layout', 'Routing', 'Data']
+  },
+  {
+    value: 'Docs Internals',
+    sections: ['Internal']
+  }
+];
+
+const docsMetaByPath = new Map(
+  (docsIndex || [])
+    .filter((item) => item && item.route)
+    .map((item) => [item.route, item])
+);
+
+const normalizeLeafItem = (sectionTitle, item) => {
+  const meta = docsMetaByPath.get(item.path) || {};
+  const tagsText = Array.isArray(meta.tags) ? meta.tags.join(' ') : '';
+  const label = meta.navLabel || item.title;
+
+  return {
+    value: label,
+    path: item.path,
+    component: item.component,
+    searchText: `${item.title || ''} ${label || ''} ${tagsText} ${sectionTitle || ''} ${item.path || ''}`
+      .trim()
+      .toLowerCase()
+  };
+};
+
+const stripSearchMetadata = (node) => {
+  const clean = {
+    value: node.value
+  };
+
+  if (node.path) {
+    clean.path = node.path;
+  }
+
+  if (node.component) {
+    clean.component = node.component;
+  }
+
+  if (Array.isArray(node.items) && node.items.length > 0) {
+    clean.items = node.items.map(stripSearchMetadata);
+  }
+
+  return clean;
+};
+
+const filterNode = (node, query) => {
+  const ownText = `${node.value || ''} ${node.searchText || ''}`.toLowerCase();
+  const ownMatch = ownText.includes(query);
+  const children = Array.isArray(node.items) ? node.items : [];
+
+  if (children.length === 0) {
+    return ownMatch ? { ...node } : null;
+  }
+
+  const filteredChildren = children
+    .map((child) => filterNode(child, query))
+    .filter(Boolean);
+
+  if (ownMatch || filteredChildren.length > 0) {
+    return {
+      ...node,
+      items: filteredChildren
+    };
+  }
+
+  return null;
+};
+
 export const getAllRoutes = (routesObj) => {
   const allRoutes = [];
 
@@ -85,25 +165,66 @@ export const getAllRoutes = (routesObj) => {
   return allRoutes;
 };
 
-export const createTreeViewItems = (routesConfig) => {
+export const buildCompactNavigationItems = (routesConfig) => {
   const skipKeys = new Set(['defaultRoute']);
-  const items = [];
+  const sections = [];
 
   for (const [key, section] of Object.entries(routesConfig)) {
     if (skipKeys.has(key)) continue;
     if (!section || !Array.isArray(section.items) || section.items.length === 0) continue;
 
-    items.push({
+    sections.push({
       value: section.title,
-      items: section.items.map((item) => ({
-        value: item.title,
-        path: item.path,
-        component: item.component
-      }))
+      items: section.items.map((item) => normalizeLeafItem(section.title, item))
     });
   }
 
-  return items;
+  const sectionByName = new Map(sections.map((section) => [section.value, section]));
+  const compact = [];
+
+  COMPACT_NAV_GROUPS.forEach((group) => {
+    const groupedSections = group.sections
+      .map((name) => sectionByName.get(name))
+      .filter(Boolean);
+
+    if (groupedSections.length > 0) {
+      compact.push({
+        value: group.value,
+        items: groupedSections
+      });
+    }
+  });
+
+  const coveredSections = new Set(COMPACT_NAV_GROUPS.flatMap((group) => group.sections));
+  const leftovers = sections.filter((section) => !coveredSections.has(section.value));
+
+  if (leftovers.length > 0) {
+    compact.push({
+      value: 'More',
+      items: leftovers
+    });
+  }
+
+  return compact;
+};
+
+export const filterNavigationItems = (items, rawQuery = '') => {
+  const query = String(rawQuery || '').trim().toLowerCase();
+  if (!query) {
+    return items;
+  }
+
+  return items
+    .map((item) => filterNode(item, query))
+    .filter(Boolean);
+};
+
+export const toTreeViewItems = (items) => {
+  return (items || []).map(stripSearchMetadata);
+};
+
+export const createTreeViewItems = (routesConfig) => {
+  return toTreeViewItems(buildCompactNavigationItems(routesConfig));
 };
 
 export const resolveInitialDocsPath = (pathname, defaultPath = '/docs') => {

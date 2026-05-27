@@ -325,6 +325,21 @@ const toAllowedValuesCell = (allowedValues) => {
   return allowedValues.map((value) => toCellLiteral(value)).join(', ');
 };
 
+const toSchemaDetailsBlock = (propPath, schema) => {
+  if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+    return '';
+  }
+
+  return [
+    `:::details title="Schema: ${propPath}"`,
+    '```json',
+    JSON.stringify(schema, null, 2),
+    '```',
+    ':::',
+    ''
+  ].join('\n');
+};
+
 const buildStaticPropsSectionFromProps = (props) => {
   const rows = [];
 
@@ -332,9 +347,9 @@ const buildStaticPropsSectionFromProps = (props) => {
     const fullPath = basePath ? `${basePath}.${name}` : name;
 
     if (meta?.type === 'object' && meta.schema && typeof meta.schema === 'object') {
+      rows.push({ path: fullPath, meta, isObjectRoot: true });
       const keys = Object.keys(meta.schema);
       if (keys.length === 0) {
-        rows.push({ path: fullPath, meta });
         return;
       }
       keys.forEach((key) => collectRows(key, meta.schema[key], fullPath));
@@ -342,6 +357,7 @@ const buildStaticPropsSectionFromProps = (props) => {
     }
 
     if (meta?.type === 'array' && meta.items && typeof meta.items === 'object') {
+      rows.push({ path: fullPath, meta, isArrayRoot: true });
       if (meta.items.type === 'object' && meta.items.schema && typeof meta.items.schema === 'object') {
         Object.keys(meta.items.schema).forEach((key) => collectRows(key, meta.items.schema[key], `${fullPath}[]`));
         return;
@@ -361,24 +377,33 @@ const buildStaticPropsSectionFromProps = (props) => {
     return '';
   }
 
+  const propsData = rows.map(({ path: propPath, meta }) => ({
+    path: propPath,
+    type: meta.type || 'any',
+    required: meta.required === true,
+    default: meta.default !== undefined ? String(meta.default) : null,
+    allowedValues: Array.isArray(meta.allowedValues) && meta.allowedValues.length > 0
+      ? meta.allowedValues.map(v => String(v))
+      : []
+  }));
+
+  const propsJson = JSON.stringify({ props: propsData });
+
   const lines = [];
-  lines.push('## Props (Generated from static props)');
-  lines.push('');
-  lines.push('| Prop | Type | Required | Default | Allowed values |');
-  lines.push('| --- | --- | --- | --- | --- |');
+  lines.push(':::component name="PropsTable"');
+  lines.push(propsJson);
+  lines.push(':::');
 
-  rows
+  const schemaDetailsBlocks = rows
+    .filter((row) => row.isObjectRoot && row.meta?.schema)
     .sort((a, b) => a.path.localeCompare(b.path))
-    .forEach(({ path: propPath, meta }) => {
-      const typeCell = meta.type ? `\`${meta.type}\`` : '-';
-      const requiredCell = meta.required ? '`true`' : '`false`';
-      const defaultCell = toCellLiteral(meta.default);
-      const allowedValuesCell = toAllowedValuesCell(meta.allowedValues);
+    .map((row) => toSchemaDetailsBlock(row.path, row.meta.schema))
+    .filter(Boolean);
 
-      lines.push(`| \`${propPath}\` | ${typeCell} | ${requiredCell} | ${defaultCell} | ${allowedValuesCell} |`);
-    });
+  if (schemaDetailsBlocks.length > 0) {
+    lines.push(...schemaDetailsBlocks);
+  }
 
-  lines.push('');
   return lines.join('\n');
 };
 

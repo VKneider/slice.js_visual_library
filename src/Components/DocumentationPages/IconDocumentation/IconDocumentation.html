@@ -7,19 +7,57 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Icon</code> renders a Material-style icon from a predefined symbol set. Supports filled and outlined styles, configurable size, and custom color.</p>
-<h2 id="api-and-behavior">API and Behavior</h2>
-<ul><li><code>name</code> selects the icon symbol (default: <code>youtube</code>).</li><li><code>iconStyle</code> accepts <code>filled</code> or <code>outlined</code>.</li><li><code>size</code> accepts <code>small</code> (16px), <code>medium</code> (20px), <code>large</code> (24px), or a custom pixel value.</li><li><code>color</code> sets the icon color via CSS color value.</li><li>An <code>update()</code> method reapplies all props, useful after route navigation.</li></ul>
+<p><code>Icon</code> renders a symbol from the built-in <strong>slc</strong> icon font. Every icon is available in <strong>filled</strong> (<code>iconStyle: "filled"</code>) and/or <strong>outlined</strong> (<code>iconStyle: "outlined"</code>) style. Use the <code>name</code> prop with the exact names listed below.</p>
+<h2 id="api">API</h2>
+<ul><li><code>name</code> (string, default <code>"youtube"</code>) — Icon symbol name (see full list below).</li><li><code>iconStyle</code> (string, default <code>"filled"</code>) — <code>"filled"</code> or <code>"outlined"</code>.</li><li><code>size</code> (string, default <code>"small"</code>) — <code>"small"</code> (16px), <code>"medium"</code> (20px), <code>"large"</code> (24px), or any CSS size.</li><li><code>color</code> (string, default <code>"black"</code>) — Any CSS color value.</li></ul>
 <h2 id="basic-usage">Basic Usage</h2>
 <div class="code-block" data-block-id="doc-block-1"></div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<h2 id="demos">Demos</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="icon-galleries">Icon Galleries</h2>
+<p>Browse icons by category.</p>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<h2 id="icon-reference">Icon Reference</h2>
+<p>The slc font contains <strong>291 unique symbols</strong>. Icons with a checkmark are available in that style.</p>
+<h3 id="ui-navigation">UI &amp; Navigation</h3>
+<div class="table-block" data-block-id="doc-block-9"></div>
+<h3 id="arrows-directional">Arrows &amp; Directional</h3>
+<div class="table-block" data-block-id="doc-block-10"></div>
+<h3 id="communication">Communication</h3>
+<div class="table-block" data-block-id="doc-block-11"></div>
+<h3 id="media-audio">Media &amp; Audio</h3>
+<div class="table-block" data-block-id="doc-block-12"></div>
+<h3 id="files-storage">Files &amp; Storage</h3>
+<div class="table-block" data-block-id="doc-block-13"></div>
+<h3 id="users-people">Users &amp; People</h3>
+<div class="table-block" data-block-id="doc-block-14"></div>
+<h3 id="commerce-finance">Commerce &amp; Finance</h3>
+<div class="table-block" data-block-id="doc-block-15"></div>
+<h3 id="status-feedback">Status &amp; Feedback</h3>
+<div class="table-block" data-block-id="doc-block-16"></div>
+<h3 id="objects-essentials">Objects &amp; Essentials</h3>
+<div class="table-block" data-block-id="doc-block-17"></div>
+<h3 id="design-layout">Design &amp; Layout</h3>
+<div class="table-block" data-block-id="doc-block-18"></div>
+<h3 id="development">Development</h3>
+<div class="table-block" data-block-id="doc-block-19"></div>
+<h3 id="brands-social">Brands &amp; Social</h3>
+<div class="table-block" data-block-id="doc-block-20"></div>
+<h3 id="slice-brand">Slice Brand</h3>
+<div class="table-block" data-block-id="doc-block-21"></div>
+<h3 id="weather-time">Weather &amp; Time</h3>
+<div class="table-block" data-block-id="doc-block-22"></div>
+<h3 id="miscellaneous">Miscellaneous</h3>
+<div class="table-block" data-block-id="doc-block-23"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use consistent <code>size</code> and <code>color</code> values within a feature to maintain visual alignment.</div>
+<div class="callout callout-tip">Use consistent <code>size</code> and <code>color</code> values within a feature to maintain visual alignment. Prefer theme tokens (<code>var(--primary-color)</code>, <code>var(--font-secondary-color)</code>) over hardcoded hex values when possible.</div>
+<div class="callout callout-tip">For Slice brand logos (<code>singleSlice</code>, <code>sliceJs</code>, <code>sliceLogo</code>) always use <code>filled</code> style — the outlined variants do not exist.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Not every Material icon name is available. Verify the icon name against the included symbol set before use.</div>
-<h2 id="props-generated-from-static-props">Props (Generated from static props)</h2>
-<div class="table-block" data-block-id="doc-block-5"></div>
+<div class="callout callout-warning">Icon names are case-sensitive and use kebab-case. For example, use <code>arrow-up-right-from-square</code>, not <code>arrowUpRightFromSquare</code>.</div>
+<div class="component-block" data-block-id="doc-block-24"></div>
 </div>

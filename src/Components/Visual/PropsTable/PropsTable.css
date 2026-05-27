@@ -1,0 +1,106 @@
+slice-props-table {
+  display: block;
+  font-family: var(--font-family);
+  margin: 1.25em 0;
+  border: 1px solid var(--primary-color-shade);
+  border-radius: var(--border-radius-slice);
+  overflow: hidden;
+}
+
+.props-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--secondary-background-color);
+}
+
+.props-title {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--font-primary-color);
+  flex: 1;
+}
+
+.props-count {
+  font-size: 0.8em;
+  color: var(--font-secondary-color);
+  background: var(--primary-background-color);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.props-body {
+  overflow-x: auto;
+}
+
+.props-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88em;
+}
+
+.props-grid th {
+  background: var(--primary-background-color);
+  color: var(--font-primary-color);
+  font-weight: 600;
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--primary-color-shade);
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.props-grid td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--primary-color-shade);
+  vertical-align: top;
+}
+
+.props-grid tr:last-child td {
+  border-bottom: none;
+}
+
+.props-grid tr:hover td {
+  background: color-mix(in srgb, var(--primary-background-color) 97%, var(--secondary-color));
+}
+
+.props-grid code {
+  font-family: "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+  background: var(--doc-code-bg);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.92em;
+  word-break: break-word;
+}
+
+.prop-required-true {
+  display: inline-block;
+  background: var(--danger-color);
+  color: var(--danger-contrast);
+  font-size: 0.75em;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.prop-required-false {
+  color: var(--medium-color);
+  font-size: 0.85em;
+}
+
+.prop-allowed {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.prop-allowed code {
+  font-size: 0.85em;
+}
+
+.prop-name-nested {
+  padding-left: 20px;
+  opacity: 0.85;
+}

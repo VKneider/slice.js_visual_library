@@ -1,4 +1,11 @@
-import { visualComponentsRoutes, getAllRoutes, createTreeViewItems, resolveInitialDocsPath } from './visualComponentRoutes.js';
+import {
+   visualComponentsRoutes,
+   getAllRoutes,
+   buildCompactNavigationItems,
+   filterNavigationItems,
+   toTreeViewItems,
+   resolveInitialDocsPath
+} from './visualComponentRoutes.js';
 
 export default class ComponentsPage extends HTMLElement {
    constructor(props) {
@@ -28,12 +35,10 @@ export default class ComponentsPage extends HTMLElement {
                value: 'Change Theme',
                onClickCallback: async () => {
                   let theme = slice.stylesManager.themeManager.currentTheme;
-                  if (theme === 'Slice') {
-                     await slice.setTheme('Light');
-                  } else if (theme === 'Light') {
-                     await slice.setTheme('Dark');
-                  } else if (theme === 'Dark') {
-                     await slice.setTheme('Slice');
+                  if (theme === 'Purple') {
+                     await slice.setTheme('PurpleDark');
+                  } else {
+                     await slice.setTheme('Purple');
                   }
                },
             },
@@ -64,23 +69,49 @@ export default class ComponentsPage extends HTMLElement {
          routes: uniqueMultiRouteItems
       });
 
-      // Crear el TreeView con la estructura jerárquica
-      const treeviewItems = createTreeViewItems(routesConfig);
-      const treeview = await slice.build('TreeView', {
-         items: treeviewItems,
-         onClickCallback: async (item) => {
-            if (item.path) {
-               await slice.router.navigate(item.path);
-               if (typeof mainMenu.handleCloseMenu === 'function') {
-                  mainMenu.handleCloseMenu();
-               }
-            }
-         },
-      });
-
       // Crear el MainMenu que contendrá el TreeView
       const mainMenu = await slice.build('MainMenu', {});
-      mainMenu.add(treeview);
+
+      const baseNavigationItems = buildCompactNavigationItems(routesConfig);
+
+      const buildTreeView = async (query = '') => {
+         const filteredItems = filterNavigationItems(baseNavigationItems, query);
+         if (!filteredItems.length) {
+            return null;
+         }
+
+         const treeItems = toTreeViewItems(filteredItems);
+         return slice.build('TreeView', {
+            items: treeItems,
+            onClickCallback: async (item) => {
+               if (item.path) {
+                  await slice.router.navigate(item.path);
+                  if (typeof mainMenu.handleCloseMenu === 'function') {
+                     mainMenu.handleCloseMenu();
+                  }
+               }
+            },
+         });
+      };
+
+      const initialTreeView = await buildTreeView('');
+      if (initialTreeView) {
+         mainMenu.add(initialTreeView);
+      } else {
+         mainMenu.setEmptyState('No components found');
+      }
+
+      mainMenu.addEventListener('docs-menu-search', async (event) => {
+         const query = event?.detail?.query || '';
+         const nextTreeView = await buildTreeView(query);
+
+         if (nextTreeView) {
+            mainMenu.setMenuTree(nextTreeView);
+            return;
+         }
+
+         mainMenu.setEmptyState('No components found');
+      });
 
       // Crear MyNavigation
       const myNavigation = await slice.build('MyNavigation', {

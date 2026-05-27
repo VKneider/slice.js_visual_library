@@ -77,3 +77,43 @@ host.appendChild(checkbox);
 host.appendChild(toggle);
 return host;
 :::
+
+:::script label="labelPlacement variations" expected="left/right/top/bottom placements render correctly"
+const placements = ['left', 'right', 'top', 'bottom'];
+const host = document.createElement('div');
+host.style.display = 'grid';
+host.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
+host.style.gap = '8px';
+
+for (const placement of placements) {
+  const item = await slice.build('Checkbox', {
+    label: `Placement ${placement}`,
+    checked: placement === 'left' || placement === 'top',
+    labelPlacement: placement
+  });
+  host.appendChild(item);
+}
+
+return host;
+:::
+
+:::script label="checked state variations" expected="shows both checked=true and checked=false states"
+const host = document.createElement('div');
+host.style.display = 'flex';
+host.style.flexWrap = 'wrap';
+host.style.gap = '10px';
+
+const checkedOn = await slice.build('Checkbox', {
+  label: 'Checked true',
+  checked: true
+});
+
+const checkedOff = await slice.build('Checkbox', {
+  label: 'Checked false',
+  checked: false
+});
+
+host.appendChild(checkedOn);
+host.appendChild(checkedOff);
+return host;
+:::

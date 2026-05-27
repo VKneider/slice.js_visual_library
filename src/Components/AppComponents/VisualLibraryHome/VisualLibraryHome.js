@@ -24,12 +24,10 @@ export default class VisualLibraryHome extends HTMLElement {
                value: "Change Theme",
                onClickCallback: async () => {
                   const currentTheme = slice.stylesManager.themeManager.currentTheme;
-                  if (currentTheme === "Slice") {
-                     await slice.setTheme("Light");
-                  } else if (currentTheme === "Light") {
-                     await slice.setTheme("Dark");
+                  if (currentTheme === "Purple") {
+                     await slice.setTheme("PurpleDark");
                   } else {
-                     await slice.setTheme("Slice");
+                     await slice.setTheme("Purple");
                   }
                },
             },

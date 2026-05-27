@@ -26,7 +26,7 @@
     },
     "themeManager": {
         "enabled":true,
-        "defaultTheme": "Slice",
+        "defaultTheme": "Purple",
         "saveThemeLocally": false,
         "useBrowserTheme": false
     },
@@ -56,6 +56,10 @@
             },
             "DocumentationPages":{
                 "path":"/Components/DocumentationPages",
+                "type":"Visual"
+            },
+            "DemoComponents":{
+                "path":"/Components/DemoComponents",
                 "type":"Visual"
             }
         },

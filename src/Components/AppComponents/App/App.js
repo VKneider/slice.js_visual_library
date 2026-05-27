@@ -21,12 +21,10 @@ export default class App extends HTMLElement {
                value: 'Change Theme',
                onClickCallback: async () => {
                   const theme = slice.stylesManager.themeManager.currentTheme;
-                  if (theme === 'Slice') {
-                     await slice.setTheme('Light');
-                  } else if (theme === 'Light') {
-                     await slice.setTheme('Dark');
-                  } else if (theme === 'Dark') {
-                     await slice.setTheme('Slice');
+                  if (theme === 'Purple') {
+                     await slice.setTheme('PurpleDark');
+                  } else {
+                     await slice.setTheme('Purple');
                   }
                },
             },

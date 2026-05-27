@@ -1,29 +1,29 @@
 slice-mynavigation {
   position: fixed;
-  top: 72px;
+  top: var(--docs-navbar-height, 72px);
   right: 0;
   font-family: var(--font-family);
   background-color: var(--primary-background-color);
-  border-left: 1px solid var(--primary-color-shade);
+  border-left: 1px solid color-mix(in srgb, var(--primary-color-shade) 65%, transparent);
   display: flex;
   align-items: flex-start;
-  height: calc(100% - 72px);
-  width: 17%;
+  height: calc(100% - var(--docs-navbar-height, 72px));
+  width: var(--docs-sidebar-width, 17%);
   transition: transform 0.3s ease, width 0.3s ease;
   overflow-x: hidden;
   overflow-y: auto;
-  z-index: 210;
+  z-index: 170;
 }
 .my_navigation {
   display: flex;
   flex-direction: column;
-  margin-top: 8px;
+  margin-top: 4px;
   width: 100%;
-  padding: 8px 10px 20px;
+  padding: 8px 8px 20px;
 }
 .my_navigation a {
-  padding: 8px 10px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
 }
 .my_navigation a:hover {
   background: var(--secondary-background-color);

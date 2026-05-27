@@ -4,12 +4,12 @@ export default class GridDocumentation extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
     this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"two-column card grid","expected":"grid renders card items in two columns","kind":"script","content":"const cardA = await slice.build('Card', {\n  title: 'Alpha',\n  text: 'First card',\n  variant: 'outlined'\n});\n\nconst cardB = await slice.build('Card', {\n  title: 'Beta',\n  text: 'Second card',\n  variant: 'outlined'\n});\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  gap: '12px',\n  items: [cardA, cardB]\n});\n\nreturn grid;"},{"label":"custom column template","expected":"columnTemplate overrides fixed columns repeat","kind":"script","content":"const a = document.createElement('div');\na.textContent = 'Main panel';\n\nconst b = document.createElement('div');\nb.textContent = 'Sidebar';\n\nconst grid = await slice.build('Grid', {\n  columnTemplate: '2fr 1fr',\n  rows: 1,\n  items: [a, b]\n});\n\nreturn grid;"},{"label":"dynamic grid update","expected":"items can be replaced by assigning new items array","kind":"script","content":"const first = document.createElement('div');\nfirst.textContent = 'Item 1';\n\nconst second = document.createElement('div');\nsecond.textContent = 'Item 2';\n\nconst third = document.createElement('div');\nthird.textContent = 'Item 3';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 2,\n  items: [first, second]\n});\n\ngrid.items = [first, second, third];\nreturn grid;"}];
+    this.scriptScenarios = [{"label":"Metric cards dashboard","expected":"four cards with icons and badges","kind":"script","content":"const cards = await Promise.all([\n  slice.build('Card', { title: 'API Response', text: 'Avg 42ms latency', badge: 'Healthy', variant: 'elevated', icon: { name: 'chart-pie', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Error Rate', text: '0.3% of requests', badge: 'Warning', variant: 'elevated', icon: { name: 'exclamation-circle', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Uptime', text: '99.97% this month', badge: 'Healthy', variant: 'elevated', icon: { name: 'shield-check', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Queue Depth', text: '12 pending jobs', badge: 'Blocked', variant: 'elevated', icon: { name: 'inbox', iconStyle: 'filled' } })\n]);\n\nconst grid = await slice.build('Grid', {\n  columns: 2, rows: 2, gap: '12px',\n  items: cards\n});\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;';\nwrapper.appendChild(grid);\nreturn wrapper;"},{"label":"Editor toolbar grid","expected":"grid of icon buttons mimicking an editor toolbar","kind":"script","content":"const tools = [\n  { name: 'letter-bold', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'letter-italic', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'letter-underline', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'align-center', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'list', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'indent', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'code', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'table-column', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'palette', color: { button: '#7c3aed', label: '#ffffff' } },\n  { name: 'search', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'download', color: { button: '#2563eb', label: '#ffffff' } },\n  { name: 'undo', color: { button: '#f59e0b', label: '#ffffff' } }\n];\n\nconst btns = await Promise.all(tools.map(t =>\n  slice.build('Button', { value: '', icon: { name: t.name, iconStyle: 'filled' }, customColor: t.color })\n));\n\nconst grid = await slice.build('Grid', {\n  columns: 6, rows: 2, gap: '6px',\n  items: btns\n});\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;padding:8px;background:color-mix(in srgb,var(--primary-background-color) 98%,var(--primary-color));border-radius:8px;';\nwrapper.appendChild(grid);\nreturn wrapper;"},{"label":"Custom column template","expected":"sidebar + main layout using columnTemplate","kind":"script","content":"const sidebarCard = await slice.build('Card', { title: 'Navigation', text: 'Quick links', variant: 'minimal', icon: { name: 'home', iconStyle: 'filled' }, interactive: false });\nconst linkItems = await Promise.all([\n  slice.build('Button', { value: 'Dashboard', icon: { name: 'grid', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),\n  slice.build('Button', { value: 'Analytics', icon: { name: 'chart-pie', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),\n  slice.build('Button', { value: 'Settings', icon: { name: 'cog', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),\n  slice.build('Button', { value: 'Profile', icon: { name: 'user', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } })\n]);\n\nconst navContainer = document.createElement('div');\nnavContainer.style.cssText = 'display:flex;flex-direction:column;gap:4px;';\nnavContainer.appendChild(sidebarCard);\nlinkItems.forEach(item => navContainer.appendChild(item));\n\nconst mainCard = await slice.build('Card', {\n  title: 'Content Area', text: 'Main panel with detailed information. Cards and other components render naturally inside grid cells.', badge: 'Active', variant: 'elevated', icon: { name: 'file-lines', iconStyle: 'filled' }\n});\n\nconst grid = await slice.build('Grid', {\n  columnTemplate: '220px 1fr', gap: '12px', rows: 1, items: [navContainer, mainCard]\n});\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;';\nwrapper.appendChild(grid);\nreturn wrapper;"},{"label":"Dynamic grid update","expected":"items can be replaced by assigning new items array","kind":"script","content":"const icons = ['bell', 'calendar-month', 'rocket', 'bug', 'flag', 'credit-card'];\nconst addCard = async (label, badgeVal) => {\n  const idx = Math.floor(Math.random() * icons.length);\n  return slice.build('Card', { title: label, text: 'Dynamically added item', badge: badgeVal, variant: 'outlined', icon: { name: icons[idx], iconStyle: 'filled' } });\n};\n\nconst initial = await Promise.all([\n  addCard('Task Alpha', 'New'),\n  addCard('Task Beta', 'Active')\n]);\n\nconst grid = await slice.build('Grid', { columns: 2, rows: 2, gap: '10px', items: initial });\n\nconst addBtn = await slice.build('Button', {\n  value: 'Add card', onClickCallback: async () => {\n    const newCard = await addCard('Task ' + Math.random().toString(36).slice(2,5), 'New');\n    const existing = grid.items || [];\n    grid.items = [...existing, newCard];\n  }\n});\n\nconst clearBtn = await slice.build('Button', {\n  value: 'Clear', customColor: { button: '#dc2626', label: '#ffffff' }, onClickCallback: () => {\n    grid.clear();\n    grid.items = [];\n  }\n});\n\nconst toolbar = document.createElement('div');\ntoolbar.style.cssText = 'display:flex;gap:8px;margin-bottom:12px;';\ntoolbar.appendChild(addBtn);\ntoolbar.appendChild(clearBtn);\n\nconst host = document.createElement('div');\nhost.appendChild(toolbar);\nhost.appendChild(grid);\nreturn host;"},{"label":"Card variants in grid","expected":"four card variants displayed side by side","kind":"script","content":"const rebuilt = await Promise.all([\n  slice.build('Card', { title: 'Default', text: 'Standard card surface', variant: 'default', icon: { name: 'grid', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Elevated', text: 'Lifted with shadow', variant: 'elevated', icon: { name: 'upload', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Outlined', text: 'Bordered accent', variant: 'outlined', icon: { name: 'close-circle', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Minimal', text: 'Clean no-chrome', variant: 'minimal', icon: { name: 'minus', iconStyle: 'outlined' } })\n]);\n\nconst grid = await slice.build('Grid', { columns: 4, rows: 1, gap: '10px', items: rebuilt });\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;';\nwrapper.appendChild(grid);\nreturn wrapper;"}];
   }
 
   async init() {
     this.markdownPath = "grid.md";
-    this.markdownContent = "---\ntitle: Grid\nroute: /docs/layout/grid\nnavLabel: Grid\nsection: Layout\ngroup: Containers\norder: 22\ndescription: Grid component documentation with layout composition scenarios.\ncomponent: GridDocumentation\ngenerate: true\ntags: [grid, layout]\n---\n\n# Grid\n\n## Overview\n`Grid` arranges content in structured rows and columns with configurable templates and spacing.\n\n## Core Behavior\n- `columns` and `rows` define the base matrix.\n- `gap` controls spacing between cells.\n- `items` appends DOM nodes as grid children.\n\n## Basic Usage\n```javascript title=\"Build grid\"\nconst one = document.createElement('div');\none.textContent = 'One';\n\nconst two = document.createElement('div');\ntwo.textContent = 'Two';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  items: [one, two]\n});\n\nthis.appendChild(grid);\n```\n\n## Prop Scenarios\n:::script label=\"two-column card grid\" expected=\"grid renders card items in two columns\"\nconst cardA = await slice.build('Card', {\n  title: 'Alpha',\n  text: 'First card',\n  variant: 'outlined'\n});\n\nconst cardB = await slice.build('Card', {\n  title: 'Beta',\n  text: 'Second card',\n  variant: 'outlined'\n});\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  gap: '12px',\n  items: [cardA, cardB]\n});\n\nreturn grid;\n:::\n\n:::script label=\"custom column template\" expected=\"columnTemplate overrides fixed columns repeat\"\nconst a = document.createElement('div');\na.textContent = 'Main panel';\n\nconst b = document.createElement('div');\nb.textContent = 'Sidebar';\n\nconst grid = await slice.build('Grid', {\n  columnTemplate: '2fr 1fr',\n  rows: 1,\n  items: [a, b]\n});\n\nreturn grid;\n:::\n\n:::script label=\"dynamic grid update\" expected=\"items can be replaced by assigning new items array\"\nconst first = document.createElement('div');\nfirst.textContent = 'Item 1';\n\nconst second = document.createElement('div');\nsecond.textContent = 'Item 2';\n\nconst third = document.createElement('div');\nthird.textContent = 'Item 3';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 2,\n  items: [first, second]\n});\n\ngrid.items = [first, second, third];\nreturn grid;\n:::\n";
+    this.markdownContent = "---\ntitle: Grid\nroute: /docs/layout/grid\nnavLabel: Grid\nsection: Layout\ngroup: Containers\norder: 22\ndescription: Grid component documentation with layout composition scenarios.\ncomponent: GridDocumentation\ngenerate: true\ntags: [grid, layout]\n---\n\n# Grid\n\n## Overview\n`Grid` arranges content in structured rows and columns with configurable templates and spacing.\n\n## Core Behavior\n- `columns` and `rows` define the base matrix.\n- `gap` controls spacing between cells.\n- `items` appends DOM nodes as grid children.\n\n## Basic Usage\n```javascript title=\"Build grid\"\nconst one = document.createElement('div');\none.textContent = 'One';\n\nconst two = document.createElement('div');\ntwo.textContent = 'Two';\n\nconst grid = await slice.build('Grid', {\n  columns: 2,\n  rows: 1,\n  items: [one, two]\n});\n\nthis.appendChild(grid);\n```\n\n## Prop Scenarios\n\n:::script label=\"Metric cards dashboard\" expected=\"four cards with icons and badges\"\nconst cards = await Promise.all([\n  slice.build('Card', { title: 'API Response', text: 'Avg 42ms latency', badge: 'Healthy', variant: 'elevated', icon: { name: 'chart-pie', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Error Rate', text: '0.3% of requests', badge: 'Warning', variant: 'elevated', icon: { name: 'exclamation-circle', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Uptime', text: '99.97% this month', badge: 'Healthy', variant: 'elevated', icon: { name: 'shield-check', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Queue Depth', text: '12 pending jobs', badge: 'Blocked', variant: 'elevated', icon: { name: 'inbox', iconStyle: 'filled' } })\n]);\n\nconst grid = await slice.build('Grid', {\n  columns: 2, rows: 2, gap: '12px',\n  items: cards\n});\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;';\nwrapper.appendChild(grid);\nreturn wrapper;\n:::\n\n:::script label=\"Editor toolbar grid\" expected=\"grid of icon buttons mimicking an editor toolbar\"\nconst tools = [\n  { name: 'letter-bold', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'letter-italic', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'letter-underline', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'align-center', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'list', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'indent', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'code', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'table-column', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'palette', color: { button: '#7c3aed', label: '#ffffff' } },\n  { name: 'search', color: { button: '#e2e8f0', label: '#0f172a' } },\n  { name: 'download', color: { button: '#2563eb', label: '#ffffff' } },\n  { name: 'undo', color: { button: '#f59e0b', label: '#ffffff' } }\n];\n\nconst btns = await Promise.all(tools.map(t =>\n  slice.build('Button', { value: '', icon: { name: t.name, iconStyle: 'filled' }, customColor: t.color })\n));\n\nconst grid = await slice.build('Grid', {\n  columns: 6, rows: 2, gap: '6px',\n  items: btns\n});\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;padding:8px;background:color-mix(in srgb,var(--primary-background-color) 98%,var(--primary-color));border-radius:8px;';\nwrapper.appendChild(grid);\nreturn wrapper;\n:::\n\n:::script label=\"Custom column template\" expected=\"sidebar + main layout using columnTemplate\"\nconst sidebarCard = await slice.build('Card', { title: 'Navigation', text: 'Quick links', variant: 'minimal', icon: { name: 'home', iconStyle: 'filled' }, interactive: false });\nconst linkItems = await Promise.all([\n  slice.build('Button', { value: 'Dashboard', icon: { name: 'grid', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),\n  slice.build('Button', { value: 'Analytics', icon: { name: 'chart-pie', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),\n  slice.build('Button', { value: 'Settings', icon: { name: 'cog', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),\n  slice.build('Button', { value: 'Profile', icon: { name: 'user', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } })\n]);\n\nconst navContainer = document.createElement('div');\nnavContainer.style.cssText = 'display:flex;flex-direction:column;gap:4px;';\nnavContainer.appendChild(sidebarCard);\nlinkItems.forEach(item => navContainer.appendChild(item));\n\nconst mainCard = await slice.build('Card', {\n  title: 'Content Area', text: 'Main panel with detailed information. Cards and other components render naturally inside grid cells.', badge: 'Active', variant: 'elevated', icon: { name: 'file-lines', iconStyle: 'filled' }\n});\n\nconst grid = await slice.build('Grid', {\n  columnTemplate: '220px 1fr', gap: '12px', rows: 1, items: [navContainer, mainCard]\n});\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;';\nwrapper.appendChild(grid);\nreturn wrapper;\n:::\n\n:::script label=\"Dynamic grid update\" expected=\"items can be replaced by assigning new items array\"\nconst icons = ['bell', 'calendar-month', 'rocket', 'bug', 'flag', 'credit-card'];\nconst addCard = async (label, badgeVal) => {\n  const idx = Math.floor(Math.random() * icons.length);\n  return slice.build('Card', { title: label, text: 'Dynamically added item', badge: badgeVal, variant: 'outlined', icon: { name: icons[idx], iconStyle: 'filled' } });\n};\n\nconst initial = await Promise.all([\n  addCard('Task Alpha', 'New'),\n  addCard('Task Beta', 'Active')\n]);\n\nconst grid = await slice.build('Grid', { columns: 2, rows: 2, gap: '10px', items: initial });\n\nconst addBtn = await slice.build('Button', {\n  value: 'Add card', onClickCallback: async () => {\n    const newCard = await addCard('Task ' + Math.random().toString(36).slice(2,5), 'New');\n    const existing = grid.items || [];\n    grid.items = [...existing, newCard];\n  }\n});\n\nconst clearBtn = await slice.build('Button', {\n  value: 'Clear', customColor: { button: '#dc2626', label: '#ffffff' }, onClickCallback: () => {\n    grid.clear();\n    grid.items = [];\n  }\n});\n\nconst toolbar = document.createElement('div');\ntoolbar.style.cssText = 'display:flex;gap:8px;margin-bottom:12px;';\ntoolbar.appendChild(addBtn);\ntoolbar.appendChild(clearBtn);\n\nconst host = document.createElement('div');\nhost.appendChild(toolbar);\nhost.appendChild(grid);\nreturn host;\n:::\n\n:::script label=\"Card variants in grid\" expected=\"four card variants displayed side by side\"\nconst rebuilt = await Promise.all([\n  slice.build('Card', { title: 'Default', text: 'Standard card surface', variant: 'default', icon: { name: 'grid', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Elevated', text: 'Lifted with shadow', variant: 'elevated', icon: { name: 'upload', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Outlined', text: 'Bordered accent', variant: 'outlined', icon: { name: 'close-circle', iconStyle: 'filled' } }),\n  slice.build('Card', { title: 'Minimal', text: 'Clean no-chrome', variant: 'minimal', icon: { name: 'minus', iconStyle: 'outlined' } })\n]);\n\nconst grid = await slice.build('Grid', { columns: 4, rows: 1, gap: '10px', items: rebuilt });\n\nconst wrapper = document.createElement('div');\nwrapper.style.cssText = 'width:100%;';\nwrapper.appendChild(grid);\nreturn wrapper;\n:::\n\n## Best Practices\n:::tip\nUse `gap` to control spacing — default is `10px`. Combine `columnTemplate` with fixed and flexible units (`200px 1fr`) for mixed layouts.\n:::\n\n## Pitfalls\n:::warning\nGrid items must be valid DOM nodes. Strings are not automatically converted. Items array can be replaced at runtime via `grid.items = [...]`.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
@@ -30,63 +30,18 @@ export default class GridDocumentation extends HTMLElement {
          }
       }
       {
-         const container = this.querySelector('[data-block-id="doc-block-5"]');
+         const container = this.querySelector('[data-block-id="doc-block-7"]');
          if (container) {
-            const lines = ["| Prop | Type | Required | Default | Allowed values |","| --- | --- | --- | --- | --- |","| `columns` | `number` | `false` | `1` | - |","| `columnTemplate` | `string` | `false` | `null` | - |","| `gap` | `string` | `false` | `10px` | - |","| `items` | `array` | `false` | `` | - |","| `rows` | `number` | `false` | `1` | - |","| `rowTemplate` | `string` | `false` | `null` | - |"];
-            const clean = (line) => {
-               let value = line.trim();
-               if (value.startsWith('|')) {
-                  value = value.slice(1);
+            let props = {};
+            if ("{\"props\":[{\"path\":\"columns\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"rows\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"items\",\"type\":\"array\",\"required\":false,\"default\":\"\",\"allowedValues\":[]},{\"path\":\"gap\",\"type\":\"string\",\"required\":false,\"default\":\"10px\",\"allowedValues\":[]},{\"path\":\"columnTemplate\",\"type\":\"string\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"rowTemplate\",\"type\":\"string\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {
+               try {
+                  props = JSON.parse("{\"props\":[{\"path\":\"columns\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"rows\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"items\",\"type\":\"array\",\"required\":false,\"default\":\"\",\"allowedValues\":[]},{\"path\":\"gap\",\"type\":\"string\",\"required\":false,\"default\":\"10px\",\"allowedValues\":[]},{\"path\":\"columnTemplate\",\"type\":\"string\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"rowTemplate\",\"type\":\"string\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
                }
-               if (value.endsWith('|')) {
-                  value = value.slice(0, -1);
-               }
-               return value.split('|').map((cell) => cell.trim());
-            };
-
-            const formatCell = (text) => {
-               let output = text
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;');
-
-               const applyBold = (input) => {
-                  let result = '';
-                  let index = 0;
-                  while (index < input.length) {
-                     const start = input.indexOf('**', index);
-                     if (start === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     const end = input.indexOf('**', start + 2);
-                     if (end === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
-                     index = end + 2;
-                  }
-                  return result;
-               };
-
-               const applyInlineCode = (input) => {
-                  const parts = input.split(String.fromCharCode(96));
-                  if (parts.length === 1) return input;
-                  return parts
-                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
-                     .join('');
-               };
-
-               output = applyBold(output);
-               output = applyInlineCode(output);
-               return output;
-            };
-
-            const headers = lines.length > 0 ? clean(lines[0]) : [];
-            const rows = lines.slice(2).map((line) => clean(line).map((cell) => formatCell(cell)));
-            const table = await slice.build('Table', { headers, rows });
-            container.appendChild(table);
+            }
+            const component = await slice.build('PropsTable', props);
+            container.appendChild(component);
          }
       }
     await this.renderScriptScenarios();
@@ -129,41 +84,36 @@ export default class GridDocumentation extends HTMLElement {
 
     const subtitle = document.createElement('p');
     subtitle.classList.add('doc-script-subtitle');
-    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    subtitle.textContent = 'Interactive demos validating component behavior.';
     section.appendChild(subtitle);
 
     for (const scenario of this.scriptScenarios) {
-      const card = document.createElement('article');
-      card.classList.add('doc-script-card');
+      const demobox = await slice.build('DemoBox', {
+        label: scenario.label,
+        expected: scenario.expected || ''
+      });
 
-      const header = document.createElement('div');
-      header.classList.add('doc-script-header');
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
+      });
 
-      const heading = document.createElement('h3');
-      heading.classList.add('doc-script-title');
-      heading.textContent = scenario.label;
-      header.appendChild(heading);
-
-      card.appendChild(header);
-
-      const preview = document.createElement('div');
-      preview.classList.add('doc-script-preview');
       const errorMessage = document.createElement('p');
       errorMessage.classList.add('doc-script-error');
       errorMessage.hidden = true;
 
       const executeScenario = async () => {
-        preview.innerHTML = '';
+        demobox.clear();
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
         const createBuildFallbackNode = (name) => {
           const fallback = document.createElement('div');
           fallback.style.padding = '10px';
-          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.border = '1px dashed var(--warning-color)';
           fallback.style.borderRadius = '8px';
-          fallback.style.background = '#fffbeb';
-          fallback.style.color = '#92400e';
+          fallback.style.background = 'color-mix(in srgb, var(--primary-background-color) 85%, var(--warning-color))';
+          fallback.style.color = 'var(--font-primary-color)';
           fallback.textContent = String(name || '')
             ? 'Component "' + String(name) + '" is not registered in this build yet.'
             : 'Requested component is not registered in this build yet.';
@@ -194,7 +144,7 @@ export default class GridDocumentation extends HTMLElement {
 
         const mount = (node) => {
           if (node instanceof Node) {
-            preview.appendChild(node);
+            demobox.appendDemo(node);
           }
         };
 
@@ -203,11 +153,11 @@ export default class GridDocumentation extends HTMLElement {
           const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
-            preview.appendChild(result);
+            demobox.appendDemo(result);
           } else if (Array.isArray(result)) {
             result.forEach((item) => {
               if (item instanceof Node) {
-                preview.appendChild(item);
+                demobox.appendDemo(item);
               }
             });
           }
@@ -217,15 +167,9 @@ export default class GridDocumentation extends HTMLElement {
         }
       };
 
-      const code = await slice.build('CodeVisualizer', {
-        value: scenario.content,
-        language: 'javascript'
-      });
-      card.appendChild(preview);
-      card.appendChild(code);
-      card.appendChild(errorMessage);
-
-      section.appendChild(card);
+      section.appendChild(demobox);
+      demobox.appendCode(code);
+      section.appendChild(errorMessage);
 
       await executeScenario();
     }

@@ -79,6 +79,41 @@ note.textContent = `Admin route private=${route.metadata.private}`;
 return note;
 :::
 
+:::script label="tabs navigation showcase" expected="tabs/buttons call await slice.router.navigate and MultiRoute switches content"
+const tabs = document.createElement('div');
+tabs.style.display = 'flex';
+tabs.style.gap = '8px';
+tabs.style.marginBottom = '12px';
+
+const routes = [
+  { path: '/docs/multiroute-showcase/overview', component: 'DemoRouteHome', metadata: { title: 'Overview' } },
+  { path: '/docs/multiroute-showcase/form', component: 'DemoRouteDetails', metadata: { title: 'Form' } },
+  { path: '/docs/multiroute-showcase/state', component: 'DemoRouteState', metadata: { title: 'State' } }
+];
+
+const multi = await slice.build('MultiRoute', {
+  routes
+});
+
+for (const entry of routes) {
+  const button = await slice.build('Button', {
+    value: entry.metadata.title,
+    onClickCallback: async () => {
+      await slice.router.navigate(entry.path);
+    }
+  });
+  tabs.appendChild(button);
+}
+
+const host = document.createElement('div');
+const note = document.createElement('p');
+note.textContent = 'Use buttons to navigate between MultiRoute paths.';
+host.appendChild(note);
+host.appendChild(tabs);
+host.appendChild(multi);
+return host;
+:::
+
 ## Best Practices
 :::tip
 Use `MultiRoute` inside app-shell layouts where navbar/sidebar stay mounted while inner sections switch by URL.

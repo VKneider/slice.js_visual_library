@@ -6,6 +6,8 @@ export default class MainMenu extends HTMLElement {
       this.$menuButton = this.querySelector('.slice_menu_button');
       this.$closeButton = this.querySelector('.slice_close_menu');
       this.$menu = this.querySelector('.slice_menu');
+      this.$treeHost = this.querySelector('.slice_menu_tree_host');
+      this.$searchInput = this.querySelector('.slice_menu_search_input');
       this.$overlay = this.querySelector('.slice_menu_overlay');
 
       this.$menuButton.addEventListener('click', () => {
@@ -18,20 +20,55 @@ export default class MainMenu extends HTMLElement {
          this.handleCloseMenu();
       });
 
+      if (this.$searchInput) {
+         this.$searchInput.addEventListener('input', () => {
+            this.dispatchEvent(new CustomEvent('docs-menu-search', {
+               bubbles: true,
+               detail: {
+                  query: this.$searchInput.value || ''
+               }
+            }));
+         });
+      }
+
       slice.controller.setComponentProps(this, props);
       this.debuggerProps = [];
    }
 
    init() {
       this.addEventListener('mouseleave', () => {
-         if (this.querySelector('.slice_menu_open')) {
+         if (this.classList.contains('slice_menu_open')) {
             this.handleCloseMenu();
          }
       });
    }
 
    add(value) {
-      this.$menu.appendChild(value);
+      this.setMenuTree(value);
+   }
+
+   setMenuTree(value) {
+      if (!this.$treeHost) {
+         return;
+      }
+
+      this.$treeHost.innerHTML = '';
+
+      if (value instanceof Node) {
+         this.$treeHost.appendChild(value);
+      }
+   }
+
+   setEmptyState(message = 'No components found') {
+      if (!this.$treeHost) {
+         return;
+      }
+
+      this.$treeHost.innerHTML = '';
+      const empty = document.createElement('p');
+      empty.classList.add('slice_menu_empty');
+      empty.textContent = message;
+      this.$treeHost.appendChild(empty);
    }
 
    handleOpenMenu() {

@@ -8,11 +8,11 @@ slice-card, .slice-card {
   --card-width: 100%;
   --card-max-width: 280px;
 
-  --card-bg: var(--surface-1);
-  --card-text: var(--text-1);
-  --card-text-secondary: var(--text-2);
-  --card-border-color: var(--border);
-  --card-accent: var(--accent);
+  --card-bg: var(--primary-background-color);
+  --card-text: var(--font-primary-color);
+  --card-text-secondary: var(--font-secondary-color);
+  --card-border-color: var(--primary-color-shade);
+  --card-accent: var(--primary-color);
   --card-radius: 12px;
   --card-shadow: none;
   --card-shadow-hover: none;
@@ -25,8 +25,9 @@ slice-card, .slice-card {
 
   background: var(--card-bg);
   border-radius: var(--card-radius);
-  border: var(--slice-border) solid var(--card-border-color);
-  font-family: var(--font-family);
+  border: 1px solid var(--card-border-color);
+  font-family: var(--font-family, inherit);
+  color: var(--card-text);
   cursor: pointer;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -41,7 +42,7 @@ slice-card.card-elevated, .slice-card.card-elevated {
 }
 
 slice-card.card-outlined, .slice-card.card-outlined {
-  border: calc(var(--slice-border) * 2) solid var(--card-accent);
+  border: 2px solid var(--card-accent);
   background: transparent;
 }
 
@@ -68,11 +69,11 @@ slice-card:active, .slice-card:active {
   right: 0;
   bottom: 0;
   background: linear-gradient(
-    135deg,
-    transparent 0%,
-    rgba(var(--accent-rgb), 0.05) 50%,
-    transparent 100%
-  );
+     135deg,
+     transparent 0%,
+     rgba(var(--primary-color-rgb), 0.05) 50%,
+     transparent 100%
+   );
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
@@ -90,7 +91,7 @@ slice-card:hover .card-overlay, .slice-card:hover .card-overlay {
   flex-grow: 0;
   flex-shrink: 0;
   width: 100%;
-  background: var(--surface-2);
+  background: color-mix(in srgb, var(--primary-background-color) 98%, var(--primary-color));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +102,7 @@ slice-card:hover .card-overlay, .slice-card:hover .card-overlay {
 .card-lucide-icon {
   width: 56px;
   height: 56px;
-  color: var(--accent);
+  color: var(--card-accent);
   transition: transform 0.4s ease;
 }
 
@@ -138,9 +139,9 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   top: 12px;
   right: 12px;
   background: var(--card-accent);
-  color: var(--on-accent);
+  color: var(--primary-color-contrast);
   padding: 4px 8px;
-  border-radius: calc(var(--border-radius-slice) * 2);
+  border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
   opacity: 0;
@@ -193,14 +194,14 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   border: none;
   padding: 4px;
   cursor: pointer;
-  border-radius: var(--border-radius-slice);
+  border-radius: 4px;
   transition: all 0.3s ease;
   color: var(--card-text-secondary);
   flex-shrink: 0;
 }
 
 .card-toggle:hover {
-  background: rgba(var(--accent-rgb), 0.1);
+  background: color-mix(in srgb, var(--primary-background-color) 90%, var(--primary-color));
   color: var(--card-accent);
   transform: scale(1.1);
 }
@@ -248,7 +249,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
 
 .card-content::-webkit-scrollbar-thumb,
 .card-body::-webkit-scrollbar-thumb {
-  background: var(--card-border);
+  background: var(--card-border-color);
   border-radius: 2px;
 }
 
@@ -275,7 +276,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   transform: translateY(0);
   margin-top: 16px;
   padding-top: 16px;
-  border-top: var(--slice-border) solid var(--card-border);
+  border-top: 1px solid var(--card-border-color);
 }
 
 .card-details-content {
@@ -293,7 +294,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   gap: 8px;
   padding: 16px 20px;
   background: var(--card-bg);
-  border-top: var(--slice-border) solid var(--card-border);
+  border-top: 1px solid var(--card-border-color);
   z-index: 4;
   transform: translateY(100%);
   transition: transform 0.3s ease;
@@ -305,23 +306,6 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
 
 .card-actions:empty {
   display: none;
-}
-
-.card-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px;
-  background: var(--card-accent);
-  border-radius: 0 0 var(--card-radius) var(--card-radius);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s ease;
-  z-index: 5;
-}
-
-.card-progress[data-progress] {
-  transform: scaleX(calc(var(--progress, 0) / 100));
 }
 
 .slice-card.interactive {
@@ -341,9 +325,9 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   width: 32px;
   height: 32px;
   margin: -16px 0 0 -16px;
-  border: 3px solid rgba(var(--text-1-rgb), 0.3);
+  border: 3px solid color-mix(in srgb, var(--font-primary-color) 30%, transparent);
   border-radius: 50%;
-  border-top-color: var(--on-accent);
+  border-top-color: var(--primary-color-contrast);
   animation: cardSpin 1s linear infinite;
 }
 
@@ -434,8 +418,8 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
 
 @media (prefers-color-scheme: dark) {
   .slice-card {
-    --card-shadow: 0 8px 32px rgba(var(--accent-rgb), 0.3);
-    --card-shadow-hover: 0 16px 48px rgba(var(--accent-rgb), 0.4);
+    --card-shadow: 0 8px 32px rgba(var(--primary-color-rgb), 0.3);
+    --card-shadow-hover: 0 16px 48px rgba(var(--primary-color-rgb), 0.4);
   }
 }
 
@@ -458,15 +442,15 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
 .card-toggle:focus-visible {
   outline: 2px solid var(--card-accent);
   outline-offset: 2px;
-  border-radius: var(--border-radius-slice);
+  border-radius: 4px;
 }
 
 @media (prefers-contrast: high) {
   .slice-card {
-    border-width: calc(var(--slice-border) * 2);
+    border-width: 2px;
   }
 
   .card-toggle {
-    border: var(--slice-border) solid var(--card-text);
+    border: 1px solid var(--card-text);
   }
 }

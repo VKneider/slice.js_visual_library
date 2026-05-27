@@ -70,6 +70,56 @@ info.textContent = `Metadata title: ${route.props.metadata.title}`;
 return info;
 :::
 
+:::script label="showcase navigation controls" expected="buttons call await slice.router.navigate to move between Route targets"
+const routeHome = await slice.build('Route', {
+  path: '/docs/route-showcase/home',
+  component: 'DemoRouteHome',
+  metadata: { title: 'Route Showcase Home' }
+});
+
+const routeDetails = await slice.build('Route', {
+  path: '/docs/route-showcase/details',
+  component: 'DemoRouteDetails',
+  metadata: { title: 'Route Showcase Details' }
+});
+
+const title = document.createElement('p');
+title.textContent = 'Route showcase: use controls to navigate';
+
+const controls = document.createElement('div');
+controls.style.display = 'flex';
+controls.style.gap = '8px';
+controls.style.margin = '8px 0 12px';
+
+const goHome = await slice.build('Button', {
+  value: 'Go Home Route',
+  onClickCallback: async () => {
+    await slice.router.navigate('/docs/route-showcase/home');
+  }
+});
+
+const goDetails = await slice.build('Button', {
+  value: 'Go Details Route',
+  onClickCallback: async () => {
+    await slice.router.navigate('/docs/route-showcase/details');
+  }
+});
+
+controls.appendChild(goHome);
+controls.appendChild(goDetails);
+
+const note = document.createElement('p');
+note.textContent = 'Current path: ' + window.location.pathname;
+
+const host = document.createElement('div');
+host.appendChild(title);
+host.appendChild(controls);
+host.appendChild(note);
+host.appendChild(routeHome);
+host.appendChild(routeDetails);
+return host;
+:::
+
 ## Best Practices
 :::tip
 Use `metadata` to keep guards and page policies declarative instead of hard-coding checks inside components.

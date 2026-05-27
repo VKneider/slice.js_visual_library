@@ -4,12 +4,12 @@ export default class RouteDocumentation extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
     this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"static route config","expected":"Route stores path/component props for exact matching","kind":"script","content":"const route = await slice.build('Route', {\n  path: '/account',\n  component: 'CardDocumentation'\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `${route.path} -> ${route.component}`;\nreturn summary;"},{"label":"dynamic path matcher","expected":"Route extracts params from ${param} patterns","kind":"script","content":"const route = await slice.build('Route', {\n  path: '/users/${id}',\n  component: 'CardDocumentation'\n});\n\nconst matcher = route.compilePathPattern('/users/${id}');\nconst match = '/users/42'.match(matcher.regex);\nconst output = document.createElement('p');\noutput.textContent = match ? `Param ${matcher.paramNames[0]}=${match[1]}` : 'No match';\nreturn output;"},{"label":"metadata payload","expected":"Route keeps metadata available for routed component","kind":"script","content":"const route = await slice.build('Route', {\n  path: '/billing',\n  component: 'CardDocumentation',\n  metadata: { private: true, title: 'Billing' }\n});\n\nconst info = document.createElement('p');\ninfo.textContent = `Metadata title: ${route.props.metadata.title}`;\nreturn info;"}];
+    this.scriptScenarios = [{"label":"static route config","expected":"Route stores path/component props for exact matching","kind":"script","content":"const route = await slice.build('Route', {\n  path: '/account',\n  component: 'CardDocumentation'\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `${route.path} -> ${route.component}`;\nreturn summary;"},{"label":"dynamic path matcher","expected":"Route extracts params from ${param} patterns","kind":"script","content":"const route = await slice.build('Route', {\n  path: '/users/${id}',\n  component: 'CardDocumentation'\n});\n\nconst matcher = route.compilePathPattern('/users/${id}');\nconst match = '/users/42'.match(matcher.regex);\nconst output = document.createElement('p');\noutput.textContent = match ? `Param ${matcher.paramNames[0]}=${match[1]}` : 'No match';\nreturn output;"},{"label":"metadata payload","expected":"Route keeps metadata available for routed component","kind":"script","content":"const route = await slice.build('Route', {\n  path: '/billing',\n  component: 'CardDocumentation',\n  metadata: { private: true, title: 'Billing' }\n});\n\nconst info = document.createElement('p');\ninfo.textContent = `Metadata title: ${route.props.metadata.title}`;\nreturn info;"},{"label":"showcase navigation controls","expected":"buttons call await slice.router.navigate to move between Route targets","kind":"script","content":"const routeHome = await slice.build('Route', {\n  path: '/docs/route-showcase/home',\n  component: 'DemoRouteHome',\n  metadata: { title: 'Route Showcase Home' }\n});\n\nconst routeDetails = await slice.build('Route', {\n  path: '/docs/route-showcase/details',\n  component: 'DemoRouteDetails',\n  metadata: { title: 'Route Showcase Details' }\n});\n\nconst title = document.createElement('p');\ntitle.textContent = 'Route showcase: use controls to navigate';\n\nconst controls = document.createElement('div');\ncontrols.style.display = 'flex';\ncontrols.style.gap = '8px';\ncontrols.style.margin = '8px 0 12px';\n\nconst goHome = await slice.build('Button', {\n  value: 'Go Home Route',\n  onClickCallback: async () => {\n    await slice.router.navigate('/docs/route-showcase/home');\n  }\n});\n\nconst goDetails = await slice.build('Button', {\n  value: 'Go Details Route',\n  onClickCallback: async () => {\n    await slice.router.navigate('/docs/route-showcase/details');\n  }\n});\n\ncontrols.appendChild(goHome);\ncontrols.appendChild(goDetails);\n\nconst note = document.createElement('p');\nnote.textContent = 'Current path: ' + window.location.pathname;\n\nconst host = document.createElement('div');\nhost.appendChild(title);\nhost.appendChild(controls);\nhost.appendChild(note);\nhost.appendChild(routeHome);\nhost.appendChild(routeDetails);\nreturn host;"}];
   }
 
   async init() {
     this.markdownPath = "route.md";
-    this.markdownContent = "---\ntitle: Route\nroute: /docs/routing/route\nnavLabel: Route\nsection: Routing\ngroup: Containers\norder: 50\ndescription: Route container documentation with dynamic path and metadata scenarios.\ncomponent: RouteDocumentation\ngenerate: true\ntags: [route, routing, container]\n---\n\n# Route\n\n## Overview\n`Route` renders a single component when the current URL matches a target path.\n\n## Core Behavior\n- Registers its own `path` + `component` into router map when mounted.\n- Supports dynamic segments using `${param}` syntax.\n- Passes `params` and `metadata` to the routed component.\n- Reuses cached component instances and calls `update()` when needed.\n\n## Basic Usage\n```javascript title=\"Build route container\"\nconst route = await slice.build('Route', {\n  path: '/settings',\n  component: 'SettingsPage',\n  metadata: { requiresAuth: true }\n});\n\nthis.appendChild(route);\n```\n\n## Prop Scenarios\n:::script label=\"static route config\" expected=\"Route stores path/component props for exact matching\"\nconst route = await slice.build('Route', {\n  path: '/account',\n  component: 'CardDocumentation'\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `${route.path} -> ${route.component}`;\nreturn summary;\n:::\n\n:::script label=\"dynamic path matcher\" expected=\"Route extracts params from ${param} patterns\"\nconst route = await slice.build('Route', {\n  path: '/users/${id}',\n  component: 'CardDocumentation'\n});\n\nconst matcher = route.compilePathPattern('/users/${id}');\nconst match = '/users/42'.match(matcher.regex);\nconst output = document.createElement('p');\noutput.textContent = match ? `Param ${matcher.paramNames[0]}=${match[1]}` : 'No match';\nreturn output;\n:::\n\n:::script label=\"metadata payload\" expected=\"Route keeps metadata available for routed component\"\nconst route = await slice.build('Route', {\n  path: '/billing',\n  component: 'CardDocumentation',\n  metadata: { private: true, title: 'Billing' }\n});\n\nconst info = document.createElement('p');\ninfo.textContent = `Metadata title: ${route.props.metadata.title}`;\nreturn info;\n:::\n\n## Best Practices\n:::tip\nUse `metadata` to keep guards and page policies declarative instead of hard-coding checks inside components.\n:::\n\n## Pitfalls\n:::warning\nDynamic params use `${param}` syntax, not `:param`.\n:::\n";
+    this.markdownContent = "---\ntitle: Route\nroute: /docs/routing/route\nnavLabel: Route\nsection: Routing\ngroup: Containers\norder: 50\ndescription: Route container documentation with dynamic path and metadata scenarios.\ncomponent: RouteDocumentation\ngenerate: true\ntags: [route, routing, container]\n---\n\n# Route\n\n## Overview\n`Route` renders a single component when the current URL matches a target path.\n\n## Core Behavior\n- Registers its own `path` + `component` into router map when mounted.\n- Supports dynamic segments using `${param}` syntax.\n- Passes `params` and `metadata` to the routed component.\n- Reuses cached component instances and calls `update()` when needed.\n\n## Basic Usage\n```javascript title=\"Build route container\"\nconst route = await slice.build('Route', {\n  path: '/settings',\n  component: 'SettingsPage',\n  metadata: { requiresAuth: true }\n});\n\nthis.appendChild(route);\n```\n\n## Prop Scenarios\n:::script label=\"static route config\" expected=\"Route stores path/component props for exact matching\"\nconst route = await slice.build('Route', {\n  path: '/account',\n  component: 'CardDocumentation'\n});\n\nconst summary = document.createElement('p');\nsummary.textContent = `${route.path} -> ${route.component}`;\nreturn summary;\n:::\n\n:::script label=\"dynamic path matcher\" expected=\"Route extracts params from ${param} patterns\"\nconst route = await slice.build('Route', {\n  path: '/users/${id}',\n  component: 'CardDocumentation'\n});\n\nconst matcher = route.compilePathPattern('/users/${id}');\nconst match = '/users/42'.match(matcher.regex);\nconst output = document.createElement('p');\noutput.textContent = match ? `Param ${matcher.paramNames[0]}=${match[1]}` : 'No match';\nreturn output;\n:::\n\n:::script label=\"metadata payload\" expected=\"Route keeps metadata available for routed component\"\nconst route = await slice.build('Route', {\n  path: '/billing',\n  component: 'CardDocumentation',\n  metadata: { private: true, title: 'Billing' }\n});\n\nconst info = document.createElement('p');\ninfo.textContent = `Metadata title: ${route.props.metadata.title}`;\nreturn info;\n:::\n\n:::script label=\"showcase navigation controls\" expected=\"buttons call await slice.router.navigate to move between Route targets\"\nconst routeHome = await slice.build('Route', {\n  path: '/docs/route-showcase/home',\n  component: 'DemoRouteHome',\n  metadata: { title: 'Route Showcase Home' }\n});\n\nconst routeDetails = await slice.build('Route', {\n  path: '/docs/route-showcase/details',\n  component: 'DemoRouteDetails',\n  metadata: { title: 'Route Showcase Details' }\n});\n\nconst title = document.createElement('p');\ntitle.textContent = 'Route showcase: use controls to navigate';\n\nconst controls = document.createElement('div');\ncontrols.style.display = 'flex';\ncontrols.style.gap = '8px';\ncontrols.style.margin = '8px 0 12px';\n\nconst goHome = await slice.build('Button', {\n  value: 'Go Home Route',\n  onClickCallback: async () => {\n    await slice.router.navigate('/docs/route-showcase/home');\n  }\n});\n\nconst goDetails = await slice.build('Button', {\n  value: 'Go Details Route',\n  onClickCallback: async () => {\n    await slice.router.navigate('/docs/route-showcase/details');\n  }\n});\n\ncontrols.appendChild(goHome);\ncontrols.appendChild(goDetails);\n\nconst note = document.createElement('p');\nnote.textContent = 'Current path: ' + window.location.pathname;\n\nconst host = document.createElement('div');\nhost.appendChild(title);\nhost.appendChild(controls);\nhost.appendChild(note);\nhost.appendChild(routeHome);\nhost.appendChild(routeDetails);\nreturn host;\n:::\n\n## Best Practices\n:::tip\nUse `metadata` to keep guards and page policies declarative instead of hard-coding checks inside components.\n:::\n\n## Pitfalls\n:::warning\nDynamic params use `${param}` syntax, not `:param`.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
@@ -69,41 +69,36 @@ export default class RouteDocumentation extends HTMLElement {
 
     const subtitle = document.createElement('p');
     subtitle.classList.add('doc-script-subtitle');
-    subtitle.textContent = 'Run each scenario to validate behavior and prevent regressions.';
+    subtitle.textContent = 'Interactive demos validating component behavior.';
     section.appendChild(subtitle);
 
     for (const scenario of this.scriptScenarios) {
-      const card = document.createElement('article');
-      card.classList.add('doc-script-card');
+      const demobox = await slice.build('DemoBox', {
+        label: scenario.label,
+        expected: scenario.expected || ''
+      });
 
-      const header = document.createElement('div');
-      header.classList.add('doc-script-header');
+      const code = await slice.build('CodeVisualizer', {
+        value: scenario.content,
+        language: 'javascript'
+      });
 
-      const heading = document.createElement('h3');
-      heading.classList.add('doc-script-title');
-      heading.textContent = scenario.label;
-      header.appendChild(heading);
-
-      card.appendChild(header);
-
-      const preview = document.createElement('div');
-      preview.classList.add('doc-script-preview');
       const errorMessage = document.createElement('p');
       errorMessage.classList.add('doc-script-error');
       errorMessage.hidden = true;
 
       const executeScenario = async () => {
-        preview.innerHTML = '';
+        demobox.clear();
         errorMessage.hidden = true;
         errorMessage.textContent = '';
 
         const createBuildFallbackNode = (name) => {
           const fallback = document.createElement('div');
           fallback.style.padding = '10px';
-          fallback.style.border = '1px dashed #f59e0b';
+          fallback.style.border = '1px dashed var(--warning-color)';
           fallback.style.borderRadius = '8px';
-          fallback.style.background = '#fffbeb';
-          fallback.style.color = '#92400e';
+          fallback.style.background = 'color-mix(in srgb, var(--primary-background-color) 85%, var(--warning-color))';
+          fallback.style.color = 'var(--font-primary-color)';
           fallback.textContent = String(name || '')
             ? 'Component "' + String(name) + '" is not registered in this build yet.'
             : 'Requested component is not registered in this build yet.';
@@ -134,7 +129,7 @@ export default class RouteDocumentation extends HTMLElement {
 
         const mount = (node) => {
           if (node instanceof Node) {
-            preview.appendChild(node);
+            demobox.appendDemo(node);
           }
         };
 
@@ -143,11 +138,11 @@ export default class RouteDocumentation extends HTMLElement {
           const result = await fn(this, safeSlice, document, mount);
 
           if (result instanceof Node) {
-            preview.appendChild(result);
+            demobox.appendDemo(result);
           } else if (Array.isArray(result)) {
             result.forEach((item) => {
               if (item instanceof Node) {
-                preview.appendChild(item);
+                demobox.appendDemo(item);
               }
             });
           }
@@ -157,15 +152,9 @@ export default class RouteDocumentation extends HTMLElement {
         }
       };
 
-      const code = await slice.build('CodeVisualizer', {
-        value: scenario.content,
-        language: 'javascript'
-      });
-      card.appendChild(preview);
-      card.appendChild(code);
-      card.appendChild(errorMessage);
-
-      section.appendChild(card);
+      section.appendChild(demobox);
+      demobox.appendCode(code);
+      section.appendChild(errorMessage);
 
       await executeScenario();
     }

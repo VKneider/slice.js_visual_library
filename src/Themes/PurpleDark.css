@@ -1,0 +1,42 @@
+:root {
+  --font-primary-color: #f1e7ff;
+  --font-secondary-color: #c4b5fd;
+
+  /** Primary - Slice purple on dark surfaces **/
+  --primary-color: #a855f7;
+  --primary-color-rgb: 168, 85, 247;
+  --primary-background-color: #1a1028;
+  --primary-color-contrast: #ffffff;
+  --primary-color-shade: #2e2040;
+
+  /** Secondary - Emerald companion **/
+  --secondary-color: #34d399;
+  --secondary-color-rgb: 52, 211, 153;
+  --secondary-background-color: #1f1432;
+  --secondary-color-contrast: #052e23;
+
+  /** Tertiary **/
+  --tertiary-background-color: #26183a;
+
+  /** States **/
+  --success-color: #10b981;
+  --success-contrast: #03281f;
+
+  --warning-color: #f59e0b;
+  --warning-contrast: #2b1800;
+
+  --danger-color: #ef4444;
+  --danger-contrast: #2d0a0a;
+
+  /** Neutral **/
+  --medium-color: #9ca3af;
+  --medium-contrast: #111827;
+
+  --disabled-color: #4b5563;
+
+  /** Accent **/
+  --accent-color: #22d3ee;
+
+  /** Shadow tokens for dark mode elevation **/
+  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}

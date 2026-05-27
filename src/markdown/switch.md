@@ -78,3 +78,43 @@ const sw = await slice.build('Switch', {
 
 return sw;
 :::
+
+:::script label="labelPlacement variations" expected="left/right/top/bottom placements render correctly"
+const placements = ['left', 'right', 'top', 'bottom'];
+const host = document.createElement('div');
+host.style.display = 'grid';
+host.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';
+host.style.gap = '8px';
+
+for (const placement of placements) {
+  const item = await slice.build('Switch', {
+    label: `Placement ${placement}`,
+    checked: placement === 'left' || placement === 'top',
+    labelPlacement: placement
+  });
+  host.appendChild(item);
+}
+
+return host;
+:::
+
+:::script label="checked state variations" expected="shows both checked=true and checked=false states"
+const host = document.createElement('div');
+host.style.display = 'flex';
+host.style.flexWrap = 'wrap';
+host.style.gap = '10px';
+
+const onState = await slice.build('Switch', {
+  label: 'Checked true',
+  checked: true
+});
+
+const offState = await slice.build('Switch', {
+  label: 'Checked false',
+  checked: false
+});
+
+host.appendChild(onState);
+host.appendChild(offState);
+return host;
+:::
