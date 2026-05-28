@@ -1,5 +1,5 @@
-import documentationRoutes from './documentationRoutes.generated.js';
-import docsIndex from './docsIndex.js';
+import documentationRoutes from '/Components/AppComponents/ComponentsPage/documentationRoutes.generated.js';
+import docsIndex from '/Components/AppComponents/ComponentsPage/docsIndex.js';
 
 const baseVisualRoutes = {
   defaultRoute: {
