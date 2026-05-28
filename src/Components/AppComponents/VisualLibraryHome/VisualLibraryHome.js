@@ -168,7 +168,6 @@ export default class VisualLibraryHome extends HTMLElement {
          componentCount.classList.add("component-count");
          componentCount.textContent = `${category.components.length} components`;
 
-         categoryCard.appendChild(categoryIcon);
          categoryCard.appendChild(categoryName);
          categoryCard.appendChild(categoryDescription);
          categoryCard.appendChild(componentCount);
