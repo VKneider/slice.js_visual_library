@@ -16,23 +16,14 @@ export default class App extends HTMLElement {
              { text: 'Home', path: '/' },
              { text: 'Components', path: '/docs' }
          ],
-         buttons: [
-            {
-               value: 'Change Theme',
-               onClickCallback: async () => {
-                  const theme = slice.stylesManager.themeManager.currentTheme;
-                  if (theme === 'Purple') {
-                     await slice.setTheme('PurpleDark');
-                  } else {
-                     await slice.setTheme('Purple');
-                  }
-               },
-            },
-         ],
+          buttons: [],
       });
+
+      const themeSelector = await slice.build('ThemeSelector');
 
       // Insertar el Navbar en el contenedor específico
       const navbarContainer = this.querySelector('.app-navbar');
+      navbar.querySelector('.nav_bar_buttons')?.appendChild(themeSelector);
       navbarContainer.appendChild(navbar);
 
       // Crear el router principal con las vistas

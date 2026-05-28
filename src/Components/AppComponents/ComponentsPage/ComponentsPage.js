@@ -6,6 +6,7 @@ import {
    toTreeViewItems,
    resolveInitialDocsPath
 } from './visualComponentRoutes.js';
+import docsIndex from './docsIndex.js';
 
 export default class ComponentsPage extends HTMLElement {
    constructor(props) {
@@ -16,8 +17,16 @@ export default class ComponentsPage extends HTMLElement {
    }
 
    async init() {
+      const titleByRoute = new Map(docsIndex.map(d => [d.route, d.title]));
+      slice.router.afterEach((to) => {
+        const title = titleByRoute.get(to.path) || 'Components Library';
+        document.title = `${title} | Slice.js`;
+      });
+
       // Usar la configuración de rutas centralizada
       const routesConfig = visualComponentsRoutes;
+
+      const themeSelector = await slice.build('ThemeSelector');
 
       // Crear la barra de navegación
       const navBar = await slice.build('Navbar', {
@@ -30,19 +39,7 @@ export default class ComponentsPage extends HTMLElement {
             { text: 'Home', path: '/' },
             { text: 'Components', path: '/docs' }
           ],
-         buttons: [
-            {
-               value: 'Change Theme',
-               onClickCallback: async () => {
-                  let theme = slice.stylesManager.themeManager.currentTheme;
-                  if (theme === 'Purple') {
-                     await slice.setTheme('PurpleDark');
-                  } else {
-                     await slice.setTheme('Purple');
-                  }
-               },
-            },
-         ],
+          buttons: [],
       });
 
       // Obtener todas las rutas planas para el MultiRoute
@@ -122,6 +119,8 @@ export default class ComponentsPage extends HTMLElement {
       const layOut = await slice.build('Layout', {
          view: visualComponentsMultiRoute,
       });
+
+      navBar.querySelector('.nav_bar_buttons')?.appendChild(themeSelector);
 
       // Agregar componentes al Layout
       layOut.onLayOut(mainMenu);

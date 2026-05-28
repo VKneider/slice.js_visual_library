@@ -55,6 +55,7 @@ const components = {
   "Table": "Visual",
   "TableDocumentation": "DocumentationPages",
   "Tabs": "Visual",
+  "ThemeSelector": "Visual",
   "TabsDocumentation": "DocumentationPages",
   "ToolTip": "Visual",
   "ToolTipDocumentation": "DocumentationPages",

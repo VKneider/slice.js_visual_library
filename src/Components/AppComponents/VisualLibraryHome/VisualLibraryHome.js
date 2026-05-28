@@ -19,19 +19,7 @@ export default class VisualLibraryHome extends HTMLElement {
             { text: "Components", path: "/docs" },
             { text: "Documentation", path: "/docs" },
          ],
-         buttons: [
-            {
-               value: "Change Theme",
-               onClickCallback: async () => {
-                  const currentTheme = slice.stylesManager.themeManager.currentTheme;
-                  if (currentTheme === "Purple") {
-                     await slice.setTheme("PurpleDark");
-                  } else {
-                     await slice.setTheme("Purple");
-                  }
-               },
-            },
-         ],
+          buttons: [],
       });
 
       // Crear botones CTA
@@ -61,6 +49,9 @@ export default class VisualLibraryHome extends HTMLElement {
       await this.createCategories();
       await this.createShowcase();
       await this.setupQuickStart();
+
+      const themeSelector = await slice.build('ThemeSelector');
+      navbar.querySelector('.nav_bar_buttons')?.appendChild(themeSelector);
 
       // Añadir navbar al inicio
       this.insertBefore(navbar, this.firstChild);
@@ -117,48 +108,42 @@ export default class VisualLibraryHome extends HTMLElement {
 
    async createCategories() {
       const categories = [
-         {
-            name: "Input Components",
-            icon: "⌨️",
-            description: "Interactive form elements for user input",
-            components: ["Button", "Input", "Select", "Checkbox", "Switch", "Radio"],
-            path: "/docs/input"
-         },
-         {
-            name: "Navigation",
-            icon: "🧭",
-            description: "Components for app navigation and routing",
-            components: ["Navbar", "Sidebar", "Breadcrumb", "Tabs"],
-            path: "/docs/navigation"
-         },
-         {
-            name: "Layout",
-            icon: "📐",
-            description: "Structure and organize your content",
-            components: ["Card", "Grid", "Container", "Divider"],
-            path: "/docs/layout"
-         },
-         {
-            name: "Display",
-            icon: "📺",
-            description: "Present information to users",
-            components: ["Badge", "Avatar", "Icon", "Image"],
-            path: "/docs/display"
-         },
-         {
-            name: "Feedback",
-            icon: "💬",
-            description: "User notifications and feedback",
-            components: ["Alert", "Toast", "Modal", "Tooltip"],
-            path: "/docs/feedback"
-         },
-         {
-            name: "Data Display",
-            icon: "📊",
-            description: "Charts, tables, and data visualization",
-            components: ["Table", "List", "Progress", "Spinner"],
-            path: "/docs/data"
-         }
+          {
+             name: "Input Components",
+             description: "Interactive form elements for user input",
+             components: ["Button", "Input", "Select", "Checkbox", "Switch"],
+             path: "/docs/input/button"
+          },
+          {
+             name: "Navigation",
+             description: "Components for app navigation and routing",
+             components: ["Navbar", "Tabs", "DropDown", "TreeView"],
+             path: "/docs/navigation/navbar"
+          },
+          {
+             name: "Layout",
+             description: "Structure and organize your content",
+             components: ["Card", "Grid", "Layout", "Details"],
+             path: "/docs/layout/card"
+          },
+          {
+             name: "Display",
+             description: "Present information to users",
+             components: ["Icon", "CodeVisualizer", "ToolTip"],
+             path: "/docs/display/icon"
+          },
+          {
+             name: "Feedback",
+             description: "User notifications and feedback",
+             components: ["Loading"],
+             path: "/docs/feedback/loading"
+          },
+          {
+             name: "Data Display",
+             description: "Charts, tables, and data visualization",
+             components: ["Table"],
+             path: "/docs/data/table"
+          }
       ];
 
       const categoriesGrid = this.querySelector(".categories-grid");
@@ -171,11 +156,7 @@ export default class VisualLibraryHome extends HTMLElement {
             slice.router.navigate(category.path);
          });
 
-         const categoryIcon = document.createElement("div");
-         categoryIcon.classList.add("category-icon");
-         categoryIcon.textContent = category.icon;
-
-         const categoryName = document.createElement("h3");
+          const categoryName = document.createElement("h3");
          categoryName.classList.add("category-name");
          categoryName.textContent = category.name;
 
