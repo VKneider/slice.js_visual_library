@@ -1,6 +1,10 @@
 import documentationRoutes from '/Components/AppComponents/ComponentsPage/documentationRoutes.generated.js';
 import docsIndex from '/Components/AppComponents/ComponentsPage/docsIndex.js';
 
+if (typeof slice !== 'undefined' && slice.context && !slice.context.has('docsIndex')) {
+  slice.context.create('docsIndex', docsIndex, { persist: false });
+}
+
 const baseVisualRoutes = {
   defaultRoute: {
     path: '/docs',

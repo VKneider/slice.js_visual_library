@@ -6,7 +6,7 @@ import {
    toTreeViewItems,
    resolveInitialDocsPath
 } from './visualComponentRoutes.js';
-import docsIndexData from './docsIndex.js';
+
 
 export default class ComponentsPage extends HTMLElement {
    constructor(props) {
@@ -17,7 +17,8 @@ export default class ComponentsPage extends HTMLElement {
    }
 
    async init() {
-      const titleByRoute = new Map(docsIndexData.map(d => [d.route, d.title]));
+      const docsIndex = slice.context.getState('docsIndex') || [];
+      const titleByRoute = new Map(docsIndex.map(d => [d.route, d.title]));
       slice.router.afterEach((to) => {
         const title = titleByRoute.get(to.path) || 'Components Library';
         document.title = `${title} | Slice.js`;
