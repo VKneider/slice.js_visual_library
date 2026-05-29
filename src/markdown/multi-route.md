@@ -17,10 +17,11 @@ tags: [multiroute, routing, app-shell]
 `MultiRoute` maps multiple URL paths to components and renders only the active match.
 
 ## Core Behavior
-- Registers each route entry in the runtime router.
+- Shows the child whose `path` matches the current URL; matching is case-insensitive and tolerant of a trailing slash (`/About` and `/about/` match `/about`).
 - Supports exact and dynamic `${param}` path matching.
 - Caches rendered components and calls `update()` when reusing.
 - Emits `route-rendered` with `path`, `component`, `params`, and `metadata`.
+- Does **not** register its paths with the Router. `routes.js` is the single source of truth, so every path a MultiRoute can show must also exist there (in the App Shell pattern they point at the shell). Otherwise a direct load, refresh, or deep-link to that URL resolves before the container mounts and falls through to `/404`.
 
 ## Basic Usage
 ```javascript title="Build MultiRoute container"
@@ -45,7 +46,7 @@ const multi = await slice.build('MultiRoute', {
 });
 
 const summary = document.createElement('p');
-summary.textContent = `Registered route entries: ${multi.props.routes.length}`;
+summary.textContent = `Configured route entries: ${multi.props.routes.length}`;
 return summary;
 :::
 
@@ -121,5 +122,5 @@ Use `MultiRoute` inside app-shell layouts where navbar/sidebar stay mounted whil
 
 ## Pitfalls
 :::warning
-Do not register duplicate route paths in the same `routes` array; the first registration wins.
+Do not declare duplicate route paths in the same `routes` array; the first match wins.
 :::

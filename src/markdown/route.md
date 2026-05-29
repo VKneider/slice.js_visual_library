@@ -17,10 +17,11 @@ tags: [route, routing, container]
 `Route` renders a single component when the current URL matches a target path.
 
 ## Core Behavior
-- Registers its own `path` + `component` into router map when mounted.
+- Shows its `component` when the current URL matches `path`; matching is case-insensitive and tolerant of a trailing slash.
 - Supports dynamic segments using `${param}` syntax.
 - Passes `params` and `metadata` to the routed component.
 - Reuses cached component instances and calls `update()` when needed.
+- Does **not** register its path with the Router. Declare the path in `routes.js` too, or a direct load of that URL resolves before the container mounts.
 
 ## Basic Usage
 ```javascript title="Build route container"
