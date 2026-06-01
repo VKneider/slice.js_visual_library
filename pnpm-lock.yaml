@@ -12,11 +12,11 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       slicejs-cli:
-        specifier: latest
-        version: 3.3.0
+        specifier: ^3.5.0
+        version: 3.5.0
       slicejs-web-framework:
-        specifier: latest
-        version: 3.2.3
+        specifier: ^3.3.1
+        version: 3.3.1
 
 packages:
 
@@ -785,12 +785,16 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  slicejs-cli@3.3.0:
-    resolution: {integrity: sha512-NkFnOL71E7jlHhzjWuNn6N5b7yg6+Ma36MbNwlonEt9UoRvsIAi4Kempj0/kslgCoV4BvdjlmqW+RGzpZGIPjA==}
+  slicejs-cli@3.5.0:
+    resolution: {integrity: sha512-cyw37XVmHCAIWZhfz/yBenIcpsfv19Ts0wcbQ+YTrGFomxCiEd6ooxLgLYpkXYdLhdIksMTEuSN1NYYV+Kzixw==}
     hasBin: true
 
-  slicejs-web-framework@3.2.3:
-    resolution: {integrity: sha512-zrOSPcpKO5hFKgcJVcwc5ja/IB8yjKYk1rk+KqxEgKdvS2ofu69MrihpKsA8rbHJ4PtBa+B8UkrzaByw0FhWCw==}
+  slicejs-web-framework@3.3.0:
+    resolution: {integrity: sha512-qTRFGNO9tUUJ6oWC4py5NpGsBzI7VaTiXGAntHfu7hz5bjlbzzgBHT2JyorVpL39fFiFYS+ZloGOlPhVkUhDMA==}
+    engines: {node: '>=20'}
+
+  slicejs-web-framework@3.3.1:
+    resolution: {integrity: sha512-QNQxKt6jbRcYrVDTUyvpdHks8p7Nwp+9VlAU/5+zZWQslWKCArS4xH6gGVQReiQSbxERyzb5ZivkECIZs442UQ==}
     engines: {node: '>=20'}
 
   source-map-support@0.5.21:
@@ -1692,7 +1696,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  slicejs-cli@3.3.0:
+  slicejs-cli@3.5.0:
     dependencies:
       '@babel/parser': 7.29.7
       '@babel/traverse': 7.29.7
@@ -1705,13 +1709,19 @@ snapshots:
       html-minifier-terser: 7.2.0
       inquirer: 12.11.1
       ora: 8.2.0
-      slicejs-web-framework: 3.2.3
+      slicejs-web-framework: 3.3.0
       terser: 5.48.0
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
 
-  slicejs-web-framework@3.2.3:
+  slicejs-web-framework@3.3.0:
+    dependencies:
+      express: 4.22.2
+    transitivePeerDependencies:
+      - supports-color
+
+  slicejs-web-framework@3.3.1:
     dependencies:
       express: 4.22.2
     transitivePeerDependencies:

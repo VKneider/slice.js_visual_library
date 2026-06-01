@@ -4,7 +4,7 @@ slice-demo-box {
   border: 1px solid var(--primary-color-shade);
   border-radius: var(--border-radius-slice);
   margin-bottom: 14px;
-  overflow: hidden;
+  overflow: visible;
   transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
