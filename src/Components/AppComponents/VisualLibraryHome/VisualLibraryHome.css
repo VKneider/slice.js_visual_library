@@ -14,7 +14,7 @@ slice-visual-library-home {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 7rem 2rem 3rem; /* top padding clears the fixed app navbar */
+  padding: 2rem 2rem 3rem;
   background: linear-gradient(135deg, var(--primary-background-color) 0%, var(--secondary-background-color) 100%);
   overflow: hidden;
 }
