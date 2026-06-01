@@ -3,7 +3,7 @@
   <h1>Slice.js Visual Library</h1>
   <p>Official Visual Components Library and Documentation Registry for Slice.js</p>
   <p>
-    <a href="https://slice-js-docs.vercel.app/docs"><strong>Explore the docs »</strong></a>
+    <a href="https://components.slicejs.com"><strong>Explore the docs »</strong></a>
     <br />
     <a href="https://github.com/VKneider/slice.js">Framework Repository</a>
     ·
@@ -135,7 +135,7 @@ Distributed under the ISC License. See `LICENSE` for more information.
 
 ## Links
 
-- 📘 Documentation: https://slice-js-docs.vercel.app/docs
+- 📘 Documentation: https://components.slicejs.com
 - 🐙 GitHub: https://github.com/VKneider/slice.js_visual_library
 - 🧩 Framework: https://github.com/VKneider/slice.js
 - 🛠️ CLI: https://github.com/VKneider/slicejs-cli
