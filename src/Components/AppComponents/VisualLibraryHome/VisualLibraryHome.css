@@ -9,14 +9,30 @@ slice-visual-library-home {
 /* Hero Section */
 .hero-section {
   position: relative;
-  min-height: 85vh;
+  min-height: 88vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 2rem;
+  padding: 7rem 2rem 3rem; /* top padding clears the fixed app navbar */
   background: linear-gradient(135deg, var(--primary-background-color) 0%, var(--secondary-background-color) 100%);
   overflow: hidden;
+}
+
+/* Branded glow behind the hero — the "logo presence" without repeating the mark */
+.hero-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(900px, 120%);
+  height: min(900px, 120%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--primary-color) 38%, transparent) 0%, transparent 58%),
+    radial-gradient(circle at 68% 64%, color-mix(in srgb, var(--secondary-color) 30%, transparent) 0%, transparent 55%);
+  filter: blur(18px);
+  opacity: 0.5;
 }
 
 .hero-section::before {
@@ -38,26 +54,44 @@ slice-visual-library-home {
   z-index: 1;
 }
 
-.hero-logo-container {
-  margin-bottom: 1.5rem;
-}
-
-.hero-logo {
-  max-width: 120px;
-  height: auto;
-  filter: brightness(0) drop-shadow(0 0 8px var(--primary-color));
+.hero-eyebrow {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--primary-color) 78%, var(--font-primary-color));
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: clamp(2.6rem, 6vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
   margin-bottom: 1rem;
   color: var(--font-primary-color);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .hero-title .highlight {
+  background: linear-gradient(120deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: var(--primary-color);
-  text-shadow: 0 0 20px rgba(var(--primary-color-rgb, 59, 130, 246), 0.3);
+}
+
+.hero-description code {
+  font-family: var(--font-family-code, monospace);
+  font-size: 0.95em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: color-mix(in srgb, var(--primary-color) 85%, var(--font-primary-color));
 }
 
 .hero-subtitle {

@@ -25,16 +25,6 @@ instantly. It's the same idea as the built-in DevTools inspector, in ~80 lines.
 - `target` accepts a live component instance or a `sliceId` string.
 - It's a normal, theme-aware Visual component — it follows the active theme via CSS variables.
 
-## Basic Usage
-```javascript title="Inspect a component"
-const card = await slice.build('Card', { sliceId: 'demo-card', title: 'Hello' });
-this.appendChild(card);
-
-const inspector = await slice.build('MiniInspector', { target: card, title: 'Card props' });
-this.appendChild(inspector);
-// Edit a field in the inspector -> the card updates instantly via its setter.
-```
-
 ## Prop Scenarios
 :::script label="renders one control per editable prop" expected="three rows for DemoButton (label, clicks, disabled)"
 const target = await slice.build('DemoButton', { label: 'A' });

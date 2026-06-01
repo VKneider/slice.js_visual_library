@@ -9,24 +9,23 @@ export default class NotFoundDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "not-found.md";
-    this.markdownContent = "---\ntitle: NotFound\nroute: /docs/navigation/not-found\nnavLabel: NotFound\nsection: Navigation\ngroup: Core\norder: 40\ndescription: NotFound 404 page documentation with route fallback scenarios.\ncomponent: NotFoundDocumentation\ngenerate: true\ntags: [not-found, 404, navigation, routing]\n---\n\n# NotFound\n\n## Overview\n`NotFound` renders a 404 fallback page when no route matches the current URL. It sets the document title to \"404 - Not Found\" on initialization.\n\n## API and Behavior\n- No props required. Displays a static 404 message.\n- Automatically updates the page title on `init()`.\n- Composable inside `MultiRoute` as the default fallback view.\n\n## Basic Usage\n```javascript title=\"Build not found page\"\nconst notFound = await slice.build('NotFound', {});\nthis.appendChild(notFound);\n```\n\n## Prop Scenarios\n:::script label=\"Default 404 view\" expected=\"renders not found message\"\nconst notFound = await slice.build('NotFound', {});\nreturn notFound;\n:::\n\n:::script label=\"Route fallback usage\" expected=\"renders not found inside route container\"\nconst notFound = await slice.build('NotFound', {});\n\nconst route = await slice.build('Route', {\n  path: '/does-not-exist',\n  view: notFound\n});\n\nconst host = document.createElement('div');\nconst label = document.createElement('p');\nlabel.textContent = 'Route /does-not-exist mapped to NotFound:';\nhost.appendChild(label);\nhost.appendChild(route);\nreturn host;\n:::\n\n## Best Practices\n:::tip\nUse `NotFound` as the final route inside `MultiRoute` to catch unmatched paths.\n:::\n\n## Pitfalls\n:::warning\n`NotFound` is a presentation-only component. It does not provide automatic redirect logic.\n:::\n";
+    this.markdownContent = "---\ntitle: NotFound\nroute: /docs/navigation/not-found\nnavLabel: NotFound\nsection: Navigation\ngroup: Core\norder: 40\ndescription: NotFound 404 page documentation with route fallback scenarios.\ncomponent: NotFoundDocumentation\ngenerate: true\ntags: [not-found, 404, navigation, routing]\n---\n\n# NotFound\n\n## Overview\n`NotFound` renders a 404 fallback page when no route matches the current URL. It sets the document title to \"404 - Not Found\" on initialization.\n\n## API and Behavior\n- No props required. Displays a static 404 message.\n- Automatically updates the page title on `init()`.\n- Composable inside `MultiRoute` as the default fallback view.\n\n## Live Preview\n:::component name=\"NotFound\"\n:::\n\n## Prop Scenarios\n:::script label=\"Default 404 view\" expected=\"renders not found message\"\nconst notFound = await slice.build('NotFound', {});\nreturn notFound;\n:::\n\n:::script label=\"Route fallback usage\" expected=\"renders not found inside route container\"\nconst notFound = await slice.build('NotFound', {});\n\nconst route = await slice.build('Route', {\n  path: '/does-not-exist',\n  view: notFound\n});\n\nconst host = document.createElement('div');\nconst label = document.createElement('p');\nlabel.textContent = 'Route /does-not-exist mapped to NotFound:';\nhost.appendChild(label);\nhost.appendChild(route);\nreturn host;\n:::\n\n## Best Practices\n:::tip\nUse `NotFound` as the final route inside `MultiRoute` to catch unmatched paths.\n:::\n\n## Pitfalls\n:::warning\n`NotFound` is a presentation-only component. It does not provide automatic redirect logic.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
          const container = this.querySelector('[data-block-id="doc-block-1"]');
          if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const notFound = await slice.build('NotFound', {});\nthis.appendChild(notFound);",
-               language: "javascript"
-            });
-            if ("Build not found page") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build not found page";
-               container.appendChild(label);
+            let props = {};
+            if ("") {
+               try {
+                  props = JSON.parse("");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
+               }
             }
-            container.appendChild(code);
+            const component = await slice.build('NotFound', props);
+            container.appendChild(component);
          }
       }
     await this.renderScriptScenarios();

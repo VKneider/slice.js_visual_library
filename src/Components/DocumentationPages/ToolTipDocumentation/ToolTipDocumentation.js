@@ -9,28 +9,12 @@ export default class ToolTipDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "tooltip.md";
-    this.markdownContent = "---\ntitle: ToolTip\nroute: /docs/display/tooltip\nnavLabel: ToolTip\nsection: Display\ngroup: Overlay\norder: 10\ndescription: ToolTip documentation with hover and focus trigger scenarios.\ncomponent: ToolTipDocumentation\ngenerate: true\ntags: [tooltip, overlay, display]\n---\n\n# ToolTip\n\n## Overview\n`ToolTip` displays a floating text label when the user hovers or focuses the wrapped content. The tooltip repositions itself to stay within the viewport.\n\n## API and Behavior\n- `text` sets the tooltip string. Empty text suppresses the tooltip.\n- Triggered by `mouseenter` / `mouseleave` and `focusin` / `focusout`.\n- Bubble is appended to `document.body` for accurate positioning.\n- Automatically flips above or below based on available space.\n- Cleans up the bubble element on disconnect or destroy.\n\n## Basic Usage\n```javascript title=\"Build tooltip\"\nconst tooltip = await slice.build('ToolTip', {\n  text: 'Save changes'\n});\n\ntooltip.textContent = 'Hover me';\n\nthis.appendChild(tooltip);\n```\n\n## Prop Scenarios\n:::script label=\"Hover tooltip\" expected=\"tooltip appears on hover over trigger text\"\nconst tooltip = await slice.build('ToolTip', {\n  text: 'This is a tooltip'\n});\n\ntooltip.textContent = 'Hover over this text';\n\nreturn tooltip;\n:::\n\n:::script label=\"Tooltip with button trigger\" expected=\"tooltip wraps a button element\"\nconst tooltip = await slice.build('ToolTip', {\n  text: 'Click to confirm'\n});\n\nconst button = await slice.build('Button', {\n  value: 'Submit'\n});\n\ntooltip.appendChild(button);\n\nconst host = document.createElement('div');\nhost.appendChild(tooltip);\nreturn host;\n:::\n\n:::script label=\"Empty text suppresses tooltip\" expected=\"no bubble appears on hover\"\nconst tooltip = await slice.build('ToolTip', {\n  text: ''\n});\n\ntooltip.textContent = 'Hover me (no tooltip)';\n\nreturn tooltip;\n:::\n\n## Best Practices\n:::tip\nWrap interactive elements like buttons or icons with `ToolTip` to provide contextual hints without cluttering the UI.\n:::\n\n## Pitfalls\n:::warning\nThe tooltip covers the trigger element's content. Place tooltip content as text nodes or child elements inside the component.\n:::\n";
+    this.markdownContent = "---\ntitle: ToolTip\nroute: /docs/display/tooltip\nnavLabel: ToolTip\nsection: Display\ngroup: Overlay\norder: 10\ndescription: ToolTip documentation with hover and focus trigger scenarios.\ncomponent: ToolTipDocumentation\ngenerate: true\ntags: [tooltip, overlay, display]\n---\n\n# ToolTip\n\n## Overview\n`ToolTip` displays a floating text label when the user hovers or focuses the wrapped content. The tooltip repositions itself to stay within the viewport.\n\n## API and Behavior\n- `text` sets the tooltip string. Empty text suppresses the tooltip.\n- Triggered by `mouseenter` / `mouseleave` and `focusin` / `focusout`.\n- Bubble is appended to `document.body` for accurate positioning.\n- Automatically flips above or below based on available space.\n- Cleans up the bubble element on disconnect or destroy.\n\n## Prop Scenarios\n:::script label=\"Hover tooltip\" expected=\"tooltip appears on hover over trigger text\"\nconst tooltip = await slice.build('ToolTip', {\n  text: 'This is a tooltip'\n});\n\ntooltip.textContent = 'Hover over this text';\n\nreturn tooltip;\n:::\n\n:::script label=\"Tooltip with button trigger\" expected=\"tooltip wraps a button element\"\nconst tooltip = await slice.build('ToolTip', {\n  text: 'Click to confirm'\n});\n\nconst button = await slice.build('Button', {\n  value: 'Submit'\n});\n\ntooltip.appendChild(button);\n\nconst host = document.createElement('div');\nhost.appendChild(tooltip);\nreturn host;\n:::\n\n:::script label=\"Empty text suppresses tooltip\" expected=\"no bubble appears on hover\"\nconst tooltip = await slice.build('ToolTip', {\n  text: ''\n});\n\ntooltip.textContent = 'Hover me (no tooltip)';\n\nreturn tooltip;\n:::\n\n## Best Practices\n:::tip\nWrap interactive elements like buttons or icons with `ToolTip` to provide contextual hints without cluttering the UI.\n:::\n\n## Pitfalls\n:::warning\nThe tooltip covers the trigger element's content. Place tooltip content as text nodes or child elements inside the component.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
-         const container = this.querySelector('[data-block-id="doc-block-1"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const tooltip = await slice.build('ToolTip', {\n  text: 'Save changes'\n});\n\ntooltip.textContent = 'Hover me';\n\nthis.appendChild(tooltip);",
-               language: "javascript"
-            });
-            if ("Build tooltip") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build tooltip";
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-5"]');
+         const container = this.querySelector('[data-block-id="doc-block-4"]');
          if (container) {
             let props = {};
             if ("{\"props\":[{\"path\":\"text\",\"type\":\"string\",\"required\":false,\"default\":\"\",\"allowedValues\":[]}]}") {

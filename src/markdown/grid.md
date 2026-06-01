@@ -21,23 +21,6 @@ tags: [grid, layout]
 - `gap` controls spacing between cells.
 - `items` appends DOM nodes as grid children.
 
-## Basic Usage
-```javascript title="Build grid"
-const one = document.createElement('div');
-one.textContent = 'One';
-
-const two = document.createElement('div');
-two.textContent = 'Two';
-
-const grid = await slice.build('Grid', {
-  columns: 2,
-  rows: 1,
-  items: [one, two]
-});
-
-this.appendChild(grid);
-```
-
 ## Prop Scenarios
 
 :::script label="Metric cards dashboard" expected="four cards with icons and badges"
@@ -61,18 +44,18 @@ return wrapper;
 
 :::script label="Editor toolbar grid" expected="grid of icon buttons mimicking an editor toolbar"
 const tools = [
-  { name: 'letter-bold', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'letter-italic', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'letter-underline', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'align-center', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'list', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'indent', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'code', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'table-column', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'palette', color: { button: '#7c3aed', label: '#ffffff' } },
-  { name: 'search', color: { button: '#e2e8f0', label: '#0f172a' } },
-  { name: 'download', color: { button: '#2563eb', label: '#ffffff' } },
-  { name: 'undo', color: { button: '#f59e0b', label: '#ffffff' } }
+  { name: 'letter-bold', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'letter-italic', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'letter-underline', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'align-center', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'list', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'indent', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'code', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'table-column', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'palette', color: { background: '#7c3aed', text: '#ffffff' } },
+  { name: 'search', color: { background: '#e2e8f0', text: '#0f172a' } },
+  { name: 'download', color: { background: '#2563eb', text: '#ffffff' } },
+  { name: 'undo', color: { background: '#f59e0b', text: '#ffffff' } }
 ];
 
 const btns = await Promise.all(tools.map(t =>
@@ -93,10 +76,10 @@ return wrapper;
 :::script label="Custom column template" expected="sidebar + main layout using columnTemplate"
 const sidebarCard = await slice.build('Card', { title: 'Navigation', text: 'Quick links', variant: 'minimal', icon: { name: 'home', iconStyle: 'filled' }, interactive: false });
 const linkItems = await Promise.all([
-  slice.build('Button', { value: 'Dashboard', icon: { name: 'grid', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),
-  slice.build('Button', { value: 'Analytics', icon: { name: 'chart-pie', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),
-  slice.build('Button', { value: 'Settings', icon: { name: 'cog', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } }),
-  slice.build('Button', { value: 'Profile', icon: { name: 'user', iconStyle: 'filled' }, customColor: { button: 'transparent', label: 'var(--font-secondary-color)' } })
+  slice.build('Button', { value: 'Dashboard', icon: { name: 'grid', iconStyle: 'filled' }, customColor: { background: 'transparent', text: 'var(--font-secondary-color)' } }),
+  slice.build('Button', { value: 'Analytics', icon: { name: 'chart-pie', iconStyle: 'filled' }, customColor: { background: 'transparent', text: 'var(--font-secondary-color)' } }),
+  slice.build('Button', { value: 'Settings', icon: { name: 'cog', iconStyle: 'filled' }, customColor: { background: 'transparent', text: 'var(--font-secondary-color)' } }),
+  slice.build('Button', { value: 'Profile', icon: { name: 'user', iconStyle: 'filled' }, customColor: { background: 'transparent', text: 'var(--font-secondary-color)' } })
 ]);
 
 const navContainer = document.createElement('div');
@@ -133,7 +116,7 @@ const initial = await Promise.all([
 const grid = await slice.build('Grid', { columns: 2, rows: 2, gap: '10px', items: initial });
 
 const addBtn = await slice.build('Button', {
-  value: 'Add card', onClickCallback: async () => {
+  value: 'Add card', onClick: async () => {
     const newCard = await addCard('Task ' + Math.random().toString(36).slice(2,5), 'New');
     const existing = grid.items || [];
     grid.items = [...existing, newCard];
@@ -141,7 +124,7 @@ const addBtn = await slice.build('Button', {
 });
 
 const clearBtn = await slice.build('Button', {
-  value: 'Clear', customColor: { button: '#dc2626', label: '#ffffff' }, onClickCallback: () => {
+  value: 'Clear', customColor: { background: '#dc2626', text: '#ffffff' }, onClick: () => {
     grid.clear();
     grid.items = [];
   }

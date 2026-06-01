@@ -209,6 +209,28 @@ const docsIndex = [
     tags: ['dropdown', 'navigation']
   },
   {
+    title: 'BottomNav',
+    route: '/docs/navigation/bottom-nav',
+    description: 'BottomNav (floating bottom tab bar) documentation with practical navigation scenarios.',
+    section: 'Navigation',
+    group: 'Core',
+    order: 33,
+    navLabel: 'BottomNav',
+    component: 'BottomNavDocumentation',
+    tags: ['bottomnav', 'navigation', 'tabs', 'mobile']
+  },
+  {
+    title: 'FloatingDock',
+    route: '/docs/navigation/floating-dock',
+    description: 'FloatingDock (macOS-style floating navigation capsule) documentation with practical scenarios.',
+    section: 'Navigation',
+    group: 'Core',
+    order: 34,
+    navLabel: 'FloatingDock',
+    component: 'FloatingDockDocumentation',
+    tags: ['floatingdock', 'navigation', 'dock', 'mobile']
+  },
+  {
     title: 'NotFound',
     route: '/docs/navigation/not-found',
     description: 'NotFound 404 page documentation with route fallback scenarios.',
@@ -251,6 +273,50 @@ const docsIndex = [
     navLabel: 'MultiRoute',
     component: 'MultiRouteDocumentation',
     tags: ['multiroute', 'routing', 'app-shell']
+  },
+  {
+    title: 'FetchManager',
+    route: '/docs/services/fetch-manager',
+    description: 'HTTP client Service over fetch with timeout, base URL, default headers and Loading integration.',
+    section: 'Services',
+    group: 'Networking',
+    order: 30,
+    navLabel: 'FetchManager',
+    component: 'FetchManagerDocumentation',
+    tags: ['service', 'fetch', 'http', 'networking']
+  },
+  {
+    title: 'LocalStorageManager',
+    route: '/docs/services/local-storage-manager',
+    description: 'Service wrapper over window.localStorage with automatic JSON serialization.',
+    section: 'Services',
+    group: 'Storage',
+    order: 10,
+    navLabel: 'LocalStorageManager',
+    component: 'LocalStorageManagerDocumentation',
+    tags: ['service', 'storage', 'localstorage']
+  },
+  {
+    title: 'IndexedDbManager',
+    route: '/docs/services/indexed-db-manager',
+    description: 'Async Service wrapper over IndexedDB for a single auto-keyed object store.',
+    section: 'Services',
+    group: 'Storage',
+    order: 20,
+    navLabel: 'IndexedDbManager',
+    component: 'IndexedDbManagerDocumentation',
+    tags: ['service', 'storage', 'indexeddb']
+  },
+  {
+    title: 'MiniInspector',
+    route: '/docs/utilities/mini-inspector',
+    description: 'MiniInspector documentation with executable live-editing scenarios.',
+    section: 'Utilities',
+    group: 'Developer',
+    order: 10,
+    navLabel: 'MiniInspector',
+    component: 'MiniInspectorDocumentation',
+    tags: ['inspector', 'devtools', 'props', 'setters']
   },
 ];
 

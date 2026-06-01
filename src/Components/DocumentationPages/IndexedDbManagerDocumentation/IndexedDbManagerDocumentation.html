@@ -1,0 +1,25 @@
+<div class="documentation-content indexeddbmanagerdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="indexeddbmanager">
+    <span class="doc-title-text">IndexedDbManager</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>IndexedDbManager</code> is a <strong>Service</strong> component: a thin async wrapper over the browser's IndexedDB. Each instance manages <strong>one object store</strong> inside a database. The store is created on demand with a <code>keyPath</code> of <code>'id'</code> and <code>autoIncrement: true</code>, so every item gets a numeric <code>id</code> automatically.</p>
+<p>Build it with a <code>databaseName</code> and <code>storeName</code>:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<h2 id="usage">Usage</h2>
+<div class="code-block" data-block-id="doc-block-3"></div>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">You don't need to call <code>openDatabase()</code> yourself — every data method opens the database as
+needed. Let <code>addItem</code> assign the <code>id</code>, and pass the full object (including <code>id</code>) to <code>updateItem</code>.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">All data methods are asynchronous — always <code>await</code> them. <code>updateItem</code> and <code>deleteItem</code> require a
+valid existing <code>id</code>. Each instance is bound to a single store; use separate instances (or
+<code>storeName</code>s) for different collections.</div>
+</div>

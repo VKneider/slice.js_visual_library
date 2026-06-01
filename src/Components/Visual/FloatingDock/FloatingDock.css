@@ -1,0 +1,299 @@
+/* Encapsulated under the custom element so nothing leaks into the app. */
+
+slice-floating-dock {
+  display: block;
+  font-family: var(--font-family);
+}
+
+/* ----------------------------------------------------------- positioning */
+
+.slice_dock[data-position="fixed"] {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  width: max-content;
+  max-width: calc(100% - 24px);
+}
+
+.slice_dock[data-position="static"] {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------- the capsule */
+
+.slice_dock_capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--primary-color) 84%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--primary-color-contrast) 18%, transparent);
+  border-radius: 999px;
+  box-shadow:
+    0 18px 40px -14px rgba(0, 0, 0, 0.55),
+    0 3px 10px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  animation: slice_dock_drop 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.slice_dock_reverse {
+  flex-direction: row-reverse;
+}
+
+/* ----------------------------------------------------------------- brand */
+
+.slice_dock_logo {
+  display: none;
+  align-items: center;
+  padding: 0 8px 0 4px;
+}
+
+.slice_dock_logo.is-visible {
+  display: inline-flex;
+}
+
+.slice_dock_logo img {
+  max-height: 28px;
+  max-width: 110px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* -------------------------------------------------- drawer (items + actions) */
+
+/* On desktop the drawer is transparent: its children flow inside the capsule. */
+.slice_dock_drawer {
+  display: contents;
+}
+
+.slice_dock_items {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slice_dock_item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  color: color-mix(in srgb, var(--primary-color-contrast) 68%, transparent);
+  font-weight: 600;
+  font-size: 0.84rem;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  transform-origin: bottom center;
+  transition: transform 0.13s ease, color 0.22s ease;
+}
+
+.slice_dock_item:hover {
+  color: var(--primary-color-contrast);
+}
+
+.slice_dock_item.is-active {
+  color: var(--primary-color-contrast);
+}
+
+.slice_dock_item.is-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-color, var(--primary-color-contrast));
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px 1px color-mix(in srgb, var(--accent-color, var(--primary-color-contrast)) 60%, transparent);
+}
+
+.slice_dock_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slice_dock_item.is-dropdown {
+  padding: 2px 4px;
+}
+
+/* ---------------------------------------------------------------- actions */
+
+.slice_dock_actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slice_dock_actions:empty {
+  display: none;
+}
+
+.slice_dock_actions:not(:empty) {
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+}
+
+/* ----------------------------------------------------------- mobile toggle */
+
+.slice_dock_toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--primary-color-contrast) 12%, transparent);
+}
+
+.slice_dock_toggle_lines {
+  position: relative;
+  display: inline-block;
+  width: 18px;
+  height: 14px;
+}
+
+.slice_dock_toggle_lines span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2.2px;
+  border-radius: 2px;
+  background: var(--primary-color-contrast);
+  transition: transform 0.28s ease, opacity 0.2s ease, top 0.28s ease;
+}
+
+.slice_dock_toggle_lines span:nth-child(1) { top: 0; }
+.slice_dock_toggle_lines span:nth-child(2) { top: 6px; }
+.slice_dock_toggle_lines span:nth-child(3) { top: 12px; }
+
+.slice_dock[data-state="open"] .slice_dock_toggle_lines span:nth-child(1) {
+  top: 6px;
+  transform: rotate(45deg);
+}
+.slice_dock[data-state="open"] .slice_dock_toggle_lines span:nth-child(2) {
+  opacity: 0;
+}
+.slice_dock[data-state="open"] .slice_dock_toggle_lines span:nth-child(3) {
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
+/* ------------------------------------------------------------ entrance fx */
+
+@keyframes slice_dock_drop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --------------------------------------------------------------- mobile */
+
+@media (max-width: 700px) {
+  .slice_dock_capsule {
+    gap: 10px;
+    padding: 7px 8px 7px 14px;
+  }
+
+  .slice_dock_logo {
+    display: inline-flex; /* show the brand as the mobile anchor */
+  }
+
+  .slice_dock_toggle {
+    display: inline-flex;
+  }
+
+  /* Items + actions collapse into a dropdown panel under the capsule. */
+  .slice_dock_drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    padding: 10px;
+    background: color-mix(in srgb, var(--primary-color) 92%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+    border-radius: 18px;
+    box-shadow: 0 20px 44px -16px rgba(0, 0, 0, 0.6);
+    transform-origin: top center;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.24s ease, transform 0.24s ease;
+  }
+
+  .slice_dock[data-state="open"] .slice_dock_drawer {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .slice_dock_items {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .slice_dock_item {
+    width: 100%;
+    justify-content: flex-start;
+    transform: none !important; /* never magnify in the mobile panel */
+  }
+
+  .slice_dock_item.is-active::after {
+    left: auto;
+    right: 12px;
+    bottom: 50%;
+    transform: translateY(50%);
+  }
+
+  .slice_dock_actions {
+    justify-content: center;
+  }
+
+  .slice_dock_actions:not(:empty) {
+    margin-left: 0;
+    padding-left: 0;
+    padding-top: 8px;
+    border-left: none;
+    border-top: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slice_dock_capsule {
+    animation: none;
+  }
+  .slice_dock_item {
+    transition: color 0.2s ease;
+  }
+}

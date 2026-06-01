@@ -23,17 +23,6 @@ tags: [route, routing, container]
 - Reuses cached component instances and calls `update()` when needed.
 - Does **not** register its path with the Router. Declare the path in `routes.js` too, or a direct load of that URL resolves before the container mounts.
 
-## Basic Usage
-```javascript title="Build route container"
-const route = await slice.build('Route', {
-  path: '/settings',
-  component: 'SettingsPage',
-  metadata: { requiresAuth: true }
-});
-
-this.appendChild(route);
-```
-
 ## Prop Scenarios
 :::script label="static route config" expected="Route stores path/component props for exact matching"
 const route = await slice.build('Route', {
@@ -94,14 +83,14 @@ controls.style.margin = '8px 0 12px';
 
 const goHome = await slice.build('Button', {
   value: 'Go Home Route',
-  onClickCallback: async () => {
+  onClick: async () => {
     await slice.router.navigate('/docs/route-showcase/home');
   }
 });
 
 const goDetails = await slice.build('Button', {
   value: 'Go Details Route',
-  onClickCallback: async () => {
+  onClick: async () => {
     await slice.router.navigate('/docs/route-showcase/details');
   }
 });

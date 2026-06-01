@@ -63,7 +63,7 @@ export default class CopyMarkdownMenu extends HTMLElement {
   async renderButton() {
     this.$button = await slice.build('Button', {
       value: this.label || '❐',
-      onClickCallback: () => this.toggleMenu()
+      onClick: () => this.toggleMenu()
     });
 
     this.$buttonSlot.appendChild(this.$button);

@@ -70,7 +70,7 @@ const tabs = await slice.build('Tabs', {
     { id: 'billing', label: 'Billing' }
   ],
   activeTab: active,
-  onTabChange: (tabId) => {
+  onChange: (tabId) => {
     active = tabId;
     tabs.activeTab = active;
     panel.textContent = `Current panel: ${active}`;
@@ -82,7 +82,7 @@ panel.textContent = `Current panel: ${active}`;
 
 const jumpToBilling = await slice.build('Button', {
   value: 'Go to Billing',
-  onClickCallback: () => {
+  onClick: () => {
     active = 'billing';
     tabs.activeTab = active;
     panel.textContent = `Current panel: ${active}`;
@@ -106,7 +106,7 @@ const tabs = await slice.build('Tabs', {
     { id: 'activity', label: 'Activity' }
   ],
   activeTab: mockRouteState.section,
-  onTabChange: (tabId) => {
+  onChange: (tabId) => {
     mockRouteState.section = tabId;
     status.textContent = `Route query ?section=${mockRouteState.section}`;
   }
@@ -139,7 +139,7 @@ const tabs = await slice.build('Tabs', {
     { id: 'gamma', label: 'Gamma' }
   ],
   activeTab: 'alpha',
-  onTabChange: (tabId) => {
+  onChange: (tabId) => {
     renderPanel(tabId);
   }
 });

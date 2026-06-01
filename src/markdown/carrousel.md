@@ -24,18 +24,6 @@ tags: [carrousel, carousel, layout, navigation]
 - Resize-aware: repositions slides on window resize.
 - If `elements` is empty or not an array, no slides are rendered.
 
-## Basic Usage
-```javascript title="Build carrousel"
-const carrousel = await slice.build('ElementCarrousel', {
-  elements: [
-    document.createElement('div'),
-    document.createElement('div')
-  ]
-});
-
-this.appendChild(carrousel);
-```
-
 ## Prop Scenarios
 
 :::script label="Feature cards showcase" expected="three feature cards in a carrousel with navigation"

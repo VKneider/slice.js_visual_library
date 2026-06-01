@@ -22,15 +22,13 @@ tags: [code, syntax, highlight, display]
 - Copy button writes the raw unformatted code to the clipboard.
 - Button shows visual feedback on success or error.
 
-## Basic Usage
-```javascript title="Build code visualizer"
-const code = await slice.build('CodeVisualizer', {
-  value: 'const x = 42;',
-  language: 'javascript'
-});
-
-this.appendChild(code);
-```
+## Live Preview
+:::component name="CodeVisualizer"
+{
+  "value": "const answer = 42;\nconsole.log(answer);",
+  "language": "javascript"
+}
+:::
 
 ## Prop Scenarios
 :::script label="JavaScript highlighting" expected="renders JS code with keyword and string colors"

@@ -1,6 +1,6 @@
 {
   "name": "slicejs-webframework-visual-components-library",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Official Visual components library and documentation registry for Slice.js",
   "main": "src/Components/index.js",
   "scripts": {
@@ -21,7 +21,10 @@
     "docs:generate": "node parser/index.js",
     "docs:lint-md": "node parser/index.js --lint-only",
     "docs:sync-registry": "node parser/index.js --sync-only",
-    "run": "node ./node_modules/slicejs-cli/client.js dev"
+    "run": "node ./node_modules/slicejs-cli/client.js dev",
+    "slice:dev": "slice dev",
+    "slice:start": "slice start",
+    "slice:types": "slice types generate"
   },
   "author": "vkneider",
   "license": "ISC",

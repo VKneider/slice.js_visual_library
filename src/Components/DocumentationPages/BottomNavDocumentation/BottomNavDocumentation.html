@@ -1,0 +1,33 @@
+<div class="documentation-content bottomnavdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="bottomnav">
+    <span class="doc-title-text">BottomNav</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>BottomNav</code> is an app-style floating bottom tab bar. It shares the exact same API as <code>Navbar</code> (<code>logo</code>, <code>items</code>, <code>buttons</code>, <code>position</code>, <code>direction</code>), so it works as a drop-in alternative to the classic top navbar — especially on mobile, where it docks to the bottom edge instead of hiding navigation behind a hamburger.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>items</code> render as tabs. Each item accepts the familiar <code>{ text, path }</code>, an optional</li></ul>
+<p><code>icon</code> (any valid <code>Icon</code> name, shown above the label), or <code>type: 'dropdown'</code> with <code>options</code>.</p>
+<ul><li>A spring-eased indicator slides under the active tab. The active tab is resolved from the</li></ul>
+<p>current route (exact match first, then the longest matching prefix for nested routes such   as <code>/docs/button</code> highlighting the <code>/docs</code> tab) and re-syncs on browser back/forward.</p>
+<ul><li><code>position: 'fixed'</code> floats the bar centered at the bottom on desktop and docks it full-width</li></ul>
+<p>to the bottom edge on mobile. <code>position: 'static'</code> renders it inline in normal flow.</p>
+<ul><li><code>direction: 'reverse'</code> mirrors the tab order (row-reverse), matching <code>Navbar</code>.</li><li><code>buttons</code> reuse the shared <code>Button</code> component and sit after the tabs as trailing actions.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">On <code>position: 'fixed'</code>, add some <code>padding-bottom</code> to your page content so the floating bar
+never covers the last rows. Pass a per-item <code>icon</code> for the clearest app-style tab pattern.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Avoid <code>type: 'dropdown'</code> items inside a bottom-docked <code>BottomNav</code>: the shared <code>DropDown</code> opens
+downward and would render off-screen. Use dropdowns in top-anchored navigations (<code>Navbar</code>,
+<code>FloatingDock</code>) instead.</div>
+<div class="component-block" data-block-id="doc-block-5"></div>
+</div>

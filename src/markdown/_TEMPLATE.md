@@ -36,11 +36,11 @@ if (target.value !== 'Updated') {
 }
 :::
 
-:::script label="onClickCallback fires" expected="Callback executes once"
+:::script label="onClick fires" expected="Callback executes once"
 let fired = 0;
 const target = await slice.build('Button', {
   value: 'Click me',
-  onClickCallback: () => {
+  onClick: () => {
     fired += 1;
   }
 });

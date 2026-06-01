@@ -9,16 +9,14 @@
 <h2 id="overview">Overview</h2>
 <p><code>MultiRoute</code> maps multiple URL paths to components and renders only the active match.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li>Registers each route entry in the runtime router.</li><li>Supports exact and dynamic <code>${param}</code> path matching.</li><li>Caches rendered components and calls <code>update()</code> when reusing.</li><li>Emits <code>route-rendered</code> with <code>path</code>, <code>component</code>, <code>params</code>, and <code>metadata</code>.</li></ul>
-<h2 id="basic-usage">Basic Usage</h2>
-<div class="code-block" data-block-id="doc-block-1"></div>
+<ul><li>Shows the child whose <code>path</code> matches the current URL; matching is case-insensitive and tolerant of a trailing slash (<code>/About</code> and <code>/about/</code> match <code>/about</code>).</li><li>Supports exact and dynamic <code>${param}</code> path matching.</li><li>Caches rendered components and calls <code>update()</code> when reusing.</li><li>Emits <code>route-rendered</code> with <code>path</code>, <code>component</code>, <code>params</code>, and <code>metadata</code>.</li><li>Does <strong>not</strong> register its paths with the Router. <code>routes.js</code> is the single source of truth, so every path a MultiRoute can show must also exist there (in the App Shell pattern they point at the shell). Otherwise a direct load, refresh, or deep-link to that URL resolves before the container mounts and falls through to <code>/404</code>.</li></ul>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<div class="script-block" data-block-id="doc-block-5"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Use <code>MultiRoute</code> inside app-shell layouts where navbar/sidebar stay mounted while inner sections switch by URL.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Do not register duplicate route paths in the same <code>routes</code> array; the first registration wins.</div>
+<div class="callout callout-warning">Do not declare duplicate route paths in the same <code>routes</code> array; the first match wins.</div>
 </div>

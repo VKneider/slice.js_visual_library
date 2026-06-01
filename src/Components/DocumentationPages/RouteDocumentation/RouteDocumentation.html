@@ -9,14 +9,12 @@
 <h2 id="overview">Overview</h2>
 <p><code>Route</code> renders a single component when the current URL matches a target path.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li>Registers its own <code>path</code> + <code>component</code> into router map when mounted.</li><li>Supports dynamic segments using <code>${param}</code> syntax.</li><li>Passes <code>params</code> and <code>metadata</code> to the routed component.</li><li>Reuses cached component instances and calls <code>update()</code> when needed.</li></ul>
-<h2 id="basic-usage">Basic Usage</h2>
-<div class="code-block" data-block-id="doc-block-1"></div>
+<ul><li>Shows its <code>component</code> when the current URL matches <code>path</code>; matching is case-insensitive and tolerant of a trailing slash.</li><li>Supports dynamic segments using <code>${param}</code> syntax.</li><li>Passes <code>params</code> and <code>metadata</code> to the routed component.</li><li>Reuses cached component instances and calls <code>update()</code> when needed.</li><li>Does <strong>not</strong> register its path with the Router. Declare the path in <code>routes.js</code> too, or a direct load of that URL resolves before the container mounts.</li></ul>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<div class="script-block" data-block-id="doc-block-5"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Use <code>metadata</code> to keep guards and page policies declarative instead of hard-coding checks inside components.</div>
 <h2 id="pitfalls">Pitfalls</h2>

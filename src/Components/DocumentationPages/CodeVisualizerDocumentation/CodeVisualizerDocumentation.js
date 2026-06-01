@@ -9,24 +9,23 @@ export default class CodeVisualizerDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "code-visualizer.md";
-    this.markdownContent = "---\ntitle: CodeVisualizer\nroute: /docs/display/code-visualizer\nnavLabel: CodeVisualizer\nsection: Display\ngroup: Code\norder: 10\ndescription: CodeVisualizer documentation with syntax highlighting and copy scenarios.\ncomponent: CodeVisualizerDocumentation\ngenerate: true\ntags: [code, syntax, highlight, display]\n---\n\n# CodeVisualizer\n\n## Overview\n`CodeVisualizer` displays syntax-highlighted code blocks with a copy-to-clipboard button. Supports JavaScript, HTML, and CSS highlighting with token-based colorization.\n\n## API and Behavior\n- Accepts `value` (code string) and `language` (`javascript`, `html`, `css`, or `js`).\n- Syntax highlighting is applied client-side via token extraction.\n- Copy button writes the raw unformatted code to the clipboard.\n- Button shows visual feedback on success or error.\n\n## Basic Usage\n```javascript title=\"Build code visualizer\"\nconst code = await slice.build('CodeVisualizer', {\n  value: 'const x = 42;',\n  language: 'javascript'\n});\n\nthis.appendChild(code);\n```\n\n## Prop Scenarios\n:::script label=\"JavaScript highlighting\" expected=\"renders JS code with keyword and string colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: `function greet(name) {\n  const message = \"Hello, \" + name;\n  console.log(message);\n  return message;\n}\n\ngreet(\"World\");`,\n  language: 'javascript'\n});\n\nreturn code;\n:::\n\n:::script label=\"HTML highlighting\" expected=\"renders HTML code with tag and attribute colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: `<div class=\"container\">\n  <h1>Title</h1>\n  <p>Description here</p>\n</div>`,\n  language: 'html'\n});\n\nreturn code;\n:::\n\n:::script label=\"CSS highlighting\" expected=\"renders CSS with selector and property colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: `.container {\n  display: flex;\n  gap: 1rem;\n  padding: 2rem;\n  background: #f9fafb;\n  border-radius: 8px;\n}`,\n  language: 'css'\n});\n\nreturn code;\n:::\n\n:::script label=\"Unknown language fallback\" expected=\"renders plain escaped code without colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: 'some raw text without highlighting',\n  language: 'text'\n});\n\nreturn code;\n:::\n\n## Best Practices\n:::tip\nUse `CodeVisualizer` inside documentation pages or tutorials to show inline code examples with copy support.\n:::\n\n## Pitfalls\n:::warning\nLanguage must match exactly (`javascript`, `html`, or `css`). Unknown languages render unhighlighted escaped text.\n:::\n";
+    this.markdownContent = "---\ntitle: CodeVisualizer\nroute: /docs/display/code-visualizer\nnavLabel: CodeVisualizer\nsection: Display\ngroup: Code\norder: 10\ndescription: CodeVisualizer documentation with syntax highlighting and copy scenarios.\ncomponent: CodeVisualizerDocumentation\ngenerate: true\ntags: [code, syntax, highlight, display]\n---\n\n# CodeVisualizer\n\n## Overview\n`CodeVisualizer` displays syntax-highlighted code blocks with a copy-to-clipboard button. Supports JavaScript, HTML, and CSS highlighting with token-based colorization.\n\n## API and Behavior\n- Accepts `value` (code string) and `language` (`javascript`, `html`, `css`, or `js`).\n- Syntax highlighting is applied client-side via token extraction.\n- Copy button writes the raw unformatted code to the clipboard.\n- Button shows visual feedback on success or error.\n\n## Live Preview\n:::component name=\"CodeVisualizer\"\n{\n  \"value\": \"const answer = 42;\\nconsole.log(answer);\",\n  \"language\": \"javascript\"\n}\n:::\n\n## Prop Scenarios\n:::script label=\"JavaScript highlighting\" expected=\"renders JS code with keyword and string colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: `function greet(name) {\n  const message = \"Hello, \" + name;\n  console.log(message);\n  return message;\n}\n\ngreet(\"World\");`,\n  language: 'javascript'\n});\n\nreturn code;\n:::\n\n:::script label=\"HTML highlighting\" expected=\"renders HTML code with tag and attribute colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: `<div class=\"container\">\n  <h1>Title</h1>\n  <p>Description here</p>\n</div>`,\n  language: 'html'\n});\n\nreturn code;\n:::\n\n:::script label=\"CSS highlighting\" expected=\"renders CSS with selector and property colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: `.container {\n  display: flex;\n  gap: 1rem;\n  padding: 2rem;\n  background: #f9fafb;\n  border-radius: 8px;\n}`,\n  language: 'css'\n});\n\nreturn code;\n:::\n\n:::script label=\"Unknown language fallback\" expected=\"renders plain escaped code without colors\"\nconst code = await slice.build('CodeVisualizer', {\n  value: 'some raw text without highlighting',\n  language: 'text'\n});\n\nreturn code;\n:::\n\n## Best Practices\n:::tip\nUse `CodeVisualizer` inside documentation pages or tutorials to show inline code examples with copy support.\n:::\n\n## Pitfalls\n:::warning\nLanguage must match exactly (`javascript`, `html`, or `css`). Unknown languages render unhighlighted escaped text.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
          const container = this.querySelector('[data-block-id="doc-block-1"]');
          if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const code = await slice.build('CodeVisualizer', {\n  value: 'const x = 42;',\n  language: 'javascript'\n});\n\nthis.appendChild(code);",
-               language: "javascript"
-            });
-            if ("Build code visualizer") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build code visualizer";
-               container.appendChild(label);
+            let props = {};
+            if ("{\n  \"value\": \"const answer = 42;\\nconsole.log(answer);\",\n  \"language\": \"javascript\"\n}") {
+               try {
+                  props = JSON.parse("{\n  \"value\": \"const answer = 42;\\nconsole.log(answer);\",\n  \"language\": \"javascript\"\n}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
+               }
             }
-            container.appendChild(code);
+            const component = await slice.build('CodeVisualizer', props);
+            container.appendChild(component);
          }
       }
     await this.renderScriptScenarios();

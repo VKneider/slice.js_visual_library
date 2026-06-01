@@ -1,3 +1,12 @@
+// Warns once per deprecated prop name (kept module-scoped so each component
+// reports a given alias only once per session).
+const _sliceDeprecated = new Set();
+function deprecate(oldName, newName) {
+   if (_sliceDeprecated.has(oldName)) return;
+   _sliceDeprecated.add(oldName);
+   console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
+}
+
 export default class Card extends HTMLElement {
 
    static props = {
@@ -38,9 +47,16 @@ export default class Card extends HTMLElement {
          type: 'function',
          default: null
       },
+      // Canonical expanded-state flag. `isOpen` is kept as a deprecated alias.
+      // Default is null (not false) so the canonical setter can ignore the
+      // default and let the deprecated alias fill the shared field (§7).
+      open: {
+         type: 'boolean',
+         default: null
+      },
       isOpen: {
          type: 'boolean',
-         default: false
+         default: null
       },
       details: {
          type: 'string',
@@ -49,10 +65,6 @@ export default class Card extends HTMLElement {
       badge: {
          type: 'string',
          default: null
-      },
-      loading: {
-         type: 'boolean',
-         default: false
       },
       disabled: {
          type: 'boolean',
@@ -217,7 +229,7 @@ export default class Card extends HTMLElement {
          try {
             const opts = {
                value: action.text || 'Action',
-               onClickCallback: action.onClick || (() => {})
+               onClick: action.onClick || (() => {})
             };
             if (action.color) {
                opts.customColor = action.color;
@@ -283,12 +295,12 @@ export default class Card extends HTMLElement {
    }
 
    toggleOpen() {
-      this.isOpen = !this.isOpen;
+      this.open = !this.open;
       this.updateOpenState();
    }
 
    updateOpenState() {
-      if (this.isOpen) {
+      if (this.open) {
          this.$card.classList.add('is-open');
          this.$card.setAttribute('aria-expanded', 'true');
       } else {
@@ -298,14 +310,6 @@ export default class Card extends HTMLElement {
    }
 
    updateState() {
-      if (this.loading) {
-         this.$card.classList.add('loading');
-         this.$card.setAttribute('aria-busy', 'true');
-      } else {
-         this.$card.classList.remove('loading');
-         this.$card.removeAttribute('aria-busy');
-      }
-
       if (this.disabled) {
          this.$card.classList.add('disabled');
          this.$card.setAttribute('aria-disabled', 'true');
@@ -385,19 +389,26 @@ export default class Card extends HTMLElement {
       }
    }
 
-   get isOpen() { return this._isOpen || false; }
-   set isOpen(value) {
-      this._isOpen = Boolean(value);
+   // Canonical expanded-state flag. Ignores the null default so the alias can
+   // still contribute a value (§7).
+   get open() { return this._open || false; }
+   set open(value) {
+      if (value === null || value === undefined) return;
+      this._open = Boolean(value);
       if (this.$card) {
          this.updateOpenState();
       }
    }
 
-   get loading() { return this._loading || false; }
-   set loading(value) {
-      this._loading = Boolean(value);
+   // Deprecated alias for `open`. Fills the shared field only if the canonical
+   // prop did not, and warns once.
+   get isOpen() { return this._open || false; }
+   set isOpen(value) {
+      if (value === null || value === undefined) return;
+      this._open ??= Boolean(value);
+      deprecate('isOpen', 'open');
       if (this.$card) {
-         this.updateState();
+         this.updateOpenState();
       }
    }
 
@@ -457,12 +468,16 @@ export default class Card extends HTMLElement {
       }
    }
 
-   open() {
-      this.isOpen = true;
+   // Imperative open/close helpers. `open` is now a property (the boolean
+   // expanded state), so these are named *Card to avoid colliding with it.
+   openCard() {
+      this._open = true;
+      if (this.$card) this.updateOpenState();
    }
 
-   close() {
-      this.isOpen = false;
+   closeCard() {
+      this._open = false;
+      if (this.$card) this.updateOpenState();
    }
 
    toggle() {
@@ -472,14 +487,6 @@ export default class Card extends HTMLElement {
    updateActions(newActions) {
       this.actions = newActions;
       this.setupActions();
-   }
-
-   showLoading() {
-      this.loading = true;
-   }
-
-   hideLoading() {
-      this.loading = false;
    }
 
    enable() {

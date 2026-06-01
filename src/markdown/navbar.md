@@ -21,18 +21,26 @@ tags: [navbar, navigation]
 - Layout behavior is controlled by positioning and direction settings to support product sites and internal dashboards.
 - Scenarios below focus on real navigation compositions rather than static prop duplication.
 
-## Basic Usage
-```javascript title="Build navbar"
-const nav = await slice.build('Navbar', {
-  position: 'fixed',
-  items: [
-    { text: 'Home', path: '/' },
-    { text: 'Docs', path: '/docs' }
+## Live Preview
+:::component name="Navbar"
+{
+  "position": "static",
+  "items": [
+    {
+      "text": "Home",
+      "path": "/"
+    },
+    {
+      "text": "Docs",
+      "path": "/docs"
+    },
+    {
+      "text": "Components",
+      "path": "/docs/input/button"
+    }
   ]
-});
-
-this.appendChild(nav);
-```
+}
+:::
 
 ## Practical Setups
 :::script label="Product docs navbar" expected="fixed navbar with product sections"
@@ -66,7 +74,7 @@ const nav = await slice.build('Navbar', {
     }
   ],
   buttons: [
-    { value: 'Try CLI', color: { button: '#2563eb', label: '#ffffff' } },
+    { value: 'Try CLI', color: { background: '#2563eb', text: '#ffffff' } },
     { value: 'GitHub' }
   ]
 });
@@ -85,7 +93,7 @@ const nav = await slice.build('Navbar', {
   buttons: [
     {
       value: 'Theme',
-      onClickCallback: () => {
+      onClick: () => {
         const current = slice.stylesManager.themeManager.currentTheme;
         if (current === 'LIGHT') {
           slice.setTheme('DARK');

@@ -14,10 +14,14 @@ export default class ToolTip extends HTMLElement {
       this.bubble = null;
       this._text = '';
 
+      // Focusable so the bubble also appears on keyboard focus (focusin/out below).
+      this.setAttribute('tabindex', '0');
+
       slice.controller.setComponentProps(this, props || {});
 
       this.show = this.show.bind(this);
       this.hide = this.hide.bind(this);
+      this.toggle = this.toggle.bind(this);
    }
 
    set text(value) {
@@ -33,6 +37,13 @@ export default class ToolTip extends HTMLElement {
       this.addEventListener('mouseleave', this.hide);
       this.addEventListener('focusin', this.show);
       this.addEventListener('focusout', this.hide);
+      // Touch devices have no hover: tap toggles the bubble.
+      this.addEventListener('click', this.toggle);
+   }
+
+   toggle() {
+      if (this.bubble) this.hide();
+      else this.show();
    }
 
    disconnectedCallback() {
@@ -48,6 +59,7 @@ export default class ToolTip extends HTMLElement {
 
       this.bubble = document.createElement('div');
       this.bubble.classList.add('slice-tooltip-bubble');
+      this.bubble.setAttribute('role', 'tooltip');
       this.bubble.textContent = this._text;
       document.body.appendChild(this.bubble);
    }

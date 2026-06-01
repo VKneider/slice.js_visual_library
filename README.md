@@ -48,53 +48,24 @@ The `slicejs-cli` registry points to this repository to resolve component metada
 
 | Command | Description |
 |---------|-------------|
-| `npm run run` | Start development server (port 3000) |
+| `npm run run` | Start development server (port 3001) |
 | `npm run docs:generate` | Generate documentation pages from markdown |
 | `npm run docs:lint-md` | Validate markdown front matter and structure |
 | `npm run docs:sync-registry` | Sync registry, index and routes without full regeneration |
 
 ## Writing component documentation
 
-Documentation sources live in `src/markdown/`. Each component has a markdown file with front matter and optional custom blocks.
+Documentation sources live in `src/markdown/` — every official Visual and Service component has a
+markdown file. The **single source of truth** for the format (required front matter, supported
+`:::` blocks, the `:::script` live-example contract, and generation rules) is:
 
-### Required front matter
+- **[`src/markdown/parser-rules.md`](src/markdown/parser-rules.md)** — the full contract (also
+  rendered in the live docs at `/docs/internal/markdown-parser-rules`)
+- **[`src/markdown/_TEMPLATE.md`](src/markdown/_TEMPLATE.md)** — a copy-paste scaffold for a new page
 
-```yaml
----
-title: Component Name
-route: /docs/component-name
-section: Components
-group: Input
-order: 1
-component: ComponentName
----
-```
-
-### Supported markdown blocks
-
-| Block | Syntax | Description |
-|-------|--------|-------------|
-| Code | ```` ```language ```` | Syntax-highlighted code block |
-| Tip | `:::tip` | Informational callout |
-| Warning | `:::warning` | Warning callout |
-| Details | `:::details title="Title"` | Expandable accordion |
-| Component | `:::component name="MyComp"` | Embed a Slice.js component |
-| Script | `:::script label="..." expected="..."` | Code block + live preview |
-| HTML | `:::html` | Direct HTML injection |
-| Tables | Standard markdown | Rendered as styled tables |
-
-### Live examples with `:::script`
-
-Script blocks render both the source code and an interactive live preview:
-
-```markdown
-:::script label="Basic usage" expected="Renders a button with label"
-const btn = await slice.build('Button', { label: 'Click me' });
-mount(btn);
-:::
-```
-
-The `mount(node)` helper appends the rendered node to the preview area.
+Use the **canonical** component prop names in examples — see
+[`COMPONENT_API_STANDARDS.md`](COMPONENT_API_STANDARDS.md). Keep `parser-rules.md` authoritative;
+don't duplicate the parser rules here.
 
 ## Parser
 
@@ -142,9 +113,16 @@ slice.js_visual_library/
 
 ## Contributing
 
-We welcome contributions to the component library and documentation. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full docs workflow.
+We welcome contributions to the component library and documentation.
 
-### Quick steps
+- **Docs workflow** — [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Component authoring rules** (prop naming, deprecation/alias policy, CSS encapsulation, a11y) — [COMPONENT_API_STANDARDS.md](COMPONENT_API_STANDARDS.md)
+
+> ⚠️ This repository **is the published component registry** — the CLI downloads components from
+> it. Any prop rename is a public API change, so never remove an old prop name without keeping it
+> working as a deprecated alias.
+
+### Quick steps (docs)
 1. Edit markdown in `src/markdown/`
 2. Run `npm run docs:lint-md` to validate
 3. Run `npm run docs:generate` to regenerate outputs

@@ -23,8 +23,33 @@ const isIdentifierStart = (char) => /[A-Za-z_$]/.test(char);
 const isIdentifierPart = (char) => /[A-Za-z0-9_$]/.test(char);
 
 const skipWhitespace = (source, state) => {
-  while (state.index < source.length && /\s/.test(source[state.index])) {
-    state.index += 1;
+  // Skips whitespace AND comments, so `//` and `/* */` notes inside a
+  // `static props` object (e.g. deprecation/alias notes) don't break parsing.
+  while (state.index < source.length) {
+    const ch = source[state.index];
+    if (/\s/.test(ch)) {
+      state.index += 1;
+      continue;
+    }
+    if (ch === '/' && source[state.index + 1] === '/') {
+      state.index += 2;
+      while (state.index < source.length && source[state.index] !== '\n') {
+        state.index += 1;
+      }
+      continue;
+    }
+    if (ch === '/' && source[state.index + 1] === '*') {
+      state.index += 2;
+      while (
+        state.index < source.length &&
+        !(source[state.index] === '*' && source[state.index + 1] === '/')
+      ) {
+        state.index += 1;
+      }
+      state.index += 2; // consume the closing */
+      continue;
+    }
+    break;
   }
 };
 

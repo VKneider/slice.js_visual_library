@@ -1,0 +1,25 @@
+<div class="documentation-content miniinspectordocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="miniinspector">
+    <span class="doc-title-text">MiniInspector</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>MiniInspector</code> is a tiny, readable demonstration of how Slice's live state editing works. Point it at any component and it reads that component's <code>static props</code>, builds an editable control per prop, and on edit assigns <code>target[prop] = value</code> — which fires the target's setter and updates its UI instantly. It's the same idea as the built-in DevTools inspector, in ~80 lines.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li>Reads <code>target.constructor.props</code> and shows one control per editable prop (<code>string</code>, <code>number</code>, <code>boolean</code>).</li><li>Writes edits straight back through the target's setter (<code>target[prop] = value</code>); there is no extra binding layer.</li><li><code>target</code> accepts a live component instance or a <code>sliceId</code> string.</li><li>It's a normal, theme-aware Visual component — it follows the active theme via CSS variables.</li></ul>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Give your component's props clear setters that do the DOM work — then the component is instantly
+inspectable, and editing a prop here behaves exactly like a prop change anywhere in your app.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">This demo only edits <code>string</code>, <code>number</code>, and <code>boolean</code> props. A prop only updates the UI if its
+setter performs the DOM change — if editing does nothing, the bug is in the setter, not the inspector.</div>
+<div class="component-block" data-block-id="doc-block-5"></div>
+</div>

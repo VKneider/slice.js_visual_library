@@ -23,22 +23,41 @@ tags: [treeview, navigation, tree]
 - `TreeView` uses `TreeItem` internally via `slice.build('TreeItem', ...)`.
 - Collapse state is persisted to `localStorage`.
 
-## Basic Usage
-```javascript title="Build treeview"
-const treeview = await slice.build('TreeView', {
-  items: [
+## Live Preview
+:::component name="TreeView"
+{
+  "items": [
     {
-      value: 'Section 1',
-      path: '/section-1',
-      items: [
-        { value: 'Subsection 1.1', path: '/section-1/sub-1' }
+      "value": "Getting Started",
+      "path": "/docs",
+      "items": [
+        {
+          "value": "Installation",
+          "path": "/docs"
+        },
+        {
+          "value": "Quick Start",
+          "path": "/docs"
+        }
+      ]
+    },
+    {
+      "value": "Components",
+      "path": "/docs",
+      "items": [
+        {
+          "value": "Button",
+          "path": "/docs/input/button"
+        },
+        {
+          "value": "Card",
+          "path": "/docs/layout/card"
+        }
       ]
     }
   ]
-});
-
-this.appendChild(treeview);
-```
+}
+:::
 
 ## Prop Scenarios
 :::script label="Nested tree with navigation" expected="renders tree with two levels of nesting"
@@ -88,7 +107,7 @@ return treeview;
 let lastClicked = null;
 
 const treeview = await slice.build('TreeView', {
-  onClickCallback: (item) => {
+  onClick: (item) => {
     lastClicked = item;
   },
   items: [

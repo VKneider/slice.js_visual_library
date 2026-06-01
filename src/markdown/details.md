@@ -21,15 +21,13 @@ tags: [details, disclosure, layout]
 - `text` provides the default expanded description body.
 - `addDetail(node)` appends richer custom content into the expanded area.
 
-## Basic Usage
-```javascript title="Build details"
-const details = await slice.build('Details', {
-  title: 'What is included?',
-  text: 'Source code, tests, and docs.'
-});
-
-this.appendChild(details);
-```
+## Live Preview
+:::component name="Details"
+{
+  "title": "What's included?",
+  "text": "Source code, tests, and documentation."
+}
+:::
 
 ## Prop Scenarios
 :::script label="faq item" expected="details renders title and expandable answer"

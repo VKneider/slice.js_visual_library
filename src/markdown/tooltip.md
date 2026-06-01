@@ -23,17 +23,6 @@ tags: [tooltip, overlay, display]
 - Automatically flips above or below based on available space.
 - Cleans up the bubble element on disconnect or destroy.
 
-## Basic Usage
-```javascript title="Build tooltip"
-const tooltip = await slice.build('ToolTip', {
-  text: 'Save changes'
-});
-
-tooltip.textContent = 'Hover me';
-
-this.appendChild(tooltip);
-```
-
 ## Prop Scenarios
 :::script label="Hover tooltip" expected="tooltip appears on hover over trigger text"
 const tooltip = await slice.build('ToolTip', {

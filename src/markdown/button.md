@@ -17,26 +17,38 @@ tags: [button, input]
 The `Button` component renders an action trigger and supports text, callback, icon and custom colors.
 
 ## Core Behavior
-- `Button` dispatches action intent through `onClickCallback` while keeping visual state driven by props.
-- Style variants are controlled with `customColor` and optional icon metadata for call-to-action and utility patterns.
+- `Button` dispatches action intent through `onClick` while keeping visual state driven by props.
+- The look is set with `variant` (`filled` · `outlined` · `ghost` · `soft`), all derived from theme tokens; `customColor` overrides the colors when you need an exact value.
 - Use script scenarios below as the living behavior contract; static props are documented in the generated props section.
 
-## Basic Usage
-```javascript title="Build button"
-const saveButton = await slice.build('Button', {
-  value: 'Save',
-  onClickCallback: () => console.log('Saved')
-});
+## Live Preview
+:::component name="Button"
+{
+  "value": "Save changes"
+}
+:::
 
-this.appendChild(saveButton);
-```
+## Variants
+All variants are built from the theme tokens, so they follow the active theme automatically.
+
+:::script label="Variants" expected="filled, outlined, ghost and soft buttons"
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
+
+for (const variant of ['filled', 'outlined', 'ghost', 'soft']) {
+  const btn = await slice.build('Button', { value: variant, variant });
+  row.appendChild(btn);
+}
+
+return row;
+:::
 
 ## Prop Scenarios
 :::script label="Primary and secondary variants" expected="renders two styled action buttons"
 const primary = await slice.build('Button', { value: 'Primary Action' });
 const secondary = await slice.build('Button', {
   value: 'Secondary Action',
-  customColor: { button: '#5468ff', label: '#ffffff' }
+  customColor: { background: '#5468ff', text: '#ffffff' }
 });
 
 const row = document.createElement('div');
@@ -48,7 +60,7 @@ return row;
 :::script label="Button with callback state" expected="click toggles button label"
 const clickButton = await slice.build('Button', {
   value: 'Click me',
-  onClickCallback: () => {
+  onClick: () => {
     clickButton.value = clickButton.value === 'Click me' ? 'Clicked' : 'Click me';
   }
 });
@@ -66,7 +78,7 @@ return wrapper;
 const cta = await slice.build('Button', {
   value: 'Download package',
   icon: { name: 'download', iconStyle: 'filled' },
-  customColor: { button: '#16a34a', label: '#ffffff' }
+  customColor: { background: '#16a34a', text: '#ffffff' }
 });
 
 const text = document.createElement('p');
@@ -81,8 +93,8 @@ return block;
 :::script label="Toolbar action group" expected="renders a compact row of related actions"
 const actions = [
   { value: 'Edit', icon: { name: 'edit', iconStyle: 'filled' } },
-  { value: 'Share', icon: { name: 'share-nodes', iconStyle: 'filled' }, customColor: { button: '#2563eb', label: '#ffffff' } },
-  { value: 'Delete', icon: { name: 'trash-bin', iconStyle: 'filled' }, customColor: { button: '#dc2626', label: '#ffffff' } }
+  { value: 'Share', icon: { name: 'share-nodes', iconStyle: 'filled' }, customColor: { background: '#2563eb', text: '#ffffff' } },
+  { value: 'Delete', icon: { name: 'trash-bin', iconStyle: 'filled' }, customColor: { background: '#dc2626', text: '#ffffff' } }
 ];
 
 const row = document.createElement('div');
@@ -104,12 +116,12 @@ const card = await slice.build('Card', {
 
 const approve = await slice.build('Button', {
   value: 'Approve',
-  customColor: { button: '#15803d', label: '#ffffff' }
+  customColor: { background: '#15803d', text: '#ffffff' }
 });
 
 const reject = await slice.build('Button', {
   value: 'Reject',
-  customColor: { button: '#b91c1c', label: '#ffffff' }
+  customColor: { background: '#b91c1c', text: '#ffffff' }
 });
 
 const footer = document.createElement('div');
@@ -135,7 +147,7 @@ for (const iconConfig of iconConfigs) {
   const button = await slice.build('Button', {
     value: '',
     icon: iconConfig,
-    customColor: { button: '#e2e8f0', label: '#0f172a' }
+    customColor: { background: '#e2e8f0', text: '#0f172a' }
   });
   row.appendChild(button);
 }
@@ -146,7 +158,7 @@ return row;
 :::script label="async loading action" expected="button reflects loading-like action flow"
 const submit = await slice.build('Button', {
   value: 'Submit',
-  onClickCallback: async () => {
+  onClick: async () => {
     submit.value = 'Submitting...';
     await new Promise((resolve) => setTimeout(resolve, 400));
     submit.value = 'Submitted';

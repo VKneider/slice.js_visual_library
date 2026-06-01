@@ -36,11 +36,20 @@ export default class MainMenu extends HTMLElement {
    }
 
    init() {
-      this.addEventListener('mouseleave', () => {
-         if (this.classList.contains('slice_menu_open')) {
-            this.handleCloseMenu();
-         }
-      });
+      // Auto-close on hover-out is desktop-only behaviour. On touch devices the
+      // browser emits a synthetic `mouseleave` right after every tap, which would
+      // close the drawer the instant the user touches a TreeView caret/item and
+      // makes the tree impossible to interact with on mobile. Only wire it up on
+      // devices that actually hover with a fine pointer; on touch we rely on the
+      // overlay tap and the close button.
+      const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (canHover) {
+         this.addEventListener('mouseleave', () => {
+            if (this.classList.contains('slice_menu_open')) {
+               this.handleCloseMenu();
+            }
+         });
+      }
    }
 
    add(value) {

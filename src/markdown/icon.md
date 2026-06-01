@@ -23,15 +23,14 @@ tags: [icon, display, reference]
 - `size` (string, default `"small"`) — `"small"` (16px), `"medium"` (20px), `"large"` (24px), or any CSS size.
 - `color` (string, default `"black"`) — Any CSS color value.
 
-## Basic Usage
-```javascript title="Build icon"
-const icon = await slice.build('Icon', {
-  name: 'home',
-  size: 'large',
-  color: 'var(--primary-color)'
-});
-this.appendChild(icon);
-```
+## Live Preview
+:::component name="Icon"
+{
+  "name": "rocket",
+  "size": "large",
+  "color": "var(--primary-color)"
+}
+:::
 
 ## Demos
 

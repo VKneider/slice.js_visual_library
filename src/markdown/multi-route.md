@@ -23,18 +23,6 @@ tags: [multiroute, routing, app-shell]
 - Emits `route-rendered` with `path`, `component`, `params`, and `metadata`.
 - Does **not** register its paths with the Router. `routes.js` is the single source of truth, so every path a MultiRoute can show must also exist there (in the App Shell pattern they point at the shell). Otherwise a direct load, refresh, or deep-link to that URL resolves before the container mounts and falls through to `/404`.
 
-## Basic Usage
-```javascript title="Build MultiRoute container"
-const sections = await slice.build('MultiRoute', {
-  routes: [
-    { path: '/account', component: 'AccountPage' },
-    { path: '/billing', component: 'BillingPage' }
-  ]
-});
-
-this.appendChild(sections);
-```
-
 ## Prop Scenarios
 :::script label="app shell sections" expected="route list models section switching in a persistent shell"
 const multi = await slice.build('MultiRoute', {
@@ -99,7 +87,7 @@ const multi = await slice.build('MultiRoute', {
 for (const entry of routes) {
   const button = await slice.build('Button', {
     value: entry.metadata.title,
-    onClickCallback: async () => {
+    onClick: async () => {
       await slice.router.navigate(entry.path);
     }
   });

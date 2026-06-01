@@ -17,24 +17,41 @@ tags: [table, data, display]
 `Table` renders a structured HTML table from `headers` and `rows` arrays. Responsive by default with label-based cell display on narrow viewports.
 
 ## API and Behavior
-- `headers` (array of strings) defines the table header row.
-- `rows` (array of arrays) defines data rows. Each cell supports HTML content via `innerHTML`.
+- `headers` (array of strings) defines the table header row (rendered as `<th scope="col">`).
+- `rows` (array of arrays) defines data rows. Each cell can be:
+  - a **string / number** → rendered as text (escaped, safe by default),
+  - a **DOM node** (e.g. a built component) → appended as-is,
+  - `{ html: '<...>' }` → explicit opt-in for **trusted** raw HTML.
 - Both props are reactive: changes trigger a full re-render.
 - Empty arrays render no table content.
 
-## Basic Usage
-```javascript title="Build table"
-const table = await slice.build('Table', {
-  headers: ['Name', 'Role', 'Status'],
-  rows: [
-    ['Alice', 'Engineer', 'Active'],
-    ['Bob', 'Designer', 'Inactive'],
-    ['Carol', 'Manager', 'Active']
+## Live Preview
+:::component name="Table"
+{
+  "headers": [
+    "Name",
+    "Role",
+    "Status"
+  ],
+  "rows": [
+    [
+      "Alice",
+      "Engineer",
+      "Active"
+    ],
+    [
+      "Bob",
+      "Designer",
+      "Away"
+    ],
+    [
+      "Carol",
+      "Manager",
+      "Active"
+    ]
   ]
-});
-
-this.appendChild(table);
-```
+}
+:::
 
 ## Prop Scenarios
 :::script label="Table with data" expected="renders table with headers and three rows"
@@ -50,22 +67,17 @@ const table = await slice.build('Table', {
 return table;
 :::
 
-:::script label="Table with HTML cells" expected="renders cells containing styled content"
+:::script label="Rich cells (DOM nodes + trusted HTML)" expected="cells hold real components and opt-in HTML; plain strings stay escaped"
+const viewBtn = await slice.build('Button', { value: 'View' });
+const installBtn = await slice.build('Button', { value: 'Install' });
+
 const table = await slice.build('Table', {
   headers: ['Package', 'Status', 'Action'],
   rows: [
-    ['slice.js', '<span style="color:#16a34a">Published</span>', '<button>View</button>'],
-    ['slice-cli', '<span style="color:#2563eb">Beta</span>', '<button>Install</button>']
+    // { html } is an explicit opt-in for TRUSTED markup; plain strings are escaped.
+    ['slice.js',  { html: '<span style="color:var(--success-color)">Published</span>' }, viewBtn],
+    ['slice-cli', { html: '<span style="color:var(--primary-color)">Beta</span>' }, installBtn]
   ]
-});
-
-return table;
-:::
-
-:::script label="Empty table" expected="renders empty table container"
-const table = await slice.build('Table', {
-  headers: [],
-  rows: []
 });
 
 return table;
@@ -78,5 +90,5 @@ Keep row data uniform in length. Mismatched columns may produce uneven layout.
 
 ## Pitfalls
 :::warning
-Avoid injecting unsanitized user content. Cells use `innerHTML`, which can introduce XSS if used with raw user input.
+Plain string cells are escaped, so user data is safe by default. Only the explicit `{ html: '...' }` form is injected as raw HTML — never pass unsanitized user input through it.
 :::

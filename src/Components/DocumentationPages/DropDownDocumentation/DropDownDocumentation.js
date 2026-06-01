@@ -9,24 +9,23 @@ export default class DropDownDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "dropdown.md";
-    this.markdownContent = "---\ntitle: DropDown\nroute: /docs/navigation/dropdown\nnavLabel: DropDown\nsection: Navigation\ngroup: Core\norder: 32\ndescription: DropDown component documentation with practical navigation scenarios.\ncomponent: DropDownDocumentation\ngenerate: true\ntags: [dropdown, navigation]\n---\n\n# DropDown\n\n## Overview\n`DropDown` groups related links under a compact expandable navigation trigger.\n\n## Core Behavior\n- `label` sets the trigger text.\n- `options` renders link items (`text` + `href`).\n- The menu opens on click and closes on option click or mouse leave.\n\n## Basic Usage\n```javascript title=\"Build dropdown\"\nconst menu = await slice.build('DropDown', {\n  label: 'Resources',\n  options: [\n    { text: 'Docs', href: '/docs' },\n    { text: 'API', href: '/docs/internal/markdown-parser-rules' }\n  ]\n});\n\nthis.appendChild(menu);\n```\n\n## Prop Scenarios\n:::script label=\"docs navigation dropdown\" expected=\"dropdown renders links for docs sections\"\nconst menu = await slice.build('DropDown', {\n  label: 'Documentation',\n  options: [\n    { text: 'Button', href: '/docs/input/button' },\n    { text: 'Input', href: '/docs/input/input' },\n    { text: 'Card', href: '/docs/layout/card' }\n  ]\n});\n\nreturn menu;\n:::\n\n:::script label=\"product menu\" expected=\"dropdown can represent product navigation groups\"\nconst menu = await slice.build('DropDown', {\n  label: 'Product',\n  options: [\n    { text: 'Overview', href: '/docs' },\n    { text: 'Changelog', href: '/docs/layout/details' },\n    { text: 'Roadmap', href: '/docs/navigation/tabs' }\n  ]\n});\n\nreturn menu;\n:::\n";
+    this.markdownContent = "---\ntitle: DropDown\nroute: /docs/navigation/dropdown\nnavLabel: DropDown\nsection: Navigation\ngroup: Core\norder: 32\ndescription: DropDown component documentation with practical navigation scenarios.\ncomponent: DropDownDocumentation\ngenerate: true\ntags: [dropdown, navigation]\n---\n\n# DropDown\n\n## Overview\n`DropDown` groups related links under a compact expandable navigation trigger.\n\n## Core Behavior\n- `label` sets the trigger text.\n- `options` renders link items (`text` + `href`).\n- The menu opens on click and closes when you pick an option, click the trigger again, or click outside it.\n\n## Live Preview\n:::component name=\"DropDown\"\n{\n  \"label\": \"Resources\",\n  \"options\": [\n    {\n      \"text\": \"Docs\",\n      \"href\": \"/docs\"\n    },\n    {\n      \"text\": \"GitHub\",\n      \"href\": \"#\"\n    }\n  ]\n}\n:::\n\n## Prop Scenarios\n:::script label=\"docs navigation dropdown\" expected=\"dropdown renders links for docs sections\"\nconst menu = await slice.build('DropDown', {\n  label: 'Documentation',\n  options: [\n    { text: 'Button', href: '/docs/input/button' },\n    { text: 'Input', href: '/docs/input/input' },\n    { text: 'Card', href: '/docs/layout/card' }\n  ]\n});\n\nreturn menu;\n:::\n\n:::script label=\"product menu\" expected=\"dropdown can represent product navigation groups\"\nconst menu = await slice.build('DropDown', {\n  label: 'Product',\n  options: [\n    { text: 'Overview', href: '/docs' },\n    { text: 'Changelog', href: '/docs/layout/details' },\n    { text: 'Roadmap', href: '/docs/navigation/tabs' }\n  ]\n});\n\nreturn menu;\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
          const container = this.querySelector('[data-block-id="doc-block-1"]');
          if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const menu = await slice.build('DropDown', {\n  label: 'Resources',\n  options: [\n    { text: 'Docs', href: '/docs' },\n    { text: 'API', href: '/docs/internal/markdown-parser-rules' }\n  ]\n});\n\nthis.appendChild(menu);",
-               language: "javascript"
-            });
-            if ("Build dropdown") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build dropdown";
-               container.appendChild(label);
+            let props = {};
+            if ("{\n  \"label\": \"Resources\",\n  \"options\": [\n    {\n      \"text\": \"Docs\",\n      \"href\": \"/docs\"\n    },\n    {\n      \"text\": \"GitHub\",\n      \"href\": \"#\"\n    }\n  ]\n}") {
+               try {
+                  props = JSON.parse("{\n  \"label\": \"Resources\",\n  \"options\": [\n    {\n      \"text\": \"Docs\",\n      \"href\": \"/docs\"\n    },\n    {\n      \"text\": \"GitHub\",\n      \"href\": \"#\"\n    }\n  ]\n}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
+               }
             }
-            container.appendChild(code);
+            const component = await slice.build('DropDown', props);
+            container.appendChild(component);
          }
       }
       {

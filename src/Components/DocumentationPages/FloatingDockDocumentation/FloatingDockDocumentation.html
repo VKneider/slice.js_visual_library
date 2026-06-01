@@ -1,0 +1,35 @@
+<div class="documentation-content floatingdockdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="floatingdock">
+    <span class="doc-title-text">FloatingDock</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>FloatingDock</code> is a glassy floating navigation capsule that hovers, centered, above the page. Its signature interaction is macOS-dock-style magnification: items grow and lift toward the pointer. It shares the same API as <code>Navbar</code> (<code>logo</code>, <code>items</code>, <code>buttons</code>, <code>position</code>, <code>direction</code>), so it is a drop-in alternative to the classic top navbar.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>items</code> accept the familiar <code>{ text, path }</code>, an optional <code>icon</code> (any valid <code>Icon</code> name),</li></ul>
+<p>or <code>type: 'dropdown'</code> with <code>options</code>.</p>
+<ul><li>On fine-pointer devices the items magnify based on their distance to the cursor (smoothstep</li></ul>
+<p>falloff). Touch devices keep the items calm and tappable — no magnification.</p>
+<ul><li>The active item is resolved from the current route (exact match, then longest prefix) and is</li></ul>
+<p>marked with a glowing accent dot; it re-syncs on browser back/forward.</p>
+<ul><li><code>position: 'fixed'</code> floats the capsule centered at the top of the viewport; <code>position: 'static'</code></li></ul>
+<p>renders it inline. <code>direction: 'reverse'</code> mirrors the layout (row-reverse).</p>
+<ul><li>On mobile the capsule collapses to the logo plus an animated hamburger; <code>items</code> and <code>buttons</code></li></ul>
+<p>drop into a panel beneath the capsule. Tapping outside or choosing an item closes it.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Because the dock floats over content on <code>position: 'fixed'</code>, add some <code>padding-top</code> to your page
+so the first rows are never covered. Dropdowns open downward, which fits a top-anchored dock.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Magnification is intentionally disabled on touch devices and while the mobile panel is open.
+Do not rely on it for conveying state — the active item also carries an accent dot.</div>
+<div class="component-block" data-block-id="doc-block-5"></div>
+</div>

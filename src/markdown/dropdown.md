@@ -19,20 +19,24 @@ tags: [dropdown, navigation]
 ## Core Behavior
 - `label` sets the trigger text.
 - `options` renders link items (`text` + `href`).
-- The menu opens on click and closes on option click or mouse leave.
+- The menu opens on click and closes when you pick an option, click the trigger again, or click outside it.
 
-## Basic Usage
-```javascript title="Build dropdown"
-const menu = await slice.build('DropDown', {
-  label: 'Resources',
-  options: [
-    { text: 'Docs', href: '/docs' },
-    { text: 'API', href: '/docs/internal/markdown-parser-rules' }
+## Live Preview
+:::component name="DropDown"
+{
+  "label": "Resources",
+  "options": [
+    {
+      "text": "Docs",
+      "href": "/docs"
+    },
+    {
+      "text": "GitHub",
+      "href": "#"
+    }
   ]
-});
-
-this.appendChild(menu);
-```
+}
+:::
 
 ## Prop Scenarios
 :::script label="docs navigation dropdown" expected="dropdown renders links for docs sections"

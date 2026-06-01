@@ -7,25 +7,14 @@ export default class VisualLibraryHome extends HTMLElement {
    }
 
    async init() {
-      // Crear la barra de navegación
-      const navbar = await slice.build("Navbar", {
-         position: "fixed",
-         logo: {
-            src: "/images/Slice.js-logo.png",
-            path: "/",
-         },
-         items: [
-            { text: "Home", path: "/" },
-            { text: "Components", path: "/docs" },
-            { text: "Documentation", path: "/docs" },
-         ],
-          buttons: [],
-      });
+      // El navbar persistente (con branding + theme selector) lo provee el AppShell.
+      // Esta vista NO monta su propio navbar para evitar el doble navbar / logo
+      // redundante que tenía el landing.
 
       // Crear botones CTA
       const browseButton = await slice.build("Button", {
          value: "Browse Components",
-         onClickCallback: () => slice.router.navigate("/docs"),
+         onClick: () => slice.router.navigate("/docs"),
          customColor: {
             button: "var(--primary-color)",
             label: "var(--primary-color-contrast)"
@@ -34,7 +23,7 @@ export default class VisualLibraryHome extends HTMLElement {
 
       const docsButton = await slice.build("Button", {
          value: "View Documentation",
-         onClickCallback: () => slice.router.navigate("/docs"),
+         onClick: () => slice.router.navigate("/docs"),
          customColor: {
             button: "var(--secondary-color)",
             label: "var(--secondary-color-contrast)"
@@ -49,12 +38,6 @@ export default class VisualLibraryHome extends HTMLElement {
       await this.createCategories();
       await this.createShowcase();
       await this.setupQuickStart();
-
-      const themeSelector = await slice.build('ThemeSelector');
-      navbar.querySelector('.nav_bar_buttons')?.appendChild(themeSelector);
-
-      // Añadir navbar al inicio
-      this.insertBefore(navbar, this.firstChild);
    }
 
    async createFeatures() {
@@ -303,7 +286,7 @@ npm run slice:get Button
 // Use it in your code
 const button = await slice.build("Button", {
    value: "Click Me",
-   onClickCallback: () => {
+   onClick: () => {
       console.log("Button clicked!");
    },
    customColor: {

@@ -64,7 +64,8 @@ export default class FetchManager {
 
          // Check if cache is enabled and a cached response exists
          if (this.cacheEnabled && this.lastRequest && this.lastRequest.endpoint === endpoint) {
-            return this.lastRequest.response;
+            loading.stop();
+            return this.lastRequest.output;
          }
 
          if (this.baseUrl !== undefined) {
@@ -82,14 +83,15 @@ export default class FetchManager {
                onRequestError(data, response);
             }
             if (refetchOnError) {
-               // Retry the request in case of error
+               // Retry once on error; pass false to avoid infinite recursion when
+               // the endpoint keeps failing.
                return await this.request(
                   method,
                   data,
                   endpoint,
                   onRequestSuccess,
                   onRequestError,
-                  refetchOnError,
+                  false,
                   requestOptions
                );
             }
@@ -98,17 +100,18 @@ export default class FetchManager {
          let output = await response.json();
          loading.stop();
 
-         // Cache the response if cache is enabled
+         // Cache the parsed response if cache is enabled
          if (this.cacheEnabled) {
-            this.lastRequest = { data, response, endpoint };
+            this.lastRequest = { data, output, endpoint };
          }
 
          return output;
       } catch (error) {
+         // slice.logger.logError signature is (componentSliceId, message, error).
          if (error.message === 'Failed to fetch') {
-            slice.logger.logError('Se perdió la conexión a internet');
+            slice.logger.logError('FetchManager', 'Lost internet connection', error);
          } else {
-            console.error('Error al realizar la solicitud:', error);
+            slice.logger.logError('FetchManager', 'Request failed', error);
          }
          loading.stop();
          throw error;

@@ -2,7 +2,7 @@ export default class Link extends HTMLElement {
    constructor(props = {}) {
       super();
       this.props = props;
-      this.innerHTML = this.getTemplate(props);
+      this.render(props);
       this.init();
    }
 
@@ -12,14 +12,21 @@ export default class Link extends HTMLElement {
 
    async onClick(event) {
       event.preventDefault();
-      const path = this.querySelector('a').getAttribute('href');
-      const routeTargets = document.querySelectorAll('slice-routetarget');
-      slice.router.navigate(path);
+      const path = this.querySelector('a')?.getAttribute('href');
+      if (path) slice.router.navigate(path);
    }
 
-   getTemplate(props = {}) {
+   // Built with DOM APIs (setAttribute / textContent) instead of an innerHTML
+   // template so a `path` like `javascript:...` or text containing markup can't
+   // inject into the document.
+   render(props = {}) {
       const { path = '#', classes = '', text = '' } = props;
-      return `<a href="${path}" class="${classes}" data-route>${text}</a>`;
+      const anchor = document.createElement('a');
+      anchor.setAttribute('href', path);
+      anchor.setAttribute('data-route', '');
+      if (classes) anchor.className = classes;
+      anchor.textContent = text;
+      this.replaceChildren(anchor);
    }
 }
 

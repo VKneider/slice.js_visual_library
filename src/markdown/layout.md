@@ -22,18 +22,6 @@ tags: [layout, container]
 - `onLayOut(view)` appends a view (used for initial layout setup).
 - Both props and methods accept any DOM node.
 
-## Basic Usage
-```javascript title="Build layout"
-const layout = await slice.build('Layout', {});
-
-const view = document.createElement('div');
-view.textContent = 'Page content';
-
-await layout.showing(view);
-
-this.appendChild(layout);
-```
-
 ## Prop Scenarios
 :::script label="Swap views" expected="renders layout and replaces initial view"
 const layout = await slice.build('Layout', {});

@@ -21,11 +21,9 @@ tags: [not-found, 404, navigation, routing]
 - Automatically updates the page title on `init()`.
 - Composable inside `MultiRoute` as the default fallback view.
 
-## Basic Usage
-```javascript title="Build not found page"
-const notFound = await slice.build('NotFound', {});
-this.appendChild(notFound);
-```
+## Live Preview
+:::component name="NotFound"
+:::
 
 ## Prop Scenarios
 :::script label="Default 404 view" expected="renders not found message"

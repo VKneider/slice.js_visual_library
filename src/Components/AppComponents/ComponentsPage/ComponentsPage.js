@@ -81,7 +81,7 @@ export default class ComponentsPage extends HTMLElement {
          const treeItems = toTreeViewItems(filteredItems);
          return slice.build('TreeView', {
             items: treeItems,
-            onClickCallback: async (item) => {
+            onClick: async (item) => {
                if (item.path) {
                   await slice.router.navigate(item.path);
                   if (typeof mainMenu.handleCloseMenu === 'function') {

@@ -21,19 +21,27 @@ tags: [select, forms]
 - `visibleProp` maps option objects to user-facing labels without reshaping backend payloads.
 - Use the scenarios below to validate selection behavior in forms and filter toolbars.
 
-## Basic Usage
-```javascript title="Build select"
-const select = await slice.build('Select', {
-  label: 'Role',
-  visibleProp: 'label',
-  options: [
-    { label: 'Admin', value: 'admin' },
-    { label: 'Editor', value: 'editor' }
+## Live Preview
+:::component name="Select"
+{
+  "label": "Role",
+  "visibleProp": "label",
+  "options": [
+    {
+      "label": "Admin",
+      "value": "admin"
+    },
+    {
+      "label": "Editor",
+      "value": "editor"
+    },
+    {
+      "label": "Viewer",
+      "value": "viewer"
+    }
   ]
-});
-
-this.appendChild(select);
-```
+}
+:::
 
 ## Practical Setups
 :::script label="User role selector" expected="single select for role assignment"
@@ -127,7 +135,7 @@ const picker = await slice.build('Select', {
 
 const submit = await slice.build('Button', {
   value: 'Save roles',
-  onClickCallback: () => {
+  onClick: () => {
     const selected = picker.value;
     if (Array.isArray(selected)) {
       console.log('Selected roles:', selected.map((item) => item.label));

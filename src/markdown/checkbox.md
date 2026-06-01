@@ -21,15 +21,13 @@ tags: [checkbox, input, forms]
 - `label` and `labelPlacement` define readable form semantics.
 - `disabled` prevents interaction while keeping current value visible.
 
-## Basic Usage
-```javascript title="Build checkbox"
-const checkbox = await slice.build('Checkbox', {
-  label: 'Accept terms',
-  checked: false
-});
-
-this.appendChild(checkbox);
-```
+## Live Preview
+:::component name="Checkbox"
+{
+  "label": "Accept terms & conditions",
+  "checked": true
+}
+:::
 
 ## Prop Scenarios
 :::script label="default unchecked" expected="checkbox starts unchecked with right label"
@@ -67,7 +65,7 @@ const checkbox = await slice.build('Checkbox', {
 
 const toggle = await slice.build('Button', {
   value: 'Toggle reminders',
-  onClickCallback: () => {
+  onClick: () => {
     checkbox.checked = !checkbox.checked;
   }
 });

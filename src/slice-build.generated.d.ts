@@ -321,10 +321,6 @@ export interface ToolTipDocumentationProps {
   [key: string]: unknown;
 }
 
-export interface TranslatorProps {
-  [key: string]: unknown;
-}
-
 export interface TreeItemProps {
   [key: string]: unknown;
   items?: unknown[];
@@ -408,7 +404,6 @@ export interface SliceComponentPropsMap {
   ThemeSelector: ThemeSelectorProps;
   ToolTip: ToolTipProps;
   ToolTipDocumentation: ToolTipDocumentationProps;
-  Translator: TranslatorProps;
   TreeItem: TreeItemProps;
   TreeView: TreeViewProps;
   TreeViewDocumentation: TreeViewDocumentationProps;

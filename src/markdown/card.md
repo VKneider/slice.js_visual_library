@@ -21,16 +21,14 @@ tags: [card, layout]
 - Interactive mode supports actionable cards for dashboards, release notes and workflow states.
 - Scenario scripts below cover status, metrics, and action-footer compositions used in production screens.
 
-## Basic Usage
-```javascript title="Build card"
-const card = await slice.build('Card', {
-  title: 'Profile',
-  text: 'Card content',
-  variant: 'elevated'
-});
-
-this.appendChild(card);
-```
+## Live Preview
+:::component name="Card"
+{
+  "title": "Profile",
+  "text": "A reusable content container with a title and body.",
+  "variant": "elevated"
+}
+:::
 
 ## Prop Scenarios
 :::script label="Variant gallery" expected="renders default, outlined and elevated cards"
@@ -83,12 +81,11 @@ const card = await slice.build('Card', {
 return card;
 :::
 
-:::script label="Card with loading and disabled states" expected="loading and disabled visual states are applied"
+:::script label="Card in a disabled state" expected="disabled visual state is applied"
 const card = await slice.build('Card', {
   title: 'Project Onboarding',
   text: 'Invite team members and configure permissions.',
   variant: 'elevated',
-  loading: true,
   disabled: true
 });
 
@@ -116,7 +113,7 @@ const card = await slice.build('Card', {
 
 const action = await slice.build('Button', {
   value: 'Open task',
-  customColor: { button: '#2563eb', label: '#ffffff' }
+  customColor: { background: '#2563eb', text: '#ffffff' }
 });
 
 const host = document.createElement('div');

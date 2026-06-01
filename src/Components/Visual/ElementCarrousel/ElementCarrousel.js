@@ -20,6 +20,12 @@ export default class ElementCarrousel extends HTMLElement {
     this.currentSlideIndex = 0;
     this.slides = [];
 
+    this.setAttribute('role', 'region');
+    this.setAttribute('aria-roledescription', 'carousel');
+    this.setAttribute('tabindex', '0'); // focusable so the arrow-key handler works
+    this.$prevBtn.setAttribute('aria-label', 'Previous slide');
+    this.$nextBtn.setAttribute('aria-label', 'Next slide');
+
     slice.controller.setComponentProps(this, props);
   }
 
@@ -37,7 +43,10 @@ export default class ElementCarrousel extends HTMLElement {
   }
 
   beforeDestroy() {
-    this._resizeHandler = null;
+    if (this._resizeHandler) {
+      window.removeEventListener('resize', this._resizeHandler);
+      this._resizeHandler = null;
+    }
   }
 
   renderElements() {
@@ -56,7 +65,7 @@ export default class ElementCarrousel extends HTMLElement {
       if (element instanceof Node) {
         slide.appendChild(element);
       } else {
-        slide.innerHTML = String(element);
+        slide.textContent = String(element);
       }
 
       this.$track.appendChild(slide);
@@ -64,6 +73,7 @@ export default class ElementCarrousel extends HTMLElement {
 
       const dot = document.createElement('button');
       dot.classList.add('slice_carousel_indicator');
+      dot.setAttribute('aria-label', 'Go to slide ' + (index + 1));
       if (index === 0) dot.classList.add('current-slide');
       dot.addEventListener('click', () => {
         this.moveToSlide(index);

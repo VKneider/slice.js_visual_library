@@ -1,0 +1,29 @@
+<div class="documentation-content fetchmanagerdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="fetchmanager">
+    <span class="doc-title-text">FetchManager</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>FetchManager</code> is a <strong>Service</strong> component: an HTTP client built on the native <code>fetch</code> API. It adds an optional <code>baseUrl</code>, a request timeout (via <code>AbortController</code>), default headers, a simple last-request cache, and automatic integration with the [<code>Loading</code>](/docs/feedback/loading) overlay — the spinner shows while a request is in flight and hides when it settles.</p>
+<p>Build it with an optional <code>baseUrl</code> and <code>timeout</code> (ms, default <code>10000</code>):</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<h3 id="request-parameters"><code>request</code> parameters</h3>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<h2 id="usage">Usage</h2>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Set a <code>baseUrl</code> once and pass relative <code>endpoint</code>s. Use <code>setDefaultHeaders</code> for cross-cutting
+headers like auth tokens. Tune <code>timeout</code> (ms) per service — the request aborts automatically
+when it elapses.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>request</code> uses positional parameters — pass <code>null</code>/<code>undefined</code> to skip the ones you don't need,
+and remember <code>data</code> must be <code>null</code> for <code>GET</code>. The built-in cache is intentionally simple: it
+keys only on <code>endpoint</code> and remembers a single last response, so it's best for read-heavy,
+low-variance calls (call <code>disableCache()</code> when responses must always be fresh).</div>
+</div>

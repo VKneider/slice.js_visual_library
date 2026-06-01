@@ -4,38 +4,22 @@ export default class LoadingDocumentation extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
     this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"manual start and stop","expected":"loading appears then hides via API","kind":"script","content":"const loading = await slice.build('Loading');\n\nconst start = await slice.build('Button', {\n  value: 'Start loading',\n  onClickCallback: () => loading.start()\n});\n\nconst stop = await slice.build('Button', {\n  value: 'Stop loading',\n  onClickCallback: () => loading.stop()\n});\n\nconst host = document.createElement('div');\nhost.appendChild(start);\nhost.appendChild(stop);\nhost.appendChild(loading);\nreturn host;"},{"label":"isActive state toggle","expected":"isActive true/false controls visibility","kind":"script","content":"const loading = await slice.build('Loading', { isActive: false });\n\nconst activate = await slice.build('Button', {\n  value: 'Activate',\n  onClickCallback: () => {\n    loading.isActive = true;\n  }\n});\n\nconst deactivate = await slice.build('Button', {\n  value: 'Deactivate',\n  onClickCallback: () => {\n    loading.isActive = false;\n  }\n});\n\nconst host = document.createElement('div');\nhost.appendChild(activate);\nhost.appendChild(deactivate);\nhost.appendChild(loading);\nreturn host;"}];
+    this.scriptScenarios = [{"label":"manual start and stop","expected":"loading appears then hides via API","kind":"script","content":"const loading = await slice.build('Loading');\n\nconst start = await slice.build('Button', {\n  value: 'Start loading',\n  onClick: () => loading.start()\n});\n\nconst stop = await slice.build('Button', {\n  value: 'Stop loading',\n  onClick: () => loading.stop()\n});\n\nconst host = document.createElement('div');\nhost.appendChild(start);\nhost.appendChild(stop);\nhost.appendChild(loading);\nreturn host;"},{"label":"active state toggle","expected":"active true/false controls visibility","kind":"script","content":"const loading = await slice.build('Loading', { active: false });\n\nconst activate = await slice.build('Button', {\n  value: 'Activate',\n  onClick: () => {\n    loading.active = true;\n  }\n});\n\nconst deactivate = await slice.build('Button', {\n  value: 'Deactivate',\n  onClick: () => {\n    loading.active = false;\n  }\n});\n\nconst host = document.createElement('div');\nhost.appendChild(activate);\nhost.appendChild(deactivate);\nhost.appendChild(loading);\nreturn host;"}];
   }
 
   async init() {
     this.markdownPath = "loading.md";
-    this.markdownContent = "---\ntitle: Loading\nroute: /docs/feedback/loading\nnavLabel: Loading\nsection: Feedback\ngroup: Status\norder: 40\ndescription: Loading component documentation with activation and container usage scenarios.\ncomponent: LoadingDocumentation\ngenerate: true\ntags: [loading, feedback]\n---\n\n# Loading\n\n## Overview\n`Loading` displays a blocking spinner overlay either fullscreen or inside a target container.\n\n## Core Behavior\n- `start(container?)` mounts the loading overlay.\n- `stop()` removes it and restores container styles.\n- `isActive` can be toggled as a reactive state prop.\n\n## Basic Usage\n```javascript title=\"Build loading\"\nconst loading = await slice.build('Loading');\nloading.start();\n\nsetTimeout(() => {\n  loading.stop();\n}, 500);\n```\n\n## Prop Scenarios\n:::script label=\"manual start and stop\" expected=\"loading appears then hides via API\"\nconst loading = await slice.build('Loading');\n\nconst start = await slice.build('Button', {\n  value: 'Start loading',\n  onClickCallback: () => loading.start()\n});\n\nconst stop = await slice.build('Button', {\n  value: 'Stop loading',\n  onClickCallback: () => loading.stop()\n});\n\nconst host = document.createElement('div');\nhost.appendChild(start);\nhost.appendChild(stop);\nhost.appendChild(loading);\nreturn host;\n:::\n\n:::script label=\"isActive state toggle\" expected=\"isActive true/false controls visibility\"\nconst loading = await slice.build('Loading', { isActive: false });\n\nconst activate = await slice.build('Button', {\n  value: 'Activate',\n  onClickCallback: () => {\n    loading.isActive = true;\n  }\n});\n\nconst deactivate = await slice.build('Button', {\n  value: 'Deactivate',\n  onClickCallback: () => {\n    loading.isActive = false;\n  }\n});\n\nconst host = document.createElement('div');\nhost.appendChild(activate);\nhost.appendChild(deactivate);\nhost.appendChild(loading);\nreturn host;\n:::\n";
+    this.markdownContent = "---\ntitle: Loading\nroute: /docs/feedback/loading\nnavLabel: Loading\nsection: Feedback\ngroup: Status\norder: 40\ndescription: Loading component documentation with activation and container usage scenarios.\ncomponent: LoadingDocumentation\ngenerate: true\ntags: [loading, feedback]\n---\n\n# Loading\n\n## Overview\n`Loading` displays a blocking spinner overlay either fullscreen or inside a target container.\n\n## Core Behavior\n- `start(container?)` mounts the loading overlay.\n- `stop()` removes it and restores container styles.\n- `active` can be toggled as a reactive state prop.\n\n## Prop Scenarios\n:::script label=\"manual start and stop\" expected=\"loading appears then hides via API\"\nconst loading = await slice.build('Loading');\n\nconst start = await slice.build('Button', {\n  value: 'Start loading',\n  onClick: () => loading.start()\n});\n\nconst stop = await slice.build('Button', {\n  value: 'Stop loading',\n  onClick: () => loading.stop()\n});\n\nconst host = document.createElement('div');\nhost.appendChild(start);\nhost.appendChild(stop);\nhost.appendChild(loading);\nreturn host;\n:::\n\n:::script label=\"active state toggle\" expected=\"active true/false controls visibility\"\nconst loading = await slice.build('Loading', { active: false });\n\nconst activate = await slice.build('Button', {\n  value: 'Activate',\n  onClick: () => {\n    loading.active = true;\n  }\n});\n\nconst deactivate = await slice.build('Button', {\n  value: 'Deactivate',\n  onClick: () => {\n    loading.active = false;\n  }\n});\n\nconst host = document.createElement('div');\nhost.appendChild(activate);\nhost.appendChild(deactivate);\nhost.appendChild(loading);\nreturn host;\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
-         const container = this.querySelector('[data-block-id="doc-block-1"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const loading = await slice.build('Loading');\nloading.start();\n\nsetTimeout(() => {\n  loading.stop();\n}, 500);",
-               language: "javascript"
-            });
-            if ("Build loading") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build loading";
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-4"]');
+         const container = this.querySelector('[data-block-id="doc-block-3"]');
          if (container) {
             let props = {};
-            if ("{\"props\":[{\"path\":\"isActive\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"container\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {
+            if ("{\"props\":[{\"path\":\"active\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"isActive\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"container\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {
                try {
-                  props = JSON.parse("{\"props\":[{\"path\":\"isActive\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"container\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}");
+                  props = JSON.parse("{\"props\":[{\"path\":\"active\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"isActive\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"container\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}");
                } catch (error) {
                   console.warn('Invalid component props JSON:', error);
                }

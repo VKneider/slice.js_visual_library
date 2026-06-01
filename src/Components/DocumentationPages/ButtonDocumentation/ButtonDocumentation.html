@@ -9,20 +9,23 @@
 <h2 id="overview">Overview</h2>
 <p>The <code>Button</code> component renders an action trigger and supports text, callback, icon and custom colors.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>Button</code> dispatches action intent through <code>onClickCallback</code> while keeping visual state driven by props.</li><li>Style variants are controlled with <code>customColor</code> and optional icon metadata for call-to-action and utility patterns.</li><li>Use script scenarios below as the living behavior contract; static props are documented in the generated props section.</li></ul>
-<h2 id="basic-usage">Basic Usage</h2>
-<div class="code-block" data-block-id="doc-block-1"></div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<ul><li><code>Button</code> dispatches action intent through <code>onClick</code> while keeping visual state driven by props.</li><li>The look is set with <code>variant</code> (<code>filled</code> · <code>outlined</code> · <code>ghost</code> · <code>soft</code>), all derived from theme tokens; <code>customColor</code> overrides the colors when you need an exact value.</li><li>Use script scenarios below as the living behavior contract; static props are documented in the generated props section.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="variants">Variants</h2>
+<p>All variants are built from the theme tokens, so they follow the active theme automatically.</p>
 <div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <div class="script-block" data-block-id="doc-block-7"></div>
 <div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Prefer explicit <code>onClickCallback</code> instead of manually attaching listeners outside the component.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Do not pass non-object values into <code>customColor</code> or <code>icon</code>. Static props validation reports type warnings.</div>
-<div class="component-block" data-block-id="doc-block-9"></div>
+<div class="component-block" data-block-id="doc-block-10"></div>
 </div>

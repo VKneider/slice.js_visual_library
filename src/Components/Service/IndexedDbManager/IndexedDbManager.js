@@ -1,7 +1,15 @@
 export default class IndexedDbManager {
-   constructor(databaseName, storeName) {
-      this.databaseName = databaseName;
-      this.storeName = storeName;
+   constructor(props = {}) {
+      // Slice builds services with a single props object, e.g.
+      // slice.build('IndexedDbManager', { databaseName, storeName }). The legacy
+      // positional form `new IndexedDbManager(dbName, storeName)` still works.
+      if (typeof props === 'string') {
+         this.databaseName = props;
+         this.storeName = arguments[1];
+      } else {
+         this.databaseName = props.databaseName;
+         this.storeName = props.storeName;
+      }
       this.db = null;
    }
 

@@ -21,16 +21,13 @@ tags: [input, forms]
 - Password flows can expose/hide value with `secret` while preserving form semantics.
 - Validation behavior is scenario-driven; use script blocks to verify condition checks in realistic forms.
 
-## Basic Usage
-```javascript title="Build input"
-const input = await slice.build('Input', {
-  placeholder: 'Email address',
-  type: 'email',
-  required: true
-});
-
-this.appendChild(input);
-```
+## Live Preview
+:::component name="Input"
+{
+  "placeholder": "Email address",
+  "type": "email"
+}
+:::
 
 ## Practical Setups
 :::script label="Login form fields" expected="email + password fields with proper input types"
@@ -90,7 +87,7 @@ const email = await slice.build('Input', {
 
 const validate = await slice.build('Button', {
   value: 'Validate',
-  onClickCallback: () => {
+  onClick: () => {
     email.validateValue();
   }
 });

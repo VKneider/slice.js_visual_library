@@ -141,6 +141,16 @@ const documentationRoutes = {
         component: 'DropDownDocumentation'
       },
       {
+        title: 'BottomNav',
+        path: '/docs/navigation/bottom-nav',
+        component: 'BottomNavDocumentation'
+      },
+      {
+        title: 'FloatingDock',
+        path: '/docs/navigation/floating-dock',
+        component: 'FloatingDockDocumentation'
+      },
+      {
         title: 'NotFound',
         path: '/docs/navigation/not-found',
         component: 'NotFoundDocumentation'
@@ -165,6 +175,38 @@ const documentationRoutes = {
         title: 'MultiRoute',
         path: '/docs/routing/multi-route',
         component: 'MultiRouteDocumentation'
+      },
+    ]
+  },
+  Services: {
+    title: 'Services',
+    path: '/docs/services',
+    items: [
+      {
+        title: 'FetchManager',
+        path: '/docs/services/fetch-manager',
+        component: 'FetchManagerDocumentation'
+      },
+      {
+        title: 'LocalStorageManager',
+        path: '/docs/services/local-storage-manager',
+        component: 'LocalStorageManagerDocumentation'
+      },
+      {
+        title: 'IndexedDbManager',
+        path: '/docs/services/indexed-db-manager',
+        component: 'IndexedDbManagerDocumentation'
+      },
+    ]
+  },
+  Utilities: {
+    title: 'Utilities',
+    path: '/docs/utilities',
+    items: [
+      {
+        title: 'MiniInspector',
+        path: '/docs/utilities/mini-inspector',
+        component: 'MiniInspectorDocumentation'
       },
     ]
   },

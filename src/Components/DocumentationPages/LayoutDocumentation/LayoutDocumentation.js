@@ -9,28 +9,12 @@ export default class LayoutDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "layout.md";
-    this.markdownContent = "---\ntitle: Layout\nroute: /docs/layout/layout\nnavLabel: Layout\nsection: Layout\ngroup: Containers\norder: 10\ndescription: Layout container documentation with view swapping scenarios.\ncomponent: LayoutDocumentation\ngenerate: true\ntags: [layout, container]\n---\n\n# Layout\n\n## Overview\n`Layout` is a generic container that accepts a view node and swaps it on demand. It provides two methods: `onLayOut` for initial mounting and `showing` for replacing the current view.\n\n## API and Behavior\n- Accepts `layout` (initial node) and `view` (active view node) as props.\n- `showing(view)` replaces the current child with a new view node.\n- `onLayOut(view)` appends a view (used for initial layout setup).\n- Both props and methods accept any DOM node.\n\n## Basic Usage\n```javascript title=\"Build layout\"\nconst layout = await slice.build('Layout', {});\n\nconst view = document.createElement('div');\nview.textContent = 'Page content';\n\nawait layout.showing(view);\n\nthis.appendChild(layout);\n```\n\n## Prop Scenarios\n:::script label=\"Swap views\" expected=\"renders layout and replaces initial view\"\nconst layout = await slice.build('Layout', {});\n\nconst initial = document.createElement('p');\ninitial.textContent = 'First view';\nawait layout.showing(initial);\n\nconst replacement = document.createElement('p');\nreplacement.textContent = 'Replaced view';\nawait layout.showing(replacement);\n\nreturn layout;\n:::\n\n:::script label=\"Layout with card view\" expected=\"renders layout containing a card\"\nconst layout = await slice.build('Layout', {});\n\nconst card = await slice.build('Card', {\n  title: 'Layout Demo',\n  text: 'This card is mounted inside a Layout container.',\n  variant: 'outlined'\n});\n\nawait layout.showing(card);\n\nreturn layout;\n:::\n\n## Best Practices\n:::tip\nUse `Layout` as a viewport controller when you need to swap entire sections of a page without full navigation.\n:::\n\n## Pitfalls\n:::warning\n`showing` removes the previous child. Ensure stateful views persist their data externally if needed.\n:::\n";
+    this.markdownContent = "---\ntitle: Layout\nroute: /docs/layout/layout\nnavLabel: Layout\nsection: Layout\ngroup: Containers\norder: 10\ndescription: Layout container documentation with view swapping scenarios.\ncomponent: LayoutDocumentation\ngenerate: true\ntags: [layout, container]\n---\n\n# Layout\n\n## Overview\n`Layout` is a generic container that accepts a view node and swaps it on demand. It provides two methods: `onLayOut` for initial mounting and `showing` for replacing the current view.\n\n## API and Behavior\n- Accepts `layout` (initial node) and `view` (active view node) as props.\n- `showing(view)` replaces the current child with a new view node.\n- `onLayOut(view)` appends a view (used for initial layout setup).\n- Both props and methods accept any DOM node.\n\n## Prop Scenarios\n:::script label=\"Swap views\" expected=\"renders layout and replaces initial view\"\nconst layout = await slice.build('Layout', {});\n\nconst initial = document.createElement('p');\ninitial.textContent = 'First view';\nawait layout.showing(initial);\n\nconst replacement = document.createElement('p');\nreplacement.textContent = 'Replaced view';\nawait layout.showing(replacement);\n\nreturn layout;\n:::\n\n:::script label=\"Layout with card view\" expected=\"renders layout containing a card\"\nconst layout = await slice.build('Layout', {});\n\nconst card = await slice.build('Card', {\n  title: 'Layout Demo',\n  text: 'This card is mounted inside a Layout container.',\n  variant: 'outlined'\n});\n\nawait layout.showing(card);\n\nreturn layout;\n:::\n\n## Best Practices\n:::tip\nUse `Layout` as a viewport controller when you need to swap entire sections of a page without full navigation.\n:::\n\n## Pitfalls\n:::warning\n`showing` removes the previous child. Ensure stateful views persist their data externally if needed.\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
-         const container = this.querySelector('[data-block-id="doc-block-1"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const layout = await slice.build('Layout', {});\n\nconst view = document.createElement('div');\nview.textContent = 'Page content';\n\nawait layout.showing(view);\n\nthis.appendChild(layout);",
-               language: "javascript"
-            });
-            if ("Build layout") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build layout";
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-4"]');
+         const container = this.querySelector('[data-block-id="doc-block-3"]');
          if (container) {
             let props = {};
             if ("{\"props\":[{\"path\":\"layout\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]},{\"path\":\"view\",\"type\":\"object\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {

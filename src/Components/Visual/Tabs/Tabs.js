@@ -1,3 +1,10 @@
+const _sliceDeprecated = new Set();
+function deprecate(oldName, newName) {
+  if (_sliceDeprecated.has(oldName)) return;
+  _sliceDeprecated.add(oldName);
+  console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
+}
+
 export default class Tabs extends HTMLElement {
   static props = {
     items: {
@@ -17,6 +24,12 @@ export default class Tabs extends HTMLElement {
       default: '',
       required: false
     },
+    // Canonical change handler. `onTabChange` is kept as a deprecated alias.
+    onChange: {
+      type: 'function',
+      default: null,
+      required: false
+    },
     onTabChange: {
       type: 'function',
       default: null,
@@ -32,7 +45,7 @@ export default class Tabs extends HTMLElement {
 
     this._items = [];
     this._activeTab = '';
-    this._onTabChange = null;
+    this._onChange = null;
 
     slice.controller.setComponentProps(this, props || {});
   }
@@ -59,12 +72,24 @@ export default class Tabs extends HTMLElement {
     this.updateActiveButton();
   }
 
+  get onChange() {
+    return this._onChange;
+  }
+
+  set onChange(value) {
+    if (typeof value === 'function') this._onChange = value;
+  }
+
+  // Deprecated alias for onChange.
   get onTabChange() {
-    return this._onTabChange;
+    return this._onChange;
   }
 
   set onTabChange(value) {
-    this._onTabChange = typeof value === 'function' ? value : null;
+    if (typeof value === 'function') {
+      this._onChange ??= value;
+      deprecate('onTabChange', 'onChange');
+    }
   }
 
   renderTabs() {
@@ -93,8 +118,8 @@ export default class Tabs extends HTMLElement {
 
       button.addEventListener('click', () => {
         this.activeTab = item.id;
-        if (typeof this._onTabChange === 'function') {
-          this._onTabChange(item.id);
+        if (typeof this._onChange === 'function') {
+          this._onChange(item.id);
         }
         this.dispatchEvent(new CustomEvent('tab-change', { detail: { tabId: item.id } }));
       });

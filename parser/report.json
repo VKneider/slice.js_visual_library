@@ -1,6 +1,10 @@
 {
   "generated": [
     {
+      "filePath": "src/markdown/bottom-nav.md",
+      "component": "BottomNavDocumentation"
+    },
+    {
       "filePath": "src/markdown/button.md",
       "component": "ButtonDocumentation"
     },
@@ -29,12 +33,24 @@
       "component": "DropDownDocumentation"
     },
     {
+      "filePath": "src/markdown/fetch-manager.md",
+      "component": "FetchManagerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/floating-dock.md",
+      "component": "FloatingDockDocumentation"
+    },
+    {
       "filePath": "src/markdown/grid.md",
       "component": "GridDocumentation"
     },
     {
       "filePath": "src/markdown/icon.md",
       "component": "IconDocumentation"
+    },
+    {
+      "filePath": "src/markdown/indexed-db-manager.md",
+      "component": "IndexedDbManagerDocumentation"
     },
     {
       "filePath": "src/markdown/input.md",
@@ -47,6 +63,14 @@
     {
       "filePath": "src/markdown/loading.md",
       "component": "LoadingDocumentation"
+    },
+    {
+      "filePath": "src/markdown/local-storage-manager.md",
+      "component": "LocalStorageManagerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/mini-inspector.md",
+      "component": "MiniInspectorDocumentation"
     },
     {
       "filePath": "src/markdown/multi-route.md",
@@ -96,7 +120,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\vkneider\\Desktop\\Proyectos\\Slice\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "/datadrive/vkneider/vk/slice.js_visual_library/src/Components/DocumentationPages/DetailsDocumentation/DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

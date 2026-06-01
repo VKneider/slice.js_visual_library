@@ -9,24 +9,23 @@ export default class DetailsDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "details.md";
-    this.markdownContent = "---\ntitle: Details\nroute: /docs/layout/details\nnavLabel: Details\nsection: Layout\ngroup: Containers\norder: 21\ndescription: Details component documentation with collapsible content scenarios.\ncomponent: DetailsDocumentation\ngenerate: true\ntags: [details, disclosure, layout]\n---\n\n# Details\n\n## Overview\n`Details` renders expandable sections for progressive disclosure of content.\n\n## Core Behavior\n- `title` defines the summary header.\n- `text` provides the default expanded description body.\n- `addDetail(node)` appends richer custom content into the expanded area.\n\n## Basic Usage\n```javascript title=\"Build details\"\nconst details = await slice.build('Details', {\n  title: 'What is included?',\n  text: 'Source code, tests, and docs.'\n});\n\nthis.appendChild(details);\n```\n\n## Prop Scenarios\n:::script label=\"faq item\" expected=\"details renders title and expandable answer\"\nconst details = await slice.build('Details', {\n  title: 'Can I use this in production?',\n  text: 'Yes, this component is intended for production usage.'\n});\n\nreturn details;\n:::\n\n:::script label=\"details with custom node\" expected=\"addDetail appends custom structured content\"\nconst details = await slice.build('Details', {\n  title: 'Release checklist',\n  text: 'Main steps before deployment.'\n});\n\nconst list = document.createElement('ul');\n['Run tests', 'Generate docs', 'Verify routes'].forEach((item) => {\n  const li = document.createElement('li');\n  li.textContent = item;\n  list.appendChild(li);\n});\n\ndetails.addDetail(list);\nreturn details;\n:::\n\n:::script label=\"multiple details blocks\" expected=\"independent disclosure blocks can coexist\"\nconst host = document.createElement('div');\n\nconst billing = await slice.build('Details', {\n  title: 'Billing policy',\n  text: 'Invoices are generated monthly.'\n});\n\nconst support = await slice.build('Details', {\n  title: 'Support policy',\n  text: 'Support available Monday to Friday.'\n});\n\nhost.appendChild(billing);\nhost.appendChild(support);\nreturn host;\n:::\n";
+    this.markdownContent = "---\ntitle: Details\nroute: /docs/layout/details\nnavLabel: Details\nsection: Layout\ngroup: Containers\norder: 21\ndescription: Details component documentation with collapsible content scenarios.\ncomponent: DetailsDocumentation\ngenerate: true\ntags: [details, disclosure, layout]\n---\n\n# Details\n\n## Overview\n`Details` renders expandable sections for progressive disclosure of content.\n\n## Core Behavior\n- `title` defines the summary header.\n- `text` provides the default expanded description body.\n- `addDetail(node)` appends richer custom content into the expanded area.\n\n## Live Preview\n:::component name=\"Details\"\n{\n  \"title\": \"What's included?\",\n  \"text\": \"Source code, tests, and documentation.\"\n}\n:::\n\n## Prop Scenarios\n:::script label=\"faq item\" expected=\"details renders title and expandable answer\"\nconst details = await slice.build('Details', {\n  title: 'Can I use this in production?',\n  text: 'Yes, this component is intended for production usage.'\n});\n\nreturn details;\n:::\n\n:::script label=\"details with custom node\" expected=\"addDetail appends custom structured content\"\nconst details = await slice.build('Details', {\n  title: 'Release checklist',\n  text: 'Main steps before deployment.'\n});\n\nconst list = document.createElement('ul');\n['Run tests', 'Generate docs', 'Verify routes'].forEach((item) => {\n  const li = document.createElement('li');\n  li.textContent = item;\n  list.appendChild(li);\n});\n\ndetails.addDetail(list);\nreturn details;\n:::\n\n:::script label=\"multiple details blocks\" expected=\"independent disclosure blocks can coexist\"\nconst host = document.createElement('div');\n\nconst billing = await slice.build('Details', {\n  title: 'Billing policy',\n  text: 'Invoices are generated monthly.'\n});\n\nconst support = await slice.build('Details', {\n  title: 'Support policy',\n  text: 'Support available Monday to Friday.'\n});\n\nhost.appendChild(billing);\nhost.appendChild(support);\nreturn host;\n:::\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
          const container = this.querySelector('[data-block-id="doc-block-1"]');
          if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const details = await slice.build('Details', {\n  title: 'What is included?',\n  text: 'Source code, tests, and docs.'\n});\n\nthis.appendChild(details);",
-               language: "javascript"
-            });
-            if ("Build details") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Build details";
-               container.appendChild(label);
+            let props = {};
+            if ("{\n  \"title\": \"What's included?\",\n  \"text\": \"Source code, tests, and documentation.\"\n}") {
+               try {
+                  props = JSON.parse("{\n  \"title\": \"What's included?\",\n  \"text\": \"Source code, tests, and documentation.\"\n}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
+               }
             }
-            container.appendChild(code);
+            const component = await slice.build('Details', props);
+            container.appendChild(component);
          }
       }
       {

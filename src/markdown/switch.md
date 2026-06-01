@@ -21,15 +21,13 @@ tags: [switch, input, toggle]
 - `label` and `labelPlacement` improve context readability.
 - `toggle` callback can run side-effects when users interact.
 
-## Basic Usage
-```javascript title="Build switch"
-const notifications = await slice.build('Switch', {
-  label: 'Notifications',
-  checked: true
-});
-
-this.appendChild(notifications);
-```
+## Live Preview
+:::component name="Switch"
+{
+  "label": "Notifications",
+  "checked": true
+}
+:::
 
 ## Prop Scenarios
 :::script label="settings switch" expected="switch renders with label and initial checked state"
@@ -48,7 +46,7 @@ status.textContent = 'State: off';
 const sw = await slice.build('Switch', {
   label: 'Auto-save',
   checked: false,
-  toggle: () => {
+  onChange: () => {
     status.textContent = `State: ${sw.checked ? 'on' : 'off'}`;
   }
 });

@@ -64,6 +64,10 @@ const COMPACT_NAV_GROUPS = [
     sections: ['Layout', 'Routing', 'Data']
   },
   {
+    value: 'Services',
+    sections: ['Services']
+  },
+  {
     value: 'Docs Internals',
     sections: ['Internal']
   }

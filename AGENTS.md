@@ -44,42 +44,16 @@ From markdown input, parser generates:
 - A helper `mount(node)` is available in script execution context.
 - If execution fails, page shows a compact `Live preview error` message.
 
-## Canonical Markdown Contract
+## Markdown Contract (authoritative source)
 
-Required front matter fields for generated pages:
-- `title`
-- `route`
-- `section`
-- `group`
-- `order`
-- `component`
+Do **not** duplicate the markdown rules here. The single source of truth for required/optional
+front matter, supported `:::` blocks, the `:::script` contract, the commands, and generation rules
+is:
 
-Optional useful fields:
-- `navLabel`
-- `description`
-- `tags`
-- `generate`
+- **`src/markdown/parser-rules.md`** — full contract (also rendered at `/docs/internal/markdown-parser-rules`)
+- **`src/markdown/_TEMPLATE.md`** — copy-paste scaffold
 
-Reference files:
-- `src/markdown/_TEMPLATE.md`
-- `src/markdown/parser-rules.md`
-
-## Supported Markdown Blocks
-- Headings, paragraphs, lists
-- Fenced code blocks
-- Tables
-- `:::tip` and `:::warning`
-- `:::details title="..."`
-- `:::component name="..."` (JSON props in block body)
-- `:::script label="..." expected="..."` (code + live preview)
-
-## Required Commands
-- Validate markdown contract:
-  - `npm run docs:lint-md`
-- Generate docs pages and sync artifacts:
-  - `npm run docs:generate`
-- Sync registry/index/routes without full regeneration workflow:
-  - `npm run docs:sync-registry`
+Commands: `npm run docs:lint-md`, `npm run docs:generate`, `npm run docs:sync-registry`.
 
 ## Agent Workflow (for new docs pages)
 1. Add new markdown file in `src/markdown/` with required front matter.
@@ -95,3 +69,14 @@ Reference files:
 - Keep docs examples in Slice.js style (`slice.build(...)`).
 - Prefer practical use cases over synthetic test snippets.
 - Keep visual style clean and professional in light mode (avoid heavy nested containers).
+- Follow **`COMPONENT_API_STANDARDS.md`** for prop naming (`onClick`/`onChange`,
+  `customColor: { background, text, accent }`), the deprecation/alias pattern, CSS
+  encapsulation, lifecycle/cleanup, and accessibility. This repo is the live registry, so
+  **never rename a public prop without keeping the old name as a backward-compatible alias.**
+- Write docs examples using the **canonical** prop names (the deprecated aliases must keep
+  working, but examples should teach the current API).
+
+## Component Standards
+The full contract for authoring/modifying components lives in
+[`COMPONENT_API_STANDARDS.md`](./COMPONENT_API_STANDARDS.md) (naming, aliases, encapsulation,
+a11y, theme tokens, and a new-component checklist).

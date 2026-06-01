@@ -22,14 +22,28 @@ export default class DropDown extends HTMLElement {
       this.$label = this.querySelector('.slice_dropdown_label');
       this.$caret = this.querySelector('.caret');
 
+      this.$dropdown.setAttribute('role', 'button');
+      this.$dropdown.setAttribute('tabindex', '0');
+      this.$dropdown.setAttribute('aria-haspopup', 'true');
+      this.$dropdown.setAttribute('aria-expanded', 'false');
+
       this.$dropdown.addEventListener('click', (event) => {
          event.stopPropagation();
          this.toggleDrop();
       });
-
-      this.$box.addEventListener('mouseleave', () => {
-         this.closeDrop();
+      this.$dropdown.addEventListener('keydown', (event) => {
+         if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            this.toggleDrop();
+         } else if (event.key === 'Escape') {
+            this.closeDrop();
+         }
       });
+
+      // Closing is handled by re-toggling the trigger, picking an option, or the
+      // outside-click listener wired in init(). A `mouseleave` auto-close was
+      // removed: it fired a synthetic close on touch taps and also closed the box
+      // the instant the pointer crossed the gap from the trigger to the options.
 
       slice.controller.setComponentProps(this, props);
    }
@@ -89,12 +103,14 @@ export default class DropDown extends HTMLElement {
    }
 
    toggleDrop() {
-      this.$box.classList.toggle('slice_dropbox_open');
+      const open = this.$box.classList.toggle('slice_dropbox_open');
       this.$caret.classList.toggle('caret_open');
+      this.$dropdown.setAttribute('aria-expanded', open ? 'true' : 'false');
    }
    closeDrop() {
       this.$box.classList.remove('slice_dropbox_open');
       this.$caret.classList.remove('caret_open');
+      this.$dropdown.setAttribute('aria-expanded', 'false');
    }
 }
 
