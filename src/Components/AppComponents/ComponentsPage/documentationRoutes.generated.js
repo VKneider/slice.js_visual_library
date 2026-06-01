@@ -146,11 +146,6 @@ const documentationRoutes = {
         component: 'BottomNavDocumentation'
       },
       {
-        title: 'FloatingDock',
-        path: '/docs/navigation/floating-dock',
-        component: 'FloatingDockDocumentation'
-      },
-      {
         title: 'NotFound',
         path: '/docs/navigation/not-found',
         component: 'NotFoundDocumentation'

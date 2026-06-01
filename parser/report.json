@@ -37,10 +37,6 @@
       "component": "FetchManagerDocumentation"
     },
     {
-      "filePath": "src/markdown/floating-dock.md",
-      "component": "FloatingDockDocumentation"
-    },
-    {
       "filePath": "src/markdown/grid.md",
       "component": "GridDocumentation"
     },

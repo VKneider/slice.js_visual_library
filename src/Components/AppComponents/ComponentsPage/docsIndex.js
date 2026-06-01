@@ -220,17 +220,6 @@ const docsIndex = [
     tags: ['bottomnav', 'navigation', 'tabs', 'mobile']
   },
   {
-    title: 'FloatingDock',
-    route: '/docs/navigation/floating-dock',
-    description: 'FloatingDock (macOS-style floating navigation capsule) documentation with practical scenarios.',
-    section: 'Navigation',
-    group: 'Core',
-    order: 34,
-    navLabel: 'FloatingDock',
-    component: 'FloatingDockDocumentation',
-    tags: ['floatingdock', 'navigation', 'dock', 'mobile']
-  },
-  {
     title: 'NotFound',
     route: '/docs/navigation/not-found',
     description: 'NotFound 404 page documentation with route fallback scenarios.',

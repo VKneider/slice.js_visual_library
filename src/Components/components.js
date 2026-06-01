@@ -29,8 +29,6 @@ const components = {
   "ElementCarrouselDocumentation": "DocumentationPages",
   "FetchManager": "Service",
   "FetchManagerDocumentation": "DocumentationPages",
-  "FloatingDock": "Visual",
-  "FloatingDockDocumentation": "DocumentationPages",
   "Grid": "Visual",
   "GridDocumentation": "DocumentationPages",
   "Icon": "Visual",

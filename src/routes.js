@@ -20,7 +20,6 @@ const routes = [
   { path: '/docs/layout/layout', component: 'ComponentsPage' },
   { path: '/docs/navigation/bottom-nav', component: 'ComponentsPage' },
   { path: '/docs/navigation/dropdown', component: 'ComponentsPage' },
-  { path: '/docs/navigation/floating-dock', component: 'ComponentsPage' },
   { path: '/docs/navigation/navbar', component: 'ComponentsPage' },
   { path: '/docs/navigation/not-found', component: 'ComponentsPage' },
   { path: '/docs/navigation/tabs', component: 'ComponentsPage' },
