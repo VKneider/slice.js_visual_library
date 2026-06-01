@@ -120,7 +120,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "/datadrive/vkneider/vk/slice.js_visual_library/src/Components/DocumentationPages/DetailsDocumentation/DetailsDocumentation.js",
+      "filePath": "C:\\Users\\vkneider\\Desktop\\ricardinho\\library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],
