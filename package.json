@@ -27,7 +27,7 @@
     "slice:types": "slice types generate"
   },
   "author": "vkneider",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@11.3.0",
   "engines": {
