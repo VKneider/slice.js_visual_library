@@ -24,7 +24,6 @@ export default class Tabs extends HTMLElement {
       default: '',
       required: false
     },
-    // Canonical change handler. `onTabChange` is kept as a deprecated alias.
     onChange: {
       type: 'function',
       default: null,
@@ -42,6 +41,7 @@ export default class Tabs extends HTMLElement {
     slice.attachTemplate(this);
 
     this.$list = this.querySelector('.slice_tabs_list');
+    this.$panels = this.querySelector('.slice_tabs_panels');
 
     this._items = [];
     this._activeTab = '';
@@ -80,7 +80,6 @@ export default class Tabs extends HTMLElement {
     if (typeof value === 'function') this._onChange = value;
   }
 
-  // Deprecated alias for onChange.
   get onTabChange() {
     return this._onChange;
   }
@@ -127,7 +126,35 @@ export default class Tabs extends HTMLElement {
       this.$list.appendChild(button);
     });
 
+    this.renderPanels();
     this.updateActiveButton();
+  }
+
+  renderPanels() {
+    if (!this.$panels) return;
+
+    const hasPanels = this._items.some((item) => item && item.panel !== undefined);
+    if (!hasPanels) {
+      this.$panels.innerHTML = '';
+      return;
+    }
+
+    this.$panels.innerHTML = '';
+    this._items.forEach((item) => {
+      if (!item || typeof item.id !== 'string') return;
+
+      const panel = document.createElement('div');
+      panel.className = 'slice_tab_panel';
+      panel.dataset.tabId = item.id;
+
+      if (item.panel instanceof Node) {
+        panel.appendChild(item.panel);
+      } else if (typeof item.panel === 'string') {
+        panel.textContent = item.panel;
+      }
+
+      this.$panels.appendChild(panel);
+    });
   }
 
   updateActiveButton() {
@@ -138,6 +165,13 @@ export default class Tabs extends HTMLElement {
       const isActive = button.dataset.tabId === this._activeTab;
       button.classList.toggle('active', isActive);
       button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    if (!this.$panels) return;
+    const panels = this.$panels.querySelectorAll('.slice_tab_panel');
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.tabId === this._activeTab;
+      panel.classList.toggle('active', isActive);
     });
   }
 }

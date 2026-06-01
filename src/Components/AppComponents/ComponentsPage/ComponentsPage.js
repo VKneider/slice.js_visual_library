@@ -83,8 +83,9 @@ export default class ComponentsPage extends HTMLElement {
             items: treeItems,
             onClick: async (item) => {
                if (item.path) {
-                  await slice.router.navigate(item.path);
-                  if (typeof mainMenu.handleCloseMenu === 'function') {
+                   await slice.router.navigate(item.path);
+                   window.scrollTo(0, 0);
+                   if (typeof mainMenu.handleCloseMenu === 'function') {
                      mainMenu.handleCloseMenu();
                   }
                }

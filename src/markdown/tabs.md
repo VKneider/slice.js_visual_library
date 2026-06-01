@@ -32,32 +32,24 @@ Use it for dashboards, settings pages, reporting workspaces, and any area where 
 
 ## Prop Scenarios
 :::script label="basic tabs navigation" expected="renders tabs and switches visible panel content"
+const overview = document.createElement('div');
+overview.textContent = 'This is the overview panel.';
+
+const usage = document.createElement('div');
+usage.textContent = 'Usage instructions go here.';
+
+const history = document.createElement('div');
+history.textContent = 'Changelog and version history.';
+
 const tabs = await slice.build('Tabs', {
   items: [
-    { id: 'overview', label: 'Overview' },
-    { id: 'usage', label: 'Usage' },
-    { id: 'history', label: 'History' }
+    { id: 'overview', label: 'Overview', panel: overview },
+    { id: 'usage', label: 'Usage', panel: usage },
+    { id: 'history', label: 'History', panel: history }
   ],
   activeTab: 'overview'
 });
-
-const content = document.createElement('div');
-content.textContent = 'Overview content';
-
-tabs.onTabChange = (tabId) => {
-  if (tabId === 'usage') {
-    content.textContent = 'Usage content';
-  } else if (tabId === 'history') {
-    content.textContent = 'History content';
-  } else {
-    content.textContent = 'Overview content';
-  }
-};
-
-const host = document.createElement('div');
-host.appendChild(tabs);
-host.appendChild(content);
-return host;
+return tabs;
 :::
 
 :::script label="controlled active tab" expected="external controls drive selected tab"
