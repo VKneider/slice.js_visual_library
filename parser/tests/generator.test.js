@@ -6,7 +6,7 @@ import path from 'node:path';
 
 import { writeComponentFiles } from '../lib/generator.js';
 
-test('generated script scenarios render preview before code block', () => {
+test('generated script scenarios render via DemoBox with code and live demo', () => {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-generator-'));
   const outputDir = path.join(tmpRoot, 'DocumentationPages');
 
@@ -40,12 +40,15 @@ test('generated script scenarios render preview before code block', () => {
   );
   const generatedJs = fs.readFileSync(generatedJsPath, 'utf8');
 
-  const previewIdx = generatedJs.indexOf('card.appendChild(preview);');
-  const codeIdx = generatedJs.indexOf('card.appendChild(code);');
+  // Scenarios render through a DemoBox: it holds both the CodeVisualizer (code)
+  // and the executed live demo (appendDemo). See AGENTS.md "Live examples pattern".
+  assert.match(generatedJs, /slice\.build\('DemoBox'/);
+  assert.match(generatedJs, /slice\.build\('CodeVisualizer'/);
+  assert.match(generatedJs, /demobox\.appendCode\(code\)/);
+  assert.match(generatedJs, /demobox\.appendDemo\(/);
 
-  assert.notEqual(previewIdx, -1);
-  assert.notEqual(codeIdx, -1);
-  assert.equal(previewIdx < codeIdx, true);
+  // The DemoBox is attached to the scenarios section.
+  assert.match(generatedJs, /section\.appendChild\(demobox\)/);
 });
 
 test('generated script scenarios pass a safe slice builder to scripts', () => {

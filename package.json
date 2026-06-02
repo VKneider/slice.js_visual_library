@@ -8,6 +8,11 @@
     "build": "node ./node_modules/slicejs-cli/client.js build",
     "start": "node ./node_modules/slicejs-cli/client.js start",
     "test": "node --test --test-concurrency=1",
+    "test:e2e": "playwright test --project=components",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:visual": "playwright test --project=visual",
+    "test:e2e:visual:update": "playwright test --project=visual --update-snapshots",
+    "test:e2e:report": "playwright show-report",
     "slice:create": "node ./node_modules/slicejs-cli/client.js component create",
     "slice:list": "node ./node_modules/slicejs-cli/client.js component list",
     "slice:delete": "node ./node_modules/slicejs-cli/client.js component delete",
@@ -29,7 +34,7 @@
   "author": "vkneider",
   "license": "MIT",
   "type": "module",
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.5.0",
   "engines": {
     "node": ">=20.0.0"
   },
@@ -37,5 +42,8 @@
     "express": "^5.2.1",
     "slicejs-cli": "^3.5.0",
     "slicejs-web-framework": "^3.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0"
   }
 }

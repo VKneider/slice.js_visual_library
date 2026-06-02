@@ -1,5 +1,8 @@
-import documentationRoutes from '/Components/AppComponents/ComponentsPage/documentationRoutes.generated.js';
-import docsIndex from '/Components/AppComponents/ComponentsPage/docsIndex.js';
+// Relative specifiers so this module loads both in the browser (served by the
+// dev server) AND under node:test. They resolve to the same sibling files as
+// the previous absolute `/Components/...` paths.
+import documentationRoutes from './documentationRoutes.generated.js';
+import docsIndex from './docsIndex.js';
 
 if (typeof slice !== 'undefined' && slice.context && !slice.context.has('docsIndex')) {
   slice.context.create('docsIndex', docsIndex, { persist: false });

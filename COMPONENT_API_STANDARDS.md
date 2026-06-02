@@ -301,4 +301,7 @@ All deprecated forms continue to work and emit a one-time console warning.
 - [ ] A11y: role/tabindex/keyboard/aria as applicable (§9).
 - [ ] Colors via theme tokens (§11).
 - [ ] Registered in `src/Components/components.js`.
+- [ ] **Test added/updated**: `<Component>.spec.js` next to the component, covering smoke
+      render, props/setters, deprecated aliases (§7) if any, handlers, and a11y. `pnpm run
+      test:e2e` passes. See `playwright/README.md`.
 - [ ] Markdown doc added/updated in `src/markdown/` using canonical names; run `docs:generate` + `docs:lint-md`.

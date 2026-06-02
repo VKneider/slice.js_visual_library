@@ -1,6 +1,8 @@
 /* Encapsulated under the custom element so the input styles never leak. */
 
-slice-input .eye {
+slice-input .slice_eye_icon {
+  /* Hidden by default; shown only for secret password inputs (see setupSecretToggle). */
+  display: none;
   color: var(--primary-color);
   position: absolute;
   user-select: none;

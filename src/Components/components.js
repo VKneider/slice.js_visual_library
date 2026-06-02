@@ -4,6 +4,7 @@ const components = {
   "CopyMarkdownMenu": "AppComponents",
   "MainMenu": "AppComponents",
   "MyNavigation": "AppComponents",
+  "TestHarness": "AppComponents",
   "VisualLibraryHome": "AppComponents",
   "BottomNav": "Visual",
   "Button": "Visual",

@@ -1,0 +1,18 @@
+/* Test-only mount point. Styles scoped under the element tag per §8.
+   Kept intentionally minimal: a neutral, themed surface with a little padding
+   so the mounted component sits in a clean, deterministic context for both
+   DOM assertions and visual-regression screenshots. */
+slice-test-harness .test-harness {
+   min-height: 100vh;
+   box-sizing: border-box;
+   padding: 24px;
+   background: var(--primary-background-color);
+   color: var(--font-primary-color);
+}
+
+slice-test-harness .test-harness__root {
+   display: flex;
+   flex-wrap: wrap;
+   align-items: flex-start;
+   gap: 16px;
+}

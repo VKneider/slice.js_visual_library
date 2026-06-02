@@ -94,18 +94,29 @@ export default class Input extends HTMLElement {
    }
 
    setupSecretToggle() {
-      if (this.$eyeIcon) {
-         this.$eyeIcon.style.display = 'block';
-         this.$eyeIcon.addEventListener('click', () => {
-            if (this.$input.type === 'password') {
-               this.$input.type = 'text';
-               this.$eyeIcon.textContent = '🙈';
-            } else {
-               this.$input.type = 'password';
-               this.$eyeIcon.textContent = '👁️';
-            }
-         });
-      }
+      // Idempotent: this runs from both the `secret` setter and init(); only wire once.
+      if (!this.$eyeIcon || this._secretToggleReady) return;
+      this._secretToggleReady = true;
+
+      this.$eyeIcon.style.display = 'block';
+      this.$eyeIcon.textContent = '👁️';
+      this.$eyeIcon.setAttribute('aria-pressed', 'false');
+
+      const toggleVisibility = () => {
+         const revealed = this.$input.type === 'text';
+         this.$input.type = revealed ? 'password' : 'text';
+         this.$eyeIcon.textContent = revealed ? '👁️' : '🙈';
+         this.$eyeIcon.setAttribute('aria-pressed', String(!revealed));
+      };
+
+      this.$eyeIcon.addEventListener('click', toggleVisibility);
+      // Keyboard support for the non-native toggle (Enter/Space), per a11y baseline §9.
+      this.$eyeIcon.addEventListener('keydown', (event) => {
+         if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            toggleVisibility();
+         }
+      });
    }
 
    setupConditions() {

@@ -1,15 +1,42 @@
-# CI/CD for Markdown Parsing and Render Deploy
+# CI/CD
 
-This project uses GitHub Actions to validate markdown docs, generate artifacts, and trigger Render deploys automatically.
+This project uses GitHub Actions to run the test suites, validate markdown docs, generate
+artifacts, and trigger Render deploys automatically. There are two workflows:
 
-## Workflow
+1. **Component & logic tests** (`component-tests.yml`) — the PR quality gate.
+2. **Docs parse + render deploy** (`docs-render-cicd.yml`) — validates/generates docs and deploys.
+
+## Component & logic tests workflow
+
+File:
+- `.github/workflows/component-tests.yml`
+
+Triggers:
+- Pull Request to `master`
+- Push to `master`
+- Manual run (`workflow_dispatch`)
+
+Uses **pnpm** (the project's pinned package manager). Pipeline stages:
+1. `pnpm install --frozen-lockfile`
+2. `pnpm test` — node:test (parser, routes, services)
+3. `pnpm exec playwright install --with-deps chromium`
+4. `pnpm run test:e2e` — Playwright component tests. Playwright's `webServer` auto-starts the dev
+   server (`pnpm run dev`, port 3001) before the run and stops it after.
+
+This is the **PR gate**: a PR stays red until both suites pass. The Playwright HTML report is
+uploaded as a build artifact for inspection.
+
+> The visual-regression project (`@visual` screenshots) is opt-in and **not** part of this gate —
+> baselines are environment-sensitive and should be generated in a deterministic environment.
+
+## Docs parse + render deploy workflow
 
 File:
 - `.github/workflows/docs-render-cicd.yml`
 
 Triggers:
-- Pull Request to `main`
-- Push to `main`
+- Pull Request to `master`
+- Push to `master`
 - Manual run (`workflow_dispatch`)
 
 Pipeline stages:
@@ -19,8 +46,8 @@ Pipeline stages:
 
 Behavior by event:
 - **PR**: fails if generated files changed (forces contributor to commit generated output).
-- **Push to main**: commits generated artifacts automatically if needed.
-- **Push to main**: triggers Render deploy hook if configured.
+- **Push to `master`**: commits generated artifacts automatically if needed.
+- **Push to `master`**: triggers Render deploy hook if configured.
 
 ## Required Secret
 

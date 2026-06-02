@@ -1,2 +1,8 @@
 node_modules
 dist/
+
+# Playwright component-testing artifacts (baselines under *-snapshots/ ARE committed)
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

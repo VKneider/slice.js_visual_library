@@ -105,10 +105,12 @@ test('buildStaticPropsSectionForFrontMatter renders Allowed values from static p
     }
   });
 
+  // Generated output is a PropsTable component block (JSON-driven), per
+  // CONTRIBUTING.md "Static props generation behavior".
   assert.equal(typeof section, 'string');
-  assert.match(section, /Props \(Generated from static props\)/);
-  assert.match(section, /Allowed values/);
-  assert.match(section, /`primary`, `secondary`, `danger`/);
+  assert.match(section, /:::component name="PropsTable"/);
+  assert.match(section, /"path":"variant"/);
+  assert.match(section, /"allowedValues":\["primary","secondary","danger"\]/);
 });
 
 test('buildStaticPropsSectionForFrontMatter returns empty string when source component has no static props', async () => {
@@ -230,12 +232,16 @@ test('buildStaticPropsSectionForFrontMatter renders nested schema and array item
     }
   });
 
+  // Nested object/array props are flattened into dotted/`[]` paths inside the
+  // PropsTable JSON, plus a Schema details block for object roots.
   assert.equal(typeof section, 'string');
-  assert.match(section, /`options\.theme\.mode`/);
-  assert.match(section, /`steps\[\]\.id`/);
-  assert.match(section, /`steps\[\]\.state`/);
-  assert.match(section, /`light`, `dark`/);
-  assert.match(section, /`pending`, `done`/);
+  assert.match(section, /:::component name="PropsTable"/);
+  assert.match(section, /"path":"options\.theme\.mode"/);
+  assert.match(section, /"path":"steps\[\]\.id"/);
+  assert.match(section, /"path":"steps\[\]\.state"/);
+  assert.match(section, /"allowedValues":\["light","dark"\]/);
+  assert.match(section, /"allowedValues":\["pending","done"\]/);
+  assert.match(section, /:::details title="Schema: options"/);
 });
 
 test('lint rejects markdown with manual props table pattern', () => {

@@ -17,6 +17,10 @@ importers:
       slicejs-web-framework:
         specifier: ^3.3.1
         version: 3.3.1
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.60.0
+        version: 1.60.0
 
 packages:
 
@@ -210,6 +214,11 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@playwright/test@1.60.0':
+    resolution: {integrity: sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -457,6 +466,11 @@ packages:
     resolution: {integrity: sha512-eKpRKAovdpZtR1WopLHxlBWvAgPny3c4gX1G5Jhwmmw4XJj0ifSD5qB5TOo8hmA0wlRKDAOAhEE1yVPgs6Fgcg==}
     engines: {node: '>=14.14'}
 
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -697,6 +711,16 @@ packages:
     resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
 
+  playwright-core@1.60.0:
+    resolution: {integrity: sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.60.0:
+    resolution: {integrity: sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
     engines: {node: '>= 0.10'}
@@ -788,10 +812,6 @@ packages:
   slicejs-cli@3.5.0:
     resolution: {integrity: sha512-cyw37XVmHCAIWZhfz/yBenIcpsfv19Ts0wcbQ+YTrGFomxCiEd6ooxLgLYpkXYdLhdIksMTEuSN1NYYV+Kzixw==}
     hasBin: true
-
-  slicejs-web-framework@3.3.0:
-    resolution: {integrity: sha512-qTRFGNO9tUUJ6oWC4py5NpGsBzI7VaTiXGAntHfu7hz5bjlbzzgBHT2JyorVpL39fFiFYS+ZloGOlPhVkUhDMA==}
-    engines: {node: '>=20'}
 
   slicejs-web-framework@3.3.1:
     resolution: {integrity: sha512-QNQxKt6jbRcYrVDTUyvpdHks8p7Nwp+9VlAU/5+zZWQslWKCArS4xH6gGVQReiQSbxERyzb5ZivkECIZs442UQ==}
@@ -1046,6 +1066,10 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@playwright/test@1.60.0':
+    dependencies:
+      playwright: 1.60.0
 
   accepts@1.3.8:
     dependencies:
@@ -1345,6 +1369,9 @@ snapshots:
       jsonfile: 6.2.1
       universalify: 2.0.1
 
+  fsevents@2.3.2:
+    optional: true
+
   fsevents@2.3.3:
     optional: true
 
@@ -1556,6 +1583,14 @@ snapshots:
 
   picomatch@2.3.2: {}
 
+  playwright-core@1.60.0: {}
+
+  playwright@1.60.0:
+    dependencies:
+      playwright-core: 1.60.0
+    optionalDependencies:
+      fsevents: 2.3.2
+
   proxy-addr@2.0.7:
     dependencies:
       forwarded: 0.2.0
@@ -1709,16 +1744,10 @@ snapshots:
       html-minifier-terser: 7.2.0
       inquirer: 12.11.1
       ora: 8.2.0
-      slicejs-web-framework: 3.3.0
+      slicejs-web-framework: 3.3.1
       terser: 5.48.0
     transitivePeerDependencies:
       - '@types/node'
-      - supports-color
-
-  slicejs-web-framework@3.3.0:
-    dependencies:
-      express: 4.22.2
-    transitivePeerDependencies:
       - supports-color
 
   slicejs-web-framework@3.3.1:
@@ -1801,3 +1830,9 @@ snapshots:
   wrappy@1.0.2: {}
 
   yoctocolors-cjs@2.1.3: {}
+
+time:
+  '@playwright/test@1.60.0': '2026-05-11T19:09:45.394Z'
+  express@5.2.1: '2025-12-01T20:49:43.268Z'
+  slicejs-cli@3.5.0: '2026-06-01T03:22:31.599Z'
+  slicejs-web-framework@3.3.1: '2026-06-01T03:21:11.189Z'

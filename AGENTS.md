@@ -53,16 +53,28 @@ is:
 - **`src/markdown/parser-rules.md`** — full contract (also rendered at `/docs/internal/markdown-parser-rules`)
 - **`src/markdown/_TEMPLATE.md`** — copy-paste scaffold
 
-Commands: `npm run docs:lint-md`, `npm run docs:generate`, `npm run docs:sync-registry`.
+Commands: `pnpm run docs:lint-md`, `pnpm run docs:generate`, `pnpm run docs:sync-registry`.
 
 ## Agent Workflow (for new docs pages)
 1. Add new markdown file in `src/markdown/` with required front matter.
 2. Add realistic `:::script` examples that return nodes for live previews.
-3. Run `npm run docs:lint-md`.
-4. Run `npm run docs:generate`.
+3. Run `pnpm run docs:lint-md`.
+4. Run `pnpm run docs:generate`.
 5. Verify generated component exists in `src/Components/DocumentationPages/`.
 6. Verify route appears in `documentationRoutes.generated.js` and `src/routes.js` mapping exists.
 7. Ensure required visual dependencies are in `components.js` (e.g. `Table`, `CodeVisualizer`, `Button`).
+
+## Component Testing (required)
+Every component has a `<Component>.spec.js` next to it, run against the real Slice runtime with
+Playwright (the `mount` fixture builds it via `slice.build` on the `/__test` harness route).
+
+- When you add or modify a component, add/update its `.spec.js` covering: smoke render,
+  props/setters reflected in the DOM, deprecated aliases (§7) if any, handlers, and a11y.
+- Run `pnpm run test:e2e` (component gate) and `pnpm test` (node:test logic). Both must pass.
+- File-suffix contract: **`*.spec.js` = Playwright**, **`*.test.js` = node:test** — never overlap.
+- Full guide + `mount` API: **`playwright/README.md`**. Reference test: `src/Components/Visual/Button/Button.spec.js`.
+- Use **pnpm** for everything (never npm). The browser binary is installed once with
+  `pnpm exec playwright install chromium`.
 
 ## Quality Rules
 - Do not introduce React/JSX in this repository.
