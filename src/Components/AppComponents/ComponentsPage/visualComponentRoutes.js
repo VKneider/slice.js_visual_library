@@ -1,8 +1,8 @@
-// Relative specifiers so this module loads both in the browser (served by the
-// dev server) AND under node:test. They resolve to the same sibling files as
-// the previous absolute `/Components/...` paths.
-import documentationRoutes from './documentationRoutes.generated.js';
-import docsIndex from './docsIndex.js';
+// ⚠️ Must stay absolute (/Components/...) — relative imports break when the
+// bundle generator inlines this file into slice-bundle.vendor-shared.js served
+// from /bundles/. Node tests resolve these via scripts/resolve-loader.js.
+import documentationRoutes from '/Components/AppComponents/ComponentsPage/documentationRoutes.generated.js';
+import docsIndex from '/Components/AppComponents/ComponentsPage/docsIndex.js';
 
 if (typeof slice !== 'undefined' && slice.context && !slice.context.has('docsIndex')) {
   slice.context.create('docsIndex', docsIndex, { persist: false });
