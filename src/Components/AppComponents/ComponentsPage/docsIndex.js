@@ -44,6 +44,17 @@ const docsIndex = [
     tags: ['tooltip', 'overlay', 'display']
   },
   {
+    title: 'Toast',
+    route: '/docs/feedback/toast',
+    description: 'Toast notification component with type-based styling, auto-dismiss, and dismissable modes.',
+    section: 'Feedback',
+    group: 'Notifications',
+    order: 10,
+    navLabel: 'Toast',
+    component: 'ToastDocumentation',
+    tags: ['toast', 'notification', 'feedback', 'alert']
+  },
+  {
     title: 'Loading',
     route: '/docs/feedback/loading',
     description: 'Loading component documentation with activation and container usage scenarios.',
@@ -273,6 +284,17 @@ const docsIndex = [
     navLabel: 'MultiRoute',
     component: 'MultiRouteDocumentation',
     tags: ['multiroute', 'routing', 'app-shell']
+  },
+  {
+    title: 'ToastProvider',
+    route: '/docs/services/toast-provider',
+    description: 'Singleton service for programmatic toast management — show, dismiss, clear, and position notifications.',
+    section: 'Services',
+    group: 'Feedback',
+    order: 50,
+    navLabel: 'ToastProvider',
+    component: 'ToastProviderDocumentation',
+    tags: ['toast', 'provider', 'service', 'notification']
   },
   {
     title: 'FetchManager',

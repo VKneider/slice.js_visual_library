@@ -1,0 +1,31 @@
+<div class="documentation-content toastdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="toast">
+    <span class="doc-title-text">Toast</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>The <code>Toast</code> component displays brief, auto-dismissible messages at the edge of the viewport. Use it for confirmations, errors, warnings, or any transient feedback.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>type</code> selects one of five variants (<code>success</code>, <code>error</code>, <code>warning</code>, <code>info</code>, <code>default</code>) each with a distinct icon and color scheme derived from theme tokens.</li><li><code>duration</code> controls auto-dismiss in milliseconds. Set <code>0</code> for sticky (manual close only).</li><li><code>dismissable</code> toggles the close button. Defaults to <code>true</code>.</li><li><code>customColor</code> overrides the background, text, and accent colors when you need an exact value.</li><li>The close button has <code>aria-label="Close"</code>; the toast has <code>role="alert"</code> for screen reader announcements.</li></ul>
+<p>&gt; For programmatic control (show / dismiss / queue management) use <strong>[ToastProvider](/docs/services/toast-provider)</strong>.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="types">Types</h2>
+<p>Each type maps to a theme token and an icon.</p>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="props">Props</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>duration: 0</code> for toasts that require user action. Always provide a <code>type</code> to communicate severity. For many notifications in a view, use <code>ToastProvider</code> which handles queuing, positioning, and cleanup automatically.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not stack multiple <code>&lt;slice-toast&gt;</code> elements manually — use <code>ToastProvider</code> for programmatic management. Avoid toasts for critical or mandatory information; prefer inline messages or modals for content users must acknowledge.</div>
+<div class="component-block" data-block-id="doc-block-8"></div>
+</div>

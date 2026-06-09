@@ -46,6 +46,11 @@ const documentationRoutes = {
         path: '/docs/feedback/loading',
         component: 'LoadingDocumentation'
       },
+      {
+        title: 'Toast',
+        path: '/docs/feedback/toast',
+        component: 'ToastDocumentation'
+      },
     ]
   },
   InputComponents: {
@@ -196,6 +201,11 @@ const documentationRoutes = {
         title: 'IndexedDbManager',
         path: '/docs/services/indexed-db-manager',
         component: 'IndexedDbManagerDocumentation'
+      },
+      {
+        title: 'ToastProvider',
+        path: '/docs/services/toast-provider',
+        component: 'ToastProviderDocumentation'
       },
       {
         title: 'ToolTipProvider',

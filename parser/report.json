@@ -109,6 +109,14 @@
       "component": "TabsDocumentation"
     },
     {
+      "filePath": "src/markdown/toast-provider.md",
+      "component": "ToastProviderDocumentation"
+    },
+    {
+      "filePath": "src/markdown/toast.md",
+      "component": "ToastDocumentation"
+    },
+    {
       "filePath": "src/markdown/tooltip-provider.md",
       "component": "ToolTipProviderDocumentation"
     },

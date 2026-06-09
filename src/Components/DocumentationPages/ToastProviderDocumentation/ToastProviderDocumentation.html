@@ -1,0 +1,45 @@
+<div class="documentation-content toastproviderdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="toastprovider">
+    <span class="doc-title-text">ToastProvider</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<p>ToastProvider is a singleton <strong>Service</strong> that manages a stack of notifications.   Unlike manually placing <code>&lt;slice-toast&gt;</code> elements, it handles the container, queue limits, positioning, and cleanup for you.</p>
+<p>&gt; See the [Toast](/docs/visual/toast) component for the visual building block.</p>
+<h2 id="getting-the-instance">Getting the instance</h2>
+<p><code>ToastProvider</code> is registered as a <code>"Service"</code> type component. Build it to access the singleton:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p>You can also access it directly via <code>ToastProvider.getInstance()</code> when the class is available.</p>
+<h2 id="basic-usage">Basic usage</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="toast-types">Toast types</h2>
+<p>Buttons for each type: success, error, warning, info, and default (no icon).</p>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="configuration">Configuration</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<h3 id="duration">Duration</h3>
+<p>Sticky toasts (<code>duration: 0</code>) stay until manually closed. Short durations auto-dismiss quickly.</p>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<h3 id="non-dismissable">Non-dismissable</h3>
+<p>Hide the close button for notifications that should auto-dismiss only.</p>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h3 id="custom-color">Custom color</h3>
+<p>Apply a custom background, text, and accent.</p>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h2 id="manual-dismiss">Manual dismiss</h2>
+<p><code>show()</code> returns a unique id. Pass it to <code>dismiss(id)</code> to close a specific toast programmatically.</p>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<h2 id="clear-all">Clear all</h2>
+<p>Remove every visible toast at once.</p>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<h2 id="positioning">Positioning</h2>
+<p>Change the position of the toast stack with <code>setPosition(position)</code>.</p>
+<div class="table-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<h2 id="api">API</h2>
+<div class="table-block" data-block-id="doc-block-12"></div>
+<h2 id="best-practices">Best practices</h2>
+<ul><li>Build the provider once with <code>slice.build('ToastProvider')</code> and reuse the instance — it's a singleton.</li><li>Use <code>clear()</code> before changing routes or views to avoid stale notifications.</li><li>Use <code>duration: 0</code> for toasts that require user action to dismiss.</li><li>All six positions work with the stack layout — toasts never overlap.</li></ul>
+</div>
