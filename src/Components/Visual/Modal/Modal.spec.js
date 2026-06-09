@@ -65,4 +65,28 @@ test.describe('Modal', () => {
     await page.waitForTimeout(200);
     await expect(c.locator('.slice-modal')).toBeVisible();
   });
+
+  test('locks body scroll when open and restores on close', async ({ mount, page }) => {
+    const c = await mount('Modal', { title: 'Scroll lock', open: true });
+    await expect(c.locator('.slice-modal')).toBeVisible();
+    let overflow = await page.evaluate(() => document.body.style.overflow);
+    expect(overflow).toBe('hidden');
+    await c.locator('.slice-modal__close').click();
+    await expect(c.locator('.slice-modal')).not.toBeVisible();
+    overflow = await page.evaluate(() => document.body.style.overflow);
+    expect(overflow).toBe('');
+  });
+
+  test('restores body scroll on destroy', async ({ mount, page }) => {
+    await mount('Modal', { title: 'Destroy', open: true });
+    await expect(page.locator('.slice-modal')).toBeVisible();
+    let overflow = await page.evaluate(() => document.body.style.overflow);
+    expect(overflow).toBe('hidden');
+    await page.evaluate(() => {
+      const el = document.querySelector('[data-test-root]');
+      if (el) el.innerHTML = '';
+    });
+    overflow = await page.evaluate(() => document.body.style.overflow);
+    expect(overflow).toBe('');
+  });
 });

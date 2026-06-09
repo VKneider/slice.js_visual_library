@@ -33,6 +33,9 @@ export default class Modal extends HTMLElement {
     this._handleBackdropClick = this._handleBackdropClick.bind(this);
   }
 
+  static _openCount = 0;
+  static _originalOverflow = null;
+
   set open(value) {
     this._open = value === true;
   }
@@ -87,6 +90,7 @@ export default class Modal extends HTMLElement {
     this._open = true;
     this.removeAttribute('open');
     if (this.$dialog) this.$dialog.showModal();
+    this._lockScroll();
   }
 
   close(result) {
@@ -95,6 +99,23 @@ export default class Modal extends HTMLElement {
       this.$dialog.close(result);
     } else {
       this.$dialog.close();
+    }
+    this._restoreScroll();
+  }
+
+  _lockScroll() {
+    Modal._openCount++;
+    if (Modal._openCount === 1) {
+      Modal._originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  _restoreScroll() {
+    Modal._openCount = Math.max(0, Modal._openCount - 1);
+    if (Modal._openCount === 0 && Modal._originalOverflow !== null) {
+      document.body.style.overflow = Modal._originalOverflow;
+      Modal._originalOverflow = null;
     }
   }
 
@@ -117,6 +138,7 @@ export default class Modal extends HTMLElement {
       requestAnimationFrame(() => {
         if (this.isConnected && this._open) {
           this.$dialog.showModal();
+          this._lockScroll();
         }
       });
     }
@@ -146,6 +168,7 @@ export default class Modal extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._restoreScroll();
     this.$dialog.removeEventListener('click', this._handleBackdropClick);
     this.$dialog.removeEventListener('keydown', this._handleKeyDown);
   }
@@ -153,6 +176,7 @@ export default class Modal extends HTMLElement {
   beforeDestroy() {
     if (this._open) {
       this.$dialog.close();
+      this._restoreScroll();
     }
     this.$dialog.removeEventListener('keydown', this._handleKeyDown);
     this.$dialog.removeEventListener('close', this._handleDialogClose);
