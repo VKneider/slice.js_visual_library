@@ -55,6 +55,17 @@ const docsIndex = [
     tags: ['toast', 'notification', 'feedback', 'alert']
   },
   {
+    title: 'Modal',
+    route: '/docs/feedback/modal',
+    description: 'Modal dialog component built on native <dialog> with composition via slots, focus trap, and backdrop dismiss.',
+    section: 'Feedback',
+    group: 'Overlay',
+    order: 10,
+    navLabel: 'Modal',
+    component: 'ModalDocumentation',
+    tags: ['modal', 'dialog', 'overlay', 'feedback']
+  },
+  {
     title: 'Loading',
     route: '/docs/feedback/loading',
     description: 'Loading component documentation with activation and container usage scenarios.',

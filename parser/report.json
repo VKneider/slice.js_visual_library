@@ -73,6 +73,10 @@
       "component": "MiniInspectorDocumentation"
     },
     {
+      "filePath": "src/markdown/modal.md",
+      "component": "ModalDocumentation"
+    },
+    {
       "filePath": "src/markdown/multi-route.md",
       "component": "MultiRouteDocumentation"
     },

@@ -91,6 +91,14 @@ export default class Input extends HTMLElement {
       this.$inputContainer.addEventListener('click', () => {
          this.$input.focus();
       });
+
+      // Floating label: sube el placeholder también al enfocar
+      this.$input.addEventListener('focus', () => {
+         this.$placeholder.classList.add('slice_input_focus');
+      });
+      this.$input.addEventListener('blur', () => {
+         this.$placeholder.classList.remove('slice_input_focus');
+      });
    }
 
    setupSecretToggle() {

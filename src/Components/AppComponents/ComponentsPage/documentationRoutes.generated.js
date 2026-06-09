@@ -47,6 +47,11 @@ const documentationRoutes = {
         component: 'LoadingDocumentation'
       },
       {
+        title: 'Modal',
+        path: '/docs/feedback/modal',
+        component: 'ModalDocumentation'
+      },
+      {
         title: 'Toast',
         path: '/docs/feedback/toast',
         component: 'ToastDocumentation'

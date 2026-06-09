@@ -50,6 +50,8 @@ const components = {
   "MarkdownParserRulesDocumentation": "DocumentationPages",
   "MiniInspector": "Visual",
   "MiniInspectorDocumentation": "DocumentationPages",
+  "Modal": "Visual",
+  "ModalDocumentation": "DocumentationPages",
   "MultiRoute": "Visual",
   "MultiRouteDocumentation": "DocumentationPages",
   "MyNavigation": "AppComponents",
