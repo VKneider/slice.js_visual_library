@@ -23,7 +23,7 @@ The `Modal` component wraps the native `<dialog>` element to provide a focused o
 - `dismissable` controls the close button and backdrop click to dismiss.
 - `customColor` overrides the background, text, and accent colors.
 - The close button has `aria-label="Cerrar"`; the dialog has `role="dialog"` and `aria-modal="true"` (native).
-- Use `$body` and `$footer` to compose custom content after mounting.
+- Use `appendBody(node)` and `appendFooter(node)` to compose custom content after mounting.
 
 ## Props
 
@@ -57,22 +57,7 @@ const btn = await slice.build('Button', {
     const modal = await slice.build('Modal', { title: 'Confirm action', open: true });
     const p = document.createElement('p');
     p.textContent = 'Are you sure you want to proceed?';
-    modal.$body.appendChild(p);
-    document.body.appendChild(modal);
-  }
-});
-return btn;
-:::
-
-:::script label="Custom color" expected="modal with dark blue background"
-const btn = await slice.build('Button', {
-  value: 'Styled modal',
-  onClick: async () => {
-    const modal = await slice.build('Modal', {
-      title: 'Styled',
-      open: true,
-      customColor: { background: '#1e3a5f', text: '#e0f2fe', accent: '#38bdf8' }
-    });
+modal.appendBody(p);
     document.body.appendChild(modal);
   }
 });
@@ -89,7 +74,7 @@ const btn = await slice.build('Button', {
     });
     const p = document.createElement('p');
     p.textContent = 'Are you sure you want to delete this item? This action cannot be undone.';
-    modal.$body.appendChild(p);
+    modal.appendBody(p);
     const cancelBtn = await slice.build('Button', {
       value: 'Cancel',
       onClick: () => modal.close()
@@ -99,8 +84,8 @@ const btn = await slice.build('Button', {
       customColor: { background: '#dc2626', text: '#ffffff' },
       onClick: () => { modal.close('confirmed'); }
     });
-    modal.$footer.appendChild(cancelBtn);
-    modal.$footer.appendChild(confirmBtn);
+    modal.appendFooter(cancelBtn);
+    modal.appendFooter(confirmBtn);
     document.body.appendChild(modal);
   }
 });
@@ -126,7 +111,7 @@ const btn = await slice.build('Button', {
     const dept = await slice.build('Input', { placeholder: 'Department' });
     grid.items = [firstName, lastName, email, role, dept];
     email.style.gridColumn = '1 / -1';
-    modal.$body.appendChild(grid);
+    modal.appendBody(grid);
     const cancelBtn = await slice.build('Button', {
       value: 'Cancel',
       onClick: () => modal.close()
@@ -136,8 +121,8 @@ const btn = await slice.build('Button', {
       customColor: { background: '#059669', text: '#ffffff' },
       onClick: () => modal.close('saved')
     });
-    modal.$footer.appendChild(cancelBtn);
-    modal.$footer.appendChild(saveBtn);
+    modal.appendFooter(cancelBtn);
+    modal.appendFooter(saveBtn);
     document.body.appendChild(modal);
   }
 });
@@ -155,12 +140,12 @@ const btn = await slice.build('Button', {
     });
     const p = document.createElement('p');
     p.textContent = 'This modal can only be closed programmatically.';
-    modal.$body.appendChild(p);
+    modal.appendBody(p);
     const closeBtn = await slice.build('Button', {
       value: 'Close me',
       onClick: () => modal.close()
     });
-    modal.$footer.appendChild(closeBtn);
+    modal.appendFooter(closeBtn);
     document.body.appendChild(modal);
   }
 });

@@ -98,6 +98,14 @@ export default class Modal extends HTMLElement {
     }
   }
 
+  appendBody(node) {
+    if (node && this.$body) this.$body.appendChild(node);
+  }
+
+  appendFooter(node) {
+    if (node && this.$footer) this.$footer.appendChild(node);
+  }
+
   init() {
     if (this.$close) {
       this.$close.addEventListener('click', this._handleClose);

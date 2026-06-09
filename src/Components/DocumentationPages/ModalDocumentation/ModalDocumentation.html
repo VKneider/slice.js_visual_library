@@ -9,7 +9,7 @@
 <h2 id="overview">Overview</h2>
 <p>The <code>Modal</code> component wraps the native <code>&lt;dialog&gt;</code> element to provide a focused overlay for confirmations, forms, alerts, and custom content. It uses <code>showModal()</code> for built-in focus trapping, Escape key handling, and backdrop styling.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li>Built on <code>&lt;dialog&gt;</code> — focus trap, Escape dismiss, and <code>::backdrop</code> are handled natively.</li><li><code>open</code> prop controls visibility. Set <code>true</code> to call <code>showModal()</code>.</li><li><code>title</code> renders into a dedicated header slot.</li><li><code>dismissable</code> controls the close button and backdrop click to dismiss.</li><li><code>customColor</code> overrides the background, text, and accent colors.</li><li>The close button has <code>aria-label="Cerrar"</code>; the dialog has <code>role="dialog"</code> and <code>aria-modal="true"</code> (native).</li><li>Use <code>$body</code> and <code>$footer</code> to compose custom content after mounting.</li></ul>
+<ul><li>Built on <code>&lt;dialog&gt;</code> — focus trap, Escape dismiss, and <code>::backdrop</code> are handled natively.</li><li><code>open</code> prop controls visibility. Set <code>true</code> to call <code>showModal()</code>.</li><li><code>title</code> renders into a dedicated header slot.</li><li><code>dismissable</code> controls the close button and backdrop click to dismiss.</li><li><code>customColor</code> overrides the background, text, and accent colors.</li><li>The close button has <code>aria-label="Cerrar"</code>; the dialog has <code>role="dialog"</code> and <code>aria-modal="true"</code> (native).</li><li>Use <code>appendBody(node)</code> and <code>appendFooter(node)</code> to compose custom content after mounting.</li></ul>
 <h2 id="props">Props</h2>
 <div class="table-block" data-block-id="doc-block-1"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
@@ -18,10 +18,9 @@
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
-<div class="script-block" data-block-id="doc-block-7"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Use modal for focused tasks that require user input or confirmation before continuing. Always provide a clear way to dismiss (close button, cancel action, or Escape key). For simple notifications, prefer <code>Toast</code> instead.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">The modal creates a <code>&lt;dialog&gt;</code> in the top layer — ensure no other element interferes with <code>z-index</code> handling. Multiple open modals stack but the browser only allows one <code>&lt;dialog&gt;</code> in the top layer at a time; close one before opening another.</div>
-<div class="component-block" data-block-id="doc-block-8"></div>
+<div class="component-block" data-block-id="doc-block-7"></div>
 </div>
