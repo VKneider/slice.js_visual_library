@@ -1,0 +1,43 @@
+<div class="documentation-content tooltipproviderdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="tooltipprovider">
+    <span class="doc-title-text">ToolTipProvider</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>ToolTipProvider</code> is a <strong>Service</strong> — a lightweight singleton that manages N tooltip triggers through a <strong>single shared bubble</strong> and <strong>one set of global listeners</strong>. Use it when you have many tooltips on a page and want optimal performance.</p>
+<p>Unlike the <code>&lt;slice-tooltip&gt;</code> custom element (one bubble + listeners per instance), <code>ToolTipProvider</code> reuses everything:</p>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<h2 id="getting-started">Getting Started</h2>
+<p>Build a <code>ToolTipProvider</code> instance and call its methods against trigger elements:</p>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<p>For a shared singleton across your app, build with a fixed <code>sliceId</code>:</p>
+<div class="code-block" data-block-id="doc-block-3"></div>
+<h2 id="api">API</h2>
+<h3 id="attachelement-config"><code>attach(element, config?)</code></h3>
+<p>Registers an element as a tooltip trigger.</p>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<h3 id="detachelement"><code>detach(element)</code></h3>
+<p>Unregisters a trigger and removes its listeners.</p>
+<div class="code-block" data-block-id="doc-block-6"></div>
+<h3 id="scopecontainer"><code>scope(container)</code></h3>
+<p>Scans <code>container</code> for <code>[data-tooltip]</code> elements and attaches each one. Config is read from <code>data-*</code> attributes:</p>
+<div class="table-block" data-block-id="doc-block-7"></div>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<div class="code-block" data-block-id="doc-block-9"></div>
+<h3 id="destroy"><code>destroy()</code></h3>
+<p>Cleans up all triggers, removes the bubble, and clears global listeners.</p>
+<h2 id="live-demos">Live Demos</h2>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
+<h2 id="when-to-use-which">When to Use Which</h2>
+<div class="table-block" data-block-id="doc-block-13"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>scope()</code> on a container after the DOM is ready — it scans for <code>[data-tooltip]</code> once. For dynamic content, call <code>attach()</code> when new elements are inserted and <code>detach()</code> when removed.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>ToolTipProvider</code> uses a <strong>shared bubble</strong> — only one tooltip is visible at a time. If you need simultaneous tooltips (e.g., comparison of two elements), use individual <code>&lt;slice-tooltip&gt;</code> components instead.</div>
+</div>

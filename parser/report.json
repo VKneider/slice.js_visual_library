@@ -5,6 +5,10 @@
       "component": "BottomNavDocumentation"
     },
     {
+      "filePath": "src/markdown/breadcrumbs.md",
+      "component": "BreadcrumbsDocumentation"
+    },
+    {
       "filePath": "src/markdown/button.md",
       "component": "ButtonDocumentation"
     },
@@ -105,6 +109,10 @@
       "component": "TabsDocumentation"
     },
     {
+      "filePath": "src/markdown/tooltip-provider.md",
+      "component": "ToolTipProviderDocumentation"
+    },
+    {
       "filePath": "src/markdown/tooltip.md",
       "component": "ToolTipDocumentation"
     },
@@ -116,7 +124,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\vkneider\\Desktop\\ricardinho\\library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "C:\\Users\\victo\\Desktop\\vk\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

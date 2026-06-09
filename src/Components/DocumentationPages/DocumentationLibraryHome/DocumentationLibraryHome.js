@@ -1,3 +1,18 @@
+import documentationRoutes from '../../AppComponents/ComponentsPage/documentationRoutes.generated.js';
+
+function buildSections() {
+  return Object.entries(documentationRoutes)
+    .filter(([key]) => key !== 'defaultRoute')
+    .reduce((acc, [, section]) => {
+      const sectionKey = section.title.replace(/\s+/g, '');
+      acc[sectionKey] = section.items.map(item => ({
+        title: item.title,
+        path: item.path || `/docs/${sectionKey.toLowerCase()}/${item.title.toLowerCase()}`
+      }));
+      return acc;
+    }, {});
+}
+
 export default class DocumentationLibraryHome extends HTMLElement {
   constructor(props) {
     super();
@@ -11,6 +26,8 @@ export default class DocumentationLibraryHome extends HTMLElement {
 
   async renderLinks() {
     const sections = this.querySelectorAll('[data-section]');
+    const sectionsMap = buildSections();
+
     for (const list of sections) {
       const sectionName = list.dataset.section;
       const sectionData = sectionsMap[sectionName];
@@ -33,47 +50,5 @@ export default class DocumentationLibraryHome extends HTMLElement {
     }
   }
 }
-
-const sectionsMap = {
-  InputComponents: [
-    { title: 'Button', path: '/docs/input/button' },
-    { title: 'Input', path: '/docs/input/input' },
-    { title: 'Select', path: '/docs/input/select' },
-    { title: 'Checkbox', path: '/docs/input/checkbox' },
-    { title: 'Switch', path: '/docs/input/switch' }
-  ],
-  Layout: [
-    { title: 'Layout', path: '/docs/layout/layout' },
-    { title: 'Card', path: '/docs/layout/card' },
-    { title: 'Details', path: '/docs/layout/details' },
-    { title: 'Grid', path: '/docs/layout/grid' },
-    { title: 'Carrousel', path: '/docs/layout/element-carrousel' }
-  ],
-  Navigation: [
-    { title: 'Navbar', path: '/docs/navigation/navbar' },
-    { title: 'Tabs', path: '/docs/navigation/tabs' },
-    { title: 'DropDown', path: '/docs/navigation/dropdown' },
-    { title: 'NotFound', path: '/docs/navigation/not-found' },
-    { title: 'TreeView', path: '/docs/navigation/treeview' }
-  ],
-  Display: [
-    { title: 'CodeVisualizer', path: '/docs/display/code-visualizer' },
-    { title: 'Icon', path: '/docs/display/icon' },
-    { title: 'ToolTip', path: '/docs/display/tooltip' }
-  ],
-  Data: [
-    { title: 'Table', path: '/docs/data/table' }
-  ],
-  Routing: [
-    { title: 'Route', path: '/docs/routing/route' },
-    { title: 'MultiRoute', path: '/docs/routing/multi-route' }
-  ],
-  Feedback: [
-    { title: 'Loading', path: '/docs/feedback/loading' }
-  ],
-  Internal: [
-    { title: 'Parser Rules', path: '/docs/internal/markdown-parser-rules' }
-  ]
-};
 
 customElements.define('slice-documentationlibraryhome', DocumentationLibraryHome);

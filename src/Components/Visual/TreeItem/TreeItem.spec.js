@@ -63,6 +63,108 @@ test.describe('TreeItem', () => {
       await expect(c.locator('.slice_tree_item')).toBeVisible();
    });
 
+   test('leaf item does NOT have is-branch class', async ({ mount }) => {
+      const c = await mount('TreeItem', { value: 'Leaf' });
+      await expect(c.component).not.toHaveClass(/is-branch/);
+   });
+
+   test('branch item has is-branch class on the host', async ({ mount }) => {
+      const c = await mount('TreeItem', {
+         value: 'Parent',
+         items: [{ value: 'Child', path: '/c' }],
+      });
+      await expect(c.component).toHaveClass(/is-branch/);
+   });
+
+   test('empty items array does not create a branch', async ({ mount }) => {
+      const c = await mount('TreeItem', { value: 'Leaf', items: [] });
+      await expect(c.component).not.toHaveClass(/is-branch/);
+      await expect(c.locator('.caret')).toHaveCount(0);
+   });
+
+   test('setActive(true) adds is-active class to the label', async ({ mount, page }) => {
+      const c = await mount('TreeItem', { value: 'Item' });
+      await page.evaluate(() => {
+         const el = document.querySelector('slice-treeitem');
+         if (el) el.setActive(true);
+      });
+      await expect(c.locator('.slice_tree_item')).toHaveClass(/is-active/);
+   });
+
+   test('setActive(false) removes is-active class from the label', async ({ mount, page }) => {
+      const c = await mount('TreeItem', { value: 'Item' });
+      await page.evaluate(() => {
+         const el = document.querySelector('slice-treeitem');
+         if (el) el.setActive(true);
+      });
+      await expect(c.locator('.slice_tree_item')).toHaveClass(/is-active/);
+
+      await page.evaluate(() => {
+         const el = document.querySelector('slice-treeitem');
+         if (el) el.setActive(false);
+      });
+      await expect(c.locator('.slice_tree_item')).not.toHaveClass(/is-active/);
+   });
+
+   test('restores open branch state from localStorage', async ({ mount, page }) => {
+      await page.evaluate(() => {
+         localStorage.clear();
+         localStorage.setItem('treeitem-Parent', 'open');
+      });
+
+      const c = await mount('TreeItem', {
+         value: 'Parent',
+         items: [{ value: 'Child', path: '/c' }],
+      });
+
+      await expect(c.locator('.caret')).toHaveClass(/caret_open/);
+      await expect(c.locator('.container').first()).toHaveClass(/container_open/);
+   });
+
+   test('branch label toggle persists open and closed state', async ({ mount, page }) => {
+      await page.evaluate(() => localStorage.clear());
+      const c = await mount('TreeItem', {
+         value: 'Parent',
+         items: [{ value: 'Child', path: '/c' }],
+      });
+
+      const parentLabel = c.component.locator(':scope > .slice_tree_item');
+      const parentCaret = c.component.locator(':scope > .slice_tree_item .caret');
+      const parentContainer = c.component.locator(':scope > .container');
+
+      await parentLabel.click();
+      await expect(parentCaret).toHaveClass(/caret_open/);
+      await expect(parentContainer).toHaveClass(/container_open/);
+      await expect
+         .poll(() => page.evaluate(() => localStorage.getItem('treeitem-Parent')))
+         .toBe('open');
+
+      await parentLabel.click();
+      await expect(parentCaret).not.toHaveClass(/caret_open/);
+      await expect(parentContainer).not.toHaveClass(/container_open/);
+      await expect
+         .poll(() => page.evaluate(() => localStorage.getItem('treeitem-Parent')))
+         .toBe('closed');
+   });
+
+   test('caret click toggles branch exactly once', async ({ mount, page }) => {
+      await page.evaluate(() => localStorage.clear());
+      const c = await mount('TreeItem', {
+         value: 'Parent',
+         items: [{ value: 'Child', path: '/c' }],
+      });
+
+      const parentCaret = c.component.locator(':scope > .slice_tree_item .caret');
+      const parentContainer = c.component.locator(':scope > .container');
+
+      await parentCaret.click();
+      await expect(parentCaret).toHaveClass(/caret_open/);
+      await expect(parentContainer).toHaveClass(/container_open/);
+      await expect
+         .poll(() => page.evaluate(() => localStorage.getItem('treeitem-Parent')))
+         .toBe('open');
+   });
+
    test('visual: branch tree item @visual', async ({ mount }) => {
       const c = await mount('TreeItem', {
          value: 'Parent',

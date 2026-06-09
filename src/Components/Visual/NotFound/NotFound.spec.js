@@ -39,13 +39,13 @@ test.describe('NotFound', () => {
 
    test('renders the home button', async ({ mount }) => {
       const c = await mount('NotFound');
-      await expect(c.locator('.home-btn')).toBeVisible();
-      await expect(c.locator('.home-btn')).toHaveText('Go Home');
+      await expect(c.locator('.home-btn-container')).toBeVisible();
+      await expect(c.locator('.home-btn-container')).toContainText('Go Home');
    });
 
    test('home button navigates to / on click', async ({ mount }) => {
       const c = await mount('NotFound');
-      await c.locator('.home-btn').click();
+      await c.locator('.home-btn-container').click();
       const path = await c.component.evaluate(() => window.location.pathname);
       expect(path).toBe('/');
    });

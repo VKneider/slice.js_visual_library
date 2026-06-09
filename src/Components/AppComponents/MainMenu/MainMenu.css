@@ -8,10 +8,11 @@ slice-mainmenu {
   display: flex;
   align-items: flex-start;
   height: calc(100% - var(--docs-navbar-height, 72px));
-  width: var(--docs-sidebar-width, 17%);
+  width: var(--docs-left-sidebar-width, 17%);
   transition: transform 0.3s ease, width 0.3s ease;
   overflow-x: hidden;
-  z-index: 180;
+  box-sizing: border-box;
+  z-index: 90;
 }
 .slice_menu {
   position: relative;
@@ -19,7 +20,7 @@ slice-mainmenu {
   margin-top: 8px;
   width: 100%;
   height: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   padding: 8px;
 }
@@ -29,16 +30,19 @@ slice-mainmenu {
   top: 0;
   z-index: 4;
   padding: 6px 4px 10px;
-  background-color: color-mix(in srgb, var(--primary-background-color) 90%, transparent);
-  backdrop-filter: blur(2px);
+  background-color: var(--primary-background-color);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .slice_menu_search_input {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   border: 1px solid color-mix(in srgb, var(--primary-color-shade) 65%, transparent);
   border-radius: 8px;
   padding: 8px 10px;
-  background: color-mix(in srgb, var(--secondary-background-color) 72%, var(--primary-background-color));
+  background: transparent;
   color: var(--font-primary-color);
   outline: none;
 }
@@ -62,7 +66,7 @@ slice-mainmenu {
 
 .slice_menu_button {
   position: fixed;
-  top: calc(var(--docs-navbar-height, 72px) + 10px);
+  top: 14px;
   left: 16px;
   visibility: hidden;
   width: min-content;
@@ -79,12 +83,17 @@ slice-mainmenu {
 
 .slice_close_menu {
   visibility: hidden;
-   position: absolute;
-   padding: 12px;
-   top: 0;
-   right: 0;
-   cursor: pointer;
-   z-index: 1110;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.slice_close_menu:hover {
+  background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
 .slice_menu_overlay {
@@ -93,11 +102,10 @@ slice-mainmenu {
   right: 0;
   bottom: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: transparent;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 170;
+  z-index: 85;
   display: none;
 }
 
@@ -119,12 +127,15 @@ slice-mainmenu::-webkit-scrollbar:horizontal  {
   slice-mainmenu {
     top: var(--docs-navbar-height, 72px);
     position: fixed;
-    z-index: 190;
+    z-index: 95;
     display: flex;
-    width: 0%;
+    width: 80%;
     max-width: 360px;
     height: calc(100% - var(--docs-navbar-height, 72px));
     background-color: var(--primary-background-color);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    will-change: transform;
   }
 
   .slice_menu_overlay {
@@ -140,7 +151,7 @@ slice-mainmenu::-webkit-scrollbar:horizontal  {
   }
 
   .slice_menu_open {
-    width: 80%;
+    transform: translateX(0);
     box-shadow: 8px 0 24px rgba(0, 0, 0, 0.25);
   }
 

@@ -1,23 +1,14 @@
-slice-app{
-    .app-component-container {
-   slice-app {
-      min-height: 100vh;
-      background-color: var(--primary-background-color);
-   }
-
-   /* Contenedor del Navbar - no ocupa espacio en el flujo */
-   .app-navbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-   }
-
-   /* Contenedor del contenido - con padding-top para el navbar fijo */
-   .app-content {
-      padding-top: 70px; /* Ajustar según la altura real del navbar */
-      min-height: calc(100vh - 70px);
-   }
+slice-app {
+   display: block;
+   min-height: 100vh;
+   background-color: var(--primary-background-color);
 }
+
+slice-app .app-navbar {
+   z-index: 1000;
+}
+
+slice-app .app-content {
+   padding-top: 70px;
+   min-height: calc(100vh - 70px);
 }

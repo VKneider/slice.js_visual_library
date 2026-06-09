@@ -11,6 +11,18 @@ const ITEMS = [
 ];
 
 test.describe('BottomNav', () => {
+   const readTabsCenterDelta = async (component) => component.locator('.slice_bottomnav').evaluate((root) => {
+      const bar = root.querySelector('.slice_bottomnav_bar');
+      const tabs = root.querySelector('.slice_bottomnav_tabs');
+      if (!bar || !tabs) return 999;
+
+      const barRect = bar.getBoundingClientRect();
+      const tabsRect = tabs.getBoundingClientRect();
+      const barCenter = barRect.left + (barRect.width / 2);
+      const tabsCenter = tabsRect.left + (tabsRect.width / 2);
+      return Math.round((tabsCenter - barCenter) * 100) / 100;
+   });
+
    test('smoke: builds and mounts without errors', async ({ mount }) => {
       // The host (slice-bottom-nav) is display:block but the default `fixed`
       // position takes the inner bar out of flow, leaving the host zero-height
@@ -76,6 +88,24 @@ test.describe('BottomNav', () => {
       await c.locator('.slice_bottomnav_tab[data-path="/bn-docs"]').click();
       await expect(c.locator('.slice_bottomnav_tab[data-path="/bn-docs"]')).toHaveClass(/is-active/);
       expect(c.pageErrors()).toEqual([]);
+   });
+
+   test('tabs remain visually centered inside the bar', async ({ mount }) => {
+      const c = await mount('BottomNav', { items: ITEMS, position: 'static' });
+      const delta = await readTabsCenterDelta(c);
+
+      expect(Math.abs(delta)).toBeLessThanOrEqual(0.5);
+   });
+
+   test('tabs stay centered even with trailing actions', async ({ mount }) => {
+      const c = await mount('BottomNav', {
+         items: ITEMS,
+         position: 'static',
+         buttons: [{ value: 'Login' }],
+      });
+      const delta = await readTabsCenterDelta(c);
+
+      expect(Math.abs(delta)).toBeLessThanOrEqual(0.5);
    });
 
    test('visual: bottom nav with items @visual', async ({ mount }) => {

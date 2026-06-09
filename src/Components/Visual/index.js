@@ -2,6 +2,7 @@
 // Exports all visual components available in the library
 
 export { default as Button } from './Button/Button.js';
+export { default as Breadcrumbs } from './Breadcrumbs/Breadcrumbs.js';
 export { default as Card } from './Card/Card.js';
 export { default as Checkbox } from './Checkbox/Checkbox.js';
 export { default as CodeVisualizer } from './CodeVisualizer/CodeVisualizer.js';

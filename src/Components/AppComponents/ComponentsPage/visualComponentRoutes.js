@@ -1,13 +1,3 @@
-// ⚠️ Must stay absolute (/Components/...) — relative imports break when the
-// bundle generator inlines this file into slice-bundle.vendor-shared.js served
-// from /bundles/. Node tests resolve these via scripts/resolve-loader.js.
-import documentationRoutes from '/Components/AppComponents/ComponentsPage/documentationRoutes.generated.js';
-import docsIndex from '/Components/AppComponents/ComponentsPage/docsIndex.js';
-
-if (typeof slice !== 'undefined' && slice.context && !slice.context.has('docsIndex')) {
-  slice.context.create('docsIndex', docsIndex, { persist: false });
-}
-
 const baseVisualRoutes = {
   defaultRoute: {
     path: '/docs',
@@ -55,8 +45,6 @@ const mergeGeneratedDocumentation = (baseRoutes, generatedRoutes) => {
   return merged;
 };
 
-export const visualComponentsRoutes = mergeGeneratedDocumentation(baseVisualRoutes, documentationRoutes);
-
 const COMPACT_NAV_GROUPS = [
   {
     value: 'UI Components',
@@ -76,24 +64,80 @@ const COMPACT_NAV_GROUPS = [
   }
 ];
 
-const docsMetaByPath = new Map(
-  (docsIndex || [])
-    .filter((item) => item && item.route)
-    .map((item) => [item.route, item])
-);
+export const buildVisualRoutes = (documentationRoutes, docsIndex = []) => {
+  if (typeof slice !== 'undefined' && slice.context && !slice.context.has('docsIndex')) {
+    slice.context.create('docsIndex', docsIndex, { persist: false });
+  }
 
-const normalizeLeafItem = (sectionTitle, item) => {
-  const meta = docsMetaByPath.get(item.path) || {};
-  const tagsText = Array.isArray(meta.tags) ? meta.tags.join(' ') : '';
-  const label = meta.navLabel || item.title;
+  const docsMetaByPath = new Map(
+    docsIndex
+      .filter((item) => item && item.route)
+      .map((item) => [item.route, item])
+  );
+
+  const routes = mergeGeneratedDocumentation(baseVisualRoutes, documentationRoutes);
+
+  const normalizeLeafItem = (sectionTitle, item) => {
+    const meta = docsMetaByPath.get(item.path) || {};
+    const tagsText = Array.isArray(meta.tags) ? meta.tags.join(' ') : '';
+    const label = meta.navLabel || item.title;
+
+    return {
+      value: label,
+      path: item.path,
+      component: item.component,
+      searchText: `${item.title || ''} ${label || ''} ${tagsText} ${sectionTitle || ''} ${item.path || ''}`
+        .trim()
+        .toLowerCase()
+    };
+  };
+
+  const buildCompactNavigationItems = (routesConfig) => {
+    const skipKeys = new Set(['defaultRoute']);
+    const sections = [];
+
+    for (const [key, section] of Object.entries(routesConfig)) {
+      if (skipKeys.has(key)) continue;
+      if (!section || !Array.isArray(section.items) || section.items.length === 0) continue;
+
+      sections.push({
+        value: section.title,
+        items: section.items.map((item) => normalizeLeafItem(section.title, item))
+      });
+    }
+
+    const sectionByName = new Map(sections.map((section) => [section.value, section]));
+    const compact = [];
+
+    COMPACT_NAV_GROUPS.forEach((group) => {
+      const groupedSections = group.sections
+        .map((name) => sectionByName.get(name))
+        .filter(Boolean);
+
+      if (groupedSections.length > 0) {
+        compact.push({
+          value: group.value,
+          items: groupedSections
+        });
+      }
+    });
+
+    const coveredSections = new Set(COMPACT_NAV_GROUPS.flatMap((group) => group.sections));
+    const leftovers = sections.filter((section) => !coveredSections.has(section.value));
+
+    if (leftovers.length > 0) {
+      compact.push({
+        value: 'More',
+        items: leftovers
+      });
+    }
+
+    return compact;
+  };
 
   return {
-    value: label,
-    path: item.path,
-    component: item.component,
-    searchText: `${item.title || ''} ${label || ''} ${tagsText} ${sectionTitle || ''} ${item.path || ''}`
-      .trim()
-      .toLowerCase()
+    routes,
+    buildCompactNavigationItems
   };
 };
 
@@ -176,49 +220,6 @@ export const getAllRoutes = (routesObj) => {
   return allRoutes;
 };
 
-export const buildCompactNavigationItems = (routesConfig) => {
-  const skipKeys = new Set(['defaultRoute']);
-  const sections = [];
-
-  for (const [key, section] of Object.entries(routesConfig)) {
-    if (skipKeys.has(key)) continue;
-    if (!section || !Array.isArray(section.items) || section.items.length === 0) continue;
-
-    sections.push({
-      value: section.title,
-      items: section.items.map((item) => normalizeLeafItem(section.title, item))
-    });
-  }
-
-  const sectionByName = new Map(sections.map((section) => [section.value, section]));
-  const compact = [];
-
-  COMPACT_NAV_GROUPS.forEach((group) => {
-    const groupedSections = group.sections
-      .map((name) => sectionByName.get(name))
-      .filter(Boolean);
-
-    if (groupedSections.length > 0) {
-      compact.push({
-        value: group.value,
-        items: groupedSections
-      });
-    }
-  });
-
-  const coveredSections = new Set(COMPACT_NAV_GROUPS.flatMap((group) => group.sections));
-  const leftovers = sections.filter((section) => !coveredSections.has(section.value));
-
-  if (leftovers.length > 0) {
-    compact.push({
-      value: 'More',
-      items: leftovers
-    });
-  }
-
-  return compact;
-};
-
 export const filterNavigationItems = (items, rawQuery = '') => {
   const query = String(rawQuery || '').trim().toLowerCase();
   if (!query) {
@@ -232,10 +233,6 @@ export const filterNavigationItems = (items, rawQuery = '') => {
 
 export const toTreeViewItems = (items) => {
   return (items || []).map(stripSearchMetadata);
-};
-
-export const createTreeViewItems = (routesConfig) => {
-  return toTreeViewItems(buildCompactNavigationItems(routesConfig));
 };
 
 export const resolveInitialDocsPath = (pathname, defaultPath = '/docs') => {

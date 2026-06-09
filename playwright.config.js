@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Keep the browser binary INSIDE the project (node_modules/.../.local-browsers)
 // instead of the machine-level cache (~/.cache/ms-playwright). Fully project-local;
@@ -6,15 +11,14 @@ import { defineConfig, devices } from '@playwright/test';
 process.env.PLAYWRIGHT_BROWSERS_PATH ||= '0';
 
 // Component tests run against the REAL Slice runtime served by the dev server.
-// Playwright boots `pnpm run dev` (slicejs-cli, port 3001) via `webServer`,
-// waits until /api/status answers, then each test navigates to the `/__test`
-// harness route and mounts a component with `slice.build(...)`.
-//
-// Naming contract (so the two runners never collide):
-//   *.spec.js  -> Playwright (these tests)
-//   *.test.js  -> node:test  (`npm test`: routes/parser logic)
-
-const PORT = Number(process.env.SLICE_TEST_PORT) || 3001;
+// Playwright boots the slicejs dev server via `webServer`. To avoid port
+// collisions with a production server (e.g. on the configured port), we read
+// sliceConfig.json and offset the port by +5. Override via SLICE_TEST_PORT.
+const sliceConfig = JSON.parse(
+   readFileSync(resolve(__dirname, 'src/sliceConfig.json'), 'utf-8'),
+);
+const SLICE_PORT = sliceConfig?.server?.port ?? 3001;
+const PORT = Number(process.env.SLICE_TEST_PORT) || (SLICE_PORT + 5);
 const baseURL = `http://localhost:${PORT}`;
 
 export default defineConfig({
@@ -57,7 +61,7 @@ export default defineConfig({
    ],
 
    webServer: {
-      command: 'pnpm run dev',
+      command: `node ./node_modules/slicejs-cli/client.js dev --port ${PORT}`,
       url: `${baseURL}/api/status`,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,

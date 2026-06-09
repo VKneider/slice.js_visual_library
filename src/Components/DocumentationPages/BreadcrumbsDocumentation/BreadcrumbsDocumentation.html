@@ -1,0 +1,33 @@
+<div class="documentation-content breadcrumbsdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="breadcrumbs">
+    <span class="doc-title-text">Breadcrumbs</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>Breadcrumbs</code> shows the current navigation hierarchy in a compact horizontal trail (for example: <code>Docs / Navigation / Breadcrumbs</code>). It helps users understand where they are and quickly go back to a parent section.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>items</code> use the canonical navigation shape <code>{ text, path }</code>.</li><li><code>children</code> accepts a route-tree shape (<code>{ path, text?, title?, children? }</code>) like route configs,</li></ul>
+<p>and auto-resolves the breadcrumb trail for <code>currentPath</code> (or <code>window.location.pathname</code>).</p>
+<ul><li>Every segment except the current one is rendered as a link and uses <code>slice.router.navigate(path)</code>.</li><li>The last segment is marked with <code>aria-current="page"</code> by default.</li><li><code>includeCurrent: false</code> hides the last segment when you only want parent links.</li><li><code>maxItems</code> collapses long trails into an ellipsis segment (<code>...</code>) to keep layouts tidy.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>Breadcrumbs</code> near page titles or section headers, not as the primary navigation. Keep labels
+short and meaningful so the trail stays scannable.</div>
+<div class="callout callout-tip">When your app already has route definitions as trees (e.g. nested children under <code>Route</code>/<code>MultiRoute</code>),
+pass that structure in <code>children</code> and provide <code>currentPath</code> so <code>Breadcrumbs</code> stays in sync without
+duplicating <code>items</code> arrays.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Avoid non-clickable parent segments with empty <code>path</code> values if users are expected to navigate
+back from the breadcrumb trail.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
+</div>

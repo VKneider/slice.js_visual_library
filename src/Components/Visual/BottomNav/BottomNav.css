@@ -28,7 +28,8 @@ slice-bottom-nav {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 4px 6px;
+  padding: 4px;
+  justify-content: center;
   background: color-mix(in srgb, var(--primary-color) 86%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
@@ -41,9 +42,7 @@ slice-bottom-nav {
   animation: slice_bottomnav_rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.slice_bottomnav_reverse {
-  flex-direction: row-reverse;
-}
+
 
 /* ----------------------------------------------------------------- brand */
 
@@ -109,18 +108,18 @@ slice-bottom-nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-width: 40px;
-  padding: 4px 8px;
+  gap: 3px;
+  min-width: 44px;
+  padding: 6px 10px;
   border-radius: 999px;
   cursor: pointer;
-  color: color-mix(in srgb, var(--primary-color-contrast) 66%, transparent);
-  font-weight: 600;
-  font-size: 0.68rem;
+  color: color-mix(in srgb, var(--primary-color-contrast) 50%, transparent);
+  font-weight: 500;
+  font-size: 0.65rem;
   line-height: 1;
   white-space: nowrap;
   user-select: none;
-  transition: color 0.25s ease, transform 0.18s ease;
+  transition: color 0.25s ease, transform 0.18s ease, background 0.25s ease;
   animation: slice_bottomnav_rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -134,14 +133,16 @@ slice-bottom-nav {
 
 .slice_bottomnav_tab:hover {
   color: var(--primary-color-contrast);
+  background: color-mix(in srgb, var(--primary-color-contrast) 8%, transparent);
 }
 
 .slice_bottomnav_tab.is-active {
   color: var(--primary-color-contrast);
+  background: color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
 }
 
 .slice_bottomnav_tab:active {
-  transform: scale(0.93);
+  transform: scale(0.95);
 }
 
 .slice_bottomnav_icon {
@@ -151,7 +152,11 @@ slice-bottom-nav {
 }
 
 .slice_bottomnav_label {
-  display: inline-block;
+  display: block;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .slice_bottomnav_tab.is-dropdown {
@@ -234,8 +239,8 @@ slice-bottom-nav {
   .slice_bottomnav_tab {
     flex: 1;
     min-width: 0;
-    padding: 4px 3px;
-    font-size: 0.63rem;
+    padding: 4px 4px;
+    font-size: 0.6rem;
     gap: 2px;
   }
 

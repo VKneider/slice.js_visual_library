@@ -29,7 +29,9 @@
     "run": "node ./node_modules/slicejs-cli/client.js dev",
     "slice:dev": "slice dev",
     "slice:start": "slice start",
-    "slice:types": "slice types generate"
+    "slice:types": "slice types generate",
+    "slice:doctor": "node ./node_modules/slicejs-cli/client.js doctor",
+    "slice:help": "node ./node_modules/slicejs-cli/client.js --help"
   },
   "author": "vkneider",
   "license": "MIT",
@@ -40,8 +42,8 @@
   },
   "dependencies": {
     "express": "^5.2.1",
-    "slicejs-cli": "^3.5.0",
-    "slicejs-web-framework": "^3.3.1"
+    "slicejs-cli": "3.6.2",
+    "slicejs-web-framework": "^3.3.3"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0"

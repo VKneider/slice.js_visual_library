@@ -58,6 +58,34 @@ test.describe('Navbar', () => {
       await expect(c.locator('.logo_container img')).toHaveAttribute('src', '/logo.png');
    });
 
+   test('logo click calls router.navigate with logo path', async ({ mount, page }) => {
+      const c = await mount('Navbar', {
+         items: ITEMS,
+         logo: { src: '/logo.png', path: '/custom-path' },
+      });
+
+      // Spy on router.navigate
+      await page.evaluate(() => {
+         window.__navigateCalls = [];
+         window.slice.router.navigate = (path) => {
+            window.__navigateCalls.push(path);
+         };
+      });
+
+      await c.locator('.logo_container').click();
+
+      const calls = await page.evaluate(() => window.__navigateCalls);
+      expect(calls).toEqual(['/custom-path']);
+   });
+
+   test('logo keeps href attribute for accessibility and right-click', async ({ mount }) => {
+      const c = await mount('Navbar', {
+         items: ITEMS,
+         logo: { src: '/logo.png', path: '/nav-home' },
+      });
+      await expect(c.locator('.logo_container')).toHaveAttribute('href', '/nav-home');
+   });
+
    test('visual: navbar with items and button @visual', async ({ mount }) => {
       const c = await mount('Navbar', { items: ITEMS, buttons: [{ value: 'Sign in' }] });
       await expect(c.component).toHaveScreenshot('navbar-items.png');

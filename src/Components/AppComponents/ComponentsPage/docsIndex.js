@@ -35,7 +35,7 @@ const docsIndex = [
   {
     title: 'ToolTip',
     route: '/docs/display/tooltip',
-    description: 'ToolTip documentation with hover and focus trigger scenarios.',
+    description: 'ToolTip documentation with hover, focus, placement, and delay scenarios.',
     section: 'Display',
     group: 'Overlay',
     order: 10,
@@ -220,6 +220,17 @@ const docsIndex = [
     tags: ['bottomnav', 'navigation', 'tabs', 'mobile']
   },
   {
+    title: 'Breadcrumbs',
+    route: '/docs/navigation/breadcrumbs',
+    description: 'Breadcrumbs component for hierarchical navigation context and quick backtracking.',
+    section: 'Navigation',
+    group: 'Core',
+    order: 34,
+    navLabel: 'Breadcrumbs',
+    component: 'BreadcrumbsDocumentation',
+    tags: ['breadcrumbs', 'navigation', 'hierarchy']
+  },
+  {
     title: 'NotFound',
     route: '/docs/navigation/not-found',
     description: 'NotFound 404 page documentation with route fallback scenarios.',
@@ -273,6 +284,17 @@ const docsIndex = [
     navLabel: 'FetchManager',
     component: 'FetchManagerDocumentation',
     tags: ['service', 'fetch', 'http', 'networking']
+  },
+  {
+    title: 'ToolTipProvider',
+    route: '/docs/services/tooltip-provider',
+    description: 'Lightweight singleton Service for efficient tooltip management via programmatic and data-attribute APIs.',
+    section: 'Services',
+    group: 'Overlay',
+    order: 15,
+    navLabel: 'ToolTipProvider',
+    component: 'ToolTipProviderDocumentation',
+    tags: ['tooltip', 'provider', 'service', 'overlay']
   },
   {
     title: 'LocalStorageManager',

@@ -1,3 +1,18 @@
+import documentationRoutes from '../ComponentsPage/documentationRoutes.generated.js';
+
+const CATEGORY_DESCRIPTIONS = {
+  InputComponents: 'Interactive form elements for user input',
+  Navigation: 'Components for app navigation and routing',
+  Layout: 'Structure and organize your content',
+  Display: 'Present information to users',
+  Feedback: 'User notifications and feedback',
+  Data: 'Charts, tables, and data visualization',
+  Routing: 'Client-side routing components',
+  Services: 'Browser API wrappers and utilities',
+  Utilities: 'Developer tools and inspectors',
+  Internal: 'Internal documentation and guides'
+};
+
 export default class VisualLibraryHome extends HTMLElement {
    constructor(props) {
       super();
@@ -43,28 +58,28 @@ export default class VisualLibraryHome extends HTMLElement {
    async createFeatures() {
       const features = [
          {
-            title: "🎨 Theme Integration",
+            title: "Theme Integration",
             description: "All components automatically adapt to your Slice.js theme using CSS variables."
          },
          {
-            title: "⚡ Performance Optimized",
+            title: "Performance Optimized",
             description: "Built with vanilla JavaScript and web standards for minimal overhead and fast rendering."
          },
          {
-            title: "♿ Accessibility First",
+            title: "Accessibility First",
             description: "WCAG compliant with proper ARIA labels, keyboard navigation, and screen reader support."
          },
          {
-            title: "🔧 Fully Customizable",
+            title: "Fully Customizable",
             description: "Override colors, styles, and behavior through props and CSS custom properties."
          },
          {
-            title: "📱 Responsive Design",
+            title: "Responsive Design",
             description: "Mobile-first components that work beautifully across all device sizes."
          },
          {
-            title: "🔌 Easy Integration",
-            description: "Simple async API using slice.build() - just pass props and you\"re ready to go."
+            title: "Easy Integration",
+            description: "Simple async API using slice.build() - just pass props and you're ready to go."
          }
       ];
 
@@ -90,44 +105,18 @@ export default class VisualLibraryHome extends HTMLElement {
    }
 
    async createCategories() {
-      const categories = [
-          {
-             name: "Input Components",
-             description: "Interactive form elements for user input",
-             components: ["Button", "Input", "Select", "Checkbox", "Switch"],
-             path: "/docs/input/button"
-          },
-          {
-             name: "Navigation",
-             description: "Components for app navigation and routing",
-             components: ["Navbar", "Tabs", "DropDown", "TreeView"],
-             path: "/docs/navigation/navbar"
-          },
-          {
-             name: "Layout",
-             description: "Structure and organize your content",
-             components: ["Card", "Grid", "Layout", "Details"],
-             path: "/docs/layout/card"
-          },
-          {
-             name: "Display",
-             description: "Present information to users",
-             components: ["Icon", "CodeVisualizer", "ToolTip"],
-             path: "/docs/display/icon"
-          },
-          {
-             name: "Feedback",
-             description: "User notifications and feedback",
-             components: ["Loading"],
-             path: "/docs/feedback/loading"
-          },
-          {
-             name: "Data Display",
-             description: "Charts, tables, and data visualization",
-             components: ["Table"],
-             path: "/docs/data/table"
-          }
-      ];
+      const sections = Object.entries(documentationRoutes)
+        .filter(([key, value]) => key !== 'defaultRoute' && value && Array.isArray(value.items) && value.items.length > 0);
+
+      const categories = sections.map(([, section]) => {
+        const firstItem = section.items[0];
+        return {
+          name: section.title,
+          description: CATEGORY_DESCRIPTIONS[section.title.replace(/\s+/g, '')] || `${section.title} components`,
+          components: section.items.map(item => item.title),
+          path: firstItem?.path || section.path || '/docs'
+        };
+      });
 
       const categoriesGrid = this.querySelector(".categories-grid");
 

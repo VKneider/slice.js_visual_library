@@ -117,16 +117,16 @@ app.use('/bundles/', (req, res, next) => {
 
     // Bundler v2 may emit this import relative to /bundles even when source file
     // lives under Components/AppComponents/ComponentsPage.
-    if (cleanedPath === 'documentationRoutes.generated.js') {
-      const generatedRoutesPath = path.join(
+    if (cleanedPath === 'documentationRoutes.generated.js' || cleanedPath === 'docsIndex.js') {
+      const resolvedFile = path.join(
         __dirname,
         `../${folderDeployed}`,
         'Components',
         'AppComponents',
         'ComponentsPage',
-        'documentationRoutes.generated.js'
+        cleanedPath
       );
-      filePath = generatedRoutesPath;
+      filePath = resolvedFile;
     }
 
     if (fs.existsSync(filePath)) {

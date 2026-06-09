@@ -280,7 +280,7 @@ export default class FetchManagerDocumentation extends HTMLElement {
               return fragment;
             }
           }
-          return createBuildFallbackNode(name);
+          return built ?? createBuildFallbackNode(name);
         };
 
         const mount = (node) => {

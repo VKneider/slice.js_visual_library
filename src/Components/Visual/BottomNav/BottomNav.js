@@ -36,8 +36,15 @@ export default class BottomNav extends HTMLElement {
       this.$bar = this.querySelector('.slice_bottomnav_bar');
       this.$logoContainer = this.querySelector('.slice_bottomnav_logo');
       this.$tabs = this.querySelector('.slice_bottomnav_tabs');
-      this.$indicator = this.querySelector('.slice_bottomnav_indicator');
+
+      // Create the indicator in JS so the HTML template keeps a clean <ul>.
+      this.$indicator = document.createElement('span');
+      this.$indicator.classList.add('slice_bottomnav_indicator');
+      this.$tabs.appendChild(this.$indicator);
+
       this.$actions = this.querySelector('.slice_bottomnav_actions');
+      this._tabsBaseMarginLeft = '0px';
+      this._tabsBaseMarginRight = '0px';
 
       // Keep a path -> tab map so the sliding indicator can follow route changes.
       this._tabsByPath = new Map();
@@ -101,6 +108,7 @@ export default class BottomNav extends HTMLElement {
       this.$logoContainer.appendChild(img);
       this.$logoContainer.href = value.path || '#';
       this.$logoContainer.classList.add('is-visible');
+      this._balanceTabs();
    }
 
    get items() {
@@ -146,8 +154,10 @@ export default class BottomNav extends HTMLElement {
    /* ----------------------------------------------------------- rendering */
 
    async addItems(items) {
+      const reverse = this._direction === 'reverse';
       for (let i = 0; i < items.length; i++) {
-         await this.addItem(items[i]);
+         const index = reverse ? items.length - 1 - i : i;
+         await this.addItem(items[index]);
       }
    }
 
@@ -177,7 +187,7 @@ export default class BottomNav extends HTMLElement {
       if (value.icon) {
          const icon = await slice.build('Icon', {
             name: value.icon,
-            size: 'small',
+            size: 'medium',
             color: 'currentColor'
          });
          icon.classList.add('slice_bottomnav_icon');
@@ -217,6 +227,7 @@ export default class BottomNav extends HTMLElement {
       });
 
       addTo.appendChild(button);
+      this._balanceTabs();
    }
 
    /* ------------------------------------------------------- active state */
@@ -259,6 +270,8 @@ export default class BottomNav extends HTMLElement {
    }
 
    _refreshIndicator() {
+      this._balanceTabs();
+
       if (!this.$indicator || !this._activeTab) return;
 
       const width = this._activeTab.offsetWidth;
@@ -271,9 +284,48 @@ export default class BottomNav extends HTMLElement {
    }
 
    _hideIndicator() {
+      this._balanceTabs();
+
       if (this.$indicator) {
          this.$indicator.classList.remove('is-visible');
       }
+   }
+
+   _balanceTabs() {
+      if (!this.$bar || !this.$tabs) return;
+
+      const style = getComputedStyle(this.$bar);
+      const gap = Number.parseFloat(style.columnGap || style.gap || '0') || 0;
+      const getOuterWidth = (element) => {
+         const elementStyle = getComputedStyle(element);
+         const marginLeft = Number.parseFloat(elementStyle.marginLeft || '0') || 0;
+         const marginRight = Number.parseFloat(elementStyle.marginRight || '0') || 0;
+         return element.offsetWidth + marginLeft + marginRight;
+      };
+
+      const logoVisible = this.$logoContainer.classList.contains('is-visible')
+         && getComputedStyle(this.$logoContainer).display !== 'none';
+      const actionsVisible = this.$actions.childElementCount > 0
+         && getComputedStyle(this.$actions).display !== 'none';
+
+      const leftWidth = logoVisible ? getOuterWidth(this.$logoContainer) + gap : 0;
+      const rightWidth = actionsVisible ? getOuterWidth(this.$actions) + gap : 0;
+      const diff = Math.round(Math.abs(leftWidth - rightWidth) * 10) / 10;
+
+      if (leftWidth > rightWidth) {
+         this.$tabs.style.marginLeft = this._tabsBaseMarginLeft;
+         this.$tabs.style.marginRight = `${diff}px`;
+         return;
+      }
+
+      if (rightWidth > leftWidth) {
+         this.$tabs.style.marginLeft = `${diff}px`;
+         this.$tabs.style.marginRight = this._tabsBaseMarginRight;
+         return;
+      }
+
+      this.$tabs.style.marginLeft = this._tabsBaseMarginLeft;
+      this.$tabs.style.marginRight = this._tabsBaseMarginRight;
    }
 
    /* --------------------------------------------------------- public API */

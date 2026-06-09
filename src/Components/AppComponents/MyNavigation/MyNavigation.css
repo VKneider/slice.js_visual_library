@@ -8,11 +8,12 @@ slice-mynavigation {
   display: flex;
   align-items: flex-start;
   height: calc(100% - var(--docs-navbar-height, 72px));
-  width: var(--docs-sidebar-width, 17%);
+  width: var(--docs-right-sidebar-width, 12%);
   transition: transform 0.3s ease, width 0.3s ease;
   overflow-x: hidden;
   overflow-y: auto;
-  z-index: 170;
+  box-sizing: border-box;
+  z-index: 90;
 }
 .my_navigation {
   display: flex;
@@ -55,4 +56,3 @@ a[class$="3"] {
 a[class$="4"] {
   margin-left: 15%;
 }
-

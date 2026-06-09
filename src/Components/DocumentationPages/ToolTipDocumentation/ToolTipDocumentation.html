@@ -7,16 +7,39 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ToolTip</code> displays a floating text label when the user hovers or focuses the wrapped content. The tooltip repositions itself to stay within the viewport.</p>
-<h2 id="api-and-behavior">API and Behavior</h2>
-<ul><li><code>text</code> sets the tooltip string. Empty text suppresses the tooltip.</li><li>Triggered by <code>mouseenter</code> / <code>mouseleave</code> and <code>focusin</code> / <code>focusout</code>.</li><li>Bubble is appended to <code>document.body</code> for accurate positioning.</li><li>Automatically flips above or below based on available space.</li><li>Cleans up the bubble element on disconnect or destroy.</li></ul>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<p><code>ToolTip</code> displays a floating text label when the user hovers or focuses the wrapped content. The tooltip repositions itself to stay within the viewport and falls back to alternative placements when space is limited.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>text</code> sets the tooltip string. Empty text suppresses the tooltip entirely.</li><li>Triggered by <code>mouseenter</code> / <code>mouseleave</code> and <code>focusin</code> / <code>focusout</code> (keyboard accessible).</li><li><code>placement</code> controls preferred direction (<code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>); the tooltip auto-falls back to other sides if the viewport doesn't fit.</li><li><code>showDelay</code> / <code>hideDelay</code> add an intent delay for smoother hover experience.</li><li><code>offset</code> controls gap between trigger and bubble (min <code>4px</code>).</li><li><code>maxWidth</code> limits the bubble width (min <code>120px</code>).</li><li><code>customColor</code> accepts <code>{ background, text }</code> to override the default theme tokens.</li><li><code>Escape</code> key or clicking outside dismisses the bubble.</li><li>Bubble is appended to <code>document.body</code> for accurate positioning.</li><li>Sets <code>aria-describedby</code> on the host pointing to the bubble <code>id</code> when visible.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="placement-variants">Placement Variants</h2>
+<p>Use <code>placement</code> to control where the bubble appears. The component automatically tries fallback positions when the preferred side has no room.</p>
 <div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="delay-for-intent">Delay for Intent</h2>
+<p>Use <code>showDelay</code> to prevent flicker when the cursor passes over a trigger briefly. <code>hideDelay</code> keeps the bubble visible while moving between related triggers.</p>
 <div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="auto-placement-fallback">Auto-Placement Fallback</h2>
+<p>When the preferred <code>placement</code> has no room, the tooltip automatically falls back to the next available side.</p>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<h2 id="keyboard-dismiss">Keyboard &amp; Dismiss</h2>
+<p>The tooltip is fully keyboard accessible and respects common dismiss patterns.</p>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="custom-width-and-offset">Custom Width and Offset</h2>
+<p><code>maxWidth</code> controls how wide the bubble can grow (default <code>300px</code>). <code>offset</code> tightens or increases the gap between trigger and bubble (minimum <code>4px</code>).</p>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
+<div class="script-block" data-block-id="doc-block-13"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Wrap interactive elements like buttons or icons with <code>ToolTip</code> to provide contextual hints without cluttering the UI.</div>
+<div class="callout callout-tip">Pair tooltips with interactive elements (icon buttons, truncated text, input labels) to provide contextual hints without cluttering the UI. Use <code>hideDelay</code> (300–500ms) when tooltips contain multi-line content so users have time to read.</div>
+<h2 id="tooltipprovider">ToolTipProvider</h2>
+<p>For pages with many tooltips (toolbars, data tables, icon grids), use [<code>ToolTipProvider</code>](/docs/services/tooltip-provider) — a singleton Service that shares one bubble and one set of listeners across all triggers via a programmatic or <code>data-tooltip</code> API.</p>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">The tooltip covers the trigger element's content. Place tooltip content as text nodes or child elements inside the component.</div>
-<div class="component-block" data-block-id="doc-block-4"></div>
+<div class="callout callout-warning">The tooltip bubble is appended to <code>document.body</code> — ensure <code>z-index: 10000</code> does not conflict with other overlays. For critical information, prefer visible labels instead of tooltips.</div>
+<div class="component-block" data-block-id="doc-block-14"></div>
 </div>

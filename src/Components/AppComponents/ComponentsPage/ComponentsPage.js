@@ -1,11 +1,6 @@
-import {
-   visualComponentsRoutes,
-   getAllRoutes,
-   buildCompactNavigationItems,
-   filterNavigationItems,
-   toTreeViewItems,
-   resolveInitialDocsPath
-} from './visualComponentRoutes.js';
+import documentationRoutes from './documentationRoutes.generated.js';
+import docsIndex from './docsIndex.js';
+import { buildVisualRoutes, getAllRoutes, filterNavigationItems, toTreeViewItems, resolveInitialDocsPath } from './visualComponentRoutes.js';
 
 
 export default class ComponentsPage extends HTMLElement {
@@ -17,31 +12,8 @@ export default class ComponentsPage extends HTMLElement {
    }
 
    async init() {
-      const docsIndex = slice.context.getState('docsIndex') || [];
-      const titleByRoute = new Map(docsIndex.map(d => [d.route, d.title]));
-      slice.router.afterEach((to) => {
-        const title = titleByRoute.get(to.path) || 'Components Library';
-        document.title = `${title} | Slice.js`;
-      });
-
       // Usar la configuración de rutas centralizada
-      const routesConfig = visualComponentsRoutes;
-
-      const themeSelector = await slice.build('ThemeSelector');
-
-      // Crear la barra de navegación
-      const navBar = await slice.build('Navbar', {
-         position: 'fixed',
-         logo: {
-            src: '/images/Slice.js-logo.png',
-            path: '/',
-         },
-         items: [
-            { text: 'Home', path: '/' },
-            { text: 'Components', path: '/docs' }
-          ],
-          buttons: [],
-      });
+      const { routes: routesConfig, buildCompactNavigationItems } = buildVisualRoutes(documentationRoutes, docsIndex);
 
       // Obtener todas las rutas planas para el MultiRoute
       const multiRouteItems = getAllRoutes(routesConfig);
@@ -78,19 +50,23 @@ export default class ComponentsPage extends HTMLElement {
             return null;
          }
 
-         const treeItems = toTreeViewItems(filteredItems);
-         return slice.build('TreeView', {
-            items: treeItems,
-            onClick: async (item) => {
-               if (item.path) {
-                   await slice.router.navigate(item.path);
-                   window.scrollTo({ top: 0, behavior: 'smooth' });
-                   if (typeof mainMenu.handleCloseMenu === 'function') {
-                     mainMenu.handleCloseMenu();
-                  }
-               }
-            },
-         });
+          const treeItems = toTreeViewItems(filteredItems);
+           const treeView = await slice.build('TreeView', {
+              items: treeItems,
+              activePath: window.location.pathname,
+              onClick: async (item) => {
+                 if (item.path) {
+                     treeView.setActiveTreeItem(item);
+                     await slice.router.navigate(item.path);
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                     if (typeof mainMenu.handleCloseMenu === 'function') {
+                       mainMenu.handleCloseMenu();
+                    }
+                 }
+              },
+           });
+
+          return treeView;
       };
 
       const initialTreeView = await buildTreeView('');
@@ -122,11 +98,8 @@ export default class ComponentsPage extends HTMLElement {
          view: visualComponentsMultiRoute,
       });
 
-      navBar.querySelector('.nav_bar_buttons')?.appendChild(themeSelector);
-
       // Agregar componentes al Layout
       layOut.onLayOut(mainMenu);
-      layOut.onLayOut(navBar);
       layOut.onLayOut(myNavigation);
 
       // Añadir el Layout al componente
@@ -143,6 +116,7 @@ export default class ComponentsPage extends HTMLElement {
          await visualComponentsMultiRoute.renderIfCurrentRoute();
       }
    }
+
 }
 
 customElements.define('slice-components-page', ComponentsPage);

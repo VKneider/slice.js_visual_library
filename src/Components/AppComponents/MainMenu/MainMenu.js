@@ -36,6 +36,14 @@ export default class MainMenu extends HTMLElement {
    }
 
    init() {
+      // Mover el botón hamburguesa al body para que escape el transform
+      // del menú (translateX(-100%) en mobile). Con position: fixed dentro
+      // de un elemento transformado, el containing block cambia al padre.
+      const menuButton = this.querySelector('.slice_menu_button');
+      if (menuButton) {
+         document.body.appendChild(menuButton);
+      }
+
       // Auto-close on hover-out is desktop-only behaviour. On touch devices the
       // browser emits a synthetic `mouseleave` right after every tap, which would
       // close the drawer the instant the user touches a TreeView caret/item and

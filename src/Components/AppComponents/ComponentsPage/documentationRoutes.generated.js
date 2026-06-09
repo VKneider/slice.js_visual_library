@@ -146,6 +146,11 @@ const documentationRoutes = {
         component: 'BottomNavDocumentation'
       },
       {
+        title: 'Breadcrumbs',
+        path: '/docs/navigation/breadcrumbs',
+        component: 'BreadcrumbsDocumentation'
+      },
+      {
         title: 'NotFound',
         path: '/docs/navigation/not-found',
         component: 'NotFoundDocumentation'
@@ -191,6 +196,11 @@ const documentationRoutes = {
         title: 'IndexedDbManager',
         path: '/docs/services/indexed-db-manager',
         component: 'IndexedDbManagerDocumentation'
+      },
+      {
+        title: 'ToolTipProvider',
+        path: '/docs/services/tooltip-provider',
+        component: 'ToolTipProviderDocumentation'
       },
     ]
   },

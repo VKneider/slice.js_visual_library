@@ -64,7 +64,7 @@ export default class TreeItem extends HTMLElement {
    }
 
    async init() {
-      if (this._items) {
+      if (this._items?.length) {
          for (let i = 0; i < this._items.length; i++) {
             await this.setItem(this._items[i], this.$container);
          }
@@ -93,6 +93,8 @@ export default class TreeItem extends HTMLElement {
 
    set items(values) {
       this._items = values;
+      if (!values?.length) return;
+      this.classList.add('is-branch');
       const caret = document.createElement('div');
       caret.classList.add('caret');
       // Crear un contenedor para items
@@ -134,7 +136,10 @@ export default class TreeItem extends HTMLElement {
          localStorage.setItem(this.getContainerKey(), isOpen ? 'open' : 'closed');
       };
       
-      caret.addEventListener('click', toggleContainer);
+      caret.addEventListener('click', (event) => {
+         event.stopPropagation();
+         toggleContainer();
+      });
 
       if (!this.path) {
          this.$item.addEventListener('click', toggleContainer);
@@ -158,6 +163,10 @@ export default class TreeItem extends HTMLElement {
             this.$container.classList.add('container_open');
          }
       }
+   }
+
+   setActive(active) {
+      this.$item.classList.toggle('is-active', active);
    }
 
    async setItem(value, addTo) {
