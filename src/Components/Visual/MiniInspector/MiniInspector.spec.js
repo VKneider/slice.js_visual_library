@@ -1,5 +1,7 @@
 import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
+const _SLICE_ID = 'sliceId';
+
 // MiniInspector reads a target component's `static props` and renders one editable
 // control (.mini-inspector__row) per primitive prop (string/number/boolean).
 // `title` -> .mini-inspector__title text. `target` accepts a sliceId string or a
@@ -44,7 +46,7 @@ test.describe('MiniInspector', () => {
    test('resolves a target by sliceId and renders a row per primitive prop', async ({ mount }) => {
       // Build & register a target (stays in activeComponents even though the next
       // mount clears the harness root).
-      await mount('ComponentShowcase', { sliceId: 'mi-target-showcase', title: 'T' });
+      await mount('ComponentShowcase', { [_SLICE_ID]: 'mi-target-showcase', title: 'T' });
       const c = await mount('MiniInspector', { title: 'Showcase', target: 'mi-target-showcase' });
 
       // ComponentShowcase static props: title (string), badgeLabel (string) are
@@ -56,7 +58,7 @@ test.describe('MiniInspector', () => {
    });
 
    test('string prop control is a text input prefilled with the current value', async ({ mount }) => {
-      await mount('ComponentShowcase', { sliceId: 'mi-target-prefill', title: 'Hello' });
+      await mount('ComponentShowcase', { [_SLICE_ID]: 'mi-target-prefill', title: 'Hello' });
       const c = await mount('MiniInspector', { target: 'mi-target-prefill' });
 
       const titleInput = c.locator('.mini-inspector__row').nth(0).locator('input');
@@ -65,7 +67,7 @@ test.describe('MiniInspector', () => {
    });
 
    test('editing an input writes through to the live target prop', async ({ mount }) => {
-      await mount('ComponentShowcase', { sliceId: 'mi-target-edit', title: 'Before' });
+      await mount('ComponentShowcase', { [_SLICE_ID]: 'mi-target-edit', title: 'Before' });
       const c = await mount('MiniInspector', { target: 'mi-target-edit' });
 
       const titleInput = c.locator('.mini-inspector__row').nth(0).locator('input');
@@ -79,7 +81,7 @@ test.describe('MiniInspector', () => {
    });
 
    test('a11y: each control is wrapped in a <label> with text', async ({ mount }) => {
-      await mount('ComponentShowcase', { sliceId: 'mi-target-a11y', title: 'T' });
+      await mount('ComponentShowcase', { [_SLICE_ID]: 'mi-target-a11y', title: 'T' });
       const c = await mount('MiniInspector', { target: 'mi-target-a11y' });
 
       const rows = c.locator('.mini-inspector__row');
@@ -90,7 +92,7 @@ test.describe('MiniInspector', () => {
    });
 
    test('visual: inspector with two fields @visual', async ({ mount }) => {
-      await mount('ComponentShowcase', { sliceId: 'mi-target-visual', title: 'T' });
+      await mount('ComponentShowcase', { [_SLICE_ID]: 'mi-target-visual', title: 'T' });
       const c = await mount('MiniInspector', { title: 'Props', target: 'mi-target-visual' });
       await expect(c.component).toHaveScreenshot('mini-inspector.png');
    });

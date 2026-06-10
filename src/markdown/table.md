@@ -25,6 +25,38 @@ tags: [table, data, display]
 - Both props are reactive: changes trigger a full re-render.
 - Empty arrays render no table content.
 
+## Columns, sorting and pagination
+For richer tables, use `columns` instead of `headers` — an array of column descriptors. Rows can then
+be **objects** keyed by `key` (positional `headers` + array rows still work as before).
+
+- `columns`: `[{ key, label, sortable, align, render }]`.
+  - `key` — property to read from each row object (or column index for array rows).
+  - `label` — header text. `align` — `'left' | 'center' | 'right'`.
+  - `sortable` — make the column clickable to sort. `render(row)` — return a string / DOM node / `{ html }` for custom cells.
+- `sortable` (boolean) — default sortability for every column when not set per-column.
+- `defaultSort` — `{ key, direction: 'asc' | 'desc' }` applied on first render.
+- `pagination` — `true` or `{ pageSize }` to page the rows (renders a `Pagination` control). Reactive:
+  it can be turned on/off or resized at runtime — the pager is shown/hidden and the page size updated,
+  never destroyed and rebuilt.
+- `emptyMessage` — text shown when there are columns but no rows.
+- `onSortChange({ key, direction } | null)` and `onPageChange(page)` — fire on each change.
+
+Clicking a sortable header cycles **ascending → descending → unsorted**, and sorting returns to page 1.
+Sortable headers are keyboard-operable: they are focusable (`tabindex="0"`) and respond to **Enter** /
+**Space**, with `aria-sort` kept in sync.
+
+- `loading` (boolean) — shows a self-contained busy overlay (a CSS spinner, no dependency on the
+  `Loading` component) and sets `aria-busy`. Drive it yourself in remote mode: set `true` before
+  fetching a page, `false` when the new `rows` are in.
+
+## Local vs remote data (`dataSource`)
+- **`'local'`** (default): you give the table **all** the rows; it sorts and paginates them itself.
+- **`'remote'`**: `rows` is just the **current page** (already sorted/sliced upstream, e.g. by a server).
+  The table renders it as-is, tracks the page/sort state, and **emits** `onSortChange` / `onPageChange`
+  so you can fetch the next slice. Provide `totalItems` so the pager can compute the page count.
+
+In remote mode the table never re-orders or slices your rows — supplying the next page is your job.
+
 ## Live Preview
 :::component name="Table"
 {
@@ -78,6 +110,25 @@ const table = await slice.build('Table', {
     ['slice.js',  { html: '<span style="color:var(--success-color)">Published</span>' }, viewBtn],
     ['slice-cli', { html: '<span style="color:var(--primary-color)">Beta</span>' }, installBtn]
   ]
+});
+
+return table;
+:::
+
+:::script label="Sortable + paginated" expected="sortable columns, 5 rows per page, with a pager"
+const people = Array.from({ length: 23 }, (_, i) => ({
+  name: 'Person ' + String(i + 1).padStart(2, '0'),
+  age: 20 + ((i * 7) % 40)
+}));
+
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'age',  label: 'Age',  sortable: true, align: 'right' }
+  ],
+  rows: people,
+  pagination: { pageSize: 5 },
+  defaultSort: { key: 'name', direction: 'asc' }
 });
 
 return table;

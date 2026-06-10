@@ -1,0 +1,38 @@
+<div class="documentation-content formdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="form">
+    <span class="doc-title-text">Form</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>Form</code> builds a form from a <strong>schema</strong> and composes the library's own components (<code>Input</code>, <code>Select</code>, <code>Checkbox</code>, <code>Switch</code>, …). It renders sections, separators, per-field labels/descriptions and validation errors, reads the values back, and validates on submit. It is a plain Visual — drop it in a view or a <code>Modal</code> body.</p>
+<h2 id="schema">Schema</h2>
+<p>Each item is discriminated by <code>kind</code>:</p>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<p><strong>Field item:</strong></p>
+<ul><li><code>name</code> — key in the values object.</li><li><code>label</code>, <code>description</code> — field chrome rendered by the Form.</li><li><code>component</code> — a Slice component name, built via <code>slice.build</code>.</li><li><code>props</code> — props passed to that component.</li><li><code>valueProp</code> — which prop holds the value (default <code>'value'</code>; use <code>'checked'</code> for <code>Checkbox</code>/<code>Switch</code>).</li><li><code>value</code> — initial value (merged into <code>props</code> under <code>valueProp</code>).</li><li><code>required</code> — <code>true</code> or a custom message.</li><li><code>validate(value, values)</code> — returns an error string (falsy when valid). Runs on submit.</li></ul>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Let the Form own the field's <code>label</code>/<code>description</code>; don't also set the component's own <code>label</code> in
+<code>props</code> or it doubles up (for <code>Checkbox</code>/<code>Switch</code> you may prefer the component's inline label — then omit
+the field <code>label</code>).</div>
+<div class="callout callout-tip"><code>validate(value, values)</code> receives <strong>all</strong> current values as its second argument — use it for cross-field
+rules (confirm-password, date ranges). For server-side errors, call <code>form.setError(name, message)</code> from an
+async <code>onSubmit</code>.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">The Form <strong>builds</strong> its field + button components with <code>slice.build</code> and destroys them in
+<code>beforeDestroy()</code>. Components built with <code>slice.build</code> are not auto-destroyed by a parent — so destroy
+the <code>Form</code> itself through <code>slice.controller.destroyComponent(form)</code> / <code>destroyByContainer(node)</code> when you
+tear down whatever hosts it (a Modal, a view).</div>
+<div class="component-block" data-block-id="doc-block-9"></div>
+</div>

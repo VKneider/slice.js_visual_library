@@ -12,14 +12,29 @@
 <ul><li><code>headers</code> (array of strings) defines the table header row (rendered as <code>&lt;th scope="col"&gt;</code>).</li><li><code>rows</code> (array of arrays) defines data rows. Each cell can be:</li></ul>
 <p>- a <strong>string / number</strong> → rendered as text (escaped, safe by default),   - a <strong>DOM node</strong> (e.g. a built component) → appended as-is,   - <code>{ html: '&lt;...&gt;' }</code> → explicit opt-in for <strong>trusted</strong> raw HTML.</p>
 <ul><li>Both props are reactive: changes trigger a full re-render.</li><li>Empty arrays render no table content.</li></ul>
+<h2 id="columns-sorting-and-pagination">Columns, sorting and pagination</h2>
+<p>For richer tables, use <code>columns</code> instead of <code>headers</code> — an array of column descriptors. Rows can then be <strong>objects</strong> keyed by <code>key</code> (positional <code>headers</code> + array rows still work as before).</p>
+<ul><li><code>columns</code>: <code>[{ key, label, sortable, align, render }]</code>.</li></ul>
+<p>- <code>key</code> — property to read from each row object (or column index for array rows).   - <code>label</code> — header text. <code>align</code> — <code>'left' | 'center' | 'right'</code>.   - <code>sortable</code> — make the column clickable to sort. <code>render(row)</code> — return a string / DOM node / <code>{ html }</code> for custom cells.</p>
+<ul><li><code>sortable</code> (boolean) — default sortability for every column when not set per-column.</li><li><code>defaultSort</code> — <code>{ key, direction: 'asc' | 'desc' }</code> applied on first render.</li><li><code>pagination</code> — <code>true</code> or <code>{ pageSize }</code> to page the rows (renders a <code>Pagination</code> control). Reactive:</li></ul>
+<p>it can be turned on/off or resized at runtime — the pager is shown/hidden and the page size updated,   never destroyed and rebuilt.</p>
+<ul><li><code>emptyMessage</code> — text shown when there are columns but no rows.</li><li><code>onSortChange({ key, direction } | null)</code> and <code>onPageChange(page)</code> — fire on each change.</li></ul>
+<p>Clicking a sortable header cycles <strong>ascending → descending → unsorted</strong>, and sorting returns to page 1. Sortable headers are keyboard-operable: they are focusable (<code>tabindex="0"</code>) and respond to <strong>Enter</strong> / <strong>Space</strong>, with <code>aria-sort</code> kept in sync.</p>
+<ul><li><code>loading</code> (boolean) — shows a self-contained busy overlay (a CSS spinner, no dependency on the</li></ul>
+<p><code>Loading</code> component) and sets <code>aria-busy</code>. Drive it yourself in remote mode: set <code>true</code> before   fetching a page, <code>false</code> when the new <code>rows</code> are in.</p>
+<h2 id="local-vs-remote-data-datasource">Local vs remote data (<code>dataSource</code>)</h2>
+<ul><li><strong><code>'local'</code></strong> (default): you give the table <strong>all</strong> the rows; it sorts and paginates them itself.</li><li><strong><code>'remote'</code></strong>: <code>rows</code> is just the <strong>current page</strong> (already sorted/sliced upstream, e.g. by a server).</li></ul>
+<p>The table renders it as-is, tracks the page/sort state, and <strong>emits</strong> <code>onSortChange</code> / <code>onPageChange</code>   so you can fetch the next slice. Provide <code>totalItems</code> so the pager can compute the page count.</p>
+<p>In remote mode the table never re-orders or slices your rows — supplying the next page is your job.</p>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Keep row data uniform in length. Mismatched columns may produce uneven layout.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Plain string cells are escaped, so user data is safe by default. Only the explicit <code>{ html: '...' }</code> form is injected as raw HTML — never pass unsanitized user input through it.</div>
-<div class="component-block" data-block-id="doc-block-4"></div>
+<div class="component-block" data-block-id="doc-block-5"></div>
 </div>

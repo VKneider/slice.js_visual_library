@@ -10,6 +10,13 @@
 <p><code>Select</code> supports single/multiple options, custom display property and callback on selection.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>Select</code> supports single and multiple selection flows from a structured options source.</li><li><code>visibleProp</code> maps option objects to user-facing labels without reshaping backend payloads.</li><li>Use the scenarios below to validate selection behavior in forms and filter toolbars.</li></ul>
+<h2 id="search-clear-keyboard">Search, clear &amp; keyboard</h2>
+<ul><li><code>searchable</code> (boolean) — type into the field to filter options by their <code>visibleProp</code> text; a</li></ul>
+<p>"No results" row appears when nothing matches. <code>placeholder</code> sets the hint shown while searching.</p>
+<ul><li><code>clearable</code> (boolean) — shows a clear button once something is selected; clicking it resets the</li></ul>
+<p>value and fires <code>onChange</code>.</p>
+<ul><li>Keyboard: <strong>↑/↓</strong> move the highlight, <strong>Enter</strong> selects the highlighted option (or toggles the menu),</li></ul>
+<p><strong>Home/End</strong> jump to the first/last option, <strong>Esc</strong> closes. <code>aria-expanded</code> / <code>aria-selected</code> are kept   in sync.</p>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="practical-setups">Practical Setups</h2>
@@ -18,5 +25,6 @@
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
-<div class="component-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="component-block" data-block-id="doc-block-8"></div>
 </div>

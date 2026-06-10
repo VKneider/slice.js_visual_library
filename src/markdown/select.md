@@ -21,6 +21,15 @@ tags: [select, forms]
 - `visibleProp` maps option objects to user-facing labels without reshaping backend payloads.
 - Use the scenarios below to validate selection behavior in forms and filter toolbars.
 
+## Search, clear & keyboard
+- `searchable` (boolean) — type into the field to filter options by their `visibleProp` text; a
+  "No results" row appears when nothing matches. `placeholder` sets the hint shown while searching.
+- `clearable` (boolean) — shows a clear button once something is selected; clicking it resets the
+  value and fires `onChange`.
+- Keyboard: **↑/↓** move the highlight, **Enter** selects the highlighted option (or toggles the menu),
+  **Home/End** jump to the first/last option, **Esc** closes. `aria-expanded` / `aria-selected` are kept
+  in sync.
+
 ## Live Preview
 :::component name="Select"
 {
@@ -44,6 +53,25 @@ tags: [select, forms]
 :::
 
 ## Practical Setups
+:::script label="Searchable + clearable country picker" expected="type to filter, clear button resets"
+const select = await slice.build('Select', {
+  label: 'Country',
+  searchable: true,
+  clearable: true,
+  placeholder: 'Type to search…',
+  visibleProp: 'name',
+  options: [
+    { name: 'Argentina', code: 'AR' },
+    { name: 'Brazil', code: 'BR' },
+    { name: 'Canada', code: 'CA' },
+    { name: 'Denmark', code: 'DK' },
+    { name: 'Egypt', code: 'EG' }
+  ]
+});
+
+return select;
+:::
+
 :::script label="User role selector" expected="single select for role assignment"
 const select = await slice.build('Select', {
   label: 'Role',

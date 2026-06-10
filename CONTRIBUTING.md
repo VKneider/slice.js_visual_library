@@ -9,6 +9,7 @@ here ships to all Slice.js projects. Read
 
 | You want to… | Start here |
 | --- | --- |
+| Find a component to build | [`WANTED_COMPONENTS.md`](./WANTED_COMPONENTS.md) — the wishlist with sizes & pointers |
 | Add a new component | [Adding a new component](#adding-a-new-component) |
 | Change an existing component | [Modifying an existing component](#modifying-an-existing-component) |
 | Write or fix tests | [Testing](#testing) → full guide in [`playwright/README.md`](./playwright/README.md) |

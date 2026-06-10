@@ -17,6 +17,15 @@ test.describe('Modal', () => {
     await expect(c.locator('.slice-modal')).toHaveAttribute('open', '');
   });
 
+  test('open prop drives the dialog after mount', async ({ mount, page }) => {
+    const c = await mount('Modal', { title: 'Reactive' });
+    await expect(c.locator('.slice-modal')).not.toBeVisible();
+    await page.evaluate(() => { window.__sliceMounted.open = true; });
+    await expect(c.locator('.slice-modal')).toBeVisible();
+    await page.evaluate(() => { window.__sliceMounted.open = false; });
+    await expect(c.locator('.slice-modal')).not.toBeVisible();
+  });
+
   test('close button hides the modal', async ({ mount }) => {
     const c = await mount('Modal', { title: 'Dismiss', open: true });
     await c.locator('.slice-modal__close').click();
@@ -75,6 +84,19 @@ test.describe('Modal', () => {
     await expect(c.locator('.slice-modal')).not.toBeVisible();
     overflow = await page.evaluate(() => document.body.style.overflow);
     expect(overflow).toBe('');
+  });
+
+  test('restores body scroll when closed with Escape', async ({ mount, page }) => {
+    const c = await mount('Modal', { title: 'Esc scroll', open: true });
+    await expect(c.locator('.slice-modal')).toBeVisible();
+    let overflow = await page.evaluate(() => document.body.style.overflow);
+    expect(overflow).toBe('hidden');
+    await page.keyboard.press('Escape');
+    await expect(c.locator('.slice-modal')).not.toBeVisible();
+    await expect(async () => {
+      overflow = await page.evaluate(() => document.body.style.overflow);
+      expect(overflow).toBe('');
+    }).toPass({ timeout: 3000 });
   });
 
   test('restores body scroll on destroy', async ({ mount, page }) => {

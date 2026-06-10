@@ -38,6 +38,79 @@ slice-table .table td code {
   border-radius: 4px;
 }
 
+slice-table .table_component {
+  position: relative;
+}
+
+slice-table .table th.table_head_cell--sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+slice-table .table th.table_head_cell--sortable:hover {
+  background: color-mix(in srgb, var(--primary-color) 80%, black);
+}
+
+slice-table .table th.table_head_cell--sortable:focus-visible {
+  outline: 2px solid var(--primary-color-contrast);
+  outline-offset: -2px;
+}
+
+/* Self-contained busy overlay — no dependency on the Loading component. */
+slice-table .table_loading {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--primary-background-color) 60%, transparent);
+  border-radius: var(--border-radius-slice);
+  z-index: 1;
+}
+
+slice-table .table_loading.table_loading--active {
+  display: flex;
+}
+
+slice-table .table_spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid color-mix(in srgb, var(--primary-color) 25%, transparent);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: slice-table_spin 0.7s linear infinite;
+}
+
+@keyframes slice-table_spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-table .table_spinner { animation-duration: 1.6s; }
+}
+
+slice-table .table_sort_indicator {
+  font-size: 0.8em;
+  opacity: 0.8;
+}
+
+slice-table .table_empty {
+  text-align: center;
+  padding: 1.5rem 12px;
+  color: color-mix(in srgb, var(--font-primary-color, #1a0b2e) 60%, transparent);
+}
+
+slice-table .table_footer:empty {
+  display: none;
+}
+
+slice-table .table_footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.75rem;
+}
+
 @media (max-width: 640px) {
   slice-table .table_wrapper {
     overflow: visible;

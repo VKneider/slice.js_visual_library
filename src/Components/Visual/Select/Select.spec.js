@@ -108,3 +108,52 @@ test.describe('Select', () => {
       await expect(c.component).toHaveScreenshot('select-default.png');
    });
 });
+
+test.describe('Select — searchable / clearable / keyboard', () => {
+   test('searchable filters the options as you type', async ({ mount }) => {
+      const c = await mount('Select', { options: OPTIONS, label: 'Fruit', searchable: true });
+      await c.locator('.slice_select_container').click();
+      await c.locator('.slice_select').fill('an'); // only "Banana" contains "an"
+      const visible = c.locator('.slice_select_menu [role="option"]:visible');
+      await expect(visible).toHaveCount(1);
+      await expect(visible.nth(0)).toHaveText('Banana');
+   });
+
+   test('searchable shows a no-results row when nothing matches', async ({ mount }) => {
+      const c = await mount('Select', { options: OPTIONS, searchable: true });
+      await c.locator('.slice_select_container').click();
+      await c.locator('.slice_select').fill('zzz');
+      await expect(c.locator('.slice_select_menu [role="option"]:visible')).toHaveCount(0);
+      await expect(c.locator('.slice_select_no_results')).toBeVisible();
+   });
+
+   test('clearable: a clear button resets the selection and fires onChange', async ({ mount }) => {
+      const c = await mount('Select', { options: OPTIONS, clearable: true }, { spies: ['onChange'] });
+      await c.locator('.slice_select_container').click();
+      await c.locator('.slice_select_menu [role="option"]').nth(0).click();
+      await expect(c.locator('.slice_select')).toHaveValue('Apple');
+
+      const clear = c.locator('.slice_select_clear');
+      await expect(clear).toBeVisible();
+      await clear.click();
+
+      await expect(c.locator('.slice_select')).toHaveValue('');
+      expect(await c.events('onChange')).toBe(2); // one select + one clear
+   });
+
+   test('clear button is hidden until something is selected', async ({ mount }) => {
+      const c = await mount('Select', { options: OPTIONS, clearable: true });
+      await expect(c.locator('.slice_select_clear')).toBeHidden();
+   });
+
+   test('keyboard: ArrowDown highlights options and Enter selects', async ({ mount }) => {
+      const c = await mount('Select', { options: OPTIONS });
+      const container = c.locator('.slice_select_container');
+      await container.focus();
+      await container.press('ArrowDown'); // open
+      await container.press('ArrowDown'); // highlight Apple
+      await container.press('ArrowDown'); // highlight Banana
+      await container.press('Enter');
+      await expect(c.locator('.slice_select')).toHaveValue('Banana');
+   });
+});

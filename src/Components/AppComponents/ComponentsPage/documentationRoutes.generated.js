@@ -14,6 +14,11 @@ const documentationRoutes = {
         path: '/docs/data/table',
         component: 'TableDocumentation'
       },
+      {
+        title: 'Pagination',
+        path: '/docs/data/pagination',
+        component: 'PaginationDocumentation'
+      },
     ]
   },
   Display: {
@@ -62,6 +67,11 @@ const documentationRoutes = {
     title: 'Input Components',
     path: '/docs/input-components',
     items: [
+      {
+        title: 'Form',
+        path: '/docs/input/form',
+        component: 'FormDocumentation'
+      },
       {
         title: 'Button',
         path: '/docs/input/button',

@@ -212,6 +212,13 @@ slice-button .slice_button { ... }
 **Cleanup:** remove any `window`/`document` listeners, timers, and observers in
 `beforeDestroy()`. Listeners on the component's own node and Slice subscriptions
 (`slice.events.bind`, `slice.context.watch`) are auto-cleaned — do not clean those.
+- **Put teardown in `beforeDestroy()`, not `disconnectedCallback()`.** `disconnectedCallback` also
+  fires on *temporary* detach (router caching, `innerHTML=''`) and `init()` does **not** re-run on
+  reconnect — tearing listeners down there breaks a detach/reattach cycle (see Modal).
+- **Destroy any component/Service you built with `slice.build`.** A parent's destroy does **not**
+  reliably cascade to them, and a **Service has no DOM so it is never auto-cleaned by anything**.
+  Destroy them explicitly with `slice.controller.destroyComponent(...)` (see Table → DataGridEngine +
+  Pagination). App-lifetime singletons are the exception — they are never destroyed.
 
 **Safety:**
 - No `innerHTML` for dynamic or user-supplied content. Use `textContent`, DOM nodes, or an
@@ -297,7 +304,9 @@ All deprecated forms continue to work and emit a one-time console warning.
 - [ ] CSS fully scoped under the tag; keyframes prefixed (§8).
 - [ ] No `innerHTML` for dynamic content; links via `setAttribute` (§9).
 - [ ] No hover-only dismissal; touch works (§9).
-- [ ] `beforeDestroy()` cleans global listeners/timers/observers (§9).
+- [ ] `beforeDestroy()` cleans global listeners/timers/observers (§9) **and destroys any child
+      Service/component built with `slice.build`** (not auto-cascaded; Services have no DOM).
+- [ ] Resource/listener teardown is in `beforeDestroy()`, not `disconnectedCallback()` (§9).
 - [ ] A11y: role/tabindex/keyboard/aria as applicable (§9).
 - [ ] Colors via theme tokens (§11).
 - [ ] Registered in `src/Components/components.js`.

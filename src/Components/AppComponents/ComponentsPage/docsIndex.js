@@ -11,6 +11,17 @@ const docsIndex = [
     tags: ['table', 'data', 'display']
   },
   {
+    title: 'Pagination',
+    route: '/docs/data/pagination',
+    description: 'A controlled page navigator with ellipsis ranges, reusable on its own or via Table.',
+    section: 'Data',
+    group: 'Tables',
+    order: 11,
+    navLabel: 'Pagination',
+    component: 'PaginationDocumentation',
+    tags: ['pagination', 'navigation', 'data']
+  },
+  {
     title: 'Icon',
     route: '/docs/display/icon',
     description: 'Complete icon reference with all 291 symbols, usage patterns, and style variants.',
@@ -75,6 +86,17 @@ const docsIndex = [
     navLabel: 'Loading',
     component: 'LoadingDocumentation',
     tags: ['loading', 'feedback']
+  },
+  {
+    title: 'Form',
+    route: '/docs/input/form',
+    description: 'Declarative forms with sections, descriptions and validation, composed from Slice components.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 5,
+    navLabel: 'Form',
+    component: 'FormDocumentation',
+    tags: ['form', 'forms', 'validation', 'input']
   },
   {
     title: 'Button',
@@ -310,7 +332,7 @@ const docsIndex = [
   {
     title: 'FetchManager',
     route: '/docs/services/fetch-manager',
-    description: 'HTTP client Service over fetch with timeout, base URL, default headers and Loading integration.',
+    description: 'HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.',
     section: 'Services',
     group: 'Networking',
     order: 30,

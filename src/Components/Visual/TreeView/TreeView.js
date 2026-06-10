@@ -1,3 +1,4 @@
+const _SET_ACTIVE_TREE_ITEM = 'setActiveTreeItem';
 const _sliceDeprecated = new Set();
 function deprecate(oldName, newName) {
    if (_sliceDeprecated.has(oldName)) return;
@@ -86,7 +87,7 @@ export default class TreeView extends HTMLElement {
       }
    }
 
-   setActiveTreeItem(treeItem) {
+   [_SET_ACTIVE_TREE_ITEM](treeItem) {
       if (this._previousActive && this._previousActive !== treeItem) {
          this._previousActive.setActive(false);
       }
@@ -122,7 +123,7 @@ export default class TreeView extends HTMLElement {
          for (const child of container.children) {
             if (child.tagName !== 'SLICE-TREEITEM') continue;
             if (child.path === path) {
-               this.setActiveTreeItem(child);
+               this[_SET_ACTIVE_TREE_ITEM](child);
                this.openAncestors(child);
                return true;
             }

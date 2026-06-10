@@ -70,13 +70,38 @@ export const test = base.extend({
             await page.evaluate((t) => window.slice.setTheme(t), theme);
          }
 
+         // Render functions inside column definitions cannot cross the
+         // page.evaluate boundary (structured clone drops them). Stringify
+         // them, register on window, and pass a string key instead.
+         const renderFns = {};
+         const serializableProps = { ...props };
+         if (Array.isArray(serializableProps.columns)) {
+            serializableProps.columns = serializableProps.columns.map((col, i) => {
+               if (col && typeof col.render === 'function') {
+                  const key = `__col_render_${i}`;
+                  renderFns[key] = col.render.toString();
+                  return { ...col, render: key };
+               }
+               return col;
+            });
+         }
+         const renderFnKeys = Object.keys(renderFns);
+         if (renderFnKeys.length > 0) {
+            await page.evaluate((fnMap) => {
+               window.__sliceRenderFns = {};
+               for (const [key, code] of Object.entries(fnMap)) {
+                  window.__sliceRenderFns[key] = eval(`(${code})`);
+               }
+            }, renderFns);
+         }
+
          const built = await page.evaluate(
-            async ({ name, props, spies }) => {
+            async ({ name, serializableProps, spies, renderFnKeys }) => {
                const root = document.querySelector('[data-test-root]');
                root.innerHTML = '';
                window.__sliceTestEvents = {};
 
-               const finalProps = { ...props };
+               const finalProps = JSON.parse(JSON.stringify(serializableProps));
                for (const spyName of spies) {
                   window.__sliceTestEvents[spyName] = [];
                   finalProps[spyName] = (...args) => {
@@ -91,13 +116,22 @@ export const test = base.extend({
                   };
                }
 
+               // Restore render functions from the window registry
+               if (renderFnKeys.length > 0 && finalProps.columns) {
+                  for (const col of finalProps.columns) {
+                     if (typeof col.render === 'string' && window.__sliceRenderFns?.[col.render]) {
+                        col.render = window.__sliceRenderFns[col.render];
+                     }
+                  }
+               }
+
                const node = await window.slice.build(name, finalProps);
                if (!node) return false;
                root.appendChild(node);
                window.__sliceMounted = node;
                return true;
             },
-            { name, props, spies }
+            { name, serializableProps, spies, renderFnKeys }
          );
 
          if (!built) {

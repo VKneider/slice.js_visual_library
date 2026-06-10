@@ -7,7 +7,7 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>FetchManager</code> is a <strong>Service</strong> component: an HTTP client built on the native <code>fetch</code> API. It adds an optional <code>baseUrl</code>, a request timeout (via <code>AbortController</code>), default headers, a simple last-request cache, and automatic integration with the [<code>Loading</code>](/docs/feedback/loading) overlay — the spinner shows while a request is in flight and hides when it settles.</p>
+<p><code>FetchManager</code> is a <strong>Service</strong> component: an HTTP client built on the native <code>fetch</code> API. It adds an optional <code>baseUrl</code>, a request timeout (via <code>AbortController</code>), default headers, and a simple last-request cache. It does <strong>not</strong> drive any loading UI — show your own busy state around calls (e.g. a component's <code>loading</code> prop) if you want one.</p>
 <p>Build it with an optional <code>baseUrl</code> and <code>timeout</code> (ms, default <code>10000</code>):</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <h2 id="methods">Methods</h2>

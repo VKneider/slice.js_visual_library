@@ -1,0 +1,98 @@
+slice-form {
+  display: block;
+  width: 100%;
+}
+
+slice-form .slice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+slice-form .slice-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+slice-form .slice-form__section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+slice-form .slice-form__section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}
+
+slice-form .slice-form__section-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--font-primary-color) 65%, transparent);
+}
+
+slice-form .slice-form__separator {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--font-primary-color) 12%, transparent);
+  margin: 0.25rem 0;
+  width: 100%;
+}
+
+slice-form .slice-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+slice-form .slice-form__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}
+
+slice-form .slice-form__required {
+  color: var(--danger-color);
+}
+
+slice-form .slice-form__description {
+  margin: 0;
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--font-primary-color) 60%, transparent);
+}
+
+slice-form .slice-form__error {
+  font-size: 0.8rem;
+  color: var(--danger-color);
+  min-height: 0;
+}
+
+slice-form .slice-form__error:empty {
+  display: none;
+}
+
+slice-form .slice-form__field--error .slice-form__error {
+  display: block;
+}
+
+slice-form .slice-form__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+/* Native submit proxy: enables Enter-to-submit without being visible. */
+slice-form .slice-form__submit-proxy {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
+}

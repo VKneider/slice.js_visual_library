@@ -24,6 +24,7 @@ export default class Modal extends HTMLElement {
     this._dismissable = true;
     this._customColor = null;
     this._onClose = null;
+    this._scrollLocked = false;
 
     slice.controller.setComponentProps(this, props || {});
 
@@ -35,9 +36,22 @@ export default class Modal extends HTMLElement {
 
   static _openCount = 0;
   static _originalOverflow = null;
+  static _scrollY = null;
 
   set open(value) {
-    this._open = value === true;
+    const next = value === true;
+    // During construction the host is not connected yet and showModal() would
+    // throw; just record the state and let init() apply it. Once mounted, the
+    // prop drives the dialog so `modal.open = true/false` actually works.
+    if (!this.$dialog || !this.isConnected) {
+      this._open = next;
+      return;
+    }
+    if (next) {
+      this.showModal();
+    } else {
+      this.close();
+    }
   }
 
   get open() { return this._open; }
@@ -89,8 +103,12 @@ export default class Modal extends HTMLElement {
   showModal() {
     this._open = true;
     this.removeAttribute('open');
-    if (this.$dialog) this.$dialog.showModal();
-    this._lockScroll();
+    // showModal() throws InvalidStateError if the dialog is already open, and
+    // _lockScroll must only run for an actual open transition.
+    if (this.$dialog && !this.$dialog.open) {
+      this.$dialog.showModal();
+      this._lockScroll();
+    }
   }
 
   close(result) {
@@ -104,18 +122,34 @@ export default class Modal extends HTMLElement {
   }
 
   _lockScroll() {
+    // Guard per-instance so the same modal can never increment the shared
+    // counter twice (e.g. showModal() + a stray init path).
+    if (this._scrollLocked) return;
+    this._scrollLocked = true;
     Modal._openCount++;
     if (Modal._openCount === 1) {
       Modal._originalOverflow = document.body.style.overflow;
+      Modal._scrollY = window.scrollY;
       document.body.style.overflow = 'hidden';
     }
   }
 
   _restoreScroll() {
+    // Idempotent: only the instance that actually locked may release, so it is
+    // safe to call this from every close path (close(), the native 'close'
+    // event, disconnect and destroy) without double-decrementing the counter.
+    if (!this._scrollLocked) return;
+    this._scrollLocked = false;
     Modal._openCount = Math.max(0, Modal._openCount - 1);
-    if (Modal._openCount === 0 && Modal._originalOverflow !== null) {
-      document.body.style.overflow = Modal._originalOverflow;
+    if (Modal._openCount === 0) {
+      document.body.style.overflow = Modal._originalOverflow || '';
       Modal._originalOverflow = null;
+      // Re-pin the scroll position: closing a modal returns focus and can make
+      // the page jump to the top once overflow is released.
+      if (Modal._scrollY !== null) {
+        window.scrollTo(0, Modal._scrollY);
+        Modal._scrollY = null;
+      }
     }
   }
 
@@ -156,6 +190,10 @@ export default class Modal extends HTMLElement {
 
   _handleDialogClose() {
     this._open = false;
+    // The native <dialog> fires 'close' on EVERY close path (Escape key, the
+    // close() method, backdrop). Restoring scroll here is the single source of
+    // truth so Escape-to-close cannot leave the background scroll-locked.
+    this._restoreScroll();
     if (typeof this._onClose === 'function') {
       this._onClose({ returnValue: this.$dialog.returnValue });
     }
@@ -167,10 +205,21 @@ export default class Modal extends HTMLElement {
     }
   }
 
-  disconnectedCallback() {
-    this._restoreScroll();
-    this.$dialog.removeEventListener('click', this._handleBackdropClick);
+  _removeListeners() {
+    if (this.$close) this.$close.removeEventListener('click', this._handleClose);
     this.$dialog.removeEventListener('keydown', this._handleKeyDown);
+    this.$dialog.removeEventListener('close', this._handleDialogClose);
+    this.$dialog.removeEventListener('click', this._handleBackdropClick);
+  }
+
+  disconnectedCallback() {
+    // Listeners are added once in init() and are NOT re-added on reconnect, so
+    // tearing them down here would break a detach/reattach cycle (e.g. the
+    // router caches instances via innerHTML='' + appendChild without re-running
+    // init()). Listener cleanup lives in beforeDestroy() — the real Slice
+    // destroy hook. Here we only release the scroll lock as a safety net for
+    // teardown via innerHTML='' that never reaches beforeDestroy().
+    this._restoreScroll();
   }
 
   beforeDestroy() {
@@ -178,8 +227,7 @@ export default class Modal extends HTMLElement {
       this.$dialog.close();
       this._restoreScroll();
     }
-    this.$dialog.removeEventListener('keydown', this._handleKeyDown);
-    this.$dialog.removeEventListener('close', this._handleDialogClose);
+    this._removeListeners();
   }
 }
 

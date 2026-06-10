@@ -5,7 +5,7 @@ navLabel: FetchManager
 section: Services
 group: Networking
 order: 30
-description: HTTP client Service over fetch with timeout, base URL, default headers and Loading integration.
+description: HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.
 component: FetchManagerDocumentation
 generate: true
 tags: [service, fetch, http, networking]
@@ -15,9 +15,9 @@ tags: [service, fetch, http, networking]
 
 ## Overview
 `FetchManager` is a **Service** component: an HTTP client built on the native `fetch` API. It
-adds an optional `baseUrl`, a request timeout (via `AbortController`), default headers, a simple
-last-request cache, and automatic integration with the [`Loading`](/docs/feedback/loading)
-overlay — the spinner shows while a request is in flight and hides when it settles.
+adds an optional `baseUrl`, a request timeout (via `AbortController`), default headers, and a simple
+last-request cache. It does **not** drive any loading UI — show your own busy state around calls (e.g.
+a component's `loading` prop) if you want one.
 
 Build it with an optional `baseUrl` and `timeout` (ms, default `10000`):
 
