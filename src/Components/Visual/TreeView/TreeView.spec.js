@@ -1,7 +1,5 @@
 import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
-const _SET_ACTIVE_TREE_ITEM = 'setActiveTreeItem';
-
 // TreeView renders a `.simple_treeview` container and builds one TreeItem child
 // per top-level `items` node. Node shape: { value, path?, items? }.
 // Canonical handler: `onClick`; deprecated alias: `onClickCallback` (warns once).
@@ -96,18 +94,18 @@ test.describe('TreeView', () => {
    test('setActiveTreeItem toggles active state between items', async ({ mount, page }) => {
       const c = await mount('TreeView', { items: ITEMS });
       // Activate Root A
-      await page.evaluate(({ method }) => {
+      await page.evaluate(() => {
          const tv = document.querySelector('slice-treeview');
-         if (tv) tv[method](tv.querySelector('.tree_item'));
-      }, { method: _SET_ACTIVE_TREE_ITEM });
+         if (tv) tv.setActiveTreeItem(tv.querySelector('.tree_item'));
+      });
       const firstLabel = c.locator('.simple_treeview > .tree_item:first-child > .slice_tree_item');
       await expect(firstLabel).toHaveClass(/is-active/);
 
       // Activate Root B (switches active)
-      await page.evaluate(({ method }) => {
+      await page.evaluate(() => {
          const tv = document.querySelector('slice-treeview');
-         if (tv) tv[method](tv.querySelectorAll('.tree_item')[1]);
-      }, { method: _SET_ACTIVE_TREE_ITEM });
+         if (tv) tv.setActiveTreeItem(tv.querySelectorAll('.tree_item')[1]);
+      });
       await expect(firstLabel).not.toHaveClass(/is-active/);
       const secondLabel = c.locator('.simple_treeview > .tree_item:nth-child(2) > .slice_tree_item');
       await expect(secondLabel).toHaveClass(/is-active/);

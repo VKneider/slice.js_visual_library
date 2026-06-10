@@ -15,8 +15,8 @@ importers:
         specifier: 3.6.2
         version: 3.6.2
       slicejs-web-framework:
-        specifier: ^3.3.3
-        version: 3.3.3
+        specifier: ^3.3.5
+        version: 3.3.5
     devDependencies:
       '@playwright/test':
         specifier: ^1.60.0
@@ -814,8 +814,8 @@ packages:
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  slicejs-web-framework@3.3.3:
-    resolution: {integrity: sha512-YttBMuLAWMhIZ1zt8ZMrEIrDM9TqCBnp0uhNRfSgSRPA1ypA9U6NtEkhnVawlQ0SnC9pBvb4t4q1b+jwAG4Qbg==}
+  slicejs-web-framework@3.3.5:
+    resolution: {integrity: sha512-swLF4Ix+0b4/p3py1xXE1kq/UKOCFT9xHv8bi4U0I+7swnnCDl1sY0dzxumanJfxZXsUvPcdX0xKQ+oSBWIFSA==}
     engines: {node: '>=20'}
 
   source-map-support@0.5.21:
@@ -1745,13 +1745,13 @@ snapshots:
       html-minifier-terser: 7.2.0
       inquirer: 12.11.1
       ora: 8.2.0
-      slicejs-web-framework: 3.3.3
+      slicejs-web-framework: 3.3.5
       terser: 5.48.0
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
 
-  slicejs-web-framework@3.3.3:
+  slicejs-web-framework@3.3.5:
     dependencies:
       express: 4.22.2
     transitivePeerDependencies:

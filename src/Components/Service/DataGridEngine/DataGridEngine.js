@@ -9,12 +9,6 @@
 // the owner destroys it in beforeDestroy(). Pure one-off math is also available
 // as static helpers so callers that don't need state can skip the instance.
 
-const _SET_DATA = 'setData';
-const _SET_PAGE_SIZE = 'setPageSize';
-const _SET_PAGE = 'setPage';
-const _SET_SORT = 'setSort';
-const _SET_TOTAL_ITEMS = 'setTotalItems';
-
 export default class DataGridEngine {
   constructor(props = {}) {
     this._data = Array.isArray(props.data) ? props.data : [];
@@ -31,13 +25,13 @@ export default class DataGridEngine {
   }
 
   // --- state mutators (chainable) ---
-  [_SET_DATA](data) {
+  setData(data) {
     this._data = Array.isArray(data) ? data : [];
     this._clampPage();
     return this;
   }
 
-  [_SET_PAGE_SIZE](size) {
+  setPageSize(size) {
     if (size > 0) {
       this._pageSize = size;
       this._clampPage();
@@ -45,19 +39,19 @@ export default class DataGridEngine {
     return this;
   }
 
-  [_SET_PAGE](page) {
+  setPage(page) {
     this._page = this._clamp(page);
     return this;
   }
 
-  [_SET_SORT](sort) {
+  setSort(sort) {
     this._sort = sort && sort.key ? { key: sort.key, direction: sort.direction === 'desc' ? 'desc' : 'asc' } : null;
     this._page = 1;
     return this;
   }
 
   // Externally-known total (manual mode). Drives totalPages when set.
-  [_SET_TOTAL_ITEMS](total) {
+  setTotalItems(total) {
     this._totalItemsOverride = Number.isFinite(total) ? total : null;
     this._clampPage();
     return this;

@@ -1,9 +1,3 @@
-const _ENG_SET_DATA = 'setData';
-const _ENG_SET_PAGE_SIZE = 'setPageSize';
-const _ENG_SET_SORT = 'setSort';
-const _ENG_SET_TOTAL_ITEMS = 'setTotalItems';
-const _ENG_SET_PAGE = 'setPage';
-
 export default class Table extends HTMLElement {
   static props = {
     // Legacy positional API (still supported): string headers + array-of-arrays rows.
@@ -79,7 +73,7 @@ export default class Table extends HTMLElement {
   set rows(value) {
     this._rows = Array.isArray(value) ? value : [];
     if (this._engine) {
-      this._engine[_ENG_SET_DATA](this._rows)[_ENG_SET_PAGE_SIZE](this._effectivePageSize());
+      this._engine.setData(this._rows).setPageSize(this._effectivePageSize());
       this._afterStateChange();
     }
   }
@@ -99,7 +93,7 @@ export default class Table extends HTMLElement {
   set defaultSort(value) {
     this._defaultSort = value && value.key ? value : null;
     if (this._engine && this._defaultSort) {
-      this._engine[_ENG_SET_SORT](this._defaultSort);
+      this._engine.setSort(this._defaultSort);
       this._afterStateChange();
     }
   }
@@ -125,7 +119,7 @@ export default class Table extends HTMLElement {
   set totalItems(value) {
     this._totalItems = Number.isFinite(value) ? value : null;
     if (this._engine && this._remote) {
-      this._engine[_ENG_SET_TOTAL_ITEMS](this._totalItems);
+      this._engine.setTotalItems(this._totalItems);
       this._afterStateChange();
     }
   }
@@ -247,7 +241,7 @@ export default class Table extends HTMLElement {
 
   _goToPage(page) {
     if (!this._engine) return;
-    this._engine[_ENG_SET_PAGE](page);
+    this._engine.setPage(page);
     if (this._onPageChange) this._onPageChange(this._engine.page);
     this._afterStateChange();
   }
@@ -266,7 +260,7 @@ export default class Table extends HTMLElement {
   // matter of setting its props (done in _afterStateChange).
   async _applyPagination() {
     if (!this._engine) return;
-    this._engine[_ENG_SET_PAGE_SIZE](this._effectivePageSize());
+    this._engine.setPageSize(this._effectivePageSize());
     if (this._paginate && !this._pager && !this._buildingPager) {
       this._buildingPager = true;
       this._pager = await slice.build('Pagination', {

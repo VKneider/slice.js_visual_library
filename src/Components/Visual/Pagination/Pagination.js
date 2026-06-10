@@ -1,7 +1,5 @@
 import DataGridEngine from '../../Service/DataGridEngine/DataGridEngine.js';
 
-const _ON_PAGE_CHANGE = 'onPageChange';
-
 // Pagination — a controlled, presentational pager.
 //
 // It owns no page state: the consumer holds the current page and passes it in
@@ -17,7 +15,7 @@ export default class Pagination extends HTMLElement {
     boundaryCount: { type: 'number', default: 1 },
     showFirstLast: { type: 'boolean', default: false },
     disabled: { type: 'boolean', default: false },
-    [_ON_PAGE_CHANGE]: { type: 'function', default: null }
+    onPageChange: { type: 'function', default: null }
   };
 
   constructor(props) {
@@ -73,7 +71,7 @@ export default class Pagination extends HTMLElement {
   }
   get disabled() { return this._disabled; }
 
-  set [_ON_PAGE_CHANGE](value) {
+  set onPageChange(value) {
     this._onPageChange = typeof value === 'function' ? value : null;
   }
 

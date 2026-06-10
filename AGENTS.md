@@ -75,6 +75,11 @@ Playwright (the `mount` fixture builds it via `slice.build` on the `/__test` har
 - Full guide + `mount` API: **`playwright/README.md`**. Reference test: `src/Components/Visual/Button/Button.spec.js`.
 - Use **pnpm** for everything (never npm). The browser binary is installed once with
   `pnpm exec playwright install chromium`.
+- **E2e destroy lifecycle tests** in `src/Components/Visual/Destroy.spec.js` (20 tests) cover
+  `destroyComponent`, `destroyByContainer`, and `destroyByPattern` against the real `activeComponents`.
+  These are the browser e2e counterpart of the unit tests in `slice.js/Slice/tests/destroy-cascade.test.js`.
+- The framework repo (`slice.js`) only has node:unit tests. Any test that requires a real DOM
+  (events, visual rendering, destroy with `querySelectorAll`) must be written here in the visual library.
 
 ## Quality Rules
 - Do not introduce React/JSX in this repository.
@@ -92,3 +97,24 @@ Playwright (the `mount` fixture builds it via `slice.build` on the `/__test` har
 The full contract for authoring/modifying components lives in
 [`COMPONENT_API_STANDARDS.md`](./COMPONENT_API_STANDARDS.md) (naming, aliases, encapsulation,
 a11y, theme tokens, and a new-component checklist).
+
+---
+
+## Non-obvious Framework Knowledge
+
+### `destroyByContainer` requires `slice-id` HTML attribute
+`destroyByContainer(domNode)` uses `querySelectorAll('[slice-id]')` to discover components inside a container. However, `sliceId` was only stored as a JS property (`component.sliceId = ...`), never as an HTML attribute — so the query always returned empty and `destroyByContainer` always returned 0.
+
+**Fix:** Added `component.setAttribute('slice-id', component.sliceId)` in `Controller.registerComponent()`. Applied both in `slice.js/Slice/.../Controller.js` and in the pnpm store copy at `node_modules/.pnpm/slicejs-web-framework@*/node_modules/.../Controller.js`.
+
+### pnpm store architecture
+`node_modules/slicejs-web-framework` is a junction pointing to `.pnpm/slicejs-web-framework@3.3.5/node_modules/slicejs-web-framework`, NOT directly to the `slice.js/` source project. Editing `slice.js/Slice/` does NOT affect the running app until the same change is applied to the `.pnpm` copy.
+
+### `activeComponents` baseline in test harness
+The `/__test` TestHarness page always registers infrastructure components (`loading-0`, `route-TestHarness`) in `activeComponents` before any test mounts. Tests that check `activeComponents.size` must account for this baseline (typically 2). Use `sizeBefore` snapshots or check for specific sliceIds rather than asserting `size === 0`.
+
+### Children cascade vs Service destroy
+`destroyComponent(parent)` cascades to Visual children via `childrenIndex` (fed by `registerComponentsRecursively` DOM walk). **Services are never auto-cascaded** — if a component builds a Service, it must destroy it explicitly in `beforeDestroy()`. `beforeDestroy` can also destroy additional Visual components that were added after `init()`, since those won't be in `childrenIndex` either.
+
+### `const` in components is safe
+All bundler transforms (`BundleGenerator.js`) preserve `const` declarations. Terser targets ES2022. No `const` → `var` downlevel exists. Module-level `const` in components is exclusively private data (`_sliceDeprecated`, icon name arrays, helper functions) — never exported or used as property/class names.
