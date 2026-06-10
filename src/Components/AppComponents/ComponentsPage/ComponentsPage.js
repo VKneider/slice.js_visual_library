@@ -1,6 +1,7 @@
 import documentationRoutes from './documentationRoutes.generated.js';
+import docRoutes from './docRoutes.generated.js';
 import docsIndex from './docsIndex.js';
-import { buildVisualRoutes, getAllRoutes, filterNavigationItems, toTreeViewItems, resolveInitialDocsPath } from './visualComponentRoutes.js';
+import { buildVisualRoutes, filterNavigationItems, toTreeViewItems, resolveInitialDocsPath } from './visualComponentRoutes.js';
 
 
 export default class ComponentsPage extends HTMLElement {
@@ -15,28 +16,12 @@ export default class ComponentsPage extends HTMLElement {
       // Usar la configuración de rutas centralizada
       const { routes: routesConfig, buildCompactNavigationItems } = buildVisualRoutes(documentationRoutes, docsIndex);
 
-      // Obtener todas las rutas planas para el MultiRoute
-      const multiRouteItems = getAllRoutes(routesConfig);
+      console.log('Visual Components MultiRoute items:', docRoutes);
 
-      // Asegurarse que la ruta por defecto esté incluida (sin duplicar por path)
-      if (!multiRouteItems.some(route => route.path === routesConfig.defaultRoute.path)) {
-         multiRouteItems.push(routesConfig.defaultRoute);
-      }
-
-      // Evitar rutas duplicadas para prevenir dobles builds
-      const seenPaths = new Set();
-      const uniqueMultiRouteItems = multiRouteItems.filter((route) => {
-         if (!route?.path || !route?.component) return false;
-         if (seenPaths.has(route.path)) return false;
-         seenPaths.add(route.path);
-         return true;
-      });
-
-      console.log('Visual Components MultiRoute items:', uniqueMultiRouteItems);
-
-      // Crear el MultiRoute con todas las rutas
+      // Crear el MultiRoute con todas las rutas (usa docRoutes.generated.js para
+      // que el bundle analyzer pueda detectar estaticamente los componentes)
       const visualComponentsMultiRoute = await slice.build('MultiRoute', {
-         routes: uniqueMultiRouteItems
+         routes: docRoutes
       });
 
       // Crear el MainMenu que contendrá el TreeView
