@@ -2,6 +2,10 @@
    Colors use theme tokens (the old hardcoded blue/--accent fallbacks were
    off-brand and referenced variables the theme system does not define). */
 
+slice-element-carrousel {
+  display: block;
+}
+
 slice-element-carrousel .slice_carousel {
     position: relative;
     height: 100%;

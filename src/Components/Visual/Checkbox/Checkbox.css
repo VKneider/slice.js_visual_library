@@ -1,5 +1,9 @@
 /* Encapsulated under the custom element so the checkbox styles never leak. */
 
+slice-checkbox {
+  display: inline-block;
+}
+
 slice-checkbox .slice_checkbox input {
   position: absolute;
   opacity: 0;

@@ -36,23 +36,23 @@ slice-mynavigation {
     pointer-events: none;
   }
 }
-a[class^="nav-"] {
+slice-mynavigation a[class^="nav-"] {
   text-decoration: none;
   color: var(--font-primary-color);
 }
-a[class^="nav-"]:hover{
+slice-mynavigation a[class^="nav-"]:hover{
   color: var(--primary-color);
 }
-a[class$="1"] {
+slice-mynavigation a[class$="1"] {
   font-weight: 700;
   margin-left: 0%;
 }
-a[class$="2"] {
+slice-mynavigation a[class$="2"] {
   margin-left: 5%;
 }
-a[class$="3"] {
+slice-mynavigation a[class$="3"] {
   margin-left: 10%;
 }
-a[class$="4"] {
+slice-mynavigation a[class$="4"] {
   margin-left: 15%;
 }

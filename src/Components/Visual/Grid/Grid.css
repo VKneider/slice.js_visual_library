@@ -1,6 +1,7 @@
 /* Encapsulated under the custom element so the grid styles never leak. */
 
 slice-grid {
+  display: block;
   background: none;
   background-color: transparent;
 }

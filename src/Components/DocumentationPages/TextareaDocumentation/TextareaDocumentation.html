@@ -1,0 +1,34 @@
+<div class="documentation-content textareadocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="textarea">
+    <span class="doc-title-text">Textarea</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>Textarea</code> is the multi-line counterpart to [<code>Input</code>](/docs/input/input). It shares the floating-label look and <code>conditions</code>-based validation, and adds textarea-specific options: an initial <code>rows</code> height, optional <code>autoGrow</code> that expands the field as the user types, and an <code>onChange(value)</code> handler.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>value</code> / <code>placeholder</code> mirror <code>Input</code>. The label floats above the border on focus or once</li></ul>
+<p>the field has a value.</p>
+<ul><li><code>rows</code> sets the initial visible height; <code>maxlength</code> caps the character count natively.</li><li><code>autoGrow</code> disables manual resize and grows the field to fit its content on every keystroke.</li><li><code>onChange</code> fires with the current string on every input event.</li><li><code>conditions</code> accepts <code>{ regex }</code> or <code>{ minLength, maxLength }</code>; call <code>validateValue()</code> to run</li></ul>
+<p>the check and surface the error state.</p>
+<ul><li>All listeners live on the component's own nodes, so there is nothing to clean up manually.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="example">Example</h2>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Pair <code>autoGrow</code> with <code>maxlength</code> and an external counter (via <code>onChange</code>) for comment and
+message boxes — it keeps the field compact while making the limit visible.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>conditions</code> only validates when you call <code>validateValue()</code> (e.g. from a submit handler), not on
+every keystroke. Wire it to your <code>Form</code>'s submit flow rather than expecting live validation.</div>
+<div class="component-block" data-block-id="doc-block-8"></div>
+</div>

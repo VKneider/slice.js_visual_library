@@ -16,14 +16,14 @@ don't double up. Small, focused PRs are easier to review than one big one.
 
 > Already shipped — don't re-build these: `Form`, `Pagination`, `Table` (sorting + pagination + remote),
 > `Select` (searchable/clearable/keyboard), `Modal`, `Toast`/`ToastProvider`, `ToolTip`/`ToolTipProvider`,
-> `Tabs`, `Details`, `Loading` (indeterminate spinner), `Switch`, `Checkbox`, `Input`, `Card`, `Grid`.
+> `Tabs`, `Details`, `Loading` (indeterminate spinner), `Switch`, `Checkbox`, `Input`,
+> `Textarea` (auto-grow + validation + `onChange`), `Card`, `Grid`.
 
 ## Form controls
 
 | Component | What | Size | Model after | Notes |
 | --- | --- | --- | --- | --- |
 | **Radio / RadioGroup** | Single-choice control + group | 🟢🟡 | `Checkbox`, `Switch` | `RadioGroup` owns the value; only one option selected. `name`, `options`, `value`, `onChange`, `disabled`. |
-| **Textarea** | Multi-line text input | 🟢 | `Input` | Either a standalone component or `Input` with `multiline`/`rows`. Auto-grow is a nice-to-have. |
 | **Input error/helper text** | Inline validation message + hint under `Input` | 🟢 | `Input` (has `conditions`) | Surface an `error` message and a `helperText`, with `aria-describedby`. Pairs with `Form`. |
 | **Slider / Range** | Numeric drag selector | 🟡 | `Switch` (drag/keyboard) | `min`/`max`/`step`/`value`, keyboard (←/→/Home/End), `aria-valuenow`. Optional dual-handle range. |
 | **FileUpload / Dropzone** | File picker with drag-and-drop | 🟡🔴 | `Button` | `accept`, `multiple`, drag-over state, list selected files, `onChange(files)`. |

@@ -9,6 +9,6 @@ slice-app .app-navbar {
 }
 
 slice-app .app-content {
-   padding-top: 70px;
-   min-height: calc(100vh - 70px);
+   padding-top: 72px;
+   min-height: calc(100vh - 72px);
 }

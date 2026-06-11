@@ -35,7 +35,6 @@ export default class Modal extends HTMLElement {
   }
 
   static _openCount = 0;
-  static _originalOverflow = null;
   static _scrollY = null;
 
   set open(value) {
@@ -100,16 +99,17 @@ export default class Modal extends HTMLElement {
 
   get onClose() { return this._onClose; }
 
-  showModal() {
-    this._open = true;
-    this.removeAttribute('open');
-    // showModal() throws InvalidStateError if the dialog is already open, and
-    // _lockScroll must only run for an actual open transition.
-    if (this.$dialog && !this.$dialog.open) {
-      this.$dialog.showModal();
-      this._lockScroll();
+   showModal() {
+      this._open = true;
+      this.removeAttribute('open');
+      // showModal() throws InvalidStateError if the dialog is already open.
+      // Lock scroll BEFORE showModal() so Chrome cannot scroll the page
+      // when auto-focusing the dialog ("scroll the dialog into view" step).
+      if (this.$dialog && !this.$dialog.open) {
+        this._lockScroll();
+        this.$dialog.showModal();
+      }
     }
-  }
 
   close(result) {
     this._open = false;
@@ -128,9 +128,15 @@ export default class Modal extends HTMLElement {
     this._scrollLocked = true;
     Modal._openCount++;
     if (Modal._openCount === 1) {
-      Modal._originalOverflow = document.body.style.overflow;
+      // Patrón position:fixed en vez de overflow:hidden para evitar que
+      // Chrome propague overflow al viewport y reseteé scrollY a 0.
       Modal._scrollY = window.scrollY;
-      document.body.style.overflow = 'hidden';
+      Modal._originalBodyPosition = document.body.style.position;
+      Modal._originalBodyTop = document.body.style.top;
+      Modal._originalBodyWidth = document.body.style.width;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${Modal._scrollY}px`;
+      document.body.style.width = '100%';
     }
   }
 
@@ -142,13 +148,16 @@ export default class Modal extends HTMLElement {
     this._scrollLocked = false;
     Modal._openCount = Math.max(0, Modal._openCount - 1);
     if (Modal._openCount === 0) {
-      document.body.style.overflow = Modal._originalOverflow || '';
-      Modal._originalOverflow = null;
-      // Re-pin the scroll position: closing a modal returns focus and can make
-      // the page jump to the top once overflow is released.
-      if (Modal._scrollY !== null) {
-        window.scrollTo(0, Modal._scrollY);
-        Modal._scrollY = null;
+      const scrollY = Modal._scrollY;
+      document.body.style.position = Modal._originalBodyPosition || '';
+      document.body.style.top = Modal._originalBodyTop || '';
+      document.body.style.width = Modal._originalBodyWidth || '';
+      Modal._originalBodyPosition = null;
+      Modal._originalBodyTop = null;
+      Modal._originalBodyWidth = null;
+      Modal._scrollY = null;
+      if (scrollY !== null) {
+        window.scrollTo(0, scrollY);
       }
     }
   }
@@ -171,8 +180,8 @@ export default class Modal extends HTMLElement {
     if (this._open) {
       requestAnimationFrame(() => {
         if (this.isConnected && this._open) {
-          this.$dialog.showModal();
           this._lockScroll();
+          this.$dialog.showModal();
         }
       });
     }

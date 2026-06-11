@@ -199,6 +199,32 @@ slice-button .slice_button { ... }
 - Elements appended to `document.body` (e.g. a tooltip bubble) are the exception and use a
   globally-unique class (`slice-tooltip-bubble`).
 
+### 8.1 Always declare an explicit host `display`
+
+A custom element with no `display` rule **defaults to `display: inline`**, which silently breaks
+`width`/`height`, drops vertical `margin`, and sits the component on the text baseline. There is no
+global default, so **every component must set `display` on its own tag** as the first rule of its
+`.css` — never rely on the inline default.
+
+```css
+/* ✅ host display is explicit */
+slice-input  { display: block; }         /* full-width form / layout / data blocks */
+slice-button { display: inline-block; }  /* content-sized controls that sit inline */
+```
+
+Pick the value by role:
+
+| `display` | Use for |
+| --- | --- |
+| `block` | form fields, layout/data containers, full-width strips (Input, Select, Textarea, Card, Grid, Form, Tabs, Navbar, Pagination, Breadcrumbs, TreeView, Layout, …) |
+| `inline-block` | content-sized interactive controls meant to flow inline (Button, Switch, Checkbox, Icon) |
+| `inline-flex` / `flex` | when the host itself is the flex container (ToolTip) |
+| `contents` | pure wrappers that must not introduce a box (Modal) |
+
+> The value is a low-specificity element selector, so a consuming app can still override it
+> (`slice-button { display: flex }` in app CSS, or a higher-specificity rule). Setting it just
+> removes the broken `inline` default — it doesn't lock layout.
+
 ---
 
 ## 9. Lifecycle, safety & accessibility baseline
@@ -301,7 +327,7 @@ All deprecated forms continue to work and emit a one-time console warning.
 
 - [ ] Props follow §3–§6 vocabulary; new aliases follow §7.
 - [ ] `static props` complete with defaults / `allowedValues` (§10).
-- [ ] CSS fully scoped under the tag; keyframes prefixed (§8).
+- [ ] CSS fully scoped under the tag; keyframes prefixed; **explicit host `display`** (§8 / §8.1).
 - [ ] No `innerHTML` for dynamic content; links via `setAttribute` (§9).
 - [ ] No hover-only dismissal; touch works (§9).
 - [ ] `beforeDestroy()` cleans global listeners/timers/observers (§9) **and destroys any child

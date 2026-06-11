@@ -1,5 +1,9 @@
 /* Encapsulated under the custom element. */
 
+slice-treeview {
+  display: block;
+}
+
 slice-treeview .simple_treeview {
   font-family: var(--font-family);
   display: flex;

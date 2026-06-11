@@ -2,7 +2,7 @@ slice-toast {
   display: block;
 }
 
-.slice-toast {
+slice-toast .slice-toast {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
@@ -22,48 +22,48 @@ slice-toast {
   word-wrap: break-word;
 }
 
-.slice-toast--visible {
+slice-toast .slice-toast--visible {
   opacity: 1;
   transform: translateY(0) scale(1);
 }
 
-.slice-toast--exiting {
+slice-toast .slice-toast--exiting {
   opacity: 0;
   transform: translateY(-4px) scale(0.96);
   transition: opacity 0.16s ease, transform 0.2s ease;
 }
 
-.slice-toast--success {
+slice-toast .slice-toast--success {
   background: var(--toast-bg, color-mix(in srgb, var(--success-color, #059669) 90%, white));
   color: var(--toast-text, #ffffff);
   border-left: 3px solid color-mix(in srgb, var(--success-color, #059669) 70%, black);
 }
 
-.slice-toast--error {
+slice-toast .slice-toast--error {
   background: var(--toast-bg, color-mix(in srgb, var(--danger-color, #dc2626) 90%, white));
   color: var(--toast-text, #ffffff);
   border-left: 3px solid color-mix(in srgb, var(--danger-color, #dc2626) 70%, black);
 }
 
-.slice-toast--warning {
+slice-toast .slice-toast--warning {
   background: var(--toast-bg, color-mix(in srgb, var(--warning-color, #d97706) 90%, white));
   color: var(--toast-text, #ffffff);
   border-left: 3px solid color-mix(in srgb, var(--warning-color, #d97706) 70%, black);
 }
 
-.slice-toast--info {
+slice-toast .slice-toast--info {
   background: var(--toast-bg, color-mix(in srgb, var(--primary-color, #9333ea) 90%, white));
   color: var(--toast-text, #ffffff);
   border-left: 3px solid color-mix(in srgb, var(--primary-color, #9333ea) 70%, black);
 }
 
-.slice-toast--default {
+slice-toast .slice-toast--default {
   background: var(--toast-bg, var(--primary-background-color, #1e293b));
   color: var(--toast-text, var(--font-primary-color, #f1f5f9));
   border-left: 3px solid var(--toast-accent, var(--medium-color, #64748b));
 }
 
-.slice-toast__icon {
+slice-toast .slice-toast__icon {
   flex-shrink: 0;
   width: 1.2rem;
   height: 1.2rem;
@@ -75,21 +75,21 @@ slice-toast {
   line-height: 1;
 }
 
-.slice-toast__icon[data-type="default"] {
+slice-toast .slice-toast__icon[data-type="default"] {
   display: none;
 }
 
-.slice-toast__icon[data-type="success"]::before { content: "✓"; }
-.slice-toast__icon[data-type="error"]::before   { content: "✕"; }
-.slice-toast__icon[data-type="warning"]::before { content: "⚠"; }
-.slice-toast__icon[data-type="info"]::before    { content: "ℹ"; }
+slice-toast .slice-toast__icon[data-type="success"]::before { content: "✓"; }
+slice-toast .slice-toast__icon[data-type="error"]::before   { content: "✕"; }
+slice-toast .slice-toast__icon[data-type="warning"]::before { content: "⚠"; }
+slice-toast .slice-toast__icon[data-type="info"]::before    { content: "ℹ"; }
 
-.slice-toast__message {
+slice-toast .slice-toast__message {
   flex: 1;
   min-width: 0;
 }
 
-.slice-toast__close {
+slice-toast .slice-toast__close {
   flex-shrink: 0;
   background: none;
   border: none;
@@ -102,10 +102,13 @@ slice-toast {
   transition: opacity 0.15s ease;
 }
 
-.slice-toast__close:hover {
+slice-toast .slice-toast__close:hover {
   opacity: 1;
 }
 
+/* NOTE: `.toast-provider-container` is created by ToastProvider and appended to
+   document.body (it lives outside any <slice-toast>), so it intentionally stays a
+   globally-unique class — see §8. */
 .toast-provider-container {
   position: fixed;
   z-index: 11000;
@@ -159,13 +162,13 @@ slice-toast {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slice-toast,
-  .slice-toast--exiting {
+  slice-toast .slice-toast,
+  slice-toast .slice-toast--exiting {
     transition: opacity 0.1s ease;
     transform: none;
   }
 
-  .slice-toast--visible {
+  slice-toast .slice-toast--visible {
     transform: none;
   }
 }

@@ -1,3 +1,7 @@
+slice-treeitem {
+   display: block;
+}
+
 slice-treeitem > .slice_tree_item {
    user-select: none;
    cursor: pointer;
@@ -18,15 +22,15 @@ slice-treeitem.is-branch > .slice_tree_item {
    font-weight: 600;
 }
 
-.slice_tree_item .caret {
+slice-treeitem > .slice_tree_item .caret {
    color: var(--primary-color);
    margin-right: 0;
    transform: rotate(-90deg);
 }
-.slice_tree_item .caret_open {
+slice-treeitem > .slice_tree_item .caret_open {
    transform: rotate(0deg);
 }
-.container {
+slice-treeitem > .container {
    margin-left: 10px;
    border-left: 1px solid color-mix(in srgb, var(--primary-color-shade) 40%, transparent);
    height: 0;
@@ -34,21 +38,21 @@ slice-treeitem.is-branch > .slice_tree_item {
    transition: height 0.3s ease;
 }
 
-.container_open {
+slice-treeitem > .container_open {
    height: auto;
 }
 
-.slice_tree_item:hover {
+slice-treeitem > .slice_tree_item:hover {
    background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
 /* Active item indicator */
-.slice_tree_item.is-active {
+slice-treeitem > .slice_tree_item.is-active {
    color: var(--primary-color);
    font-weight: 600;
    background: linear-gradient(to right, color-mix(in srgb, var(--primary-color) 15%, transparent), transparent);
    border-radius: 0;
 }
-.slice_tree_item.is-active:hover {
+slice-treeitem > .slice_tree_item.is-active:hover {
    background: linear-gradient(to right, color-mix(in srgb, var(--primary-color) 20%, transparent), transparent);
 }

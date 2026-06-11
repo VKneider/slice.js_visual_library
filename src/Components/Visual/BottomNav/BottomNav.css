@@ -5,7 +5,7 @@ slice-bottom-nav {
 
 /* ----------------------------------------------------------- positioning */
 
-.slice_bottomnav[data-position="fixed"] {
+slice-bottom-nav .slice_bottomnav[data-position="fixed"] {
   position: fixed;
   left: 50%;
   bottom: max(18px, env(safe-area-inset-bottom));
@@ -15,7 +15,7 @@ slice-bottom-nav {
   max-width: calc(100% - 24px);
 }
 
-.slice_bottomnav[data-position="static"] {
+slice-bottom-nav .slice_bottomnav[data-position="static"] {
   position: relative;
   display: flex;
   justify-content: center;
@@ -24,7 +24,7 @@ slice-bottom-nav {
 
 /* ------------------------------------------------------------- the capsule */
 
-.slice_bottomnav_bar {
+slice-bottom-nav .slice_bottomnav_bar {
   display: inline-flex;
   align-items: center;
   gap: 3px;
@@ -46,7 +46,7 @@ slice-bottom-nav {
 
 /* ----------------------------------------------------------------- brand */
 
-.slice_bottomnav_logo {
+slice-bottom-nav .slice_bottomnav_logo {
   display: none;
   align-items: center;
   padding: 0 10px 0 4px;
@@ -54,7 +54,7 @@ slice-bottom-nav {
   border-right: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
 }
 
-.slice_bottomnav_logo img {
+slice-bottom-nav .slice_bottomnav_logo img {
   max-height: 22px;
   max-width: 100px;
   pointer-events: none;
@@ -62,14 +62,14 @@ slice-bottom-nav {
 }
 
 @media (min-width: 820px) {
-  .slice_bottomnav_logo.is-visible {
+  slice-bottom-nav .slice_bottomnav_logo.is-visible {
     display: inline-flex;
   }
 }
 
 /* ------------------------------------------------------------------- tabs */
 
-.slice_bottomnav_tabs {
+slice-bottom-nav .slice_bottomnav_tabs {
   position: relative;
   display: flex;
   align-items: stretch;
@@ -79,7 +79,7 @@ slice-bottom-nav {
   list-style: none;
 }
 
-.slice_bottomnav_indicator {
+slice-bottom-nav .slice_bottomnav_indicator {
   position: absolute;
   top: 0;
   left: 0;
@@ -97,11 +97,11 @@ slice-bottom-nav {
     opacity 0.25s ease;
 }
 
-.slice_bottomnav_indicator.is-visible {
+slice-bottom-nav .slice_bottomnav_indicator.is-visible {
   opacity: 1;
 }
 
-.slice_bottomnav_tab {
+slice-bottom-nav .slice_bottomnav_tab {
   position: relative;
   z-index: 1;
   display: flex;
@@ -123,35 +123,35 @@ slice-bottom-nav {
   animation: slice_bottomnav_rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.slice_bottomnav_tab:nth-of-type(1) { animation-delay: 0.04s; }
-.slice_bottomnav_tab:nth-of-type(2) { animation-delay: 0.09s; }
-.slice_bottomnav_tab:nth-of-type(3) { animation-delay: 0.14s; }
-.slice_bottomnav_tab:nth-of-type(4) { animation-delay: 0.19s; }
-.slice_bottomnav_tab:nth-of-type(5) { animation-delay: 0.24s; }
-.slice_bottomnav_tab:nth-of-type(6) { animation-delay: 0.29s; }
-.slice_bottomnav_tab:nth-of-type(7) { animation-delay: 0.34s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(1) { animation-delay: 0.04s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(2) { animation-delay: 0.09s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(3) { animation-delay: 0.14s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(4) { animation-delay: 0.19s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(5) { animation-delay: 0.24s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(6) { animation-delay: 0.29s; }
+slice-bottom-nav .slice_bottomnav_tab:nth-of-type(7) { animation-delay: 0.34s; }
 
-.slice_bottomnav_tab:hover {
+slice-bottom-nav .slice_bottomnav_tab:hover {
   color: var(--primary-color-contrast);
   background: color-mix(in srgb, var(--primary-color-contrast) 8%, transparent);
 }
 
-.slice_bottomnav_tab.is-active {
+slice-bottom-nav .slice_bottomnav_tab.is-active {
   color: var(--primary-color-contrast);
   background: color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
 }
 
-.slice_bottomnav_tab:active {
+slice-bottom-nav .slice_bottomnav_tab:active {
   transform: scale(0.95);
 }
 
-.slice_bottomnav_icon {
+slice-bottom-nav .slice_bottomnav_icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.slice_bottomnav_label {
+slice-bottom-nav .slice_bottomnav_label {
   display: block;
   text-align: center;
   width: 100%;
@@ -159,33 +159,33 @@ slice-bottom-nav {
   text-overflow: ellipsis;
 }
 
-.slice_bottomnav_tab.is-dropdown {
+slice-bottom-nav .slice_bottomnav_tab.is-dropdown {
   padding: 4px 8px;
 }
 
-.slice_bottomnav_dropdown {
+slice-bottom-nav .slice_bottomnav_dropdown {
   --dropdown-on-bar: 1;
 }
 
 /* ---------------------------------------------------------------- actions */
 
-.slice_bottomnav_actions {
+slice-bottom-nav .slice_bottomnav_actions {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.slice_bottomnav_actions:empty {
+slice-bottom-nav .slice_bottomnav_actions:empty {
   display: none;
 }
 
-.slice_bottomnav_actions:not(:empty) {
+slice-bottom-nav .slice_bottomnav_actions:not(:empty) {
   margin-left: 4px;
   padding-left: 8px;
   border-left: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
 }
 
-.slice_bottomnav_reverse .slice_bottomnav_actions:not(:empty) {
+slice-bottom-nav .slice_bottomnav_reverse .slice_bottomnav_actions:not(:empty) {
   margin-left: 0;
   margin-right: 4px;
   padding-left: 0;
@@ -210,7 +210,7 @@ slice-bottom-nav {
 /* --------------------------------------------------------------- mobile */
 
 @media (max-width: 600px) {
-  .slice_bottomnav[data-position="fixed"] {
+  slice-bottom-nav .slice_bottomnav[data-position="fixed"] {
     left: 0;
     right: 0;
     bottom: 0;
@@ -219,7 +219,7 @@ slice-bottom-nav {
     max-width: 100%;
   }
 
-  .slice_bottomnav_bar {
+  slice-bottom-nav .slice_bottomnav_bar {
     width: 100%;
     border-radius: 22px 22px 0 0;
     justify-content: space-around;
@@ -227,16 +227,16 @@ slice-bottom-nav {
     padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
   }
 
-  .slice_bottomnav_logo.is-visible {
+  slice-bottom-nav .slice_bottomnav_logo.is-visible {
     display: none;
   }
 
-  .slice_bottomnav_tabs {
+  slice-bottom-nav .slice_bottomnav_tabs {
     flex: 1;
     justify-content: space-around;
   }
 
-  .slice_bottomnav_tab {
+  slice-bottom-nav .slice_bottomnav_tab {
     flex: 1;
     min-width: 0;
     padding: 4px 4px;
@@ -244,18 +244,18 @@ slice-bottom-nav {
     gap: 2px;
   }
 
-  .slice_bottomnav_actions:not(:empty) {
+  slice-bottom-nav .slice_bottomnav_actions:not(:empty) {
     margin-left: 2px;
     padding-left: 6px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .slice_bottomnav_bar,
-  .slice_bottomnav_tab {
+  slice-bottom-nav .slice_bottomnav_bar,
+  slice-bottom-nav .slice_bottomnav_tab {
     animation: none;
   }
-  .slice_bottomnav_indicator {
+  slice-bottom-nav .slice_bottomnav_indicator {
     transition: opacity 0.2s ease;
   }
 }

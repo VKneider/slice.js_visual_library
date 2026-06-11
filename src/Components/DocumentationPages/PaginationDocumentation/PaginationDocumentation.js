@@ -13,7 +13,21 @@ export default class PaginationDocumentation extends HTMLElement {
     if (true) {
       await this.setupCopyButton();
     }
-    // No dynamic blocks
+      {
+         const container = this.querySelector('[data-block-id="doc-block-6"]');
+         if (container) {
+            let props = {};
+            if ("{\"props\":[{\"path\":\"currentPage\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"totalPages\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"siblingCount\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"boundaryCount\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"showFirstLast\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"disabled\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"onPageChange\",\"type\":\"function\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}") {
+               try {
+                  props = JSON.parse("{\"props\":[{\"path\":\"currentPage\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"totalPages\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"siblingCount\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"boundaryCount\",\"type\":\"number\",\"required\":false,\"default\":\"1\",\"allowedValues\":[]},{\"path\":\"showFirstLast\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"disabled\",\"type\":\"boolean\",\"required\":false,\"default\":\"false\",\"allowedValues\":[]},{\"path\":\"onPageChange\",\"type\":\"function\",\"required\":false,\"default\":\"null\",\"allowedValues\":[]}]}");
+               } catch (error) {
+                  console.warn('Invalid component props JSON:', error);
+               }
+            }
+            const component = await slice.build('PropsTable', props);
+            container.appendChild(component);
+         }
+      }
     await this.renderScriptScenarios();
   }
 

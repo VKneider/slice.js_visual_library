@@ -5,6 +5,22 @@ const documentationRoutes = {
     component: 'DocumentationLibraryHome',
     title: 'Documentation'
   },
+  Internal: {
+    title: 'Internal',
+    path: '/docs/internal',
+    items: [
+      {
+        title: 'Parser Rules',
+        path: '/docs/internal/markdown-parser-rules',
+        component: 'MarkdownParserRulesDocumentation'
+      },
+      {
+        title: 'CSS Conventions',
+        path: '/docs/internal/css-conventions',
+        component: 'CssConventionsDocumentation'
+      },
+    ]
+  },
   Data: {
     title: 'Data',
     path: '/docs/data',
@@ -93,20 +109,19 @@ const documentationRoutes = {
         component: 'CheckboxDocumentation'
       },
       {
+        title: 'Textarea',
+        path: '/docs/input/textarea',
+        component: 'TextareaDocumentation'
+      },
+      {
         title: 'Switch',
         path: '/docs/input/switch',
         component: 'SwitchDocumentation'
       },
-    ]
-  },
-  Internal: {
-    title: 'Internal',
-    path: '/docs/internal',
-    items: [
       {
-        title: 'Parser Rules',
-        path: '/docs/internal/markdown-parser-rules',
-        component: 'MarkdownParserRulesDocumentation'
+        title: 'ThemeSwitcher',
+        path: '/docs/input/theme-switcher',
+        component: 'ThemeSwitcherDocumentation'
       },
     ]
   },

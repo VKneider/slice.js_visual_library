@@ -1,0 +1,5 @@
+/* Encapsulated under the custom element so the layout styles never leak. */
+
+slice-layout {
+  display: block;
+}

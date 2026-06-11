@@ -1,6 +1,7 @@
 /* Encapsulated under the custom element so the details styles never leak. */
 
 slice-details {
+   display: block;
    font-family: var(--font-family);
    color: var(--font-primary-color);
 }

@@ -3,7 +3,7 @@ slice-tooltip {
   align-items: center;
 }
 
-.tooltip-trigger {
+slice-tooltip .tooltip-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -11,6 +11,8 @@ slice-tooltip {
   height: auto;
 }
 
+/* NOTE: `.slice-tooltip-bubble` is appended to document.body (not inside the
+   component), so it intentionally stays a globally-unique class — see §8. */
 .slice-tooltip-bubble {
   position: fixed;
   background: var(--tt-bg, var(--accent, #334155));

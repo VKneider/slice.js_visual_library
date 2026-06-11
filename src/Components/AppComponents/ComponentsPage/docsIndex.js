@@ -143,6 +143,17 @@ const docsIndex = [
     tags: ['checkbox', 'input', 'forms']
   },
   {
+    title: 'Textarea',
+    route: '/docs/input/textarea',
+    description: 'Multi-line text input with a floating label, auto-grow, validation conditions and an onChange handler.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 13,
+    navLabel: 'Textarea',
+    component: 'TextareaDocumentation',
+    tags: ['textarea', 'input', 'forms', 'multiline']
+  },
+  {
     title: 'Switch',
     route: '/docs/input/switch',
     description: 'Switch component documentation with practical interaction scenarios.',
@@ -154,6 +165,17 @@ const docsIndex = [
     tags: ['switch', 'input', 'toggle']
   },
   {
+    title: 'ThemeSwitcher',
+    route: '/docs/input/theme-switcher',
+    description: 'A one-click control that cycles through your registered themes and keeps every theme control in sync.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 16,
+    navLabel: 'ThemeSwitcher',
+    component: 'ThemeSwitcherDocumentation',
+    tags: ['theme', 'switcher', 'toggle', 'dark-mode', 'settings']
+  },
+  {
     title: 'Markdown Parser Rules',
     route: '/docs/internal/markdown-parser-rules',
     description: 'Contract, template, and generation rules for Slice.js documentation pages.',
@@ -163,6 +185,17 @@ const docsIndex = [
     navLabel: 'Parser Rules',
     component: 'MarkdownParserRulesDocumentation',
     tags: ['docs', 'parser', 'rules']
+  },
+  {
+    title: 'CSS Conventions',
+    route: '/docs/internal/css-conventions',
+    description: 'Three rules to write component CSS that never leaks — host scope, explicit display, and prefixed keyframes.',
+    section: 'Internal',
+    group: 'Documentation',
+    order: 2,
+    navLabel: 'CSS Conventions',
+    component: 'CssConventionsDocumentation',
+    tags: ['css', 'scoping', 'encapsulation', 'display', 'conventions']
   },
   {
     title: 'Layout',

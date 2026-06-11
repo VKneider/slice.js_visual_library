@@ -3,7 +3,7 @@ slice-codevisualizer {
   width: 100%;
 }
 
-.codevisualizer_container {
+slice-codevisualizer .codevisualizer_container {
   position: relative;
   font-size: smaller;
   max-width: 100%;
@@ -15,7 +15,7 @@ slice-codevisualizer {
   margin: 8px 0;
 }
 
-.codevisualizer pre {
+slice-codevisualizer .codevisualizer pre {
   margin: 0;
   padding: 0;
   font-family: 'Courier New', Courier, monospace;
@@ -24,7 +24,7 @@ slice-codevisualizer {
   tab-size: 2;
 }
 
-.codevisualizer code {
+slice-codevisualizer .codevisualizer code {
   display: block;
   color: var(--font-primary-color);
   overflow-wrap: normal;
@@ -32,7 +32,7 @@ slice-codevisualizer {
 }
 
 /* Botón de copiar */
-.copy-button {
+slice-codevisualizer .copy-button {
   position: absolute;
   top: 8px;
   right: 8px;
@@ -48,82 +48,82 @@ slice-codevisualizer {
   z-index: 1;
 }
 
-.copy-button:hover {
+slice-codevisualizer .copy-button:hover {
   opacity: 1;
 }
 
-.copy-button.copied {
+slice-codevisualizer .copy-button.copied {
   background-color: var(--success-color);
   color: var(--success-contrast);
   opacity: 1;
 }
 
 /* Temas para resaltado de sintaxis adaptados a las variables de Slice */
-.codevisualizer .code-keyword {
+slice-codevisualizer .codevisualizer .code-keyword {
   color: var(--primary-color); /* Palabras clave en color primario */
 }
 
-.codevisualizer .code-string {
+slice-codevisualizer .codevisualizer .code-string {
   color: var(--success-color); /* Strings en color de éxito */
 }
 
-.codevisualizer .code-number {
+slice-codevisualizer .codevisualizer .code-number {
   color: var(--warning-color); /* Números en color de advertencia */
 }
 
-.codevisualizer .code-comment {
+slice-codevisualizer .codevisualizer .code-comment {
   color: var(--medium-color); /* Comentarios en color medio */
   font-style: italic;
 }
 
-.codevisualizer .code-function {
+slice-codevisualizer .codevisualizer .code-function {
   color: var(--secondary-color); /* Funciones en color secundario */
 }
 
-.codevisualizer .code-method {
+slice-codevisualizer .codevisualizer .code-method {
   color: var(--secondary-color); /* Métodos en color secundario */
 }
 
-.codevisualizer .code-builtin {
+slice-codevisualizer .codevisualizer .code-builtin {
   color: var(--secondary-color); /* Objetos integrados en color secundario */
 }
 
-.codevisualizer .code-tag {
+slice-codevisualizer .codevisualizer .code-tag {
   color: var(--primary-color); /* Tags HTML en color primario */
 }
 
-.codevisualizer .code-attribute {
+slice-codevisualizer .codevisualizer .code-attribute {
   color: var(--warning-color); /* Atributos HTML en color de advertencia */
 }
 
-.codevisualizer .code-selector {
+slice-codevisualizer .codevisualizer .code-selector {
   color: var(--primary-color); /* Selectores CSS en color primario */
 }
 
-.codevisualizer .code-property {
+slice-codevisualizer .codevisualizer .code-property {
   color: var(--secondary-color); /* Propiedades CSS en color secundario */
 }
 
-.codevisualizer .code-value {
+slice-codevisualizer .codevisualizer .code-value {
   color: var(--success-color); /* Valores CSS en color de éxito */
 }
 
-.codevisualizer .code-unit {
+slice-codevisualizer .codevisualizer .code-unit {
   color: var(--warning-color); /* Unidades CSS en color de advertencia */
 }
 
-.codevisualizer .code-color {
+slice-codevisualizer .codevisualizer .code-color {
   color: var(--font-primary-color); /* Colores CSS en color primario */
 }
 
 /* Media query para diseño responsivo */
 @media screen and (max-width: 768px) {
-  .codevisualizer_container {
+  slice-codevisualizer .codevisualizer_container {
     font-size: 12px;
     padding: 25px 8px 8px;
   }
-  
-  .copy-button {
+
+  slice-codevisualizer .copy-button {
     font-size: 10px;
     padding: 3px 6px;
   }

@@ -29,6 +29,10 @@
       "component": "CodeVisualizerDocumentation"
     },
     {
+      "filePath": "src/markdown/css-conventions.md",
+      "component": "CssConventionsDocumentation"
+    },
+    {
       "filePath": "src/markdown/details.md",
       "component": "DetailsDocumentation"
     },
@@ -121,6 +125,14 @@
       "component": "TabsDocumentation"
     },
     {
+      "filePath": "src/markdown/textarea.md",
+      "component": "TextareaDocumentation"
+    },
+    {
+      "filePath": "src/markdown/theme-switcher.md",
+      "component": "ThemeSwitcherDocumentation"
+    },
+    {
       "filePath": "src/markdown/toast-provider.md",
       "component": "ToastProviderDocumentation"
     },
@@ -144,7 +156,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\vkneider\\Pictures\\proyectos-mejorados\\slice_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "C:\\Users\\victo\\Documents\\frrr\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

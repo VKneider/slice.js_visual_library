@@ -62,7 +62,7 @@ slice-card:active, .slice-card:active {
   transition: all 0.1s ease;
 }
 
-.card-overlay {
+slice-card .card-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -84,7 +84,7 @@ slice-card:hover .card-overlay, .slice-card:hover .card-overlay {
   opacity: 1;
 }
 
-.card-media {
+slice-card .card-media {
   position: relative;
   height: 40%;
   flex-basis: 40%;
@@ -99,7 +99,7 @@ slice-card:hover .card-overlay, .slice-card:hover .card-overlay {
   z-index: 2;
 }
 
-.card-lucide-icon {
+slice-card .card-lucide-icon {
   width: 56px;
   height: 56px;
   color: var(--card-accent);
@@ -110,7 +110,7 @@ slice-card:hover .card-overlay, .slice-card:hover .card-overlay {
   transform: scale(1.08);
 }
 
-.card-media-content {
+slice-card .card-media-content {
   width: 100%;
   height: 100%;
   display: flex;
@@ -123,18 +123,18 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   transform: scale(1.05);
 }
 
-.card-media .card-image {
+slice-card .card-media .card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: all 0.4s ease;
 }
 
-.card-media:empty {
+slice-card .card-media:empty {
   display: none;
 }
 
-.card-badge {
+slice-card .card-badge {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -150,12 +150,12 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   z-index: 3;
 }
 
-.card-badge:not(:empty) {
+slice-card .card-badge:not(:empty) {
   opacity: 1;
   transform: translateY(0);
 }
 
-.card-content {
+slice-card .card-content {
   position: relative;
   height: 60%;
   padding: 16px;
@@ -167,7 +167,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   overflow-x: hidden;
 }
 
-.card-header {
+slice-card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -175,7 +175,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   gap: 12px;
 }
 
-.card-title {
+slice-card .card-title {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
@@ -189,7 +189,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   color: var(--card-accent);
 }
 
-.card-toggle {
+slice-card .card-toggle {
   background: none;
   border: none;
   padding: 4px;
@@ -200,13 +200,13 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   flex-shrink: 0;
 }
 
-.card-toggle:hover {
+slice-card .card-toggle:hover {
   background: color-mix(in srgb, var(--primary-background-color) 90%, var(--primary-color));
   color: var(--card-accent);
   transform: scale(1.1);
 }
 
-.card-toggle slice-icon {
+slice-card .card-toggle slice-icon {
   transition: transform 0.3s ease;
 }
 
@@ -214,7 +214,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   transform: rotate(180deg);
 }
 
-.card-body {
+slice-card .card-body {
   flex: 1;
   margin-bottom: 8px;
   position: relative;
@@ -222,7 +222,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   max-height: 160px;
 }
 
-.card-text {
+slice-card .card-text {
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.5;
@@ -233,36 +233,36 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   overflow-wrap: break-word;
 }
 
-.card-text:hover {
+slice-card .card-text:hover {
   color: var(--card-text);
 }
 
-.card-content::-webkit-scrollbar,
-.card-body::-webkit-scrollbar {
+slice-card .card-content::-webkit-scrollbar,
+slice-card .card-body::-webkit-scrollbar {
   width: 4px;
 }
 
-.card-content::-webkit-scrollbar-track,
-.card-body::-webkit-scrollbar-track {
+slice-card .card-content::-webkit-scrollbar-track,
+slice-card .card-body::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.card-content::-webkit-scrollbar-thumb,
-.card-body::-webkit-scrollbar-thumb {
+slice-card .card-content::-webkit-scrollbar-thumb,
+slice-card .card-body::-webkit-scrollbar-thumb {
   background: var(--card-border-color);
   border-radius: 2px;
 }
 
-.card-content::-webkit-scrollbar-thumb:hover,
-.card-body::-webkit-scrollbar-thumb:hover {
+slice-card .card-content::-webkit-scrollbar-thumb:hover,
+slice-card .card-body::-webkit-scrollbar-thumb:hover {
   background: var(--card-accent);
 }
 
-.card-text-tooltip {
+slice-card .card-text-tooltip {
   display: none;
 }
 
-.card-details {
+slice-card .card-details {
   max-height: 0;
   overflow: hidden;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -279,13 +279,13 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   border-top: 1px solid var(--card-border-color);
 }
 
-.card-details-content {
+slice-card .card-details-content {
   font-size: 0.9rem;
   line-height: 1.5;
   color: var(--card-text-secondary);
 }
 
-.card-actions {
+slice-card .card-actions {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -304,7 +304,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   transform: translateY(0);
 }
 
-.card-actions:empty {
+slice-card .card-actions:empty {
   display: none;
 }
 
@@ -330,7 +330,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
     --card-height: 260px;
   }
 
-  .card-body {
+  slice-card .card-body {
     max-height: 140px;
   }
 }
@@ -342,24 +342,24 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
     margin: 0 6px;
   }
 
-  .card-content {
+  slice-card .card-content {
     padding: 12px;
   }
 
-  .card-title {
+  slice-card .card-title {
     font-size: 1rem;
   }
 
-  .card-text {
+  slice-card .card-text {
     font-size: 0.85rem;
   }
 
-  .card-body {
+  slice-card .card-body {
     max-height: 120px;
     margin-bottom: 6px;
   }
 
-  .card-actions {
+  slice-card .card-actions {
     padding: 8px 12px;
     gap: 4px;
   }
@@ -371,23 +371,23 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
     margin: 0 4px;
   }
 
-  .card-content {
+  slice-card .card-content {
     padding: 10px;
   }
 
-  .card-title {
+  slice-card .card-title {
     font-size: 0.95rem;
   }
 
-  .card-text {
+  slice-card .card-text {
     font-size: 0.8rem;
   }
 
-  .card-body {
+  slice-card .card-body {
     max-height: 100px;
   }
 
-  .card-header {
+  slice-card .card-header {
     gap: 6px;
     margin-bottom: 6px;
   }
@@ -416,7 +416,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
   outline-offset: 2px;
 }
 
-.card-toggle:focus-visible {
+slice-card .card-toggle:focus-visible {
   outline: 2px solid var(--card-accent);
   outline-offset: 2px;
   border-radius: 4px;
@@ -427,7 +427,7 @@ slice-card:hover .card-media-content, .slice-card:hover .card-media-content {
     border-width: 2px;
   }
 
-  .card-toggle {
+  slice-card .card-toggle {
     border: 1px solid var(--card-text);
   }
 }

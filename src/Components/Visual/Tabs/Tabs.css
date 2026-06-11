@@ -1,8 +1,12 @@
-.slice_tabs {
+slice-tabs {
+  display: block;
+}
+
+slice-tabs .slice_tabs {
   width: 100%;
 }
 
-.slice_tabs_list {
+slice-tabs .slice_tabs_list {
   display: flex;
   border-bottom: 1px solid var(--border-color, #d1d5db);
   gap: 0;
@@ -10,11 +14,11 @@
   scrollbar-width: none;
 }
 
-.slice_tabs_list::-webkit-scrollbar {
+slice-tabs .slice_tabs_list::-webkit-scrollbar {
   display: none;
 }
 
-.slice_tab_button {
+slice-tabs .slice_tab_button {
   background: none;
   border: none;
   padding: 10px 16px;
@@ -29,7 +33,7 @@
   flex-shrink: 0;
 }
 
-.slice_tab_button::after {
+slice-tabs .slice_tab_button::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -42,32 +46,32 @@
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.slice_tab_button:hover {
+slice-tabs .slice_tab_button:hover {
   color: var(--primary-color, #2563eb);
 }
 
-.slice_tab_button:focus-visible {
+slice-tabs .slice_tab_button:focus-visible {
   outline: 2px solid var(--primary-color, #2563eb);
   outline-offset: -2px;
   border-radius: 4px;
 }
 
-.slice_tab_button.active {
+slice-tabs .slice_tab_button.active {
   color: var(--primary-color, #2563eb);
 }
 
-.slice_tab_button.active::after {
+slice-tabs .slice_tab_button.active::after {
   transform: scaleX(1);
 }
 
-.slice_tabs_panels {
+slice-tabs .slice_tabs_panels {
   padding: 16px 0;
 }
 
-.slice_tab_panel {
+slice-tabs .slice_tab_panel {
   display: none;
 }
 
-.slice_tab_panel.active {
+slice-tabs .slice_tab_panel.active {
   display: block;
 }

@@ -32,15 +32,15 @@ export default class MyNavigation extends HTMLElement {
    }
 
    init() {
-      if (this.page) {
-         // Escuchar el evento 'route-rendered' del MultiRoute
-         this.page.addEventListener('route-rendered', this.boundUpdateNavigation);
-         this.setupObserver();
-         this.updateNavigation();
-      }
-
-      // Escuchar eventos de navegación del router
+      // El setter page() ya agregó el listener route-rendered, llamó setupObserver
+      // y ejecutó updateNavigation. Solo agregamos el listener de popstate aquí.
       window.addEventListener('popstate', this.boundUpdateNavigation);
+   }
+
+   // Cuando el MultiRoute padre reusa el componente (innerHTML='' + appendChild),
+   // el DOM se desconecta y reconecta. Al reconectar, re-sincronizamos la navegación.
+   connectedCallback() {
+      this.updateNavigation();
    }
 
    setupObserver() {
@@ -119,8 +119,12 @@ export default class MyNavigation extends HTMLElement {
       });
    }
 
-   // Limpiar el observer y listeners cuando se destruye el componente
-   disconnectedCallback() {
+   // Slice lifecycle: se llama via destroyComponent()
+   // NO usamos disconnectedCallback porque el MultiRoute padre hace
+   // innerHTML='' + appendChild al reusar componentes cacheados, y eso
+   // dispararía disconnectedCallback eliminando listeners que no se
+   // recuperarían. La limpieza real solo debe ocurrir via destroyComponent().
+   beforeDestroy() {
       if (this.observer) {
          this.observer.disconnect();
       }

@@ -176,7 +176,12 @@ const buildRoutesTree = (entries) => {
     });
   }
 
-  sections.sort((a, b) => a.title.localeCompare(b.title));
+  // Internal docs first, rest alphabetical
+  sections.sort((a, b) => {
+    if (a.title === 'Internal') return -1;
+    if (b.title === 'Internal') return 1;
+    return a.title.localeCompare(b.title);
+  });
 
   return {
     defaultRoute,

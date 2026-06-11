@@ -1,0 +1,38 @@
+<div class="documentation-content cssconventionsdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="css-conventions">
+    <span class="doc-title-text">CSS Conventions</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<p>Two problems component CSS has to solve:</p>
+<ol><li>Styles inside your component leak <strong>out</strong> — <code>.container</code> in your component restyles every <code>.container</code> on the page.</li><li>Styles <strong>outside</strong> leak <strong>in</strong> — a global reset or utility framework overrides your internal layout.</li></ol>
+<p>The fix is three dead-simple rules.</p>
+<p>---</p>
+<h2 id="1-scope-everything-under-slice-name">1. Scope everything under <code>slice-&lt;name&gt;</code></h2>
+<p>Your component's custom-element tag is your namespace. Every selector starts with it.</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<ul><li>The tag name is what <code>customElements.define('slice-...')</code> registers — it's <strong>not</strong> always the folder name (<code>Navbar</code> → <code>slice-nav-bar</code>, <code>MiniInspector</code> → <code>slice-mini-inspector</code>).</li><li>Generic names like <code>.container</code>, <code>.item</code>, <code>.card-title</code> are the most dangerous — always prefix.</li><li><code>@media</code> / <code>@supports</code> blocks don't get a pass — scope the selectors inside them too.</li></ul>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<p>---</p>
+<h2 id="2-set-an-explicit-display-on-the-host">2. Set an explicit <code>display</code> on the host</h2>
+<p>Custom elements default to <code>display: inline</code>. That silently:</p>
+<ul><li>Ignores <code>width</code> / <code>height</code></li><li>Drops vertical <code>margin</code></li><li>Sits the component on the text baseline</li></ul>
+<p>Set <code>display</code> as the <strong>first rule</strong> in your CSS.</p>
+<div class="code-block" data-block-id="doc-block-3"></div>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<p>&gt; The element selector is low-specificity, so consuming apps can still override it (<code>slice-button { display: flex }</code>). Declaring it just removes the broken <code>inline</code> default.</p>
+<p>---</p>
+<h2 id="3-prefix-keyframes">3. Prefix <code>@keyframes</code></h2>
+<p>Keyframe names are <strong>global</strong>. Bare <code>@keyframes spin</code> collides across components.</p>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<p>---</p>
+<h2 id="exceptions-deliberate-leaks">Exceptions (deliberate leaks)</h2>
+<p>Some components append nodes to <code>document.body</code> — those elements live outside the component tree, so their styles stay global with a comment explaining why:</p>
+<ul><li><strong>ToolTip</strong> — <code>.slice-tooltip-bubble*</code> appended to <code>document.body</code></li><li><strong>Toast</strong> — <code>.toast-provider-container*</code> created on <code>document.body</code></li><li><strong>Icon</strong> — <code>.slc-*</code> icon-font glyph stylesheet</li><li><strong>Card</strong> — <code>.slice-card*</code> is the host's own class (<code>this.classList.add('slice-card')</code>), already host-scoped</li></ul>
+<p>---</p>
+<h2 id="common-mistakes">Common mistakes</h2>
+<div class="callout callout-warning"><strong>Renaming a class to scope it changes the CSS selector, not the DOM.</strong> Components keep adding the same class names, so <code>*.spec.js</code> assertions on <code>.some_class</code> still pass. If a rule was intentionally matching outside the component (a true leak), scoping will stop it — move that styling into the consuming app.</div>
+<div class="callout callout-warning">Scoping raises every rule's specificity uniformly (one element selector). If an app override stops working after you scope, <strong>don't bump the component's specificity</strong> — adjust the override instead.</div>
+</div>

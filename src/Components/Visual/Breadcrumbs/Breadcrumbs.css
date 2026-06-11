@@ -1,3 +1,7 @@
+slice-breadcrumbs {
+  display: block;
+}
+
 slice-breadcrumbs .slice_breadcrumbs {
   width: 100%;
   font-family: var(--font-family);

@@ -1,5 +1,9 @@
 /* Encapsulated under the custom element so the switch styles never leak. */
 
+slice-switch {
+  display: inline-block;
+}
+
 slice-switch .slice_switch {
   --button-width: calc(var(--button-height) * 2);
   --button-height: 1.8em;

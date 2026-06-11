@@ -99,6 +99,11 @@ Returns a handle:
 ## Gotchas
 
 - **Function props don't serialize.** Always pass handlers via `opts.spies`, never inside `props`.
+- **Async handlers need `expect.poll`.** When a handler fires *after* an awaited op (e.g. an
+  `onChange` invoked after `await slice.setTheme(...)`), a bare `await c.events('name')` can read
+  before the spy records. Poll instead:
+  `await expect.poll(() => c.events('onChange')).toBe(1)`, then assert
+  `c.eventArgs('onChange')`. Handlers that fire synchronously on the click don't need this.
 - **Theme stability.** Leave the default `LIGHT` theme unless a test specifically targets dark
   mode; mixing themes makes screenshots flaky.
 - **Component not found / `build` returned null.** The component must be registered in

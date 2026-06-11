@@ -1,5 +1,9 @@
 /* Encapsulated under the custom element so the select styles never leak. */
 
+slice-select {
+  display: block;
+}
+
 slice-select .slice_select_dropdown {
   font-family: var(--font-family);
   max-width: 100%;
