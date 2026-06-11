@@ -34,6 +34,7 @@ const docRoutes = [
   { path: '/docs/data/table', component: 'TableDocumentation' },
   { path: '/docs/navigation/tabs', component: 'TabsDocumentation' },
   { path: '/docs/input/textarea', component: 'TextareaDocumentation' },
+  { path: '/docs/input/theme-selector', component: 'ThemeSelectorDocumentation' },
   { path: '/docs/input/theme-switcher', component: 'ThemeSwitcherDocumentation' },
   { path: '/docs/services/toast-provider', component: 'ToastProviderDocumentation' },
   { path: '/docs/feedback/toast', component: 'ToastDocumentation' },

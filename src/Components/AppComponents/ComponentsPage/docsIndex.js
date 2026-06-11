@@ -165,6 +165,17 @@ const docsIndex = [
     tags: ['switch', 'input', 'toggle']
   },
   {
+    title: 'ThemeSelector',
+    route: '/docs/input/theme-selector',
+    description: 'A binary LIGHT/DARK toggle with sun and moon icons that switches the app theme and keeps every theme control in sync.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 15,
+    navLabel: 'ThemeSelector',
+    component: 'ThemeSelectorDocumentation',
+    tags: ['theme', 'selector', 'toggle', 'dark-mode', 'settings', 'light']
+  },
+  {
     title: 'ThemeSwitcher',
     route: '/docs/input/theme-switcher',
     description: 'A one-click control that cycles through your registered themes and keeps every theme control in sync.',

@@ -129,6 +129,10 @@
       "component": "TextareaDocumentation"
     },
     {
+      "filePath": "src/markdown/theme-selector.md",
+      "component": "ThemeSelectorDocumentation"
+    },
+    {
       "filePath": "src/markdown/theme-switcher.md",
       "component": "ThemeSwitcherDocumentation"
     },

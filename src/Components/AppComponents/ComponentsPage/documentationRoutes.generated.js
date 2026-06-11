@@ -119,6 +119,11 @@ const documentationRoutes = {
         component: 'SwitchDocumentation'
       },
       {
+        title: 'ThemeSelector',
+        path: '/docs/input/theme-selector',
+        component: 'ThemeSelectorDocumentation'
+      },
+      {
         title: 'ThemeSwitcher',
         path: '/docs/input/theme-switcher',
         component: 'ThemeSwitcherDocumentation'

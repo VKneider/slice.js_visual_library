@@ -80,6 +80,7 @@ const components = {
   "Textarea": "Visual",
   "TextareaDocumentation": "DocumentationPages",
   "ThemeSelector": "Visual",
+  "ThemeSelectorDocumentation": "DocumentationPages",
   "ThemeSwitcher": "Visual",
   "ThemeSwitcherDocumentation": "DocumentationPages",
   "Toast": "Visual",

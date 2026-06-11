@@ -1,0 +1,36 @@
+<div class="documentation-content themeselectordocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="themeselector">
+    <span class="doc-title-text">ThemeSelector</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>ThemeSelector</code> is a compact icon-only toggle that switches between <strong>LIGHT</strong> and <strong>DARK</strong> themes. It renders a pill-shaped button with a sun icon for LIGHT and a moon icon for DARK; the active option is highlighted with the <code>--primary-color</code> background.</p>
+<p>It is the visual counterpart to [<code>ThemeSwitcher</code>](/docs/input/theme-switcher): use <code>ThemeSelector</code> when you want an icon-based binary control in a topbar or navbar, and <code>ThemeSwitcher</code> when you need a text-based control that cycles through an arbitrary list of themes.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li>Reads the current theme from <code>slice.stylesManager.themeManager.currentTheme</code> on init and</li></ul>
+<p>marks the matching option as <code>.active</code>.</p>
+<ul><li>Clicking the button calls <code>slice.setTheme(next)</code>, toggling between <code>'LIGHT'</code> and <code>'DARK'</code>.</li><li>After setting the theme it dispatches a global <code>themeChanged</code> <code>CustomEvent</code> with</li></ul>
+<p><code>{ detail: { themeName } }</code> so every other theme control on the page stays in sync.</p>
+<ul><li>It also <strong>listens</strong> for <code>themeChanged</code>, so changing the theme from another control (e.g.</li></ul>
+<p><code>ThemeSwitcher</code>) updates the active option automatically.</p>
+<ul><li>A <code>.loading</code> class is applied during the async <code>slice.setTheme</code> call; the button becomes</li></ul>
+<p>non-interactive and visually dimmed until the theme finishes applying.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="example">Example</h2>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<h2 id="props">Props</h2>
+<p><code>ThemeSelector</code> has no configurable props — it is a self-contained, single-purpose toggle that reads the current theme directly from the framework's <code>themeManager</code>.</p>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Place <code>ThemeSelector</code> in a persistent shell element (navbar, topbar, sidebar) so the user
+can switch themes from any page. The component auto-syncs with other theme controls via the
+<code>themeChanged</code> event, so you can safely use multiple selectors and switchers on the same
+page.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>ThemeSelector</code> is hardcoded to the <code>'LIGHT'</code> / <code>'DARK'</code> pair. If your app uses additional
+themes (e.g. <code>'SOLARIZED'</code>), use [<code>ThemeSwitcher</code>](/docs/input/theme-switcher) instead,
+which accepts a custom <code>themes</code> array.</div>
+</div>
