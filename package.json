@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
-    "slicejs-cli": "3.6.3",
+    "slicejs-cli": "3.6.4",
     "slicejs-web-framework": "^3.3.7"
   },
   "devDependencies": {

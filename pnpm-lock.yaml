@@ -12,8 +12,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
       slicejs-cli:
-        specifier: 3.6.3
-        version: 3.6.3
+        specifier: 3.6.4
+        version: 3.6.4
       slicejs-web-framework:
         specifier: ^3.3.7
         version: 3.3.7
@@ -809,8 +809,8 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  slicejs-cli@3.6.3:
-    resolution: {integrity: sha512-wY0YLAvivNVEA/I6bhwhpuyJ/5uvOsYFVEPVcBg0dbe8OYyINq54iEXhxFfMWGyRU3ou6UCVAmeyv35jy0iXMQ==}
+  slicejs-cli@3.6.4:
+    resolution: {integrity: sha512-sluX0epeW9lIxnHrqwlUSTcXwypYD4C2t4ilGYjOxre/japDUQWToSgF9oQy04DAOKCPwcGNMrTiYxzNVmJ+Gw==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
@@ -1732,7 +1732,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  slicejs-cli@3.6.3:
+  slicejs-cli@3.6.4:
     dependencies:
       '@babel/parser': 7.29.7
       '@babel/traverse': 7.29.7
