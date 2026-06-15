@@ -223,6 +223,11 @@ const documentationRoutes = {
     path: '/docs/services',
     items: [
       {
+        title: 'DragDropService',
+        path: '/docs/services/drag-drop',
+        component: 'DragDropServiceDocumentation'
+      },
+      {
         title: 'FetchManager',
         path: '/docs/services/fetch-manager',
         component: 'FetchManagerDocumentation'

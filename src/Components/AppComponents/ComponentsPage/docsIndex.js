@@ -374,6 +374,17 @@ const docsIndex = [
     tags: ['toast', 'provider', 'service', 'notification']
   },
   {
+    title: 'DragDropService',
+    route: '/docs/services/drag-drop',
+    description: 'Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder.',
+    section: 'Services',
+    group: 'Interaction',
+    order: 60,
+    navLabel: 'DragDropService',
+    component: 'DragDropServiceDocumentation',
+    tags: ['drag', 'drop', 'resize', 'dnd', 'sortable', 'reorder', 'service']
+  },
+  {
     title: 'FetchManager',
     route: '/docs/services/fetch-manager',
     description: 'HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.',

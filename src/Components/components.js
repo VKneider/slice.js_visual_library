@@ -27,6 +27,8 @@ const components = {
   "Details": "Visual",
   "DetailsDocumentation": "DocumentationPages",
   "DocumentationLibraryHome": "DocumentationPages",
+  "DragDropService": "Service",
+  "DragDropServiceDocumentation": "DocumentationPages",
   "DropDown": "Visual",
   "DropDownDocumentation": "DocumentationPages",
   "ElementCarrousel": "Visual",

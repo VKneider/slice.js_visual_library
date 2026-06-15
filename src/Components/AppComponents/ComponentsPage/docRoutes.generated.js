@@ -11,6 +11,7 @@ const docRoutes = [
   { path: '/docs/display/code-visualizer', component: 'CodeVisualizerDocumentation' },
   { path: '/docs/internal/css-conventions', component: 'CssConventionsDocumentation' },
   { path: '/docs/layout/details', component: 'DetailsDocumentation' },
+  { path: '/docs/services/drag-drop', component: 'DragDropServiceDocumentation' },
   { path: '/docs/navigation/dropdown', component: 'DropDownDocumentation' },
   { path: '/docs/services/fetch-manager', component: 'FetchManagerDocumentation' },
   { path: '/docs/input/form', component: 'FormDocumentation' },

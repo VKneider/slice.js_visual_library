@@ -1,0 +1,43 @@
+<div class="documentation-content dragdropservicedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="dragdropservice">
+    <span class="doc-title-text">DragDropService</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<p>DragDropService is a singleton <strong>Service</strong> that provides headless drag-and-drop and resize capabilities using pointer events. It handles ghost elements, axis constraints, drop target hit-testing, and resize handles without any visual dependency.</p>
+<h2 id="getting-the-instance">Getting the instance</h2>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p>You can also access it directly via <code>DragDropService.getInstance()</code> when the class is available.</p>
+<h2 id="draggable">Draggable</h2>
+<p>Make an element follow the pointer with a semi-transparent ghost.</p>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h3 id="drag-with-axis-constraint">Drag with axis constraint</h3>
+<p>Restrict movement to a single axis.</p>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="droppable">Droppable</h2>
+<p>Register drop targets and react when a draggable is dropped on them.</p>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="resizable">Resizable</h2>
+<p>Add resize handles to any element. The element needs <code>position: relative</code> (applied automatically).</p>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<h2 id="combined-draggable-resizable">Combined: Draggable + Resizable</h2>
+<p>A panel that is draggable by its header and resizable by its edges.</p>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<h2 id="free-positioning">Free positioning</h2>
+<p>Elements stay where they are dropped. The service sets <code>position: fixed</code> and applies the final coordinates automatically.</p>
+<div class="code-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<h2 id="sortable">Sortable</h2>
+<p>Reorder items inside a container by dragging them.</p>
+<div class="code-block" data-block-id="doc-block-12"></div>
+<div class="script-block" data-block-id="doc-block-13"></div>
+<h2 id="cleanup">Cleanup</h2>
+<div class="code-block" data-block-id="doc-block-14"></div>
+<h2 id="best-practices">Best Practices</h2>
+<ul><li>Set <code>touch-action: none</code> on draggable elements (already set on resize handles).</li><li>Use <code>handle</code> when elements should be draggable only from a specific child (e.g., a header).</li><li>Always call <code>detach(node)</code> when removing a registered element from the DOM.</li><li>Use <code>accept</code> on droppables to filter which draggables are accepted.</li></ul>
+</div>
