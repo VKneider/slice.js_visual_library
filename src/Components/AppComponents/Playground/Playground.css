@@ -1,0 +1,69 @@
+.playground {
+   font-family: system-ui, sans-serif;
+   padding: 1.5rem;
+   color: #1f2937;
+}
+
+.playground__bar {
+   margin-bottom: 1.5rem;
+}
+
+.playground__title {
+   margin: 0;
+   font-size: 1.5rem;
+}
+
+.playground__sub {
+   margin: 0.25rem 0 0;
+   color: #6b7280;
+   font-size: 0.9rem;
+}
+
+.playground__sub code {
+   background: #f3f4f6;
+   padding: 0.1em 0.4em;
+   border-radius: 4px;
+}
+
+.pg-section {
+   margin-bottom: 2rem;
+}
+
+.pg-section__title {
+   margin: 0;
+   font-size: 1.1rem;
+   border-bottom: 1px solid #e5e7eb;
+   padding-bottom: 0.4rem;
+}
+
+.pg-section__sub {
+   margin: 0.3rem 0 1rem;
+   color: #6b7280;
+   font-size: 0.85rem;
+}
+
+.pg-section__grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+   gap: 1.25rem;
+   align-items: start;
+}
+
+.pg-card {
+   border: 1px solid #e5e7eb;
+   border-radius: 10px;
+   padding: 1rem;
+   background: #fff;
+}
+
+.pg-card__title {
+   margin: 0 0 0.75rem;
+   font-size: 0.95rem;
+   font-weight: 600;
+}
+
+.pg-card__hint {
+   margin: 0 0 0.75rem;
+   font-size: 0.8rem;
+   color: #6b7280;
+}

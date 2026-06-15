@@ -7,13 +7,13 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ThemeSwitcher</code> is a single button that <strong>cycles</strong> through the themes you give it, showing the active theme's name as its value. It is the lightweight counterpart to [<code>ThemeSelector</code>](/docs/input/theme-selector): use <code>ThemeSelector</code> for a binary LIGHT/DARK toggle with icons, and <code>ThemeSwitcher</code> when you want a compact text control that walks an arbitrary list of themes (e.g. <code>LIGHT → DARK → SOLARIZED → …</code>).</p>
-<p>It works in two visual variants — a compact <code>button</code> pill for topbars/toolbars, and a full-width <code>menu-item</code> row for dropdowns and user menus.</p>
+<p><code>ThemeSwitcher</code> is a single button that <strong>cycles</strong> through the themes you give it, showing the active theme's name as its value. It is the lightweight counterpart to [<code>ThemeSelector</code>](/docs/input/theme-selector): use <code>ThemeSelector</code> for a binary LIGHT/DARK toggle with icons, and <code>ThemeSwitcher</code> when you want a compact text control that walks an arbitrary list of themes (e.g. <code>LIGHT → DARK → SOLARIZED → …</code>).</p>
+<p>It works in two visual variants — a compact <code>button</code> pill for topbars/toolbars, and a full-width <code>menu-item</code> row for dropdowns and user menus.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>themes</code> is the ordered list to cycle through. Each click advances to the next entry</li></ul>
 <p>and wraps around at the end. Defaults to <code>['LIGHT', 'DARK']</code>.</p>
 <ul><li>On switch it calls <code>slice.setTheme(next)</code>, dispatches a global <code>themeChanged</code></li></ul>
-<p><code>CustomEvent</code> (so every other theme control on the page stays in sync), and invokes   the optional <code>onChange(themeName)</code> handler.</p>
+<p><code>CustomEvent</code> (so every other theme control on the page stays in sync), and invokes   the optional <code>onChange(themeName)</code> handler.</p>
 <ul><li>It also <strong>listens</strong> for <code>themeChanged</code>, so changing the theme anywhere else updates</li></ul>
 <p>the displayed value automatically.</p>
 <ul><li><code>variant</code> switches the layout: <code>'button'</code> (default) hides the caption and renders a</li></ul>

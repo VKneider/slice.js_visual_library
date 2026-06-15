@@ -1,37 +1,4 @@
-function getHandleConfig(name) {
-  const MAP = {
-    n:  { edges: ['n'] },
-    s:  { edges: ['s'] },
-    e:  { edges: ['e'] },
-    w:  { edges: ['w'] },
-    ne: { edges: ['n', 'e'] },
-    nw: { edges: ['n', 'w'] },
-    se: { edges: ['s', 'e'] },
-    sw: { edges: ['s', 'w'] },
-  };
-  return MAP[name] || null;
-}
-
-function clamp(v, min, max) {
-  return Math.max(min, Math.min(max, v));
-}
-
-function computeResizeRect(orig, delta, edges, minW, minH, maxW, maxH) {
-  let { top, left, width, height } = orig;
-  if (edges.includes('e')) width = clamp(width + delta.x, minW, maxW);
-  if (edges.includes('s')) height = clamp(height + delta.y, minH, maxH);
-  if (edges.includes('w')) {
-    const nw = clamp(width - delta.x, minW, maxW);
-    left += width - nw;
-    width = nw;
-  }
-  if (edges.includes('n')) {
-    const nh = clamp(height - delta.y, minH, maxH);
-    top += height - nh;
-    height = nh;
-  }
-  return { top, left, width, height };
-}
+import { getHandleConfig, computeResizeRect } from './dndGeometry.js';
 
 export default class DragDropService {
   constructor() {
@@ -44,10 +11,14 @@ export default class DragDropService {
     this._activeResize = null;
     this._activeSortable = null;
     this._ghost = null;
+    this._droppableRects = null;
+    this._scroll = null;
 
     this._onPointerDown = this._onPointerDown.bind(this);
     this._onPointerMove = this._onPointerMove.bind(this);
     this._onPointerUp = this._onPointerUp.bind(this);
+    this._onViewportChange = this._snapshotDroppables.bind(this);
+    this._autoScrollTick = this._autoScrollTick.bind(this);
 
     document.addEventListener('pointerdown', this._onPointerDown);
     DragDropService._injectCSS();
@@ -63,19 +34,20 @@ export default class DragDropService {
     const style = document.createElement('style');
     style.id = 'dnd-service-styles';
     style.textContent = `
-      .dnd-handle{position:absolute;z-index:1;background:rgba(0,0,0,.04);touch-action:none}
-      .dnd-handle:hover{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.4)}
-      .dnd-handle--n,.dnd-handle--s,.dnd-handle--e,.dnd-handle--w{border-radius:0;border:1px solid rgba(0,0,0,.12)}
-      .dnd-handle--ne,.dnd-handle--nw,.dnd-handle--se,.dnd-handle--sw{border-radius:2px;border:1px solid rgba(0,0,0,.12)}
-      .dnd-handle--n{top:-4px;left:4px;right:4px;height:8px;cursor:ns-resize}
-      .dnd-handle--s{bottom:-4px;left:4px;right:4px;height:8px;cursor:ns-resize}
-      .dnd-handle--e{right:-4px;top:4px;bottom:4px;width:8px;cursor:ew-resize}
-      .dnd-handle--w{left:-4px;top:4px;bottom:4px;width:8px;cursor:ew-resize}
-      .dnd-handle--ne{top:-4px;right:-4px;width:12px;height:12px;cursor:nesw-resize}
-      .dnd-handle--nw{top:-4px;left:-4px;width:12px;height:12px;cursor:nwse-resize}
-      .dnd-handle--se{bottom:-4px;right:-4px;width:12px;height:12px;cursor:nwse-resize}
-      .dnd-handle--sw{bottom:-4px;left:-4px;width:12px;height:12px;cursor:nesw-resize}
-      .dnd-ghost{position:fixed;pointer-events:none;z-index:999999;opacity:.8;margin:0;will-change:transform}
+      .dnd-handle{position:absolute;z-index:1;touch-action:none;transition:background .15s,border-color .15s,box-shadow .15s}
+      .dnd-handle:hover{background:rgba(59,130,246,.28);border-color:rgba(59,130,246,.9)}
+      .dnd-handle--n,.dnd-handle--s,.dnd-handle--e,.dnd-handle--w{border-radius:1px;background:rgba(59,130,246,.14);border:1px solid rgba(59,130,246,.45)}
+      .dnd-handle--n{bottom:auto;top:-5px;left:6px;right:6px;height:10px;cursor:ns-resize}
+      .dnd-handle--s{top:auto;bottom:-5px;left:6px;right:6px;height:10px;cursor:ns-resize}
+      .dnd-handle--e{left:auto;right:-5px;top:6px;bottom:6px;width:10px;cursor:ew-resize}
+      .dnd-handle--w{right:auto;left:-5px;top:6px;bottom:6px;width:10px;cursor:ew-resize}
+      .dnd-handle--ne,.dnd-handle--nw,.dnd-handle--se,.dnd-handle--sw{border-radius:4px;background:#fff;border:1.5px solid rgba(59,130,246,.75);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+      .dnd-handle--ne::after,.dnd-handle--nw::after,.dnd-handle--se::after,.dnd-handle--sw::after{content:'';position:absolute;inset:2px;border-radius:2px;background:repeating-linear-gradient(135deg,transparent,transparent 2px,rgba(59,130,246,.18) 2px,rgba(59,130,246,.18) 3px);pointer-events:none}
+      .dnd-handle--ne{inset:auto -5px -5px auto;width:16px;height:16px;cursor:nesw-resize}
+      .dnd-handle--nw{inset:-5px auto -5px -5px;width:16px;height:16px;cursor:nwse-resize}
+      .dnd-handle--se{bottom:-5px;right:-5px;width:16px;height:16px;cursor:nwse-resize}
+      .dnd-handle--sw{bottom:-5px;left:-5px;width:16px;height:16px;cursor:nesw-resize}
+      .dnd-ghost{position:fixed;pointer-events:none;z-index:999999;opacity:.85;margin:0;will-change:transform;box-shadow:0 8px 30px rgba(0,0,0,.15)}
       .dnd-sortable-ph{pointer-events:none;flex:0 0 auto}
       .dnd-dragging{user-select:none;-webkit-user-select:none}
     `;
@@ -98,6 +70,7 @@ export default class DragDropService {
       ghostClass: config.ghostClass || '',
       threshold: config.threshold || 0,
       freePosition: config.freePosition || false,
+      autoScroll: config.autoScroll !== false,
       onDragStart: config.onDragStart || null,
       onDrag: config.onDrag || null,
       onDragEnd: config.onDragEnd || null,
@@ -168,6 +141,12 @@ export default class DragDropService {
       if (handles) handles.remove();
     }
 
+    const sortCfg = this._sortables.get(node);
+    if (sortCfg) {
+      node.removeEventListener('pointerdown', sortCfg._onDown);
+      this._sortables.delete(node);
+    }
+
     if (this._activeDrag?.node === node) {
       this._endDrag(null);
     }
@@ -176,6 +155,9 @@ export default class DragDropService {
     }
     if (this._activeResize?.node === node) {
       this._endResize(null);
+    }
+    if (this._activeSortable?.container === node) {
+      this._endSortable(null);
     }
     return this;
   }
@@ -190,7 +172,12 @@ export default class DragDropService {
       if (handles) handles.remove();
     }
 
+    for (const [container, cfg] of this._sortables) {
+      container.removeEventListener('pointerdown', cfg._onDown);
+    }
+
     this._removeGhost();
+    this._stopAutoScroll();
     this._draggables.clear();
     this._droppables.clear();
     this._resizables.clear();
@@ -289,6 +276,12 @@ export default class DragDropService {
       document.body.classList.add('dnd-dragging');
       if (d.cfg.ghost) this._createGhost(d.node, d.cfg);
       d.cfg.onDragStart?.(d.node, event, d.data);
+      // Snapshot droppable rects once per drag instead of measuring every move
+      // (a getBoundingClientRect per droppable per pointermove forces layout).
+      // Scroll/resize during the drag re-snapshots so hit-testing stays correct.
+      this._snapshotDroppables();
+      window.addEventListener('scroll', this._onViewportChange, true);
+      window.addEventListener('resize', this._onViewportChange);
     }
 
     let moveX = dx;
@@ -298,10 +291,24 @@ export default class DragDropService {
 
     if (this._ghost) {
       this._ghost.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    } else if (d.cfg.freePosition) {
+      // No ghost + freePosition → move the real element live so the container
+      // follows the pointer directly. The offset is committed to left/top in
+      // _endDrag, where the transform is cleared.
+      d.node.style.transform = `translate(${moveX}px, ${moveY}px)`;
     }
 
     d.cfg.onDrag?.(d.node, event, d.data, { dx: moveX, dy: moveY });
     this._updateDroppableHover(event);
+    if (d.cfg.autoScroll && this._dragCanScroll(d)) this._updateAutoScroll(event, d.node);
+  }
+
+  // Auto-scroll a draggable only when the drag has somewhere to go: it
+  // repositions the element (freePosition) or there are drop targets it could
+  // reach. A plain ghost-only drag with no droppables has nowhere to land, so
+  // scrolling the page would just be surprising. (Sortable always qualifies.)
+  _dragCanScroll(d) {
+    return d.cfg.freePosition || this._droppables.size > 0;
   }
 
   _endDrag(event) {
@@ -310,15 +317,27 @@ export default class DragDropService {
 
     document.body.classList.remove('dnd-dragging');
     this._removeDocListeners();
+    window.removeEventListener('scroll', this._onViewportChange, true);
+    window.removeEventListener('resize', this._onViewportChange);
+    this._droppableRects = null;
+    this._stopAutoScroll();
     this._removeGhost();
 
     if (d.active) {
       if (d.cfg.freePosition) {
-        const dx = d.currentPos.x - d.startPos.x;
-        const dy = d.currentPos.y - d.startPos.y;
+        let dx = d.currentPos.x - d.startPos.x;
+        let dy = d.currentPos.y - d.startPos.y;
+        if (d.cfg.axis === 'x') dy = 0;
+        if (d.cfg.axis === 'y') dx = 0;
+        // Clear any live-move transform; the offset is committed to left/top.
+        d.node.style.transform = '';
         if (dx !== 0 || dy !== 0) {
+          // Free positioning works in viewport coordinates, so the element must
+          // be `fixed`. For `relative`/`absolute` the left/top we compute below
+          // are viewport pixels, which a non-fixed element would interpret as an
+          // offset from its flow/containing-block position (the box jumps away).
           const cs = window.getComputedStyle(d.node);
-          if (cs.position === 'static') d.node.style.position = 'fixed';
+          if (cs.position !== 'fixed') d.node.style.position = 'fixed';
           d.node.style.left = (d.startRect.left + dx) + 'px';
           d.node.style.top = (d.startRect.top + dy) + 'px';
           d.node.style.width = d.startRect.width + 'px';
@@ -337,14 +356,21 @@ export default class DragDropService {
     this._activeDrag = null;
   }
 
+  _snapshotDroppables() {
+    this._droppableRects = [];
+    for (const [node, cfg] of this._droppables) {
+      if (!node.isConnected) continue;
+      this._droppableRects.push({ node, cfg, rect: node.getBoundingClientRect() });
+    }
+  }
+
   _updateDroppableHover(event) {
     const x = event.clientX;
     const y = event.clientY;
     let hit = null;
 
-    for (const [node, cfg] of this._droppables) {
+    for (const { node, cfg, rect } of this._droppableRects || []) {
       if (!node.isConnected) continue;
-      const rect = node.getBoundingClientRect();
       if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
         if (!cfg.accept || cfg.accept(this._activeDrag?.data)) {
           hit = { node, cfg };
@@ -371,7 +397,16 @@ export default class DragDropService {
     this._removeGhost();
     const ghost = node.cloneNode(true);
     ghost.className = `dnd-ghost${cfg.ghostClass ? ' ' + cfg.ghostClass : ''}`;
+    // Drop any resize-handle container copied from the source so the ghost has
+    // no grips on it.
+    ghost.querySelectorAll('.dnd-resize-handles').forEach((el) => el.remove());
     const rect = node.getBoundingClientRect();
+    // Force fixed positioning INLINE. The source may carry an inline
+    // position:relative/absolute that would win over the .dnd-ghost class rule
+    // and drop the clone far down the page (top/left become flow offsets).
+    ghost.style.position = 'fixed';
+    ghost.style.margin = '0';
+    ghost.style.transform = 'none';
     ghost.style.width = rect.width + 'px';
     ghost.style.height = rect.height + 'px';
     ghost.style.top = rect.top + 'px';
@@ -387,6 +422,84 @@ export default class DragDropService {
     this._ghost = null;
   }
 
+  // ─── Internal: Auto-scroll ───────────────────────────────────
+  // When the pointer nears an edge of the scroll container (or the viewport),
+  // scroll it continuously so the user can drag past the visible region — the
+  // missing piece for long pages and long lists. Velocity scales with how deep
+  // the pointer is into the edge zone; a rAF loop keeps scrolling even when the
+  // pointer is held still (no pointermove fires). Opt out with autoScroll:false.
+
+  static _EDGE = 48;        // px from the edge where auto-scroll kicks in
+  static _MAX_SPEED = 20;   // px per frame at the very edge
+
+  // Nearest scrollable ancestor (including the node itself), else the viewport.
+  _getScrollParent(node) {
+    let el = node;
+    while (el && el !== document.body && el !== document.documentElement) {
+      const s = window.getComputedStyle(el);
+      const canY = (s.overflowY === 'auto' || s.overflowY === 'scroll') && el.scrollHeight > el.clientHeight;
+      const canX = (s.overflowX === 'auto' || s.overflowX === 'scroll') && el.scrollWidth > el.clientWidth;
+      if (canY || canX) return el;
+      el = el.parentElement;
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+
+  _isViewportTarget(target) {
+    return target === document.scrollingElement || target === document.documentElement;
+  }
+
+  _edgeVelocity(target, x, y) {
+    const EDGE = DragDropService._EDGE;
+    const MAX = DragDropService._MAX_SPEED;
+    const clamp01 = (v) => Math.max(0, Math.min(1, v));
+    const rect = this._isViewportTarget(target)
+      ? { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight }
+      : target.getBoundingClientRect();
+
+    let vx = 0, vy = 0;
+    const top = y - rect.top, bottom = rect.bottom - y;
+    if (top < EDGE) vy = -MAX * clamp01((EDGE - top) / EDGE);
+    else if (bottom < EDGE) vy = MAX * clamp01((EDGE - bottom) / EDGE);
+
+    const left = x - rect.left, right = rect.right - x;
+    if (left < EDGE) vx = -MAX * clamp01((EDGE - left) / EDGE);
+    else if (right < EDGE) vx = MAX * clamp01((EDGE - right) / EDGE);
+
+    return { vx: Math.round(vx), vy: Math.round(vy) };
+  }
+
+  _updateAutoScroll(event, node) {
+    if (!this._scroll) {
+      this._scroll = { target: this._getScrollParent(node), vx: 0, vy: 0, rafId: null };
+    }
+    const sc = this._scroll;
+    const { vx, vy } = this._edgeVelocity(sc.target, event.clientX, event.clientY);
+    sc.vx = vx;
+    sc.vy = vy;
+    if ((vx || vy) && sc.rafId == null) {
+      sc.rafId = requestAnimationFrame(this._autoScrollTick);
+    }
+  }
+
+  _autoScrollTick() {
+    const sc = this._scroll;
+    if (!sc) return;
+    if (!sc.vx && !sc.vy) { sc.rafId = null; return; }   // idle until the next move re-arms it
+    if (this._isViewportTarget(sc.target)) {
+      window.scrollBy(sc.vx, sc.vy);
+    } else {
+      sc.target.scrollLeft += sc.vx;
+      sc.target.scrollTop += sc.vy;
+    }
+    sc.rafId = requestAnimationFrame(this._autoScrollTick);
+  }
+
+  _stopAutoScroll() {
+    if (this._scroll?.rafId != null) cancelAnimationFrame(this._scroll.rafId);
+    this._scroll = null;
+  }
+
   // ─── Sortable ────────────────────────────────────────────────
 
   makeSortable(container, config = {}) {
@@ -394,32 +507,44 @@ export default class DragDropService {
       items: config.items || ':scope > *',
       axis: config.axis || 'y',
       ghostClass: config.ghostClass || '',
+      autoScroll: config.autoScroll !== false,
       onReorder: config.onReorder || null,
       accept: config.accept || null,
     };
 
+    // One delegated listener on the CONTAINER instead of one per item. The item
+    // is resolved at pointerdown time, so items added/removed after makeSortable
+    // are handled automatically, and a list of N items costs 1 listener, not N.
+    cfg._onDown = (event) => {
+      const item = this._resolveSortableItem(container, event.target, cfg.items);
+      if (item) this._onSortablePointerDown(event, item, container, cfg);
+    };
+    container.addEventListener('pointerdown', cfg._onDown);
+
     this._sortables.set(container, cfg);
-    this._initSortableItems(container, cfg);
     return this;
   }
 
   // ─── Internal: Sortable ──────────────────────────────────────
 
-  _initSortableItems(container, cfg) {
-    const items = container.querySelectorAll(cfg.items);
-    items.forEach(item => {
-      item.addEventListener('pointerdown', (e) => this._onSortablePointerDown(e, item, container, cfg));
-    });
+  // Walks up from the event target to the direct child of `container` that
+  // also matches the items selector. `:scope > *` (the default) matches any
+  // direct child; a `:scope > ` prefix is stripped so `.matches()` accepts it.
+  _resolveSortableItem(container, target, selector) {
+    const sel = selector === ':scope > *' ? null : selector.replace(/^:scope\s*>\s*/, '');
+    let node = target;
+    while (node && node.parentNode !== container) {
+      node = node.parentNode;
+    }
+    if (!node || node.parentNode !== container) return null;
+    if (sel && !node.matches(sel)) return null;
+    return node;
   }
 
   _onSortablePointerDown(event, item, container, cfg) {
     if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
-
-    const allItems = [...container.children].filter(c =>
-      c !== item && c.style.display !== 'none'
-    );
 
     const fromIndex = [...container.children].indexOf(item);
     const rect = item.getBoundingClientRect();
@@ -444,16 +569,41 @@ export default class DragDropService {
     ghost.textContent = item.textContent || '';
     document.body.appendChild(ghost);
 
-    item.style.display = 'none';
+    // Hide the original with inline !important so it beats a component's own
+    // CSS (e.g. slice-card sets `display:flex !important`); plain inline
+    // display:none would lose to that and the item would look cloned.
+    item.style.setProperty('display', 'none', 'important');
 
     this._activeSortable = {
       container, cfg, item, placeholder, ghost,
-      fromIndex, allItems,
+      fromIndex,
       startPos: { x: event.clientX, y: event.clientY },
       lastInsertIndex: fromIndex,
+      items: [],
+      mids: [],
     };
 
+    // Measure the sibling midpoints once up front. We only re-measure when the
+    // placeholder actually crosses into a new slot (see _onSortableMove), so a
+    // typical move costs O(1) cache reads instead of a getBoundingClientRect per
+    // item per pointermove — what makes long lists (hundreds+) feel sluggish.
+    this._measureSortable(this._activeSortable);
+
     this._addDocListeners();
+  }
+
+  // Snapshots the current sibling items (excluding the dragged item and the
+  // placeholder) and their midpoints along the sort axis. The item SET is stable
+  // during a drag; only positions shift as the placeholder moves, so this is
+  // recomputed exactly when the placeholder is reinserted.
+  _measureSortable(s) {
+    s.items = [...s.container.children].filter(c =>
+      c !== s.item && c !== s.placeholder && c.style.display !== 'none'
+    );
+    s.mids = s.items.map(el => {
+      const r = el.getBoundingClientRect();
+      return s.cfg.axis === 'x' ? r.left + r.width / 2 : r.top + r.height / 2;
+    });
   }
 
   _onSortableMove(event) {
@@ -464,24 +614,20 @@ export default class DragDropService {
     s.ghost.style.transform = `translate(${dx}px, ${dy}px)`;
 
     const pos = s.cfg.axis === 'x' ? event.clientX : event.clientY;
-    const items = [...s.container.children].filter(c =>
-      c !== s.item && c !== s.placeholder && c.style.display !== 'none'
-    );
 
-    let insertIndex = items.length;
-    for (let i = 0; i < items.length; i++) {
-      const r = items[i].getBoundingClientRect();
-      const mid = s.cfg.axis === 'x'
-        ? r.left + r.width / 2
-        : r.top + r.height / 2;
-      if (pos < mid) { insertIndex = i; break; }
+    let insertIndex = s.mids.length;
+    for (let i = 0; i < s.mids.length; i++) {
+      if (pos < s.mids[i]) { insertIndex = i; break; }
     }
 
     if (insertIndex !== s.lastInsertIndex) {
-      const beforeNode = items[insertIndex] || null;
+      const beforeNode = s.items[insertIndex] || null;
       s.container.insertBefore(s.placeholder, beforeNode);
       s.lastInsertIndex = insertIndex;
+      this._measureSortable(s);   // positions shifted — refresh the cached midpoints
     }
+
+    if (s.cfg.autoScroll) this._updateAutoScroll(event, s.container);
   }
 
   _endSortable(event) {
@@ -489,11 +635,20 @@ export default class DragDropService {
     if (!s) return;
 
     this._removeDocListeners();
+    this._stopAutoScroll();
 
     if (s.ghost && s.ghost.parentNode) s.ghost.parentNode.removeChild(s.ghost);
-    if (s.placeholder && s.placeholder.parentNode) s.placeholder.parentNode.removeChild(s.placeholder);
 
-    s.item.style.display = '';
+    // Move the real item into the placeholder's slot, then drop the placeholder.
+    // During the drag only the placeholder moves; the item stays hidden at its
+    // original index. Without this reinsertion the list never actually reorders
+    // and onReorder never fires (toIndex would always equal fromIndex).
+    if (s.placeholder && s.placeholder.parentNode) {
+      s.container.insertBefore(s.item, s.placeholder);
+      s.placeholder.parentNode.removeChild(s.placeholder);
+    }
+
+    s.item.style.removeProperty('display');
 
     const allChildren = [...s.container.children];
     const currentIdx = allChildren.indexOf(s.item);

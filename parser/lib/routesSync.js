@@ -13,6 +13,9 @@ const generateMainRoutesFile = () => {
   // Persistent component-testing harness route. Kept here (not derived from
   // markdown) so it survives every `docs:generate` regeneration of routes.js.
   lines.push("  { path: '/__test', component: 'TestHarness' },");
+  // Hidden internal sandbox for hand-testing services (e.g. DragDropService).
+  // Not in the navbar; kept here so it also survives `docs:generate`.
+  lines.push("  { path: '/playground', component: 'Playground' },");
   docsShellRoutes.forEach((route) => {
     lines.push(`  { path: '${route.replace(/'/g, "\\'")}', component: 'App' },`);
   });

@@ -39,5 +39,5 @@
 <h2 id="cleanup">Cleanup</h2>
 <div class="code-block" data-block-id="doc-block-14"></div>
 <h2 id="best-practices">Best Practices</h2>
-<ul><li>Set <code>touch-action: none</code> on draggable elements (already set on resize handles).</li><li>Use <code>handle</code> when elements should be draggable only from a specific child (e.g., a header).</li><li>Always call <code>detach(node)</code> when removing a registered element from the DOM.</li><li>Use <code>accept</code> on droppables to filter which draggables are accepted.</li></ul>
+<ul><li>Set <code>touch-action: none</code> on draggable elements (already set on resize handles).</li><li>Use <code>handle</code> when elements should be draggable only from a specific child (e.g., a header).</li><li>Always call <code>detach(node)</code> when removing a registered element from the DOM.</li><li>Use <code>accept</code> on droppables to filter which draggables are accepted.</li><li>Auto-scroll is on by default: dragging near the edge of the nearest scrollable ancestor (or the viewport) scrolls it. Pass <code>autoScroll: false</code> to a draggable or sortable to opt out.</li></ul>
 </div>

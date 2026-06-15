@@ -14,6 +14,8 @@ slice-modal .slice-modal {
     0 6px 20px -8px rgba(0, 0, 0, 0.15);
   max-width: var(--modal-max-width, 520px);
   width: var(--modal-width, min(90vw, 520px));
+  display: flex;
+  flex-direction: column;
   overflow: visible;
   animation: slice-modal_enter 0.2s ease;
   position: relative;
@@ -51,6 +53,14 @@ slice-modal .slice-modal__header {
   border-bottom: 1px solid color-mix(in srgb, var(--modal-text, var(--font-primary-color, #1a0b2e)) 10%, transparent);
 }
 
+slice-modal.is-draggable .slice-modal__header {
+  cursor: grab;
+}
+
+slice-modal.is-draggable .slice-modal__header:active {
+  cursor: grabbing;
+}
+
 slice-modal .slice-modal__title {
   flex: 1;
   min-width: 0;
@@ -60,6 +70,9 @@ slice-modal .slice-modal__body {
   padding: 1rem 1.5rem;
   font-size: 0.9rem;
   line-height: 1.6;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 slice-modal .slice-modal__footer {

@@ -33,6 +33,7 @@ dnd.makeDraggable(node, {
   axis: 'both',           // 'x', 'y', or 'both'
   ghost: true,            // show a ghost clone
   threshold: 0,           // px before activating
+  autoScroll: true,       // scroll the nearest scrollable ancestor near its edges
   data: { id: 1 },
   onDragStart(node, event, data),
   onDrag(node, event, data, { dx, dy }),
@@ -224,6 +225,7 @@ Reorder items inside a container by dragging them.
 dnd.makeSortable(container, {
   items: ':scope > *',     // selector for sortable items
   axis: 'y',               // 'x' or 'y'
+  autoScroll: true,        // scroll a long/overflowing list while dragging near its edges
   onReorder: ({ fromIndex, toIndex, item, container }) => {
     console.log(`Moved from ${fromIndex} to ${toIndex}`);
   }
@@ -283,3 +285,4 @@ dnd.destroy();      // remove all registrations, ghost, and document listeners
 - Use `handle` when elements should be draggable only from a specific child (e.g., a header).
 - Always call `detach(node)` when removing a registered element from the DOM.
 - Use `accept` on droppables to filter which draggables are accepted.
+- Auto-scroll is on by default: dragging near the edge of the nearest scrollable ancestor (or the viewport) scrolls it. Pass `autoScroll: false` to a draggable or sortable to opt out.

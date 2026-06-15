@@ -34,6 +34,8 @@ The `Modal` component wraps the native `<dialog>` element to provide a focused o
 | `dismissable`  | `boolean`         | `true`      | Show close button + backdrop dismiss    |
 | `width`        | `string`          | `''`        | CSS width override (e.g. `400px`)       |
 | `maxWidth`     | `string`          | `''`        | CSS max-width override                  |
+| `draggable`    | `boolean`         | `false`     | Move the modal by dragging its header   |
+| `resizable`    | `boolean`         | `false`     | Resize the modal from its edges/corners |
 | `customColor`  | `object \| null`  | `null`      | `{ background, text, accent }`          |
 | `onClose`      | `function`        | `null`      | Called when the modal is dismissed      |
 
@@ -143,6 +145,145 @@ const btn = await slice.build('Button', {
     modal.appendBody(p);
     const closeBtn = await slice.build('Button', {
       value: 'Close me',
+      onClick: () => modal.close()
+    });
+    modal.appendFooter(closeBtn);
+    document.body.appendChild(modal);
+  }
+});
+return btn;
+:::
+
+:::script label="Draggable + resizable" expected="modal can be moved by its header and resized from its edges/corners"
+const btn = await slice.build('Button', {
+  value: 'Draggable + resizable',
+  onClick: async () => {
+    const modal = await slice.build('Modal', {
+      title: 'Move me / resize me',
+      open: true,
+      draggable: true,
+      resizable: true
+    });
+    const p = document.createElement('p');
+    p.textContent = 'Drag the header to move. Drag the edges or corners to resize.';
+    modal.appendBody(p);
+    document.body.appendChild(modal);
+  }
+});
+return btn;
+:::
+
+## Practical Scenarios
+
+:::script label="Draggable settings panel" expected="modal with settings toggles, draggable by its header"
+const btn = await slice.build('Button', {
+  value: 'Settings',
+  onClick: async () => {
+    const modal = await slice.build('Modal', {
+      title: 'Preferences',
+      open: true,
+      draggable: true,
+      width: '380px'
+    });
+    const notif = await slice.build('Switch', {
+      label: 'Push notifications',
+      checked: true,
+      labelPlacement: 'left'
+    });
+    const dark = await slice.build('Switch', {
+      label: 'Dark mode',
+      checked: false,
+      labelPlacement: 'left'
+    });
+    const email = await slice.build('Switch', {
+      label: 'Weekly digest',
+      checked: true,
+      labelPlacement: 'left'
+    });
+    const grid = await slice.build('Grid', { columns: 1, gap: '0.5rem' });
+    grid.items = [notif, dark, email];
+    modal.appendBody(grid);
+    document.body.appendChild(modal);
+  }
+});
+return btn;
+:::
+
+:::script label="Resizable content editor" expected="modal with textarea, resizable from edges and corners"
+const btn = await slice.build('Button', {
+  value: 'Edit description',
+  onClick: async () => {
+    const modal = await slice.build('Modal', {
+      title: 'Edit description',
+      open: true,
+      resizable: true,
+      width: '480px'
+    });
+    const ta = await slice.build('Textarea', {
+      value: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+      rows: 6,
+      autoGrow: true
+    });
+    modal.appendBody(ta);
+    const saveBtn = await slice.build('Button', {
+      value: 'Save',
+      customColor: { background: '#059669', text: '#ffffff' },
+      onClick: () => modal.close()
+    });
+    modal.appendFooter(saveBtn);
+    document.body.appendChild(modal);
+  }
+});
+return btn;
+:::
+
+:::script label="Draggable modal with tabs" expected="modal with tabbed panels, draggable header"
+const btn = await slice.build('Button', {
+  value: 'Object properties',
+  onClick: async () => {
+    const modal = await slice.build('Modal', {
+      title: 'Properties',
+      open: true,
+      draggable: true,
+      width: '500px'
+    });
+    const general = document.createElement('div');
+    general.style.padding = '0.5rem 0';
+    general.textContent = 'Name: example.pdf\nSize: 2.4 MB\nType: PDF document';
+    const security = document.createElement('div');
+    security.style.padding = '0.5rem 0';
+    security.textContent = 'Owner: you\nPassword protected: no\nSharing: restricted';
+    const tabs = await slice.build('Tabs', {
+      items: [
+        { id: 'general', label: 'General', panel: general },
+        { id: 'security', label: 'Security', panel: security }
+      ],
+      activeTab: 'general'
+    });
+    modal.appendBody(tabs);
+    document.body.appendChild(modal);
+  }
+});
+return btn;
+:::
+
+:::script label="Resizable log viewer" expected="modal with log content, resizable to show more lines"
+const btn = await slice.build('Button', {
+  value: 'View logs',
+  onClick: async () => {
+    const modal = await slice.build('Modal', {
+      title: 'Deployment logs',
+      open: true,
+      resizable: true,
+      width: '600px',
+      maxWidth: '800px'
+    });
+    const pre = document.createElement('pre');
+    pre.style.cssText = 'background:#f1f5f9;padding:1rem;border-radius:6px;font-size:13px;line-height:1.5;overflow:auto;margin:0;white-space:pre-wrap';
+    pre.textContent = '[2024-01-15 10:30:01] INFO  Starting deployment v2.4.1\n[2024-01-15 10:30:02] INFO  Pulling image from registry...\n[2024-01-15 10:30:05] INFO  Image pulled successfully\n[2024-01-15 10:30:06] WARN  Disk usage at 78%\n[2024-01-15 10:30:08] INFO  Running database migrations...\n[2024-01-15 10:30:12] INFO  Migrations completed\n[2024-01-15 10:30:13] INFO  Starting health checks...\n[2024-01-15 10:30:15] INFO  All health checks passed\n[2024-01-15 10:30:16] INFO  Deployment complete';
+    modal.appendBody(pre);
+    const closeBtn = await slice.build('Button', {
+      value: 'Close',
       onClick: () => modal.close()
     });
     modal.appendFooter(closeBtn);

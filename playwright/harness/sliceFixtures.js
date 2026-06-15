@@ -169,6 +169,67 @@ export const test = base.extend({
 
       await use(mount);
    },
+
+   // Same visual-test philosophy as `mount` (real Slice runtime in the chrome-free
+   // `/__test` page), but for things that aren't a single Visual node: plain HTML
+   // driven by a headless Service (DragDropService, ToolTipProvider, ...).
+   //
+   // `mountHtml(html, { services })` injects raw HTML into the harness root and
+   // builds the named services as singletons, exposed on `window.__sliceServices`.
+   // Wiring (make*, callbacks, dispatching pointer events) happens in the spec via
+   // `handle.page.evaluate`, since functions can't cross the page boundary.
+   //
+   //   const h = await mountHtml('<div id="box"></div>', { services: ['DragDropService'] });
+   //   await h.page.evaluate(() => {
+   //     const dnd = window.__sliceServices.DragDropService;
+   //     dnd.makeDraggable(document.getElementById('box'), { ... });
+   //   });
+   mountHtml: async ({ page }, use) => {
+      const consoleMessages = [];
+      const pageErrors = [];
+      page.on('console', (msg) => consoleMessages.push({ type: msg.type(), text: msg.text() }));
+      page.on('pageerror', (err) => pageErrors.push(err.message));
+
+      await page.goto('/__test');
+      await page.waitForFunction(() => !!(window.slice && typeof window.slice.build === 'function'));
+      await page.waitForSelector('[data-test-root]', { state: 'attached' });
+
+      /**
+       * @param {string} html     Raw HTML injected into the harness root.
+       * @param {object} [opts]    { services?: string[], theme?: string|null }
+       */
+      async function mountHtml(html = '', opts = {}) {
+         const { theme = DEFAULT_THEME, services = [] } = opts;
+
+         if (theme) {
+            await page.evaluate((t) => window.slice.setTheme(t), theme);
+         }
+
+         await page.evaluate(
+            async ({ html, services }) => {
+               const root = document.querySelector('[data-test-root]');
+               root.innerHTML = html;
+               window.__sliceServices = {};
+               for (const name of services) {
+                  window.__sliceServices[name] = await window.slice.build(name, { singleton: true });
+               }
+            },
+            { html, services }
+         );
+
+         const root = page.locator('[data-test-root]');
+         return {
+            page,
+            root,
+            // Query scoped INSIDE the harness root.
+            locator: (selector) => root.locator(selector),
+            consoleMessages: () => [...consoleMessages],
+            pageErrors: () => [...pageErrors],
+         };
+      }
+
+      await use(mountHtml);
+   },
 });
 
 export { expect };

@@ -67,6 +67,7 @@ const components = {
   "NotFoundDocumentation": "DocumentationPages",
   "Pagination": "Visual",
   "PaginationDocumentation": "DocumentationPages",
+  "Playground": "AppComponents",
   "PropsTable": "Visual",
   "Route": "Visual",
   "RouteDocumentation": "DocumentationPages",

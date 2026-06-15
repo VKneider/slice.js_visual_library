@@ -111,4 +111,65 @@ test.describe('Modal', () => {
     pos = await page.evaluate(() => document.body.style.position);
     expect(pos).toBe('');
   });
+
+  test('draggable: dragging the header moves the modal', async ({ mount, page }) => {
+    const c = await mount('Modal', { title: 'Drag me', open: true, draggable: true });
+    const dialog = c.locator('.slice-modal');
+    await expect(dialog).toBeVisible();
+    await page.waitForTimeout(260);   // let the enter animation (scale) settle before measuring
+
+    const before = await dialog.boundingBox();
+    const hb = await c.locator('.slice-modal__header').boundingBox();
+    const sx = hb.x + 40, sy = hb.y + hb.height / 2;   // left side of the header (away from close)
+    await page.mouse.move(sx, sy);
+    await page.mouse.down();
+    await page.mouse.move(sx + 60, sy + 70, { steps: 5 });
+    await page.mouse.move(sx + 120, sy + 150, { steps: 5 });
+    await page.mouse.up();
+
+    const after = await dialog.boundingBox();
+    expect(await dialog.evaluate((el) => getComputedStyle(el).position)).toBe('fixed');
+    expect(Math.abs(after.x - (before.x + 120))).toBeLessThan(20);
+    expect(Math.abs(after.y - (before.y + 150))).toBeLessThan(20);
+    expect(c.pageErrors()).toEqual([]);
+  });
+
+  test('draggable: clicking the close button still closes (threshold blocks drag)', async ({ mount }) => {
+    const c = await mount('Modal', { title: 'X', open: true, draggable: true });
+    await expect(c.locator('.slice-modal')).toBeVisible();
+    await c.locator('.slice-modal__close').click();
+    await expect(c.locator('.slice-modal')).not.toBeVisible();
+  });
+
+  test('resizable: renders handles and the SE handle grows the modal', async ({ mount, page }) => {
+    const c = await mount('Modal', { title: 'Resize me', open: true, resizable: true });
+    const dialog = c.locator('.slice-modal');
+    await expect(dialog).toBeVisible();
+    await page.waitForTimeout(260);   // let the enter animation (scale) settle before measuring
+    await expect(c.locator('.dnd-handle--se')).toBeAttached();
+
+    const before = await dialog.boundingBox();
+    const hb = await c.locator('.dnd-handle--se').evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.x, y: r.y, width: r.width, height: r.height };
+    });
+    expect(hb.width).toBeGreaterThan(0);
+    const cx = hb.x + hb.width / 2, cy = hb.y + hb.height / 2;
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx + 50, cy + 50, { steps: 5 });
+    await page.mouse.move(cx + 90, cy + 90, { steps: 5 });
+    await page.mouse.up();
+
+    const after = await dialog.boundingBox();
+    expect(after.width).toBeGreaterThan(before.width + 40);
+    expect(after.height).toBeGreaterThan(before.height + 40);
+    expect(c.pageErrors()).toEqual([]);
+  });
+
+  test('default modal wires no DnD (no resize handles)', async ({ mount }) => {
+    const c = await mount('Modal', { title: 'Plain', open: true });
+    await expect(c.locator('.slice-modal')).toBeVisible();
+    await expect(c.locator('.dnd-handle--se')).toHaveCount(0);
+  });
 });

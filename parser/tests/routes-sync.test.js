@@ -15,6 +15,8 @@ test('generateMainRoutesFile keeps docs app-shell routes mapped to App', () => {
   assert.match(output, /\{ path: '\/', component: 'App' \}/);
   // The persistent testing-harness route must always be emitted.
   assert.match(output, /\{ path: '\/__test', component: 'TestHarness' \}/);
+  // The hidden playground sandbox route must always be emitted.
+  assert.match(output, /\{ path: '\/playground', component: 'Playground' \}/);
   assert.match(output, /\{ path: '\/docs', component: 'App' \}/);
   assert.match(output, /\{ path: '\/docs\/\$\{section\}', component: 'App' \}/);
   assert.match(output, /\{ path: '\/docs\/\$\{section\}\/\$\{page\}', component: 'App' \}/);
