@@ -43,7 +43,7 @@
   "dependencies": {
     "express": "^5.2.1",
     "slicejs-cli": "3.6.5",
-    "slicejs-web-framework": "^3.4.0"
+    "slicejs-web-framework": "^3.4.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0"
