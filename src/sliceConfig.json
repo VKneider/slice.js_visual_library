@@ -44,7 +44,7 @@
                                 },
                    "ui":  {
                               "enabled":  false,
-"shortcut": "ctrl+l"
+"shortcut": "ctrl+shift+l"
                           }
                },
     "paths":  {
