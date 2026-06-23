@@ -115,6 +115,9 @@ export default class MultiRoute extends HTMLElement {
             this.innerHTML = '';
             this.appendChild(newComponent);
             this.renderedComponents.set(component, newComponent);
+            // Mark as intentionally cached so the dev LeakInspector does not flag it
+            // while it sits detached from the DOM between section changes.
+            newComponent.__sliceCached = true;
          }
 
          // Emitir evento personalizado cuando el renderizado está completo
@@ -150,6 +153,8 @@ export default class MultiRoute extends HTMLElement {
 
       if (routeMatch) {
          const { component } = routeMatch;
+         const cached = this.renderedComponents.get(component);
+         if (cached) cached.__sliceCached = false;
          this.renderedComponents.delete(component);
          this.innerHTML = '';
       }
@@ -159,6 +164,7 @@ export default class MultiRoute extends HTMLElement {
     * Cleanup cuando el componente se destruye
     */
    destroy() {
+      this.renderedComponents.forEach((cached) => { cached.__sliceCached = false; });
       this.renderedComponents.clear();
       this.innerHTML = '';
    }

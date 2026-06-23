@@ -94,6 +94,35 @@ app.get('/slice-env.json', (req, res) => {
 });
 
 // ==============================================
+// PWA — manifest + service worker (dev y prod)
+// ==============================================
+const servePwaFile = (res, fileName, contentType, extraHeaders = {}) => {
+  const filePath = path.join(__dirname, `../${folderDeployed}`, fileName);
+  try {
+    if (fs.existsSync(filePath)) {
+      res.setHeader('Content-Type', contentType);
+      for (const [key, value] of Object.entries(extraHeaders)) res.setHeader(key, value);
+      return res.send(fs.readFileSync(filePath, 'utf8'));
+    }
+  } catch (error) {
+    console.error(`Error reading ${fileName}:`, error);
+    return res.status(500).send(`Error reading ${fileName}`);
+  }
+  return res.status(404).send(`${fileName} not found`);
+};
+
+app.get('/service-worker.js', (req, res) => {
+  servePwaFile(res, 'service-worker.js', 'application/javascript; charset=utf-8', {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Service-Worker-Allowed': '/',
+  });
+});
+
+app.get('/manifest.json', (req, res) => {
+  servePwaFile(res, 'manifest.json', 'application/manifest+json; charset=utf-8');
+});
+
+// ==============================================
 // ARCHIVOS ESTATICOS (DESPUES DE SEGURIDAD)
 // ==============================================
 

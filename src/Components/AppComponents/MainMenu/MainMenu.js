@@ -42,6 +42,7 @@ export default class MainMenu extends HTMLElement {
       const menuButton = this.querySelector('.slice_menu_button');
       if (menuButton) {
          document.body.appendChild(menuButton);
+         this._relocatedMenuButton = menuButton; // remove from body on destroy (see beforeDestroy)
       }
 
       // Auto-close on hover-out is desktop-only behaviour. On touch devices the
@@ -82,6 +83,7 @@ export default class MainMenu extends HTMLElement {
          return;
       }
 
+      slice.controller.destroyByContainer(this.$treeHost);   // destroy a prior TreeView before clearing (no leak)
       this.$treeHost.innerHTML = '';
       const empty = document.createElement('p');
       empty.classList.add('slice_menu_empty');
@@ -101,6 +103,13 @@ export default class MainMenu extends HTMLElement {
       if (this.$overlay) {
          this.$overlay.classList.remove('is-visible');
       }
+   }
+
+   beforeDestroy() {
+      // The hamburger button was relocated to <body> in init(); it would outlive
+      // this component's subtree, so remove it explicitly. The TreeView in $treeHost
+      // is a registered child and is destroyed by the normal destroy cascade.
+      this._relocatedMenuButton?.remove();
    }
 }
 

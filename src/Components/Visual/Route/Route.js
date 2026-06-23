@@ -129,6 +129,9 @@ export default class Route extends HTMLElement {
          this.innerHTML = '';
          this.appendChild(component);
          Route.componentCache[this.props.component] = component;
+         // Mark as intentionally cached so the dev LeakInspector does not flag it
+         // when it sits detached from the DOM between route changes.
+         component.__sliceCached = true;
       }
       this.rendered = true;
    }
@@ -163,6 +166,11 @@ export default class Route extends HTMLElement {
    }
 
    removeComponent() {
+      const cached = Route.componentCache[this.props.component];
+      if (cached) {
+         // No longer cached — clear the marker so a genuine post-removal leak is caught.
+         cached.__sliceCached = false;
+      }
       delete Route.componentCache[this.props.component];
       this.innerHTML = '';
       this.rendered = false;

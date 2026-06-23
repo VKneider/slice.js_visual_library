@@ -1,6 +1,6 @@
 {
   "name": "slicejs-webframework-visual-components-library",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Official Visual components library and documentation registry for Slice.js",
   "main": "src/Components/index.js",
   "scripts": {
@@ -42,8 +42,8 @@
   },
   "dependencies": {
     "express": "^5.2.1",
-    "slicejs-cli": "^3.6.6",
-    "slicejs-web-framework": "^3.4.3"
+    "slicejs-cli": "^3.7.0",
+    "slicejs-web-framework": "^3.5.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0"
