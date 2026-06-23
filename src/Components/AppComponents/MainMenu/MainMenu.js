@@ -69,6 +69,7 @@ export default class MainMenu extends HTMLElement {
          return;
       }
 
+      slice.controller.destroyByContainer(this.$treeHost);   // destroy prior TreeView (no leak)
       this.$treeHost.innerHTML = '';
 
       if (value instanceof Node) {

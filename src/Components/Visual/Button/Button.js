@@ -62,14 +62,24 @@ export default class Button extends HTMLElement {
    }
 
    async init() {
-      if (this.icon) {
+      await this.update();   // build the Icon child if `icon` is set
+   }
+
+   // Reconcile the Icon child with the current `icon` prop, in place. The setter
+   // updates an existing icon; building or removing one is async, so it lives here.
+   // After changing `icon` post-build, call update() to apply the structural change.
+   async update() {
+      if (this._icon && !this.$icon) {
          this.$icon = await slice.build('Icon', {
-            name: this.icon.name,
-            iconStyle: this.icon.iconStyle,
+            name: this._icon.name,
+            iconStyle: this._icon.iconStyle,
             size: '20px',
             color: 'currentColor',
          });
          this.$button.insertBefore(this.$icon, this.$value);
+      } else if (!this._icon && this.$icon) {
+         slice.controller.destroyComponent(this.$icon);
+         this.$icon = null;
       }
    }
 
@@ -95,7 +105,7 @@ export default class Button extends HTMLElement {
 
    set icon(value) {
       this._icon = value;
-      if (!this.$icon) return;
+      if (!this.$icon || !value) return;   // appear/disappear handled in update()
       this.$icon.name = value.name;
       this.$icon.iconStyle = value.iconStyle;
    }

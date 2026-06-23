@@ -162,6 +162,7 @@ export default class Card extends HTMLElement {
 
    async setupMedia() {
       if (this.$mediaContent) {
+         slice.controller.destroyByContainer(this.$mediaContent);   // destroy a prior Icon child (no leak)
          this.$mediaContent.innerHTML = '';
       }
 
@@ -194,6 +195,7 @@ export default class Card extends HTMLElement {
             return;
          }
 
+         slice.controller.destroyByContainer(this.$mediaContent);   // destroy a prior Icon child (no leak)
          this.$mediaContent.innerHTML = '';
 
          if (!this.icon || !this.icon.name) {
@@ -216,6 +218,7 @@ export default class Card extends HTMLElement {
    }
 
    async setupActions() {
+      slice.controller.destroyByContainer(this.$actions);   // destroy prior Button children (no leak)
       this.$actions.innerHTML = '';
 
       if (!this.actions || this.actions.length === 0) {
