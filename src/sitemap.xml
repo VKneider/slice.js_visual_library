@@ -21,43 +21,13 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/input/input</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/input/select</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/input/switch</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
     <loc>https://components.slicejs.com/docs/display/code-visualizer</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/display/icon</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/display/tooltip</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/feedback/loading</loc>
-    <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/layout/card</loc>
-    <priority>0.8</priority>
+    <loc>https://components.slicejs.com/docs/internal/css-conventions</loc>
+    <priority>0.5</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
@@ -66,7 +36,27 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://components.slicejs.com/docs/navigation/dropdown</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/drag-drop</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://components.slicejs.com/docs/layout/element-carrousel</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/fetch-manager</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/form</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
@@ -76,17 +66,52 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://components.slicejs.com/docs/display/icon</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/indexed-db-manager</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/input</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://components.slicejs.com/docs/layout/layout</loc>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/navigation/bottom-nav</loc>
+    <loc>https://components.slicejs.com/docs/feedback/loading</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/local-storage-manager</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/navigation/dropdown</loc>
+    <loc>https://components.slicejs.com/docs/internal/markdown-parser-rules</loc>
+    <priority>0.5</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/utilities/mini-inspector</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/feedback/modal</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/routing/multi-route</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
@@ -101,7 +126,67 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://components.slicejs.com/docs/data/pagination</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/routing/route</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/select</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/switch</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/data/table</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://components.slicejs.com/docs/navigation/tabs</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/textarea</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/theme-selector</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/input/theme-switcher</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/feedback/toast</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/toast-provider</loc>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/display/tooltip</loc>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/tooltip-provider</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
@@ -111,43 +196,18 @@
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/routing/multi-route</loc>
+    <loc>https://components.slicejs.com/docs/navigation/bottom-nav</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/routing/route</loc>
+    <loc>https://components.slicejs.com/docs/navigation/breadcrumbs</loc>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/services/fetch-manager</loc>
-    <priority>0.7</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/services/indexed-db-manager</loc>
-    <priority>0.7</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/services/local-storage-manager</loc>
-    <priority>0.7</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/data/table</loc>
+    <loc>https://components.slicejs.com/docs/layout/card</loc>
     <priority>0.8</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/utilities/mini-inspector</loc>
-    <priority>0.6</priority>
-    <changefreq>monthly</changefreq>
-  </url>
-  <url>
-    <loc>https://components.slicejs.com/docs/internal/markdown-parser-rules</loc>
-    <priority>0.5</priority>
     <changefreq>monthly</changefreq>
   </url>
 </urlset>
