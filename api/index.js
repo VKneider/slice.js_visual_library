@@ -42,7 +42,7 @@ app.use(securityMiddleware({
   allowedExtensions: [
     '.js', '.mjs', '.css', '.html', '.json',
     '.svg', '.png', '.jpg', '.jpeg', '.gif',
-    '.woff', '.woff2', '.ttf', '.ico', '.md'
+    '.woff', '.woff2', '.ttf', '.ico', '.md', '.txt', '.xml'
   ],
   blockedPaths: [
     '/node_modules',
