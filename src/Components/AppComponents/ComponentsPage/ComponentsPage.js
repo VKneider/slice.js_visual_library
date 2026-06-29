@@ -39,16 +39,17 @@ export default class ComponentsPage extends HTMLElement {
            const treeView = await slice.build('TreeView', {
               items: treeItems,
               activePath: window.location.pathname,
-              onClick: async (item) => {
-                 if (item.path) {
-                     treeView.setActiveTreeItem(item);
-                     await slice.router.navigate(item.path);
-                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                     if (typeof mainMenu.handleCloseMenu === 'function') {
-                       mainMenu.handleCloseMenu();
-                    }
-                 }
-              },
+               onClick: async (item) => {
+                  if (item.path) {
+                      treeView.setActiveTreeItem(item);
+                      await slice.router.navigate(item.path);
+                      if (typeof mainMenu.handleCloseMenu === 'function') {
+                        mainMenu.handleCloseMenu();
+                     }
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      document.documentElement.scrollTop = 0;
+                  }
+               },
            });
 
           return treeView;
