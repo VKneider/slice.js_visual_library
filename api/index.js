@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import compression from 'compression';
 import {
   securityMiddleware,
   sliceFrameworkProtection,
@@ -64,6 +65,8 @@ app.use(securityMiddleware({
 // ==============================================
 // MIDDLEWARES DE APLICACION
 // ==============================================
+
+app.use(compression({ threshold: 0 }));
 
 app.use((req, res, next) => {
   if (req.path.endsWith('.js') || req.path.endsWith('.mjs')) {
@@ -269,6 +272,14 @@ app.get('/robots.txt', (req, res) => {
 
 app.get('/sitemap.xml', (req, res) => {
   res.sendFile(path.join(__dirname, `../${folderDeployed}`, 'sitemap.xml'));
+});
+
+// ==============================================
+// API 404 — before SPA fallback
+// ==============================================
+
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'API route not found' });
 });
 
 // ==============================================

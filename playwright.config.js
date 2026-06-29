@@ -58,6 +58,23 @@ export default defineConfig({
          grep: /@visual/,
          use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 720 } },
       },
+      // Server/SEO/infrastructure tests: run @server-tagged tests across browsers.
+      // Invoke with: pnpm exec playwright test --project=server-chrome
+      {
+         name: 'server-chrome',
+         grep: /@server/,
+         use: { ...devices['Desktop Chrome'] },
+      },
+      {
+         name: 'server-firefox',
+         grep: /@server/,
+         use: { ...devices['Desktop Firefox'] },
+      },
+      {
+         name: 'server-webkit',
+         grep: /@server/,
+         use: { ...devices['Desktop Safari'] },
+      },
    ],
 
    webServer: {

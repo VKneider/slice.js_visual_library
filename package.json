@@ -41,6 +41,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "compression": "^1.8.1",
     "express": "^5.2.1",
     "slicejs-cli": "^3.7.0",
     "slicejs-web-framework": "^3.5.0"
