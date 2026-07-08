@@ -5,6 +5,11 @@ function deprecate(oldName, newName) {
    console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
 }
 
+// Guarantees a unique, stable id for the input so its text label can point at it
+// via `for`. Not derived from sliceId because sliceId isn't set during init()
+// unless one was explicitly passed to slice.build().
+let _sliceCheckboxSeq = 0;
+
 export default class Checkbox extends HTMLElement {
 
    static props = {
@@ -73,8 +78,14 @@ export default class Checkbox extends HTMLElement {
 
    createLabel() {
       if (!this.querySelector('.checkbox_label')) {
+         // Associate the text label with the input via `for` so clicking the text
+         // toggles the box (a bare sibling <label> forwards clicks to nothing).
+         // Kept as a sibling (not wrapping the input) so applyLabelPlacement's
+         // flex layout on .slice_checkbox is unaffected.
+         if (!this.$input.id) this.$input.id = `slice-checkbox-${++_sliceCheckboxSeq}`;
          const label = document.createElement('label');
          label.classList.add('checkbox_label');
+         label.setAttribute('for', this.$input.id);
          label.textContent = this.label;
          this.$checkbox.appendChild(label);
       }

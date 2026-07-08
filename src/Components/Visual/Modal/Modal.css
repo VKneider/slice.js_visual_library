@@ -2,6 +2,13 @@ slice-modal {
   display: contents;
 }
 
+/* A closed native <dialog> is hidden by the UA rule dialog:not([open]){display:none},
+   but the unconditional `display:flex` below is author CSS and would override it —
+   leaving the dialog rendered in flow after .close(). Re-assert the hidden state. */
+slice-modal .slice-modal:not([open]) {
+  display: none;
+}
+
 slice-modal .slice-modal {
   padding: 0;
   border: none;

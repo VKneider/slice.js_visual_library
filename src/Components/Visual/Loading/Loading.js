@@ -31,10 +31,14 @@ export default class Loading extends HTMLElement {
    constructor(props) {
       super();
       slice.attachTemplate(this);
-      slice.controller.setComponentProps(this, props);
-      this._container = this.container || null;
+      // Instance state MUST be initialized before setComponentProps: passing
+      // `active: true` at build time fires the `active` setter (→ start(), which
+      // sets _isActive = true) during setComponentProps, so setComponentProps has
+      // to run LAST or the field inits below would silently undo it.
+      this._container = null;
       this._isActive = false;
       this._currentContainer = null;
+      slice.controller.setComponentProps(this, props);
    }
 
    init() {}

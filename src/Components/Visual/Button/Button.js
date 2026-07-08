@@ -88,7 +88,10 @@ export default class Button extends HTMLElement {
    }
 
    set onClick(value) {
-      if (typeof value === 'function') this._onClick = value;
+      // Accept null/non-function to CLEAR the handler — needed to permanently
+      // disable a button (the click listener lives on the wrapper container, so
+      // the stale handler would otherwise keep firing).
+      this._onClick = typeof value === 'function' ? value : null;
    }
 
    // Deprecated alias for onClick.
