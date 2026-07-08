@@ -26,7 +26,7 @@ Unlike manually placing `<slice-toast>` elements, it handles the container, queu
 const provider = await slice.build('ToastProvider');
 ```
 
-You can also access it directly via `ToastProvider.getInstance()` when the class is available.
+Because it is a singleton, build it once and recover the same instance anywhere with `slice.getComponent('ToastProvider')`.
 
 ## Basic usage
 
@@ -221,7 +221,6 @@ mount(container);
 | `dismiss(id)`                             | `this`     | Dismisses the toast with the given id    |
 | `clear()`                                 | `this`     | Dismisses all visible toasts             |
 | `setPosition(position)`                   | `this`     | Changes the position                     |
-| `destroy()`                               | `void`     | Clears all toasts and removes the container |
 
 ## Best practices
 

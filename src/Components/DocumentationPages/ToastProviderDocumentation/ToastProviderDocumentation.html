@@ -11,7 +11,7 @@
 <h2 id="getting-the-instance">Getting the instance</h2>
 <p><code>ToastProvider</code> is registered as a <code>"Service"</code> type component. Build it to access the singleton:</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
-<p>You can also access it directly via <code>ToastProvider.getInstance()</code> when the class is available.</p>
+<p>Because it is a singleton, build it once and recover the same instance anywhere with <code>slice.getComponent('ToastProvider')</code>.</p>
 <h2 id="basic-usage">Basic usage</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <h2 id="toast-types">Toast types</h2>

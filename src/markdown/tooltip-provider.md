@@ -95,8 +95,8 @@ Scans `container` for `[data-tooltip]` elements and attaches each one. Config is
 tp.scope(document.querySelector('.toolbar'));
 ```
 
-### `destroy()`
-Cleans up all triggers, removes the bubble, and clears global listeners.
+### Cleanup
+As an app-lifetime singleton, `ToolTipProvider` removes all triggers, the shared bubble, and its global listeners automatically via the framework's `beforeDestroy` hook when it is torn down — you don't clean it up by hand. Use `detach(element)` to unregister a single trigger.
 
 ## Live Demos
 
@@ -173,7 +173,7 @@ return wrapper;
 | 1–3 tooltips, declarative markup | `<slice-tooltip>` component |
 | 10+ tooltips, dynamic content | `ToolTipProvider` |
 | Toolbar with icon buttons | `ToolTipProvider.scope()` + data attributes |
-| App-wide shared singleton | `ToolTipProvider.getInstance()` |
+| App-wide shared singleton | `slice.getComponent('ToolTipProvider')` |
 
 ## Best Practices
 :::tip

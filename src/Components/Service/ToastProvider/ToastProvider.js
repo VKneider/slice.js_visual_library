@@ -31,11 +31,6 @@ export default class ToastProvider {
     })();
   }
 
-  static getInstance() {
-    if (!this._instance) this._instance = new this();
-    return this._instance;
-  }
-
   async show(message, config = {}) {
     if (!message) return '';
 
@@ -84,7 +79,9 @@ export default class ToastProvider {
     return this;
   }
 
-  destroy() {
+  // Framework teardown hook — the controller calls beforeDestroy() (never
+  // destroy()), so the provider's cleanup must live here.
+  beforeDestroy() {
     this.clear();
     if (this._container && this._container.parentNode) {
       this._container.parentNode.removeChild(this._container);

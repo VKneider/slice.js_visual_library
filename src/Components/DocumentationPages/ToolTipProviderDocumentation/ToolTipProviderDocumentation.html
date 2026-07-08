@@ -28,8 +28,8 @@
 <div class="table-block" data-block-id="doc-block-7"></div>
 <div class="code-block" data-block-id="doc-block-8"></div>
 <div class="code-block" data-block-id="doc-block-9"></div>
-<h3 id="destroy"><code>destroy()</code></h3>
-<p>Cleans up all triggers, removes the bubble, and clears global listeners.</p>
+<h3 id="cleanup">Cleanup</h3>
+<p>As an app-lifetime singleton, <code>ToolTipProvider</code> removes all triggers, the shared bubble, and its global listeners automatically via the framework's <code>beforeDestroy</code> hook when it is torn down — you don't clean it up by hand. Use <code>detach(element)</code> to unregister a single trigger.</p>
 <h2 id="live-demos">Live Demos</h2>
 <div class="script-block" data-block-id="doc-block-10"></div>
 <div class="script-block" data-block-id="doc-block-11"></div>

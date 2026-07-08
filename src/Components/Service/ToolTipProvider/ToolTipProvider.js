@@ -39,11 +39,6 @@ export default class ToolTipProvider {
       })();
    }
 
-   static getInstance() {
-      if (!this._instance) this._instance = new this();
-      return this._instance;
-   }
-
    attach(element, config = {}) {
       const existing = this._registry.get(element);
       const merged = {
@@ -76,7 +71,9 @@ export default class ToolTipProvider {
       return this;
    }
 
-   destroy() {
+   // Framework teardown hook — the controller calls beforeDestroy() (never
+   // destroy()), so the provider's cleanup must live here.
+   beforeDestroy() {
       for (const el of [...this._registry.keys()]) this.detach(el);
       this._removeBubble();
       clearTimeout(this._showTimer);

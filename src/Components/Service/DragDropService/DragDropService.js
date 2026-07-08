@@ -54,11 +54,6 @@ export default class DragDropService {
     document.head.appendChild(style);
   }
 
-  static getInstance() {
-    if (!this._instance) this._instance = new this();
-    return this._instance;
-  }
-
   // ─── Draggable ───────────────────────────────────────────────
 
   makeDraggable(node, config = {}) {
@@ -162,7 +157,10 @@ export default class DragDropService {
     return this;
   }
 
-  destroy() {
+  // Framework teardown hook — the controller calls beforeDestroy() (never
+  // destroy()), so removing the document-level listeners must live here or the
+  // service leaks them when torn down (e.g. rebuilding the singleton).
+  beforeDestroy() {
     document.removeEventListener('pointerdown', this._onPointerDown);
     if (this._activeDrag) this._endDrag(null);
     if (this._activeSortable) this._endSortable(null);

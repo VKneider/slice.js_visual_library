@@ -21,7 +21,7 @@ DragDropService is a singleton **Service** that provides headless drag-and-drop 
 const dnd = await slice.build('DragDropService', { singleton: true });
 ```
 
-You can also access it directly via `DragDropService.getInstance()` when the class is available.
+Because it is a singleton, build it once (anywhere) and recover the same instance elsewhere with `slice.getComponent('DragDropService')` — no need to thread a reference around.
 
 ## Draggable
 
@@ -276,8 +276,9 @@ mount(wrapper);
 
 ```js
 dnd.detach(node);   // remove registrations from a specific node
-dnd.destroy();      // remove all registrations, ghost, and document listeners
 ```
+
+As an app-lifetime singleton, its global listeners, ghost, and registrations are cleaned up automatically by the framework (`beforeDestroy`) when the service is torn down — you don't tear it down by hand.
 
 ## Best Practices
 
