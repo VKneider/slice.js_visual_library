@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { WEAPONS, createWeaponModel, cleanupModel, createMuzzleFlash, addTracer, updateTracers, createParticleBurst, updateParticles } from './kit/weapons.js';
+import { initAudio, playHitSound, playHeadshotSound, playMissSound, playShootSound, playReloadSound } from './kit/audio.js';
 
 const DIFF = {
    easy:   { label:'Easy',   r:[0.4,0.6],  si:[600,1000], ms:0.15, time:35, mag:8 },
@@ -6,108 +8,114 @@ const DIFF = {
    hard:   { label:'Hard',   r:[0.13,0.22],si:[200,450],  ms:0.7,  time:25, mag:4 },
 };
 
-const PALE = {
-   background: '#080816',
-   surface: 'rgba(255,255,255,0.04)',
-   border: 'rgba(255,255,255,0.08)',
-   text: '#fff',
-   textDim: 'rgba(255,255,255,0.45)',
-   accent: '#6c5ce7',
-   accentGlow: 'rgba(108,92,231,0.3)',
-   green: '#10b981',
-   red: '#ef4444',
-   gold: '#f59e0b',
-   blue: '#3b82f6',
-};
-
 export default class ThreeAimTrainer extends HTMLElement {
    constructor(props) {
       super();
+      if (!document.getElementById('tat-css')) {
+         const l = document.createElement('link');
+         l.id = 'tat-css'; l.rel = 'stylesheet';
+         l.href = new URL('./ThreeAimTrainer.css', import.meta.url).href;
+         document.head.appendChild(l);
+      }
       this.innerHTML = `
-<div class="tat" style="font-family:system-ui,sans-serif;background:${PALE.background};color:${PALE.text};width:100%;height:100%;position:relative">
-<div class="tat-wrap" style="position:relative;width:100%;height:100%;overflow:hidden;background:${PALE.background};cursor:default">
-<div class="tat-canvas" style="width:100%;height:100%"></div>
+<div class="tat">
+<div class="tat-wrap">
 
-<div class="tat-hud" style="position:absolute;top:0;left:0;right:0;display:none;padding:10px 16px;pointer-events:none;z-index:4">
-  <div style="display:flex;gap:16px;align-items:center">
-    <div style="display:flex;align-items:center;gap:8px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${PALE.gold}" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      <span class="tat-timer" style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;color:${PALE.text};min-width:32px">30</span>
+<div class="tat-canvas"></div>
+
+<div class="tat-hud">
+  <div class="tat-hud-row">
+    <div class="tat-hud-timer-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tat-gold)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span class="tat-timer">30</span>
     </div>
-    <div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden;max-width:200px">
-      <div class="tat-timer-bar" style="width:100%;height:100%;background:linear-gradient(90deg,${PALE.accent},${PALE.gold});transition:width .3s;border-radius:2px"></div>
+    <div class="tat-timer-bar-track">
+      <div class="tat-timer-bar"></div>
     </div>
-    <span class="tat-score" style="font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;color:${PALE.text};text-shadow:0 0 20px ${PALE.accentGlow};min-width:60px;text-align:right">0</span>
+    <span class="tat-score">0</span>
   </div>
-  <div style="display:flex;gap:16px;align-items:center;margin-top:4px">
-    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:${PALE.textDim}">
+  <div class="tat-hud-row">
+    <div class="tat-hud-item">
       <span>ACC</span>
-      <span class="tat-acc" style="font-weight:600;font-variant-numeric:tabular-nums;color:${PALE.blue};min-width:36px">100%</span>
+      <span class="tat-stat-value tat-acc">100%</span>
     </div>
-    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:${PALE.textDim}">
+    <div class="tat-hud-item">
       <span>STREAK</span>
-      <span class="tat-streak" style="font-weight:600;font-variant-numeric:tabular-nums;color:${PALE.gold};min-width:28px">0x</span>
+      <span class="tat-stat-value tat-streak">0x</span>
     </div>
-    <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:${PALE.textDim};margin-left:auto">
+    <div class="tat-hud-item tat-hud-right">
       <span>HITS</span>
-      <span class="tat-hits-count" style="font-weight:600;font-variant-numeric:tabular-nums;color:${PALE.green};min-width:28px">0</span>
+      <span class="tat-stat-value tat-hits-count">0</span>
     </div>
   </div>
-  <div class="tat-ammo-bar" style="margin-top:6px;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden">
-    <div class="tat-ammo-fill" style="width:100%;height:100%;background:linear-gradient(90deg,${PALE.green},${PALE.accent});transition:width .1s"></div>
+  <div class="tat-ammo-bar">
+    <div class="tat-ammo-fill"></div>
   </div>
 </div>
 
-<div class="tat-mid" style="position:absolute;top:50%;left:50%;pointer-events:none;z-index:5">
-  <div class="tat-xhair" style="position:relative;width:28px;height:28px;margin:-14px 0 0 -14px;opacity:0">
-    <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(255,255,255,0.4)"></div>
-    <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.4)"></div>
-    <div style="position:absolute;top:4px;left:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:rgba(255,255,255,0.2)"></div>
-    <div style="position:absolute;top:-4px;left:-4px;width:36px;height:36px;border:1px solid rgba(255,255,255,0.08);border-radius:50%"></div>
+<div class="tat-mid">
+  <div class="tat-xhair">
+    <div class="tat-xhair-h"></div>
+    <div class="tat-xhair-v"></div>
+    <div class="tat-xhair-dot"></div>
+    <div class="tat-xhair-ring"></div>
   </div>
-  <div class="tat-dmg" style="position:absolute;top:-30px;left:50%;font-size:20px;font-weight:800;color:${PALE.text};opacity:0;pointer-events:none;text-shadow:0 0 16px ${PALE.accentGlow};transition:all .25s">+0</div>
+  <div class="tat-dmg">+0</div>
 </div>
 
-<div class="tat-hit-flash" style="position:absolute;inset:0;pointer-events:none;z-index:3;border:4px solid rgba(255,255,255,0);transition:border-color .08s"></div>
+<div class="tat-hit-flash"></div>
 
-<div class="tat-menu" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;background:radial-gradient(ellipse at center, rgba(108,92,231,0.08) 0%, rgba(0,0,0,0.85) 70%);backdrop-filter:blur(4px);cursor:default">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:24px">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="${PALE.accent}" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-    <h2 style="font-size:28px;font-weight:800;color:${PALE.text};margin:8px 0 2px;letter-spacing:4px;text-transform:uppercase">Aim Trainer</h2>
-    <p style="font-size:13px;color:${PALE.textDim};margin:0">Move mouse · Click to shoot · R to reload · ESC to pause</p>
+<div class="tat-weapon-bar">
+  ${['pistol','rifle','shotgun'].map(k => {
+    const w = WEAPONS[k];
+    return `<div class="tat-wslot" data-w="${k}">
+      <span class="tat-wslot-key">${w.key}</span>
+      <span class="tat-wslot-name">${w.name.toUpperCase()}</span>
+      <span class="tat-wslot-ammo" data-wa="${k}">${w.maxAmmo}</span>
+    </div>`;
+  }).join('')}
+</div>
+
+<div class="tat-scanlines"></div>
+
+<div class="tat-menu">
+  <div class="tat-menu-icon">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--tat-accent)" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="10" stroke-dasharray="4 4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+    <h2 class="tat-menu-title">Aim Trainer</h2>
+    <p class="tat-menu-sub">Move mouse · Click to shoot · R to reload · ESC to pause · 1-2-3 weapons</p>
   </div>
-  <div class="tat-diffs" style="display:flex;gap:8px;margin-bottom:20px">
+  <div class="tat-diffs">
     ${['easy','medium','hard'].map(d => {
-       const f = DIFF[d];
-       return `<button class="tat-db" data-d="${d}" style="font:inherit;font-size:13px;padding:8px 20px;border-radius:8px;cursor:pointer;border:1px solid ${d==='medium' ? PALE.accent : PALE.border};background:${d==='medium' ? 'rgba(108,92,231,0.15)' : PALE.surface};color:${PALE.text};transition:all .2s">${f.label}</button>`;
+      const f = DIFF[d];
+      return `<button class="tat-db" data-d="${d}">${f.label}</button>`;
     }).join('')}
   </div>
-  <button class="tat-go" style="font:inherit;font-size:15px;font-weight:700;padding:12px 44px;border-radius:10px;cursor:pointer;border:none;background:linear-gradient(135deg,${PALE.accent},#a18cd1);color:${PALE.text};box-shadow:0 4px 24px ${PALE.accentGlow};transition:transform .15s,box-shadow .15s">START</button>
+  <button class="tat-go">START</button>
 </div>
 
-<div class="tat-over" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:10;background:radial-gradient(ellipse at center, rgba(108,92,231,0.06) 0%, rgba(0,0,0,0.9) 70%);backdrop-filter:blur(6px);cursor:default">
-  <h2 style="font-size:28px;font-weight:800;color:${PALE.text};margin:0 0 4px;letter-spacing:3px;text-transform:uppercase">Time</h2>
-  <p style="font-size:13px;color:${PALE.textDim};margin:0 0 18px">Round complete</p>
-  <div class="tat-stats" style="display:grid;grid-template-columns:auto 1fr;gap:6px 20px;margin-bottom:22px;font-size:14px;min-width:220px">
-    <span style="color:${PALE.textDim}">Score</span><span class="tat-v-score" style="color:${PALE.text};font-weight:700;font-size:22px;text-align:right">0</span>
-    <span style="color:${PALE.textDim}">Hits</span><span class="tat-v-hits" style="color:${PALE.green};font-weight:600;text-align:right">0</span>
-    <span style="color:${PALE.textDim}">Accuracy</span><span class="tat-v-acc" style="color:${PALE.blue};font-weight:600;text-align:right">0%</span>
-    <span style="color:${PALE.textDim}">Best streak</span><span class="tat-v-streak" style="color:${PALE.gold};font-weight:600;text-align:right">0</span>
-    <span style="color:${PALE.textDim}">Shots</span><span class="tat-v-shots" style="color:${PALE.textDim};text-align:right">0</span>
-    <span style="color:${PALE.textDim}">Difficulty</span><span class="tat-v-diff" style="color:${PALE.textDim};text-align:right">Medium</span>
+<div class="tat-over">
+  <h2 class="tat-over-title">Time</h2>
+  <p class="tat-over-sub">Round complete</p>
+  <div class="tat-stats">
+    <span class="tat-stats-label">Score</span><span class="tat-stats-value tat-v-score">0</span>
+    <span class="tat-stats-label">Hits</span><span class="tat-stats-value tat-v-hits">0</span>
+    <span class="tat-stats-label">Accuracy</span><span class="tat-stats-value tat-v-acc">0%</span>
+    <span class="tat-stats-label">Best streak</span><span class="tat-stats-value tat-v-streak">0</span>
+    <span class="tat-stats-label">Shots</span><span class="tat-stats-value tat-v-shots">0</span>
+    <span class="tat-stats-label">Difficulty</span><span class="tat-stats-value tat-v-diff">Medium</span>
   </div>
-  <div style="display:flex;gap:10px">
-    <button class="tat-retry" style="font:inherit;font-size:15px;font-weight:700;padding:11px 36px;border-radius:10px;cursor:pointer;border:none;background:linear-gradient(135deg,${PALE.accent},#a18cd1);color:${PALE.text};box-shadow:0 4px 24px ${PALE.accentGlow}">PLAY AGAIN</button>
-    <button class="tat-menu-btn" style="font:inherit;font-size:13px;font-weight:600;padding:11px 24px;border-radius:10px;cursor:pointer;border:1px solid ${PALE.border};background:${PALE.surface};color:${PALE.textDim};transition:all .2s">MENU</button>
+  <div class="tat-over-actions">
+    <button class="tat-retry">PLAY AGAIN</button>
+    <button class="tat-menu-btn">MENU</button>
   </div>
 </div>
 
-<div class="tat-pause" style="position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9;background:rgba(0,0,0,0.55);backdrop-filter:blur(5px);cursor:default">
-  <svg width="40" height="40" viewBox="0 0 24 24" fill="${PALE.text}" style="margin-bottom:12px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-  <h2 style="font-size:24px;font-weight:800;color:${PALE.text};margin:0 0 18px;letter-spacing:6px;text-transform:uppercase">Paused</h2>
-  <div style="display:flex;gap:10px">
-    <button class="tat-resume" style="font:inherit;font-size:15px;font-weight:700;padding:11px 36px;border-radius:10px;cursor:pointer;border:none;background:linear-gradient(135deg,${PALE.accent},#a18cd1);color:${PALE.text};box-shadow:0 4px 24px ${PALE.accentGlow}">RESUME</button>
-    <button class="tat-quit" style="font:inherit;font-size:13px;font-weight:600;padding:11px 24px;border-radius:10px;cursor:pointer;border:1px solid ${PALE.border};background:${PALE.surface};color:${PALE.textDim}">QUIT</button>
+<div class="tat-pause">
+  <svg class="tat-pause-icon" width="40" height="40" viewBox="0 0 24 24" fill="var(--tat-text)"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+  <h2 class="tat-pause-title">Paused</h2>
+  <div class="tat-pause-actions">
+    <button class="tat-resume">RESUME</button>
+    <button class="tat-quit">QUIT</button>
   </div>
 </div>
 
@@ -116,7 +124,7 @@ export default class ThreeAimTrainer extends HTMLElement {
    }
 
    init() {
-      const S = (sel) => this.querySelector(sel);
+      const S = sel => this.querySelector(sel);
       const wrap = S('.tat-wrap');
       const canvasEl = S('.tat-canvas');
       const menu = S('.tat-menu');
@@ -133,6 +141,10 @@ export default class ThreeAimTrainer extends HTMLElement {
       const streakEl = S('.tat-streak');
       const hitsCount = S('.tat-hits-count');
       const ammoFill = S('.tat-ammo-fill');
+      const weaponBar = S('.tat-weapon-bar');
+      const wSlots = weaponBar.querySelectorAll('.tat-wslot');
+      const wAmmoEls = weaponBar.querySelectorAll('.tat-wslot-ammo');
+      const scanlines = S('.tat-scanlines');
       const diffBtns = this.querySelectorAll('.tat-db');
       const goBtn = S('.tat-go');
       const retryBtn = S('.tat-retry');
@@ -197,6 +209,32 @@ export default class ThreeAimTrainer extends HTMLElement {
       pl.position.set(0, 0, -4);
       scene.add(pl);
 
+      // ── Weapon model ──
+      const weaponModels = {};
+      let currentWeaponModel = null;
+      const MUZZLE_OFFSETS = {
+         pistol:  new THREE.Vector3(0.30, -0.235, -0.72),
+         rifle:   new THREE.Vector3(0.28, -0.22,  -0.92),
+         shotgun: new THREE.Vector3(0.32, -0.21,  -0.80),
+      };
+
+      function switchWeaponModel(type) {
+         if (currentWeaponModel) {
+            scene.remove(currentWeaponModel);
+         }
+         if (!weaponModels[type]) {
+            weaponModels[type] = createWeaponModel(type);
+         }
+         currentWeaponModel = weaponModels[type];
+         scene.add(currentWeaponModel);
+      }
+
+      // ── Muzzle flash (added to scene, updated every frame to follow camera) ──
+      const mf = createMuzzleFlash();
+      scene.add(mf.sprite);
+
+
+
       // ── Hit flash sprite ──
       const fc = document.createElement('canvas');
       fc.width = 64; fc.height = 64;
@@ -211,42 +249,6 @@ export default class ThreeAimTrainer extends HTMLElement {
       flashSpr.position.set(0, 0, -5);
       scene.add(flashSpr);
 
-      // ── Audio ──
-      let audioCtx = null;
-      function initAudio() {
-         if (audioCtx) return;
-         try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
-      }
-      function playTone(freq, duration, type, volume, ramp) {
-         if (!audioCtx) return;
-         try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            if (ramp) osc.frequency.linearRampToValueAtTime(ramp, audioCtx.currentTime + duration);
-            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-         } catch (_) {}
-      }
-      function playHitSound() {
-         initAudio();
-         playTone(880, 0.12, 'sine', 0.25, 1200);
-      }
-      function playHeadshotSound() {
-         initAudio();
-         playTone(1100, 0.15, 'sine', 0.3, 1600);
-         setTimeout(() => playTone(1400, 0.1, 'sine', 0.2, 1800), 50);
-      }
-      function playMissSound() {
-         initAudio();
-         playTone(180, 0.1, 'square', 0.08, 80);
-      }
-
       // ── State ──
       const self = this;
       let diff = DIFF.medium;
@@ -255,14 +257,44 @@ export default class ThreeAimTrainer extends HTMLElement {
       let yaw = 0, pitch = 0;
       let score = 0, shots = 0, hits = 0, streak = 0, maxStreak = 0;
       let timeLeft = 30;
-      let ammo = 12, maxAmmo = 12, reloading = false, reloadStart = 0;
+      let currentWeaponKey = 'pistol';
+      let ammo = WEAPONS.pistol.maxAmmo, maxAmmo = WEAPONS.pistol.maxAmmo;
+      let reloading = false, reloadStart = 0;
       let lastSpawn = 0, spawnGap = 600;
       let nextDmgHide = 0;
+      let lastFireTime = 0;
+      let mouseDown = false;
+      let weaponBob = 0;
       let fullscreenSupported = typeof document.documentElement.requestFullscreen === 'function';
+
       const targets = [];
       const particles = [];
+      const tracers = [];
       const raycaster = new THREE.Raycaster();
       const center = new THREE.Vector2(0, 0);
+
+      function wDef() { return WEAPONS[currentWeaponKey]; }
+
+      function switchWeapon(key) {
+         if (!playing || paused) return;
+         if (key === currentWeaponKey) return;
+         if (reloading) return;
+         currentWeaponKey = key;
+         const w = WEAPONS[key];
+         ammo = w.maxAmmo;
+         maxAmmo = w.maxAmmo;
+         reloading = false;
+         switchWeaponModel(key);
+         for (const s of wSlots) {
+            s.classList.toggle('tat-wslot-active', s.dataset.w === key);
+         }
+         updateHUD();
+      }
+
+      // ── Events: weapon slots click ──
+      for (const s of wSlots) {
+         s.addEventListener('click', () => switchWeapon(s.dataset.w));
+      }
 
       // ── Target spawning ──
       function spawn() {
@@ -301,22 +333,10 @@ export default class ThreeAimTrainer extends HTMLElement {
             const isHeadshot = point && Math.abs(point.y - t.mesh.position.y) < t.r * 0.4;
             const pts = t.headshot || isHeadshot ? Math.round(15 * diff.mag / 10) : Math.round(10 * diff.mag / 10);
             hitTarget(t, pts, isHeadshot);
-            burstParticles(mesh.position.clone(), col, 12 + Math.floor(Math.random() * 8));
+            const pcs = createParticleBurst(scene, mesh.position.clone(), col, 12 + Math.floor(Math.random() * 8));
+            particles.push(...pcs);
          };
          targets.push(t);
-      }
-
-      function burstParticles(pos, col, count) {
-         for (let i = 0; i < count; i++) {
-            const sz = 0.02 + Math.random() * 0.06;
-            const pg = new THREE.SphereGeometry(sz, 6, 6);
-            const pm = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 1 });
-            const p = new THREE.Mesh(pg, pm);
-            p.position.copy(pos);
-            const d = new THREE.Vector3((Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2, (Math.random() - 0.5) * 2).normalize().multiplyScalar(0.4 + Math.random() * 0.8);
-            scene.add(p);
-            particles.push({ mesh: p, geo: pg, mat: pm, dir: d, birth: performance.now(), life: 400 + Math.random() * 300 });
-         }
       }
 
       function hitTarget(t, pts, isHeadshot) {
@@ -334,7 +354,7 @@ export default class ThreeAimTrainer extends HTMLElement {
          dmgEl.style.opacity = '1';
          dmgEl.style.transform = 'translateY(0) scale(1.2)';
          nextDmgHide = performance.now() + 300;
-         dmgEl.style.color = isHeadshot ? PALE.gold : PALE.text;
+         dmgEl.style.color = isHeadshot ? 'var(--tat-gold)' : 'var(--tat-text)';
 
          hitFlash.style.borderColor = isHeadshot ? 'rgba(245,158,11,0.5)' : 'rgba(100,255,100,0.25)';
          setTimeout(() => { hitFlash.style.borderColor = 'rgba(255,255,255,0)'; }, 80);
@@ -347,30 +367,73 @@ export default class ThreeAimTrainer extends HTMLElement {
          updateHUD();
       }
 
-      function shoot() {
+      function tryFire() {
          if (!playing || paused || reloading) return;
+         const w = wDef();
+         const now = performance.now();
+         if (now - lastFireTime < w.fireRate) return;
+         lastFireTime = now;
+
          if (ammo <= 0) { startReload(); return; }
          ammo--;
          shots++;
 
-         raycaster.setFromCamera(center, cam);
-         const meshes = targets.filter(t => t.alive).map(t => t.mesh);
-         const hits2 = raycaster.intersectObjects(meshes);
+         playShootSound(currentWeaponKey);
 
-         if (hits2.length > 0) {
-            const hit = hits2[0];
-            const t = targets.find(t => t.mesh === hit.object);
-            if (t && t.alive) {
-               t.hit(hit.point);
-               updateHUD();
-               return;
+         // Position muzzle flash at current weapon's barrel tip
+         const muzzlePos = MUZZLE_OFFSETS[currentWeaponKey];
+         if (muzzlePos) mf.sprite.position.copy(muzzlePos);
+         mf.mat.opacity = 1;
+
+         // Weapon bob on fire
+         weaponBob = -0.03;
+
+         // Spread: multiple pellets for shotgun
+         const pellets = w.pellets;
+         let hitAny = false;
+
+         for (let i = 0; i < pellets; i++) {
+            const spreadX = (Math.random() - 0.5) * w.spread;
+            const spreadY = (Math.random() - 0.5) * w.spread;
+            const dir = new THREE.Vector3(spreadX, spreadY, -1).normalize();
+            dir.applyQuaternion(cam.quaternion);
+            raycaster.set(cam.position, dir);
+            raycaster.far = 30;
+
+            const meshes = targets.filter(t => t.alive).map(t => t.mesh);
+            const hits2 = raycaster.intersectObjects(meshes);
+
+            if (hits2.length > 0) {
+               const hit = hits2[0];
+               const t = targets.find(t => t.mesh === hit.object);
+               if (t && t.alive) {
+                  t.hit(hit.point);
+                  hitAny = true;
+                  // Tracer to hit point
+                  const muzzleWorld = new THREE.Vector3();
+                  mf.sprite.getWorldPosition(muzzleWorld);
+                  const tracerColor = w.color;
+                  tracers.push(addTracer(scene, muzzleWorld, hit.point, tracerColor));
+               }
+            } else {
+               // Tracer to far point
+               const muzzleWorld = new THREE.Vector3();
+               mf.sprite.getWorldPosition(muzzleWorld);
+               const end = new THREE.Vector3(0, 0, -15);
+               end.applyQuaternion(cam.quaternion);
+               end.add(cam.position);
+               const tracerColor = w.color;
+               tracers.push(addTracer(scene, muzzleWorld, end, tracerColor));
             }
          }
 
-         streak = 0;
-         playMissSound();
-         hitFlash.style.borderColor = 'rgba(255,60,60,0.2)';
-         setTimeout(() => { hitFlash.style.borderColor = 'rgba(255,255,255,0)'; }, 80);
+         if (!hitAny) {
+            streak = 0;
+            playMissSound();
+            hitFlash.style.borderColor = 'rgba(255,60,60,0.2)';
+            setTimeout(() => { hitFlash.style.borderColor = 'rgba(255,255,255,0)'; }, 80);
+         }
+
          updateHUD();
       }
 
@@ -378,6 +441,7 @@ export default class ThreeAimTrainer extends HTMLElement {
          if (reloading) return;
          reloading = true;
          reloadStart = performance.now();
+         playReloadSound();
       }
 
       function updateHUD() {
@@ -388,11 +452,24 @@ export default class ThreeAimTrainer extends HTMLElement {
          const a = shots > 0 ? Math.round((hits / shots) * 100) : 100;
          accEl.textContent = `${a}%`;
          streakEl.textContent = `${streak}x`;
-         streakEl.style.color = streak >= 3 ? 'rgba(245,158,11,0.9)' : PALE.gold;
+         streakEl.style.color = streak >= 3 ? 'rgba(245,158,11,0.9)' : 'var(--tat-gold)';
          hitsCount.textContent = hits;
          const ap = ammo / maxAmmo * 100;
          ammoFill.style.width = `${ap}%`;
-         ammoFill.style.background = ammo <= 3 ? 'linear-gradient(90deg,#ef4444,#f59e0b)' : `linear-gradient(90deg,${PALE.green},${PALE.accent})`;
+         ammoFill.classList.toggle('tat-ammo-fill-low', ammo <= 3);
+         // Update weapon bar ammo
+         for (const el of wAmmoEls) {
+            const k = el.dataset.wa;
+            if (k === currentWeaponKey) {
+               el.textContent = `${ammo}/${maxAmmo}`;
+            } else {
+               el.textContent = WEAPONS[k].maxAmmo;
+            }
+         }
+         // Highlight active weapon slot
+         for (const s of wSlots) {
+            s.classList.toggle('tat-wslot-active', s.dataset.w === currentWeaponKey);
+         }
       }
 
       // ── Fullscreen ──
@@ -405,7 +482,6 @@ export default class ThreeAimTrainer extends HTMLElement {
          try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
       }
 
-      // ── Pointer lock ──
       function lockPointer() {
          try { wrap.requestPointerLock?.(); } catch (_) {}
       }
@@ -413,7 +489,6 @@ export default class ThreeAimTrainer extends HTMLElement {
          try { document.exitPointerLock?.(); } catch (_) {}
       }
 
-      // ── Pause ──
       function pauseGame() {
          if (!playing || paused) return;
          paused = true;
@@ -433,7 +508,7 @@ export default class ThreeAimTrainer extends HTMLElement {
          lockPointer();
       }
 
-      // ── Events: pointer lock change ──
+      // ── Events ──
       const onLockChange = () => {
          locked = document.pointerLockElement === wrap;
          if (!locked && playing && !paused) {
@@ -442,7 +517,6 @@ export default class ThreeAimTrainer extends HTMLElement {
       };
       document.addEventListener('pointerlockchange', onLockChange);
 
-      // ── Events: fullscreen change ──
       const onFsChange = () => {
          if (!document.fullscreenElement && playing && !paused) {
             pauseGame();
@@ -450,20 +524,21 @@ export default class ThreeAimTrainer extends HTMLElement {
       };
       document.addEventListener('fullscreenchange', onFsChange);
 
-      // ── Events: keyboard ──
       document.addEventListener('keydown', (e) => {
          if (e.key === 'Escape' && playing) {
             e.preventDefault();
-            if (paused) {
-               resumeGame();
-            }
+            if (paused) resumeGame();
          }
          if ((e.key === 'r' || e.key === 'R') && playing && !paused) {
             startReload();
          }
+         if (playing && !paused) {
+            if (e.key === '1') switchWeapon('pistol');
+            if (e.key === '2') switchWeapon('rifle');
+            if (e.key === '3') switchWeapon('shotgun');
+         }
       });
 
-      // ── Events: mouse ──
       document.addEventListener('mousemove', (e) => {
          if (!locked || paused) return;
          yaw -= e.movementX * 0.003;
@@ -472,8 +547,22 @@ export default class ThreeAimTrainer extends HTMLElement {
       });
 
       document.addEventListener('mousedown', (e) => {
-         if (e.button === 0 && locked && !paused) shoot();
+         if (e.button === 0) {
+            mouseDown = true;
+            if (locked && !paused) tryFire();
+         }
       });
+      document.addEventListener('mouseup', (e) => {
+         if (e.button === 0) mouseDown = false;
+      });
+
+      document.addEventListener('wheel', (e) => {
+         if (!playing || paused) return;
+         const keys = Object.keys(WEAPONS);
+         const idx = keys.indexOf(currentWeaponKey);
+         if (e.deltaY > 0) switchWeapon(keys[(idx + 1) % keys.length]);
+         else switchWeapon(keys[(idx - 1 + keys.length) % keys.length]);
+      }, { passive: true });
 
       // ── Game flow ──
       function startGame(diffKey) {
@@ -481,15 +570,23 @@ export default class ThreeAimTrainer extends HTMLElement {
          diff = DIFF[diffKey];
          timeLeft = diff.time;
          score = 0; shots = 0; hits = 0; streak = 0; maxStreak = 0;
-         ammo = maxAmmo; reloading = false; paused = false;
+         currentWeaponKey = 'pistol';
+         const w = WEAPONS.pistol;
+         ammo = w.maxAmmo; maxAmmo = w.maxAmmo;
+         reloading = false; paused = false;
          yaw = 0; pitch = 0;
+         lastFireTime = 0;
+         mouseDown = false;
          cam.position.set(0, 0.8, 0);
          cam.rotation.set(0, 0, 0);
+         switchWeaponModel('pistol');
 
          for (const t of targets) { scene.remove(t.mesh); scene.remove(t.ring); t.g.dispose(); t.m.dispose(); t.rg.dispose(); t.rm.dispose(); }
          targets.length = 0;
-         for (const p of particles) { scene.remove(p.mesh); p.geo.dispose(); p.mat.dispose(); }
+         for (const p of particles) { p.mat.dispose(); p.geo.dispose(); p.mesh.parent?.remove(p.mesh); }
          particles.length = 0;
+         for (const t of tracers) { t.mat.dispose(); t.geo.dispose(); t.line.parent?.remove(t.line); }
+         tracers.length = 0;
 
          playing = true;
          lastSpawn = performance.now();
@@ -498,7 +595,12 @@ export default class ThreeAimTrainer extends HTMLElement {
          over.style.display = 'none';
          pause.style.display = 'none';
          hud.style.display = 'block';
+         weaponBar.style.display = 'flex';
+         scanlines.style.opacity = '0.15';
          xhair.style.opacity = '1';
+         for (const s of wSlots) {
+            s.classList.toggle('tat-wslot-active', s.dataset.w === 'pistol');
+         }
          updateHUD();
          (async () => {
             await enterFullscreen();
@@ -509,9 +611,12 @@ export default class ThreeAimTrainer extends HTMLElement {
       function endGame() {
          playing = false;
          paused = false;
+         mouseDown = false;
          unlockPointer();
          exitFullscreen();
          hud.style.display = 'none';
+         weaponBar.style.display = 'none';
+         scanlines.style.opacity = '0';
          xhair.style.opacity = '0';
          pause.style.display = 'none';
          over.style.display = 'flex';
@@ -526,9 +631,12 @@ export default class ThreeAimTrainer extends HTMLElement {
       function goToMenu() {
          playing = false;
          paused = false;
+         mouseDown = false;
          unlockPointer();
          exitFullscreen();
          hud.style.display = 'none';
+         weaponBar.style.display = 'none';
+         scanlines.style.opacity = '0';
          xhair.style.opacity = '0';
          pause.style.display = 'none';
          over.style.display = 'none';
@@ -546,9 +654,8 @@ export default class ThreeAimTrainer extends HTMLElement {
          b.addEventListener('click', (e) => {
             e.stopPropagation();
             self._difficulty = b.dataset.d;
-            for (const bb of diffBtns) { bb.style.background = PALE.surface; bb.style.borderColor = PALE.border; }
-            b.style.background = 'rgba(108,92,231,0.15)';
-            b.style.borderColor = PALE.accent;
+            for (const bb of diffBtns) { bb.classList.remove('tat-db-active'); }
+            b.classList.add('tat-db-active');
          });
       }
 
@@ -574,23 +681,56 @@ export default class ThreeAimTrainer extends HTMLElement {
          cam.rotation.y = yaw;
          cam.rotation.x = pitch;
 
-         if (reloading && now - reloadStart > 800) {
+          // Weapon follow camera + bob
+          if (playing && !paused && currentWeaponModel) {
+             const offset = new THREE.Vector3(0.30, -0.24, -0.50);
+             offset.applyQuaternion(cam.quaternion);
+             currentWeaponModel.position.copy(cam.position).add(offset);
+
+             currentWeaponModel.rotation.order = 'YXZ';
+             currentWeaponModel.rotation.y = cam.rotation.y;
+             currentWeaponModel.rotation.x = cam.rotation.x - 0.05 + Math.sin(time * 4) * 0.003;
+             currentWeaponModel.rotation.z = cam.rotation.z + Math.sin(time * 2.5) * 0.005;
+
+             const bobTarget = Math.sin(time * 3) * 0.002;
+             weaponBob += (bobTarget - weaponBob) * 0.1;
+             currentWeaponModel.position.y += weaponBob;
+
+             // Muzzle flash follows camera
+             const mPos = new THREE.Vector3(0.30, -0.235, -0.72);
+             mPos.applyQuaternion(cam.quaternion).add(cam.position);
+             mf.sprite.position.copy(mPos);
+          }
+
+         // Reload
+         if (reloading && now - reloadStart > wDef().reloadTime) {
             ammo = maxAmmo;
             reloading = false;
             updateHUD();
          }
 
+         // Muzzle flash decay
+         if (mf.mat.opacity > 0) mf.mat.opacity = Math.max(0, mf.mat.opacity - 0.06);
+         // Hit flash sprite decay
          if (flashMat.opacity > 0) flashMat.opacity = Math.max(0, flashMat.opacity - 0.02);
 
+         // Damage text
          if (nextDmgHide > 0 && now > nextDmgHide) {
             dmgEl.style.opacity = '0';
             dmgEl.style.transform = 'translateY(-12px) scale(1)';
             nextDmgHide = 0;
          }
 
+         // Camera recenter
          cam.position.x += (0 - cam.position.x) * 0.06;
          cam.position.y += (0.8 - cam.position.y) * 0.06;
 
+         // Auto-fire (rifle)
+         if (mouseDown && locked && !paused && playing && wDef().auto) {
+            tryFire();
+         }
+
+         // Game logic
          if (playing && !paused) {
             timeLeft -= 0.016;
             if (timeLeft <= 0) { timeLeft = 0; endGame(); }
@@ -623,12 +763,10 @@ export default class ThreeAimTrainer extends HTMLElement {
             }
          }
 
-         for (let i = particles.length - 1; i >= 0; i--) {
-            const p = particles[i];
-            const age = now - p.birth;
-            if (age > p.life) { scene.remove(p.mesh); p.geo.dispose(); p.mat.dispose(); particles.splice(i, 1); }
-            else { p.mesh.position.add(p.dir.clone().multiplyScalar(0.015)); p.mesh.scale.multiplyScalar(0.985); p.mat.opacity = 1 - age / p.life; }
-         }
+         // Update particles (from kit)
+         updateParticles(particles, now);
+         // Update tracers (from kit)
+         updateTracers(tracers, now);
 
          renderer.render(scene, cam);
       };
@@ -644,12 +782,18 @@ export default class ThreeAimTrainer extends HTMLElement {
          document.removeEventListener('fullscreenchange', onFsChange);
          document.removeEventListener('mousemove');
          document.removeEventListener('mousedown');
+         document.removeEventListener('mouseup');
          document.removeEventListener('keydown');
+         document.removeEventListener('wheel');
          window.removeEventListener('resize', onResize);
          ro.disconnect();
+         mf.mat.dispose(); mf.tex.dispose();
          flashMat.dispose(); flashTex.dispose();
+          if (currentWeaponModel) scene.remove(currentWeaponModel);
+         for (const k in weaponModels) cleanupModel(weaponModels[k]);
          for (const t of targets) { scene.remove(t.mesh); scene.remove(t.ring); t.g.dispose(); t.m.dispose(); t.rg.dispose(); t.rm.dispose(); }
-         for (const p of particles) { scene.remove(p.mesh); p.geo.dispose(); p.mat.dispose(); }
+         for (const p of particles) { p.mat.dispose(); p.geo.dispose(); p.mesh.parent?.remove(p.mesh); }
+         for (const t of tracers) { t.mat.dispose(); t.geo.dispose(); t.line.parent?.remove(t.line); }
          renderer.dispose(); canvasEl.innerHTML = '';
       };
 
