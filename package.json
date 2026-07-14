@@ -45,7 +45,8 @@
     "express": "^5.2.1",
     "gsap": "^3.15.0",
     "slicejs-cli": "^4.0.0",
-    "slicejs-web-framework": "^4.0.0"
+    "slicejs-web-framework": "^4.0.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

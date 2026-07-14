@@ -100,8 +100,11 @@ const components = {
   "DemoRouteState": "DemoComponents",
   "DemoToggle": "DemoComponents",
   "ExternalDepsProbe": "DemoComponents",
-  "GsapDemo": "DemoComponents",
-  "GsapShowcase": "DemoComponents"
+   "GsapDemo": "DemoComponents",
+   "GsapShowcase": "DemoComponents",
+   "ThreeShowcase": "DemoComponents",
+   "ThreeGalaxy": "DemoComponents",
+   "ThreeAimTrainer": "DemoComponents"
 };
 
 export default components;
