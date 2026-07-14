@@ -1,5 +1,6 @@
 allowBuilds:
   slicejs-cli: true
+  esbuild: true
 
 minimumReleaseAgeExclude:
   - slicejs-cli
