@@ -11,6 +11,7 @@ import {
   suspiciousRequestLogger
 } from './middleware/securityMiddleware.js';
 import { createPublicEnvProvider } from './utils/publicEnvResolver.js';
+import { createDevDepsOptimizer } from 'slicejs-web-framework/api/framework/devDepsOptimizer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -105,8 +106,15 @@ app.get('/slice-env.json', (req, res) => {
 // ==============================================
 // PWA — manifest + service worker (dev y prod)
 // ==============================================
+// Resolve a deployed asset preferring the public/ folder (the convention),
+// falling back to the deploy root for pre-`public/` projects.
+const resolveDeployedFile = (fileName) => {
+  const inPublic = path.join(__dirname, `../${folderDeployed}`, 'public', fileName);
+  return fs.existsSync(inPublic) ? inPublic : path.join(__dirname, `../${folderDeployed}`, fileName);
+};
+
 const servePwaFile = (res, fileName, contentType, extraHeaders = {}) => {
-  const filePath = path.join(__dirname, `../${folderDeployed}`, fileName);
+  const filePath = resolveDeployedFile(fileName);
   try {
     if (fs.existsSync(filePath)) {
       res.setHeader('Content-Type', contentType);
@@ -192,16 +200,62 @@ if (runMode === 'development') {
   app.use('/Slice/', express.static(path.join(__dirname, '..', 'node_modules', 'slicejs-web-framework', 'Slice')));
 }
 
-const publicFolders = Array.isArray(sliceConfig.publicFolders) ? sliceConfig.publicFolders : [];
-const normalizedPublicFolders = publicFolders
-  .filter((entry) => typeof entry === 'string')
-  .map((entry) => entry.trim())
-  .filter((entry) => entry.length > 0)
-  .map((entry) => (entry.startsWith('/') ? entry : `/${entry}`));
-
 if (runMode === 'development') {
+  // External (node_modules) dependency support in dev — always on. Rewrites
+  // bare imports in served src modules to /@slice-modules/… and serves each
+  // package pre-bundled with esbuild (same resolver as the production build).
+  // Mirrors the framework's createSliceServer; this app runs its own server.
+  const projectRoot = path.join(__dirname, '..');
+  const devDeps = createDevDepsOptimizer({ projectRoot });
+
+  if (devDeps.enabled) {
+    const srcRoot = path.join(projectRoot, folderDeployed);
+
+    app.get(/^\/@slice-modules\/(.+)$/, async (req, res) => {
+      const spec = req.params[0];
+      try {
+        const { code } = await devDeps.bundlePackage(spec);
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        return res.send(code);
+      } catch (error) {
+        const message = `Failed to load external dependency "${spec}": ${error.message}`;
+        console.error(`[slice:dev] ${message}`);
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        return res.status(502).send(`throw new Error(${JSON.stringify(message)});`);
+      }
+    });
+
+    app.use(async (req, res, next) => {
+      if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+      const reqPath = req.path;
+      if (!(reqPath.endsWith('.js') || reqPath.endsWith('.mjs'))) return next();
+      if (reqPath.startsWith('/@slice-modules/') || reqPath.startsWith('/bundles/') || reqPath.startsWith('/Slice/')) {
+        return next();
+      }
+      const filePath = path.join(srcRoot, decodeURIComponent(reqPath));
+      const normalized = path.normalize(filePath);
+      if (normalized !== srcRoot && !normalized.startsWith(srcRoot + path.sep)) return next();
+      if (!fs.existsSync(normalized) || !fs.statSync(normalized).isFile()) return next();
+      try {
+        const original = fs.readFileSync(normalized, 'utf8');
+        const rewritten = await devDeps.rewriteBareImports(original);
+        res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+        return res.send(rewritten);
+      } catch (error) {
+        console.error(`[slice:dev] Failed to rewrite ${reqPath}: ${error.message}`);
+        return next();
+      }
+    });
+  }
+
+  // Centralized public/ folder served at the root URL (Themes, Styles, images…).
+  // Mounted before the general src static so its files win at the root.
+  app.use(express.static(path.join(__dirname, `../${folderDeployed}`, 'public')));
   app.use(express.static(path.join(__dirname, `../${folderDeployed}`)));
 } else {
+  // Serve the built public/ assets at the root URL.
+  app.use(express.static(path.join(__dirname, `../${folderDeployed}`, 'public')));
   app.use('/App', express.static(path.join(__dirname, `../${folderDeployed}`, 'App')));
   app.use('/Components', express.static(path.join(__dirname, `../${folderDeployed}`, 'Components')));
   app.get('/manifest.json', (req, res) => {
@@ -236,9 +290,6 @@ if (runMode === 'development') {
     }
     return res.status(404).send('sliceConfig.json not found');
   });
-  for (const folder of normalizedPublicFolders) {
-    app.use(folder, express.static(path.join(__dirname, `../${folderDeployed}`, folder)));
-  }
   app.use('/dist/', express.static(path.join(__dirname, '..', 'dist')));
 }
 

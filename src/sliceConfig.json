@@ -84,11 +84,5 @@
                },
     "loading":  {
                     "enabled":  true
-                },
-    "publicFolders":  [
-                          "/Themes",
-                          "/Styles",
-                          "/images",
-                          "/markdown"
-                      ]
+                }
 }

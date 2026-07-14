@@ -19,7 +19,24 @@ export default class Playground extends HTMLElement {
       this._dndRawSection();
       await this._dndSliceSection();
       await this._gallerySection();
+      await this._externalLibsSection();
       this._scratchSection();
+   }
+
+   // ── External npm library (GSAP) ────────────────────────────────
+   // Demonstrates importing a real, popular frontend package (gsap) with a bare
+   // import and using it inside a Slice component — resolved from node_modules.
+   async _externalLibsSection() {
+      const grid = this._section(
+         'External library — GSAP',
+         'A real npm animation library (gsap) imported and used inside Slice components.'
+      );
+
+      const entrance = this._card(grid, 'Entrance (on mount)', 'Staggered bars via gsap.fromTo()');
+      entrance.appendChild(await slice.build('GsapDemo'));
+
+      const interactive = this._card(grid, 'Interactive', 'Click, hover, timeline scrub and a tweened counter');
+      interactive.appendChild(await slice.build('GsapShowcase'));
    }
 
    // ── scaffolding ────────────────────────────────────────────────

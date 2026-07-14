@@ -283,7 +283,7 @@ const syncCopyMarkdownMenu = () => {
 
 const syncGlobalStyles = () => {
   const sourceFile = path.join(ROOT, 'parser', 'templates', 'DocumentationBase.css');
-  const targetFile = path.join(ROOT, 'src', 'Styles', 'DocumentationBase.css');
+  const targetFile = path.join(ROOT, 'src', 'public', 'Styles', 'DocumentationBase.css');
   fs.copyFileSync(sourceFile, targetFile);
 };
 
