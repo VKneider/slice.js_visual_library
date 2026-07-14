@@ -27,7 +27,6 @@ export default class Playground extends HTMLElement {
       await this._gsapUtilitySection();
       await this._threeSection();
       await this._threeGalaxySection();
-      await this._threeAimSection();
       this._scratchSection();
    }
 
@@ -363,27 +362,6 @@ export default class Playground extends HTMLElement {
       }
       this.$root.appendChild(section);
       if (galaxy) this._gsapTweens.push(galaxy);
-   }
-
-   // ── Three.js Aim Trainer ───────────────────────────────────────
-   async _threeAimSection() {
-      const section = document.createElement('section');
-      section.className = 'pg-section';
-      const h = document.createElement('h2');
-      h.className = 'pg-section__title';
-      h.textContent = 'Three.js — Aim Trainer';
-      section.appendChild(h);
-      const p = document.createElement('p');
-      p.className = 'pg-section__sub';
-      p.textContent = '3D aim practice game: shoot glowing targets in a Three.js scene. 3 difficulties, 30s rounds, hit streak combos, particle explosions.';
-      section.appendChild(p);
-      const game = await slice.build('ThreeAimTrainer');
-      if (game) {
-         game.style.display = 'block';
-         section.appendChild(game);
-      }
-      this.$root.appendChild(section);
-      if (game) this._gsapTweens.push(game);
    }
 
    // ── scaffolding ────────────────────────────────────────────────

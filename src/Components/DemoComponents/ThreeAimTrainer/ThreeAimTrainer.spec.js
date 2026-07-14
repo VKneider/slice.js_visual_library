@@ -6,7 +6,7 @@ test.describe('ThreeAimTrainer (POV 3D aim trainer)', () => {
       const c = await mount('ThreeAimTrainer');
       await expect(c.locator('.tat-canvas canvas')).toBeAttached();
       await expect(c.locator('.tat-menu')).toBeVisible();
-      await expect(c.locator('.tat-menu')).toContainText('POV AIM TRAINER');
+      await expect(c.locator('.tat-menu')).toContainText('Aim Trainer');
       expect(c.pageErrors()).toEqual([]);
    });
 

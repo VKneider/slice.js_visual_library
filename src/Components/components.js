@@ -2,6 +2,7 @@ const components = {
   "App": "AppComponents",
   "ComponentsPage": "AppComponents",
   "CopyMarkdownMenu": "AppComponents",
+  "GamePage": "AppComponents",
   "MainMenu": "AppComponents",
   "MyNavigation": "AppComponents",
   "Playground": "AppComponents",
@@ -100,11 +101,11 @@ const components = {
   "DemoRouteState": "DemoComponents",
   "DemoToggle": "DemoComponents",
   "ExternalDepsProbe": "DemoComponents",
-   "GsapDemo": "DemoComponents",
-   "GsapShowcase": "DemoComponents",
-   "ThreeShowcase": "DemoComponents",
-   "ThreeGalaxy": "DemoComponents",
-   "ThreeAimTrainer": "DemoComponents"
+  "GsapDemo": "DemoComponents",
+  "GsapShowcase": "DemoComponents",
+  "ThreeAimTrainer": "DemoComponents",
+  "ThreeGalaxy": "DemoComponents",
+  "ThreeShowcase": "DemoComponents"
 };
 
 export default components;

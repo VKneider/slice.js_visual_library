@@ -16,6 +16,8 @@ const generateMainRoutesFile = () => {
   // Hidden internal sandbox for hand-testing services (e.g. DragDropService).
   // Not in the navbar; kept here so it also survives `docs:generate`.
   lines.push("  { path: '/playground', component: 'Playground' },");
+  // Game route — standalone 3D aim trainer
+  lines.push("  { path: '/game', component: 'GamePage' },");
   docsShellRoutes.forEach((route) => {
     lines.push(`  { path: '${route.replace(/'/g, "\\'")}', component: 'App' },`);
   });
