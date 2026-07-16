@@ -1,3 +1,27 @@
+/* Self-hosted, subset latin — no third-party request at runtime. Both are
+   variable fonts, so one file covers each family's whole weight range and the
+   `font-weight` descriptor below must stay a range.
+   Source: Google Fonts. JetBrains Mono and Orbitron are SIL OFL 1.1.
+
+   These used to be named in --tat-font with nothing loading them, so the whole
+   game silently rendered in system-ui. */
+@font-face {
+   font-family: 'JetBrains Mono';
+   font-style: normal;
+   font-weight: 100 800;
+   font-display: swap;
+   src: url(/fonts/jetbrains-mono.woff2) format('woff2');
+   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+   font-family: 'Orbitron';
+   font-style: normal;
+   font-weight: 400 900;
+   font-display: swap;
+   src: url(/fonts/orbitron.woff2) format('woff2');
+   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 slice-three-aim-trainer {
    --tat-bg: #080816;
    --tat-surface: rgba(255,255,255,0.04);
@@ -10,7 +34,11 @@ slice-three-aim-trainer {
    --tat-red: #ef4444;
    --tat-gold: #f59e0b;
    --tat-blue: #3b82f6;
-   --tat-font: 'JetBrains Mono', 'Orbitron', system-ui, sans-serif;
+   /* Two roles, deliberately split: Orbitron is wide and geometric — it carries
+      the titles and the big readouts — while JetBrains Mono keeps every changing
+      number monospaced so the HUD never reflows mid-round. */
+   --tat-font: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+   --tat-display: 'Orbitron', var(--tat-font);
    display: block;
    width: 100%;
    height: 100%;
@@ -78,11 +106,17 @@ slice-three-aim-trainer {
    gap: 8px;
 }
 .tat-timer {
+   font-family: var(--tat-display);
    font-size: 22px;
    font-weight: 700;
    font-variant-numeric: tabular-nums;
    color: var(--tat-text);
    min-width: 32px;
+}
+/* Under 6s the timer takes on the urgency the bar already shows. */
+.tat-timer-low {
+   color: var(--tat-red);
+   text-shadow: 0 0 12px rgba(239,68,68,0.5);
 }
 .tat-timer-bar-track {
    flex: 1;
@@ -100,6 +134,7 @@ slice-three-aim-trainer {
    border-radius: 2px;
 }
 .tat-score {
+   font-family: var(--tat-display);
    font-size: 26px;
    font-weight: 800;
    font-variant-numeric: tabular-nums;
@@ -139,6 +174,16 @@ slice-three-aim-trainer {
 .tat-ammo-fill-low {
    background: linear-gradient(90deg, var(--tat-red), var(--tat-gold));
 }
+/* Reloading is the one moment the player is helpless, and nothing on screen said
+   so — the bar just sat empty. It now reads as busy rather than broken. */
+.tat-ammo-fill-reloading {
+   background: linear-gradient(90deg, var(--tat-accent), var(--tat-blue));
+   animation: tat-reload 0.9s ease-in-out infinite;
+}
+@keyframes tat-reload {
+   0%, 100% { opacity: 0.35; }
+   50% { opacity: 1; }
+}
 
 .tat-mid {
    position: absolute;
@@ -172,7 +217,9 @@ slice-three-aim-trainer {
 }
 .tat-xhair-dot {
    position: absolute;
-   top: 4px;
+   /* Was `top: 4px`, which parked the centre dot 12px above the point the shot
+      actually lands on — the arms cross at 50% of this 28px box, not at 4px. */
+   top: 50%;
    left: 50%;
    width: 4px;
    height: 4px;
@@ -189,6 +236,30 @@ slice-three-aim-trainer {
    border: 1px solid rgba(255,255,255,0.08);
    border-radius: 50%;
 }
+/* Aiming down sights: the arms collapse into a single precise dot, so the
+   crosshair itself says "this shot is tighter" without a word of UI. */
+.tat-xhair {
+   transition: opacity 0.15s;
+}
+.tat-xhair-h,
+.tat-xhair-v,
+.tat-xhair-ring {
+   transition: opacity 0.12s, transform 0.12s;
+}
+.tat-xhair-ads .tat-xhair-h,
+.tat-xhair-ads .tat-xhair-v {
+   opacity: 0;
+   transform: scale(0.2);
+}
+.tat-xhair-ads .tat-xhair-ring {
+   opacity: 0;
+   transform: scale(0.6);
+}
+.tat-xhair-ads .tat-xhair-dot {
+   background: var(--tat-gold);
+   box-shadow: 0 0 8px var(--tat-gold);
+}
+
 .tat-dmg {
    position: absolute;
    top: -30px;
@@ -293,12 +364,14 @@ slice-three-aim-trainer {
    gap: 4px;
 }
 .tat-menu-title {
+   font-family: var(--tat-display);
    font-size: 28px;
-   font-weight: 800;
+   font-weight: 900;
    color: var(--tat-text);
    margin: 8px 0 2px;
    letter-spacing: 4px;
    text-transform: uppercase;
+   text-shadow: 0 0 32px var(--tat-accent-glow);
 }
 .tat-menu-sub {
    font-size: 13px;
@@ -363,8 +436,9 @@ slice-three-aim-trainer {
    cursor: default;
 }
 .tat-over-title {
+   font-family: var(--tat-display);
    font-size: 28px;
-   font-weight: 800;
+   font-weight: 900;
    color: var(--tat-text);
    margin: 0 0 4px;
    letter-spacing: 3px;
@@ -389,11 +463,16 @@ slice-three-aim-trainer {
 .tat-stats-value {
    text-align: right;
    font-weight: 600;
+   /* Every value in this grid is a number that varies run to run; tabular
+      figures keep the column edge straight instead of jittering per digit. */
+   font-variant-numeric: tabular-nums;
 }
 .tat-v-score {
+   font-family: var(--tat-display);
    color: var(--tat-text);
-   font-weight: 700;
+   font-weight: 900;
    font-size: 22px;
+   text-shadow: 0 0 20px var(--tat-accent-glow);
 }
 .tat-v-hits {
    color: var(--tat-green);
@@ -505,4 +584,30 @@ slice-three-aim-trainer {
 .tat-quit:hover {
    background: rgba(255,255,255,0.08);
    color: var(--tat-text);
+}
+
+/* Keyboard focus was invisible: every control relied on :hover alone, so anyone
+   tabbing through the menu could not tell what was selected. */
+.tat-db:focus-visible,
+.tat-go:focus-visible,
+.tat-retry:focus-visible,
+.tat-menu-btn:focus-visible,
+.tat-resume:focus-visible,
+.tat-quit:focus-visible {
+   outline: 2px solid var(--tat-gold);
+   outline-offset: 3px;
+}
+
+/* Honour the OS-level motion preference. The camera kick and the shake are
+   suppressed in JS; what is left here are the purely decorative loops, plus the
+   scanline overlay this component sets inline at round start. */
+@media (prefers-reduced-motion: reduce) {
+   slice-three-aim-trainer *,
+   slice-three-aim-trainer *::before,
+   slice-three-aim-trainer *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+   }
+   .tat-scanlines { display: none; }
 }

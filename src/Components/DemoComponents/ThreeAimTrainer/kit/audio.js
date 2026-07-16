@@ -5,6 +5,14 @@ function init() {
    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
 }
 
+// A context created outside a user gesture starts 'suspended', and every tone
+// then plays into silence with no error to show for it. Call this from a real
+// gesture (START / click) to bring it back.
+export function resumeAudio() {
+   init();
+   if (audioCtx?.state === 'suspended') audioCtx.resume().catch(() => {});
+}
+
 function tone(freq, dur, type, vol, ramp) {
    if (!audioCtx) return;
    try {
@@ -21,8 +29,6 @@ function tone(freq, dur, type, vol, ramp) {
       osc.stop(audioCtx.currentTime + dur);
    } catch (_) {}
 }
-
-export function initAudio() { init(); }
 
 export function playHitSound() {
    init();
