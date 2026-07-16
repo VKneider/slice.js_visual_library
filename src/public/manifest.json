@@ -1,10 +1,12 @@
 {
   "name": "Slice.js Components",
-  "short_name": "Slice.js Components",
+  "short_name": "SliceComponents",
   "start_url": "/",
-  "display": "standalone",
-  "background_color": "#F8F4FF",
-  "theme_color": "#F8F4FF",
+  "display": "fullscreen",
+  "background_color": "#080816",
+  "theme_color": "#080816",
+  "categories": ["games", "utilities"],
+  "orientation": "any",
   "icons": [
     {
       "src": "/images/og-image.png",

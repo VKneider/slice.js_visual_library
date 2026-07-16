@@ -650,8 +650,8 @@ export default class ThreeAimTrainer extends HTMLElement {
 
          // Both need a user gesture, and the AudioContext may be suspended until
          // one arrives — this runs from the START click, which is that gesture.
-          resumeAudio();
-          if (!isTouchDevice) (async () => { await enterFullscreen(); lockPointer(); })();
+           resumeAudio();
+           (async () => { await enterFullscreen(); if (!isTouchDevice) lockPointer(); })();
       }
 
       function clearEffects() {
