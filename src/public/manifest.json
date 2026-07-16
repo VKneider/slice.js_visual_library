@@ -2,7 +2,7 @@
   "name": "Slice.js Components",
   "short_name": "SliceComponents",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#080816",
   "theme_color": "#080816",
   "categories": ["games", "utilities"],
