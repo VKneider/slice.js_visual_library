@@ -35,6 +35,22 @@ export default class App extends HTMLElement {
 
       document.title = this._resolveDocumentTitle(window.location.pathname || '/');
 
+      // Easter egg: 5 taps rápidos en área no interactiva abre el juego
+      let _tapCount = 0;
+      let _tapTimer = 0;
+      const _onTap = (e) => {
+         if (e.target.closest('a, button, input, textarea, select, .nav_bar_buttons')) return;
+         _tapCount++;
+         clearTimeout(_tapTimer);
+         _tapTimer = setTimeout(() => { _tapCount = 0; }, 2000);
+         if (_tapCount >= 10) {
+            _tapCount = 0;
+            clearTimeout(_tapTimer);
+            slice.router?.navigate?.('/game');
+         }
+      };
+      document.addEventListener('touchstart', _onTap, { passive: true });
+
       // Crear el Navbar persistente (fuera del router)
       const navbar = await slice.build('Navbar', {
          position: 'fixed',

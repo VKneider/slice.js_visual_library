@@ -60,11 +60,13 @@ slice-three-aim-trainer {
    overflow: hidden;
    background: var(--tat-bg);
    cursor: default;
+   touch-action: none;
 }
 
 .tat-canvas {
    width: 100%;
    height: 100%;
+   touch-action: none;
 }
 .tat-canvas canvas {
    display: block;
@@ -610,4 +612,117 @@ slice-three-aim-trainer {
       transition-duration: 0.01ms !important;
    }
    .tat-scanlines { display: none; }
+}
+
+/* ── Mobile controls ──
+   Shown only on touch-primary devices (phones, tablets).
+   The FIRE button uses an SVG gun icon, reload uses a circular arrow,
+   pause uses pause bars, and the ADS button is text. */
+.tat-mctrl {
+   display: none;
+   position: absolute;
+   inset: 0;
+   z-index: 7;
+   pointer-events: none;
+}
+.tat-mctrl-btn {
+   position: absolute;
+   pointer-events: auto;
+   border: none;
+   cursor: pointer;
+   -webkit-tap-highlight-color: transparent;
+   user-select: none;
+   -webkit-user-select: none;
+}
+.tat-mctrl-fire {
+   bottom: 100px;
+   left: 20px;
+   width: 80px;
+   height: 80px;
+   border-radius: 50%;
+   background: radial-gradient(circle at 40% 35%, #ff6b6b, #c0392b);
+   box-shadow: 0 4px 20px rgba(192,57,43,0.5), inset 0 -2px 6px rgba(0,0,0,0.3);
+   transition: transform 0.1s;
+   /* Gun icon via inline SVG background */
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7.5 9H5l-2 4v4h3v-2h2v2h3v-2h3l4-6h-3l-2 2h-2L9.5 9h-2z'/%3E%3Crect x='15' y='13' width='2' height='2' rx='1'/%3E%3C/svg%3E");
+   background-size: 36px 36px;
+   background-repeat: no-repeat;
+   background-position: center;
+}
+.tat-mctrl-fire:active {
+   transform: scale(0.92);
+}
+.tat-mctrl-ads {
+   bottom: 115px;
+   left: 110px;
+   padding: 6px 12px;
+   border-radius: 8px;
+   background: rgba(255,255,255,0.1);
+   color: var(--tat-text);
+   font-family: var(--tat-font);
+   font-size: 11px;
+   font-weight: 700;
+   letter-spacing: 1px;
+   backdrop-filter: blur(4px);
+   border: 1px solid rgba(255,255,255,0.15);
+   transition: background 0.15s;
+}
+.tat-mctrl-ads-active {
+   background: rgba(108,92,231,0.4);
+   border-color: var(--tat-accent);
+   box-shadow: 0 0 12px var(--tat-accent-glow);
+}
+.tat-mctrl-reload {
+   bottom: 100px;
+   right: 20px;
+   width: 56px;
+   height: 56px;
+   border-radius: 50%;
+   background: rgba(255,255,255,0.08);
+   backdrop-filter: blur(4px);
+   border: 1px solid rgba(255,255,255,0.12);
+   transition: background 0.15s, transform 0.1s;
+   /* Circular arrow icon */
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='23 4 23 10 17 10'/%3E%3Cpath d='M20.49 15a9 9 0 1 1-2.12-9.36L23 10'/%3E%3C/svg%3E");
+   background-size: 26px 26px;
+   background-repeat: no-repeat;
+   background-position: center;
+}
+.tat-mctrl-reload:active {
+   transform: scale(0.9);
+   background: rgba(255,255,255,0.15);
+}
+.tat-mctrl-pause {
+   top: 12px;
+   right: 12px;
+   width: 44px;
+   height: 44px;
+   border-radius: 10px;
+   background: rgba(0,0,0,0.35);
+   backdrop-filter: blur(4px);
+   border: 1px solid rgba(255,255,255,0.1);
+   transition: background 0.15s;
+   /* Pause icon (two vertical bars) */
+   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Crect x='6' y='4' width='4' height='16' rx='1'/%3E%3Crect x='14' y='4' width='4' height='16' rx='1'/%3E%3C/svg%3E");
+   background-size: 20px 20px;
+   background-repeat: no-repeat;
+   background-position: center;
+}
+.tat-mctrl-pause:active {
+   background: rgba(255,255,255,0.15);
+}
+
+@media (hover: none) and (pointer: coarse) {
+   .tat-mctrl { display: block; }
+   /* Bigger weapon slots for fat fingers */
+   .tat-wslot {
+      padding: 10px 16px;
+      min-width: 72px;
+   }
+   .tat-wslot-name { font-size: 11px; }
+   .tat-wslot-ammo { font-size: 15px; }
+   /* Larger buttons on menus */
+   .tat-go, .tat-retry { padding: 14px 48px; font-size: 17px; }
+   .tat-db { padding: 10px 24px; font-size: 14px; }
+   .tat-menu-btn, .tat-quit { padding: 14px 28px; font-size: 14px; }
 }

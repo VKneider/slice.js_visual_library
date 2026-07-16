@@ -154,6 +154,13 @@ export default class ThreeAimTrainer extends HTMLElement {
   </div>
 </div>
 
+<div class="tat-mctrl">
+  <button class="tat-mctrl-btn tat-mctrl-fire" data-action="fire" aria-label="Fire"></button>
+  <button class="tat-mctrl-btn tat-mctrl-ads" data-action="ads" aria-label="Aim Down Sights">ADS</button>
+  <button class="tat-mctrl-btn tat-mctrl-reload" data-action="reload" aria-label="Reload"></button>
+  <button class="tat-mctrl-btn tat-mctrl-pause" data-action="pause" aria-label="Pause"></button>
+</div>
+
 </div></div>`;
       slice.controller.setComponentProps(this, props);
    }
@@ -205,7 +212,7 @@ export default class ThreeAimTrainer extends HTMLElement {
       cam.position.set(0, 0.8, 0);
       cam.rotation.order = 'YXZ';
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+      const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'default' });
       renderer.setSize(w, h);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -263,6 +270,11 @@ export default class ThreeAimTrainer extends HTMLElement {
       // value instead of three that could disagree mid-zoom.
       let ads = false;
       let adsT = 0;
+      const isTouchDevice = 'ontouchstart' in window;
+      let firePressed = false;
+      let touchAiming = false;
+      let touchStartX = 0, touchStartY = 0;
+      let touchFingers = 0;
       const fullscreenSupported = typeof document.documentElement.requestFullscreen === 'function';
 
       // Each weapon keeps its own magazine. Switching used to hand back a full
@@ -497,8 +509,10 @@ export default class ThreeAimTrainer extends HTMLElement {
          paused = false;
          pause.style.display = 'none';
          xhair.style.opacity = '1';
-         if (!document.fullscreenElement) await enterFullscreen();
-         lockPointer();
+         if (!isTouchDevice) {
+            if (!document.fullscreenElement) await enterFullscreen();
+            lockPointer();
+         }
       }
 
       // ── Events ──
@@ -564,6 +578,40 @@ export default class ThreeAimTrainer extends HTMLElement {
 
       for (const s of wSlots) on(s, 'click', () => switchWeapon(s.dataset.w));
 
+      // ── Touch / mobile ──
+      if (isTouchDevice) {
+         on(wrap, 'touchstart', (e) => {
+            if (!playing || paused) return;
+            touchFingers = e.touches.length;
+            if (touchFingers === 1) {
+               const overBtn = e.target.closest('.tat-mctrl-btn, .tat-wslot, .tat-menu, .tat-over, .tat-pause');
+               if (overBtn) return;
+               touchAiming = true;
+               touchStartX = e.touches[0].clientX;
+               touchStartY = e.touches[0].clientY;
+            }
+         }, { passive: true });
+
+         on(wrap, 'touchmove', (e) => {
+            if (!touchAiming || paused || !playing) return;
+            const t = e.touches[0];
+            const dx = t.clientX - touchStartX;
+            const dy = t.clientY - touchStartY;
+            const sens = 0.008 * THREE.MathUtils.lerp(1, ADS[currentWeaponKey].sens, adsT);
+            yaw -= dx * sens;
+            pitch -= dy * sens;
+            pitch = Math.max(-1.3, Math.min(1.3, pitch));
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+         }, { passive: true });
+
+         on(document, 'touchend', (e) => {
+            if (!playing) return;
+            touchFingers = e.touches.length;
+            if (touchFingers === 0) touchAiming = false;
+         }, { passive: true });
+      }
+
       // ── Game flow ──
       function startGame(diffKey) {
          self._difficulty = diffKey;
@@ -602,8 +650,8 @@ export default class ThreeAimTrainer extends HTMLElement {
 
          // Both need a user gesture, and the AudioContext may be suspended until
          // one arrives — this runs from the START click, which is that gesture.
-         resumeAudio();
-         (async () => { await enterFullscreen(); lockPointer(); })();
+          resumeAudio();
+          if (!isTouchDevice) (async () => { await enterFullscreen(); lockPointer(); })();
       }
 
       function clearEffects() {
@@ -618,6 +666,8 @@ export default class ThreeAimTrainer extends HTMLElement {
          paused = false;
          mouseDown = false;
          ads = false;
+         touchAiming = false;
+         firePressed = false;
          unlockPointer();
          exitFullscreen();
          hud.style.display = 'none';
@@ -659,6 +709,42 @@ export default class ThreeAimTrainer extends HTMLElement {
                other.classList.toggle('tat-db-active', active);
                other.setAttribute('aria-checked', String(active));
             }
+         });
+      }
+
+      // ── Mobile control buttons ──
+      const mctrlFire = S('.tat-mctrl-fire');
+      const mctrlAds = S('.tat-mctrl-ads');
+      const mctrlReload = S('.tat-mctrl-reload');
+      const mctrlPause = S('.tat-mctrl-pause');
+
+      if (isTouchDevice && mctrlFire) {
+         on(mctrlFire, 'pointerdown', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            firePressed = true;
+            if (playing && !paused) tryFire();
+         });
+         on(mctrlFire, 'pointerup', () => { firePressed = false; });
+         on(mctrlFire, 'pointercancel', () => { firePressed = false; });
+      }
+      if (isTouchDevice && mctrlAds) {
+         on(mctrlAds, 'pointerdown', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            ads = !ads;
+            mctrlAds.classList.toggle('tat-mctrl-ads-active', ads);
+         });
+      }
+      if (isTouchDevice && mctrlReload) {
+         on(mctrlReload, 'pointerdown', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            if (playing && !paused) startReload();
+         });
+      }
+      if (isTouchDevice && mctrlPause) {
+         on(mctrlPause, 'pointerdown', (e) => {
+            e.preventDefault(); e.stopPropagation();
+            if (!playing) return;
+            if (paused) resumeGame(); else pauseGame();
          });
       }
 
@@ -734,7 +820,7 @@ export default class ThreeAimTrainer extends HTMLElement {
          cam.position.x = THREE.MathUtils.damp(cam.position.x, 0, 3.7, dt);
          cam.position.y = THREE.MathUtils.damp(cam.position.y, 0.8, 3.7, dt);
 
-         if (mouseDown && locked && !paused && playing && wDef().auto) tryFire();
+          if ((isTouchDevice ? firePressed : mouseDown && locked) && !paused && playing && wDef().auto) tryFire();
 
          if (playing && !paused) {
             timeLeft -= dt;
