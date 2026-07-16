@@ -2,7 +2,7 @@
   "name": "Slice.js Components",
   "short_name": "SliceComponents",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#080816",
   "theme_color": "#080816",
   "categories": ["games", "utilities"],
@@ -10,8 +10,15 @@
   "icons": [
     {
       "src": "/images/og-image.png",
-      "sizes": "192x192 512x512",
-      "type": "image/png"
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/og-image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
