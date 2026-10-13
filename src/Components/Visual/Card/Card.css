@@ -4,7 +4,13 @@ slice-card, .slice-card {
   flex-direction: column;
   box-sizing: border-box;
 
-  --card-height: 280px;
+  /* Height is CONTENT-DRIVEN. These used to be `--card-height: 280px` plus
+     `height: var(--card-height)` with `.card-media { height: 40% }` and
+     `.card-content { height: 60% }`, so every card reserved the same 280px and
+     a single line of text sat above a large empty box. `min-height` is still
+     available for a consumer who wants a uniform row, but nothing defaults to
+     it any more. */
+  --card-min-height: 0px;
   --card-width: 100%;
   --card-max-width: 280px;
 
@@ -14,12 +20,15 @@ slice-card, .slice-card {
   --card-border-color: var(--primary-color-shade);
   --card-accent: var(--primary-color);
   --card-radius: 12px;
-  --card-shadow: none;
-  --card-shadow-hover: none;
+  /* Elevation comes from the theme scale (see the *Themes files).
+     These used to be forced to "none" here, which made the two box-shadow
+     declarations below resolve to nothing on every Card. */
+  --card-shadow: var(--slice-shadow-sm);
+  --card-shadow-hover: var(--slice-shadow-md);
 
   position: relative;
 
-  height: var(--card-height);
+  min-height: var(--card-min-height);
   width: var(--card-width);
   max-width: var(--card-max-width);
 
@@ -86,8 +95,9 @@ slice-card:hover .card-overlay, .slice-card:hover .card-overlay {
 
 slice-card .card-media {
   position: relative;
-  height: 40%;
-  flex-basis: 40%;
+  /* Artwork-sized, not a fixed share of the card. `min-height` keeps a small
+     mark from collapsing, and it is a floor rather than a target. */
+  min-height: 96px;
   flex-grow: 0;
   flex-shrink: 0;
   width: 100%;
@@ -157,7 +167,6 @@ slice-card .card-badge:not(:empty) {
 
 slice-card .card-content {
   position: relative;
-  height: 60%;
   padding: 16px;
   background: var(--card-bg);
   z-index: 3;
@@ -165,6 +174,28 @@ slice-card .card-content {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* Header icon: the small mark beside the title. Distinct from the media
+   banner above the content — a Card can have one, the other, both or neither. */
+slice-card .card-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  border-radius: calc(var(--border-radius-slice) * 1.5);
+  color: var(--primary-color-contrast);
+  background: var(--primary-color);
+}
+
+/* The [hidden] companion is mandatory: the rule above sets display, and any
+   author-level display beats the user-agent [hidden] rule at any specificity
+   (COMPONENT_API_STANDARDS.md §8.2). */
+slice-card .card-header-icon[hidden] {
+  display: none;
 }
 
 slice-card .card-header {

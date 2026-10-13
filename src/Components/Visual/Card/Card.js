@@ -18,9 +18,20 @@ export default class Card extends HTMLElement {
          type: 'string',
          default: null
       },
+      // null, NOT { name: 'sliceJs' }: init() tests `if (this._icon ||
+      // this._image)`, so a truthy default made every Card reserve a media
+      // strip and render the SliceJS logo whether or not one was asked for.
+      // `iconStyle` inside the object is accepted and ignored — it has been a
+      // no-op since Lucide has no filled/outlined variants.
+      //
+      // `icon` is the BANNER: an image or a big mark above the content.
+      headerIcon: {
+         type: ['string', 'object'],
+         default: null
+      },
       icon: {
-         type: 'object',
-         default: { name: 'sliceJs', iconStyle: 'filled' }
+         type: ['string', 'object'],
+         default: null
       },
       customColor: {
          type: 'object',
@@ -80,6 +91,7 @@ export default class Card extends HTMLElement {
 
       this.$card = this;
       this.$title = this.querySelector('.card-title');
+      this.$headerIcon = this.querySelector('.card-header-icon');
       this.$text = this.querySelector('.card-text');
       this.$textTooltip = this.querySelector('.card-text-tooltip');
       this.$media = this.querySelector('.card-media');
@@ -97,12 +109,21 @@ export default class Card extends HTMLElement {
       this.setupVariant();
       this.setupContent();
 
-      if (this._icon || this._image) {
+      // setupMedia() both fills the strip AND hides it when there is nothing
+      // to show. Calling it only when there is media therefore left the strip
+      // at whatever display the CSS defaults to — a bare card kept an empty
+      // band across the top.
+      const mediaName = typeof this._icon === 'string' ? this._icon : this._icon?.name;
+      const hasMedia = !!this._image || !!mediaName;
+      if (hasMedia) {
          await this.setupMedia();
+      } else if (this.$media) {
+         this.$media.style.display = 'none';
       }
 
       await this.setupActions();
-      this.setupToggle();
+      await this.setupToggle();
+      await this.setupHeaderIcon();
       this.setupEventListeners();
       this.applyCustomStyling();
       this.updateState();
@@ -156,10 +177,6 @@ export default class Card extends HTMLElement {
       }
    }
 
-   setupTextTooltip() {
-      return;
-   }
-
    async setupMedia() {
       if (this.$mediaContent) {
          slice.controller.destroyByContainer(this.$mediaContent);   // destroy a prior Icon child (no leak)
@@ -198,15 +215,17 @@ export default class Card extends HTMLElement {
          slice.controller.destroyByContainer(this.$mediaContent);   // destroy a prior Icon child (no leak)
          this.$mediaContent.innerHTML = '';
 
-         if (!this.icon || !this.icon.name) {
+         const iconName = typeof this.icon === 'string' ? this.icon : this.icon?.name;
+         if (!iconName) {
             return;
          }
 
+         // No iconStyle: deprecated no-op, and passing it only earned a
+         // console warning on every card that has a media icon.
          const iconElement = await slice.build('Icon', {
-            name: this.icon.name,
-            iconStyle: this.icon.iconStyle || 'filled',
-            size: '32px',
-            color: 'var(--primary-color)'
+            name: iconName,
+            size: (typeof this.icon === 'object' && this.icon.size) || '32px',
+            color: (typeof this.icon === 'object' && this.icon.color) || 'var(--primary-color)'
          });
 
          if (iconElement) {
@@ -218,6 +237,23 @@ export default class Card extends HTMLElement {
    }
 
    async setupActions() {
+      // Guard with the promise, not a flag: setupActions is async and can be
+      // entered twice in the same tick (init() plus a prop setter). Both would
+      // pass a boolean check, both would clear the container, and both would
+      // then build into it — 4 buttons for 2 actions.
+      if (this._actionsBuilding) {
+         await this._actionsBuilding;
+         return;
+      }
+      this._actionsBuilding = this._buildActions();
+      try {
+         await this._actionsBuilding;
+      } finally {
+         this._actionsBuilding = null;
+      }
+   }
+
+   async _buildActions() {
       slice.controller.destroyByContainer(this.$actions);   // destroy prior Button children (no leak)
       this.$actions.innerHTML = '';
 
@@ -245,11 +281,106 @@ export default class Card extends HTMLElement {
       }
    }
 
-   setupToggle() {
+   /**
+    * The chevron is built here rather than sitting in the template. A
+    * <slice-icon> in another component's template is instantiated racily — it
+    * was sometimes a rendered SVG and sometimes an empty host, depending on
+    * timing — and a child built with slice.build has a lifecycle we can own.
+    */
+   async setupToggle() {
+      await this._destroyToggleIcon();
+
       if (this.details) {
          this.$toggle.style.display = 'flex';
+         this.$toggleIcon = await slice.build('Icon', {
+            sliceId: `${this.sliceId || 'card'}-toggle-icon`,
+            name: 'chevron-down',
+            size: '16px',
+            color: 'currentColor',
+         });
+         if (this.$toggleIcon) this.$toggle.appendChild(this.$toggleIcon);
       } else {
          this.$toggle.style.display = 'none';
+      }
+   }
+
+   /**
+    * Header icon: the small mark beside the title. This is the pattern most
+    * Cards use for an avatar or a glyph, and it is a DIFFERENT slot from
+    * `icon` — that one is the banner above the content.
+    *
+    * Accepts a bare name or { name, size, color }.
+    */
+   async setupHeaderIcon() {
+      await this._destroyHeaderIcon();
+
+      const spec = this._headerIcon;
+      const name = typeof spec === 'string' ? spec : spec?.name;
+      if (!name) {
+         this.$headerIcon.hidden = true;
+         return;
+      }
+
+      const options = typeof spec === 'string' ? {} : spec;
+      this.$headerIcon.hidden = false;
+      // currentColor, NOT --primary-color: the chip is filled with --primary
+      // and sets its own colour to the contrast token. An inline
+      // `color: var(--primary-color)` on the icon beat that and painted a
+      // purple glyph on a purple chip — present in the DOM, invisible on screen.
+      this.$headerIconEl = await slice.build('Icon', {
+         sliceId: `${this.sliceId || 'card'}-header-icon`,
+         name,
+         size: options.size || '20px',
+         color: options.color || 'currentColor',
+      });
+      if (this.$headerIconEl) this.$headerIcon.appendChild(this.$headerIconEl);
+   }
+
+   async _destroyHeaderIcon() {
+      if (!this.$headerIconEl) return;
+      slice.controller.destroyComponent(this.$headerIconEl);
+      this.$headerIconEl = null;
+      if (this.$headerIcon) {
+         this.$headerIcon.hidden = true;
+         this.$headerIcon.replaceChildren();
+      }
+   }
+
+   async _destroyToggleIcon() {
+      if (!this.$toggleIcon) return;
+      slice.controller.destroyComponent(this.$toggleIcon);
+      this.$toggleIcon = null;
+      if (this.$toggle) this.$toggle.replaceChildren();
+   }
+
+   /**
+    * Card builds Icon and Button children. Those are not auto-cascaded on
+    * destroy — a Service among them never would be — so without this the
+    * chevron, the media icon and every action button stayed registered in
+    * activeComponents for the life of the page.
+    */
+   /** Destroy every child this Card built: the media icon and the action buttons. */
+   _destroyBuilt() {
+      slice.controller.destroyByContainer(this.$mediaContent);
+      slice.controller.destroyByContainer(this.$actions);
+      this._destroyToggleIcon();
+      this._destroyHeaderIcon();
+   }
+
+   beforeDestroy() {
+      this._destroyBuilt();
+
+      if (this._toggleListener) {
+         this.$toggle?.removeEventListener('click', this._toggleListener);
+         this._toggleListener = null;
+      }
+      if (this._cardClickListener) {
+         this.removeEventListener('click', this._cardClickListener);
+         this._cardClickListener = null;
+      }
+      if (this._keydownListener) {
+         this.removeEventListener('keydown', this._keydownListener);
+         this._keydownListener = null;
       }
    }
 
@@ -372,6 +503,9 @@ export default class Card extends HTMLElement {
       this._details = value;
       if (this.$details) {
          this.setupContent();
+         // Fire-and-forget: a setter cannot await, and making it async would
+         // change when callers observe the prop. The chevron appears a tick
+         // later, which is what the framework's own prop flow already does.
          this.setupToggle();
       }
    }
@@ -437,6 +571,18 @@ export default class Card extends HTMLElement {
       if (this.$card) {
          this.applyCustomStyling();
       }
+   }
+
+   /**
+    * Header icon. The setter is not optional: `setComponentProps` nulls the
+    * derived `_headerIcon` for every declared prop and then assigns to the
+    * PROPERTY, so without this the value never reaches the field and the slot
+    * silently stays hidden.
+    */
+   get headerIcon() { return this._headerIcon; }
+   set headerIcon(value) {
+      this._headerIcon = value ?? null;
+      if (this._initialized) this.setupHeaderIcon();
    }
 
    get icon() { return this._icon; }
