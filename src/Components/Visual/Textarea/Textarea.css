@@ -2,11 +2,16 @@
 
 slice-textarea {
   display: block;
+  /* Padding is tokenised because the floating label's rest position is derived
+     from it (see `.slice_textarea_placeholder`). A dense consumer can compact
+     the field by overriding these two instead of desyncing the label. */
+  --slice-textarea-pad-y: 10px;
+  --slice-textarea-pad-x: 10px;
 }
 
 slice-textarea .slice_textarea {
   display: flex;
-  padding: 10px;
+  padding: var(--slice-textarea-pad-y) var(--slice-textarea-pad-x);
   max-width: 100%;
   border-radius: var(--border-radius-slice);
   font-family: var(--font-family);
@@ -30,6 +35,7 @@ slice-textarea .textarea_area {
   background: none;
   outline: none;
   border: none;
+  padding: 0;
   resize: vertical;
   font-family: inherit;
   font-size: inherit;
@@ -39,24 +45,30 @@ slice-textarea .textarea_area {
 slice-textarea .slice_textarea_placeholder {
   color: var(--primary-color);
   position: absolute;
-  top: 14px;
-  left: 10px;
-  transition: all 0.2s ease;
+  /* A textarea has no vertical centre to hang the label from (unlike Input),
+     so at rest it sits centred on the FIRST line box: pad-y + 4px. */
+  top: calc(var(--slice-textarea-pad-y) + 4px);
+  left: var(--slice-textarea-pad-x);
+  transition: top 0.2s ease, transform 0.2s ease;
   user-select: none;
   cursor: text;
   pointer-events: none;
 }
 
-/* Floated label — sits above the top border once the field has focus or a value. */
+/* Floated label — sits above the field edge once it has focus or a value.
+
+   Deliberately NO background patch. Painting the label in the page background to
+   "notch" the top border only works when the field sits directly on the page:
+   on a Card, a Modal or a table row the patch is the wrong colour and shows up
+   as a rectangle cutting through the border. Input had no patch and looked
+   right, so both fields now use that: the border runs continuously underneath
+   and the label simply sits above it. */
 slice-textarea .slice_textarea_value,
 slice-textarea .slice_textarea_focus {
-  top: -0.55rem;
-  left: 8px;
+  top: -0.5rem;
   transform: scale(0.8);
   transform-origin: left center;
-  background-color: var(--primary-background-color);
-  padding: 0 4px;
-  transition: all 0.2s ease;
+  transition: top 0.2s ease, transform 0.2s ease;
 }
 
 slice-textarea .required,
@@ -94,5 +106,13 @@ slice-textarea .disabled label {
 
 slice-textarea .error {
   --primary-color: var(--danger-color);
-  animation: slice_textarea_shake 0.5s infinite;
+  animation: slice_textarea_shake 0.5s;
+}
+
+/* An error shake is decorative: run it once, and never at all when the user has
+   asked the system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-textarea .error {
+    animation: none;
+  }
 }

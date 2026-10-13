@@ -68,16 +68,58 @@ export default class Textarea extends HTMLElement {
          : { minLength, maxLength };
    }
 
+   // `init()` runs during `slice.build()`, BEFORE the parent appends the node,
+   // so the first real measurement happens once the field is attached.
+   connectedCallback() {
+      if (this._autoGrow) this.grow();
+   }
+
+   beforeDestroy() {
+      this._growObserver?.disconnect();
+      this._growObserver = null;
+   }
+
    grow() {
+      // A detached (or display:none) field has no layout, so scrollHeight is 0
+      // there. Bail instead of writing a 0px height that collapses the field.
+      if (!this.isConnected) return;
+      this._observeGrow();
       // Reset to measure the true content height, then match it.
+      const previous = this.$textarea.style.height;
       this.$textarea.style.height = 'auto';
-      this.$textarea.style.height = `${this.$textarea.scrollHeight}px`;
+      const h = this.$textarea.scrollHeight;
+      if (!h) {
+         // Hidden field: keep the last good height and re-measure when visible.
+         this.$textarea.style.height = previous;
+         this._growPending = true;
+         return;
+      }
+      this._growPending = false;
+      this.$textarea.style.height = `${h}px`;
+   }
+
+   // Re-measure when the field's width changes (text re-wraps) or when it comes
+   // back from `display:none` (its size goes from 0 to something). The observer
+   // only watches the WIDTH so it ignores the height changes grow() itself causes.
+   _observeGrow() {
+      if (this._growObserver || typeof ResizeObserver === 'undefined') return;
+      this._growWidth = 0;
+      this._growObserver = new ResizeObserver((entries) => {
+         const width = entries[0]?.contentRect?.width ?? 0;
+         if (!width) return;
+         if (width !== this._growWidth || this._growPending) {
+            this._growWidth = width;
+            this.grow();
+         }
+      });
+      this._growObserver.observe(this.$textarea);
    }
 
    updateState() {
       if (this.$textarea.value !== '') {
          this.$placeholder.classList.add('slice_textarea_value');
-         this.triggerSuccess();
+         if (this._validator) this.validateValue();
+         else this.triggerSuccess();
       } else {
          this.$placeholder.classList.remove('slice_textarea_value');
          if (this.required) this.triggerError();

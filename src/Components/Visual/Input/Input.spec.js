@@ -76,6 +76,60 @@ test.describe('Input', () => {
       await expect(c.locator('.slice_input_placeholder')).toHaveClass(/slice_input_value/);
    });
 
+   // Regression: email used to be validated only when a consumer called
+   // validateValue() by hand, so a bad address showed no error while typing.
+   test('an invalid email shows the error state while typing', async ({ mount }) => {
+      const c = await mount('Input', { type: 'email', placeholder: 'Email' });
+      const input = c.locator('input');
+
+      await input.fill('not-an-email');
+      await expect(c.locator('.slice_input')).toHaveClass(/\berror\b/);
+
+      await input.fill('someone@example.com');
+      await expect(c.locator('.slice_input')).not.toHaveClass(/\berror\b/);
+   });
+
+   // Regression: emptying a field that had failed left the stale error classes
+   // behind, so the field kept showing as invalid until a manual re-check.
+   test('clearing a filled field drops the stale error state', async ({ mount }) => {
+      const c = await mount('Input', { type: 'email', placeholder: 'Email' });
+      const input = c.locator('input');
+
+      await input.fill('not-an-email');
+      await expect(c.locator('.slice_input')).toHaveClass(/\berror\b/);
+
+      await input.fill('');
+      await expect(c.locator('.slice_input')).not.toHaveClass(/\berror\b/);
+   });
+
+   test('the secret toggle swaps its glyph from aria-pressed, not text', async ({ mount }) => {
+      const c = await mount('Input', { type: 'password', secret: true });
+      const eye = c.locator('.slice_eye_icon');
+      await expect(eye).toHaveAttribute('aria-pressed', 'false');
+      await expect(eye.locator('.eye-open')).toBeVisible();
+      await expect(eye.locator('.eye-off')).toBeHidden();
+
+      await eye.click();
+      await expect(eye).toHaveAttribute('aria-pressed', 'true');
+      await expect(eye.locator('.eye-off')).toBeVisible();
+      await expect(c.locator('input')).toHaveAttribute('type', 'text');
+   });
+
+   test('onChange fires with the new value on every input', async ({ mount }) => {
+      const c = await mount('Input', { placeholder: 'Name' }, { spies: ['onChange'] });
+      await c.locator('input').fill('Ada');
+      await expect.poll(() => c.events('onChange')).toBeGreaterThan(0);
+      const args = await c.eventArgs('onChange');
+      expect(args.at(-1)).toEqual(['Ada']);
+   });
+
+   test('onChange can be cleared with null', async ({ mount }) => {
+      const c = await mount('Input', {}, { spies: ['onChange'] });
+      await c.component.evaluate((el) => { el.onChange = null; });
+      await c.locator('input').fill('Ada');
+      expect(await c.events('onChange')).toBe(0);
+   });
+
    test('visual: input with placeholder @visual', async ({ mount }) => {
       const c = await mount('Input', { placeholder: 'Email' });
       await expect(c.component).toHaveScreenshot('input-default.png');

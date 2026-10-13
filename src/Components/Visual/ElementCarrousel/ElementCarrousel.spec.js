@@ -92,4 +92,66 @@ test.describe('ElementCarrousel', () => {
       const c = await mount('ElementCarrousel', { elements: ITEMS });
       await expect(c.component).toHaveScreenshot('carrousel-three.png');
    });
+
+   test('a Slice component dropped from elements is DESTROYED, not just detached', async ({ mount }) => {
+      const c = await mount('ElementCarrousel', { sliceId: 'car-under-test' });
+
+      const out = await c.component.evaluate(async (el) => {
+         const badge = await slice.build('Badge', { sliceId: 'car-badge', label: 'hi' });
+         const plain = document.createElement('div');
+         plain.textContent = 'plain';
+
+         el.elements = [badge, plain];
+         const before = slice.controller.activeComponents.has('car-badge');
+
+         // The badge leaves the carousel; the plain node stays.
+         el.elements = [plain];
+
+         return {
+            before,
+            after: slice.controller.activeComponents.has('car-badge'),
+            slides: el.slides.length,
+         };
+      });
+
+      // innerHTML = '' would have left it registered for the life of the page.
+      expect(out.before).toBe(true);
+      expect(out.after).toBe(false);
+      expect(out.slides).toBe(1);
+      expect(c.pageErrors()).toEqual([]);
+   });
+
+   test('re-rendering the SAME elements does not destroy and rebuild them', async ({ mount }) => {
+      const c = await mount('ElementCarrousel', { sliceId: 'car-same' });
+
+      const out = await c.component.evaluate(async (el) => {
+         const badge = await slice.build('Badge', { sliceId: 'car-badge-2', label: 'hi' });
+         el.elements = [badge];
+         el.elements = [badge];
+
+         return {
+            stillRegistered: slice.controller.activeComponents.has('car-badge-2'),
+            slides: el.slides.length,
+         };
+      });
+
+      expect(out.stillRegistered).toBe(true);
+      expect(out.slides).toBe(1);
+   });
+
+   test('destroying the carousel destroys the components it was showing', async ({ mount }) => {
+      const c = await mount('ElementCarrousel', { sliceId: 'car-destroy-me' });
+
+      const out = await c.component.evaluate(async (el) => {
+         const badge = await slice.build('Badge', { sliceId: 'car-badge-3', label: 'hi' });
+         el.elements = [badge];
+         const before = slice.controller.activeComponents.has('car-badge-3');
+
+         slice.controller.destroyComponent('car-destroy-me');
+         return { before, after: slice.controller.activeComponents.has('car-badge-3') };
+      });
+
+      expect(out.before).toBe(true);
+      expect(out.after).toBe(false);
+   });
 });

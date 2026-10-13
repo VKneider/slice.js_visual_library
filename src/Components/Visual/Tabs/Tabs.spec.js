@@ -87,4 +87,31 @@ test.describe('Tabs', () => {
       const c = await mount('Tabs', { items: ITEMS, activeTab: 'two' });
       await expect(c.component).toHaveScreenshot('tabs-three.png');
    });
+
+   test('variant defaults to primary and paints its modifier class', async ({ mount }) => {
+      const c = await mount('Tabs', { items: ITEMS });
+      await expect(c.locator('.slice_tabs_list')).toHaveClass(/variant-primary/);
+   });
+
+   test('variant:"secondary" switches the modifier class', async ({ mount }) => {
+      const c = await mount('Tabs', { items: ITEMS, variant: 'secondary' });
+      const list = c.locator('.slice_tabs_list');
+      await expect(list).toHaveClass(/variant-secondary/);
+      await expect(list).not.toHaveClass(/variant-primary/);
+   });
+
+   test('an unknown variant falls back to primary', async ({ mount }) => {
+      const c = await mount('Tabs', { items: ITEMS, variant: 'tertiary' });
+      await expect(c.locator('.slice_tabs_list')).toHaveClass(/variant-primary/);
+   });
+
+   test('the panels container collapses when no item carries a panel', async ({ mount }) => {
+      const withPanel = await mount('Tabs', {
+         items: [{ id: 'a', label: 'A', panel: 'hello' }],
+      });
+      await expect(withPanel.locator('.slice_tabs_panels')).toBeVisible();
+
+      const bare = await mount('Tabs', { items: [{ id: 'a', label: 'A' }] });
+      await expect(bare.locator('.slice_tabs_panels')).toBeHidden();
+   });
 });

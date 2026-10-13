@@ -75,4 +75,53 @@ test.describe('Form', () => {
     });
     expect(after).toEqual({ name: 'initial' });
   });
+
+   test('two schema changes in one tick do not interleave into a duplicated form', async ({ mount }) => {
+      const c = await mount('Form', { schema: [{ component: 'Input', name: 'a', label: 'A' }], sliceId: 'form-under-test' });
+
+      const out = await c.component.evaluate(async (el) => {
+         const fields = () => el.querySelectorAll('.slice-form__fields > *').length;
+
+         // Both fire synchronously with no await between them. Without the
+         // in-flight guard both pass a boolean check and interleave their awaits.
+         el.submitText = 'One';
+         el.schema = [{ component: 'Input', name: 'a', label: 'A' }, { component: 'Input', name: 'b', label: 'B' }];
+         el.schema = [{ component: 'Input', name: 'c', label: 'C' }];
+         await el._render();
+
+         return {
+            fields: fields(),
+            inputs: el.querySelectorAll('.slice-form__fields input').length,
+            built: el._built.length,
+         };
+      });
+
+      // One render's worth of fields, from the LAST schema — not a merge of all
+      // three, which is what interleaving produced.
+      expect(out.fields).toBe(1);
+      // Three schema changes, each with fields: interleaving would leave
+      // more than one input behind.
+      expect(out.inputs).toBe(1);
+      // Every built node is accounted for: no orphan left behind by the race.
+      expect(out.built).toBe(2); // one field + one submit button
+      expect(c.pageErrors()).toEqual([]);
+   });
+
+   test('destroying a form waits out an in-flight render', async ({ mount }) => {
+      const c = await mount('Form', { schema: [{ component: 'Input', name: 'a', label: 'A' }], sliceId: 'form-destroy-me' });
+
+      const out = await c.component.evaluate(async (el) => {
+         el.schema = [{ component: 'Input', name: 'b', label: 'B' }];
+         el.schema = [{ component: 'Input', name: 'c', label: 'C' }];
+         const rendering = el._rendering;
+         slice.controller.destroyComponent('form-destroy-me');
+         await rendering.catch(() => {});
+         return { stillRegistered: slice.controller.activeComponents.has('form-destroy-me') };
+      });
+
+      // Without the await in beforeDestroy, the render would keep building
+      // fields into a detached form.
+      expect(out.stillRegistered).toBe(false);
+      expect(c.pageErrors()).toEqual([]);
+   });
 });

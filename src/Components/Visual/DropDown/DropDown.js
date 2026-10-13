@@ -89,6 +89,15 @@ export default class DropDown extends HTMLElement {
          const href = element?.href || element?.path || '#';
 
          e.addEventListener('click', async (event) => {
+            // An option carrying `callback` is an ACTION, not a destination. It
+            // wins over `path`/`href`: it is checked first and returns early, so
+            // an item with both never navigates.
+            if (typeof element?.callback === 'function') {
+               event.preventDefault();
+               await element.callback();
+               this.closeDrop();
+               return;
+            }
             if (element?.path && slice?.router?.navigate) {
                event.preventDefault();
                await slice.router.navigate(element.path);

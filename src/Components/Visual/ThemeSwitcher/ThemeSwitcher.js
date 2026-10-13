@@ -3,14 +3,23 @@ export default class ThemeSwitcher extends HTMLElement {
       themes: { type: 'array', default: ['LIGHT', 'DARK'] },
       variant: { type: 'string', default: 'button', allowedValues: ['button', 'menu-item'] },
       label: { type: 'string', default: 'Theme' },
+      // Per-theme presentation: `{ LIGHT: { label: 'Light', icon: 'sun' } }`.
+      // Opt-in and empty by default, so the raw registered theme name keeps
+      // showing unless the consumer supplies names — no surprise rename.
+      display: { type: 'object', default: null },
       onChange: { type: 'function', default: null },
    };
+
+   // Shown when the current theme has no entry in `display`, so a custom theme
+   // never renders an empty control.
+   static FALLBACK_ICON = 'palette';
 
    constructor(props) {
       super();
       slice.attachTemplate(this);
 
       this.$btn = this.querySelector('.theme-switcher');
+      this.$iconSlot = this.querySelector('.theme-switcher__icon');
       this.$label = this.querySelector('.theme-switcher__label');
       this.$value = this.querySelector('.theme-switcher__value');
 
@@ -28,6 +37,10 @@ export default class ThemeSwitcher extends HTMLElement {
 
    beforeDestroy() {
       document.removeEventListener('themeChanged', this._onThemeChanged);
+      if (this.$icon) {
+         slice.controller.destroyComponent(this.$icon);
+         this.$icon = null;
+      }
    }
 
    /** Advance to the next theme in `themes`, wrapping around at the end. */
@@ -60,7 +73,43 @@ export default class ThemeSwitcher extends HTMLElement {
 
    _sync(name) {
       const current = name || this._currentTheme();
-      if (this.$value) this.$value.textContent = current;
+      const entry = this._display?.[current];
+      // An unregistered theme falls back to its raw name, so a custom theme is
+      // still readable instead of blank.
+      const text = entry?.label || current;
+      if (this.$value) this.$value.textContent = text;
+
+      const iconName = entry?.icon || ThemeSwitcher.FALLBACK_ICON;
+      this._renderIcon(iconName);
+   }
+
+   async _renderIcon(name) {
+      if (!this.$iconSlot) return;
+      if (this._iconName === name && this.$icon) return;
+      this._iconName = name;
+      if (this.$icon) {
+         slice.controller.destroyComponent(this.$icon);
+         this.$icon = null;
+      }
+      try {
+         const node = await slice.build('Icon', { name, size: 'medium', color: 'currentColor' });
+         if (!this.isConnected || this._iconName !== name) {
+            slice.controller.destroyComponent(node);   // stale build, or we are gone
+            return;
+         }
+         this.$icon = node;
+         this.$iconSlot.replaceChildren(node);
+      } catch {
+         // A name the Icon font does not know must not break the control.
+      }
+   }
+
+   set display(value) {
+      this._display = value && typeof value === 'object' ? value : null;
+      this._sync();
+   }
+   get display() {
+      return this._display;
    }
 
    set themes(value) {

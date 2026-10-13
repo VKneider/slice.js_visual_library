@@ -24,6 +24,15 @@ export default class Tabs extends HTMLElement {
       default: '',
       required: false
     },
+    // Visual density of the tab strip. `primary` is the default underline
+    // treatment; `secondary` is the segmented-control look for switching views
+    // inside one screen.
+    variant: {
+      type: 'string',
+      default: 'primary',
+      required: false,
+      allowedValues: ['primary', 'secondary']
+    },
     onChange: {
       type: 'function',
       default: null,
@@ -70,6 +79,19 @@ export default class Tabs extends HTMLElement {
   set activeTab(value) {
     this._activeTab = typeof value === 'string' ? value : '';
     this.updateActiveButton();
+  }
+
+  get variant() {
+    return this._variant;
+  }
+
+  set variant(value) {
+    const next = value === 'secondary' ? 'secondary' : 'primary';
+    if (this._variant) {
+      this.$list.classList.remove('variant-' + this._variant);
+    }
+    this._variant = next;
+    if (this.$list) this.$list.classList.add('variant-' + next);
   }
 
   get onChange() {

@@ -177,9 +177,14 @@ export default class Route extends HTMLElement {
    }
 
    /**
-    * Cleanup cuando el componente se destruye
+    * Cleanup cuando el componente se destruye.
+    *
+    * Named beforeDestroy, NOT destroy: the framework only ever calls
+    * `beforeDestroy()`, so a method called `destroy()` is dead code that reads
+    * like it works. Because `Route.componentCache` is a module-level object,
+    * never clearing it leaked the cached child out of the registry entirely.
     */
-   destroy() {
+   beforeDestroy() {
       this.removeComponent();
    }
 }

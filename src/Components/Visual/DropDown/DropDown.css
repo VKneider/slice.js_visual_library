@@ -47,7 +47,11 @@ slice-dropdown .caret {
 slice-dropdown .slice_dropbox {
   position: absolute;
   top: calc(100% + 6px);
-  left: 0;
+  /* Right-aligned by default: the common triggers are end-anchored (avatar
+     menus, a button at the right of a toolbar), and a left-anchored box there
+     hangs off the screen. Flipped back on narrow viewports. */
+  right: 0;
+  left: auto;
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -57,12 +61,13 @@ slice-dropdown .slice_dropbox {
   padding: 4px;
   list-style: none;
   color: var(--font-primary-color);
-  background-color: var(--secondary-background-color);
-  border: var(--slice-border) solid color-mix(in srgb, var(--primary-color) 32%, transparent);
+  /* Same tokens as Select and every other floating surface: one concept, one
+     look. This used to be --secondary-background-color (light BLUE, in a purple
+     theme) with a hand-rolled black shadow. */
+  background-color: var(--slice-surface-raised);
+  border: var(--slice-border) solid var(--slice-border-raised);
   border-radius: var(--border-radius-slice);
-  box-shadow:
-    0 14px 30px -10px rgba(0, 0, 0, 0.45),
-    0 2px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--slice-shadow-md);
   /* closed state */
   visibility: hidden;
   opacity: 0;
@@ -103,9 +108,11 @@ slice-dropdown .slice_dropbox div a {
   transition: background-color 0.18s ease, color 0.18s ease;
 }
 
+/* A tinted wash, not a solid fill: a full-saturation block per row is
+   the loudest thing on the page. Matches Select's hover exactly. */
 slice-dropdown .slice_dropbox div a:hover {
-  color: var(--primary-color-contrast);
-  background-color: var(--primary-color);
+  color: var(--primary-color);
+  background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
 }
 
 slice-dropdown .slice_dropbox::-webkit-scrollbar {
@@ -115,4 +122,27 @@ slice-dropdown .slice_dropbox::-webkit-scrollbar {
 slice-dropdown .slice_dropbox::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--primary-color) 35%, transparent);
   border-radius: 999px;
+}
+
+/* Back to left-anchored on narrow screens, where a right-anchored box can run
+   off the opposite edge. */
+@media (max-width: 760px) {
+  slice-dropdown .slice_dropbox {
+    right: auto;
+    left: 0;
+  }
+}
+
+/* The open/close slide is decorative: never animate it when the user asked the
+   system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-dropdown .slice_dropbox,
+  slice-dropdown .slice_dropbox_open,
+  slice-dropdown .slice_dropbox div a {
+    transition: none;
+  }
+
+  slice-dropdown .slice_dropbox {
+    transform: none;
+  }
 }

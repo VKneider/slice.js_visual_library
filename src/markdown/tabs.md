@@ -23,6 +23,8 @@ Use it for dashboards, settings pages, reporting workspaces, and any area where 
 - Selection can be user-driven (click) or controlled from external state.
 - Panel content should stay focused and lightweight to keep context switches responsive.
 - Pair tabs with concise labels and stable ordering to preserve orientation.
+- `variant` picks the strip treatment: `primary` (default, underline) for top-level navigation, `secondary` (segmented control) for switching views inside one screen.
+- The panels container collapses itself when no item carries a `panel`, so a tab strip used purely as navigation adds no dead padding.
 
 ## Advanced use cases
 - Settings workspaces where each tab owns a form section and independent save flow.
@@ -188,6 +190,29 @@ return tabs;
 ## Best Practices
 :::tip
 Use tabs for sibling content groups only. If users must complete a sequence, prefer a stepper or wizard pattern.
+:::
+
+## Variants
+`primary` (the default) is the underline strip for top-level navigation. `variant: 'secondary'` is a
+segmented control — the active tab becomes a filled pill — for switching between views of the same
+screen. Same items, same behaviour, different affordance.
+
+:::script label="Variants" expected="an underline tab strip above a segmented control"
+const strip = document.createElement('div');
+strip.style.cssText = 'display:flex;flex-direction:column;gap:1rem;';
+
+const items = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'activity', label: 'Activity' },
+  { id: 'settings', label: 'Settings' }
+];
+
+const top = await slice.build('Tabs', { items, activeTab: 'overview' });
+const inner = await slice.build('Tabs', { items, activeTab: 'overview', variant: 'secondary' });
+
+strip.appendChild(top);
+strip.appendChild(inner);
+return strip;
 :::
 
 ## Pitfalls

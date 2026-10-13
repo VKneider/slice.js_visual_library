@@ -14,9 +14,11 @@ slice-button .slice_button_value {
 }
 
 slice-button .slice_button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Keeps the icon from colliding with the label when both are present. */
+  gap: 6px;
   cursor: pointer;
   overflow: hidden;
   position: relative;
@@ -33,8 +35,8 @@ slice-button .slice_button {
 }
 
 slice-button .slice_button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 45%, transparent);
+  outline: 2px solid var(--primary-color);
+  outline-offset: 3px;
 }
 
 slice-button .slice_button:after {
@@ -91,6 +93,31 @@ slice-button .slice_button--soft {
   border-color: transparent;
 }
 
+/* Destructive actions. Derives from the danger tokens so it follows the theme. */
+slice-button .slice_button--danger {
+  background-color: var(--danger-color);
+  color: var(--danger-contrast);
+  border-color: var(--danger-color);
+}
+
+slice-button .slice_button--danger:after {
+  background: color-mix(in srgb, var(--danger-contrast) 32%, transparent);
+}
+
+/* ------------------------------------------------------------------ sizes
+   `md` is the base rule above; `sm` trims padding, type and radius so a row
+   of actions fits a dense toolbar or a table row. */
+
+slice-button .slice_button--sm {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: calc(var(--border-radius-slice) * 0.7);
+}
+
+slice-button .slice_button--sm:active {
+  transform: translateY(2px);
+}
+
 /* Hover tint for the non-filled variants */
 slice-button .slice_button--outlined:hover,
 slice-button .slice_button--ghost:hover {
@@ -107,4 +134,19 @@ slice-button .slice_button--outlined:after,
 slice-button .slice_button--ghost:after,
 slice-button .slice_button--soft:after {
   background: color-mix(in srgb, var(--primary-color) 22%, transparent);
+}
+
+/* The press flash is decorative: never animate it when the user asked the
+   system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-button .slice_button,
+  slice-button .slice_button:after {
+    transition: none;
+    animation: none;
+  }
+
+  slice-button .slice_button:active,
+  slice-button .slice_button--sm:active {
+    transform: none;
+  }
 }

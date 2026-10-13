@@ -36,8 +36,7 @@ slice-bottom-nav .slice_bottomnav_bar {
   border: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
   border-radius: 999px;
   box-shadow:
-    0 16px 38px -12px rgba(0, 0, 0, 0.5),
-    0 3px 10px rgba(0, 0, 0, 0.22),
+    var(--slice-shadow-lg),
     inset 0 1px 0 color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
   animation: slice_bottomnav_rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }

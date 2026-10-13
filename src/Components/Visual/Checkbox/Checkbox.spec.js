@@ -67,4 +67,34 @@ test.describe('Checkbox', () => {
       const c = await mount('Checkbox', { label: 'Remember me', checked: true });
       await expect(c.component).toHaveScreenshot('checkbox-default.png');
    });
+
+   // The real input is clipped to 0x0 behind the styled .checkmark, so without an
+   // explicit ring a keyboard user had no visible focus indicator at all.
+   test('keyboard focus is visible on the styled checkmark', async ({ mount, page }) => {
+      const c = await mount('Checkbox', { label: 'Remember me' });
+      await c.locator('input[type="checkbox"]').focus();
+      const ring = await c.locator('.checkmark').evaluate((el) => {
+         const cs = getComputedStyle(el);
+         return { width: cs.outlineWidth, style: cs.outlineStyle };
+      });
+      expect(ring.style).not.toBe('none');
+      expect(parseFloat(ring.width)).toBeGreaterThan(0);
+      const focused = await page.evaluate(() => document.activeElement?.tagName === 'INPUT');
+      expect(focused).toBe(true);
+   });
+
+   test('onChange fires with the new checked state', async ({ mount }) => {
+      const c = await mount('Checkbox', { checked: false }, { spies: ['onChange'] });
+      await c.locator('.slice_checkbox label').click();
+      await expect.poll(() => c.events('onChange')).toBeGreaterThan(0);
+      const args = await c.eventArgs('onChange');
+      expect(args.at(-1)).toEqual([true]);
+   });
+
+   test('onChange can be cleared with null', async ({ mount }) => {
+      const c = await mount('Checkbox', { checked: false }, { spies: ['onChange'] });
+      await c.component.evaluate((el) => { el.onChange = null; });
+      await c.locator('.slice_checkbox label').click();
+      expect(await c.events('onChange')).toBe(0);
+   });
 });

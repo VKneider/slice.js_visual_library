@@ -16,6 +16,19 @@ slice-theme-switcher .theme-switcher:focus-visible {
   outline-offset: 2px;
 }
 
+/* Icon slot: a small chip so the glyph reads as a control, not as stray art. */
+slice-theme-switcher .theme-switcher__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
 /* Button variant — compact pill for topbars and toolbars. */
 slice-theme-switcher.theme-switcher--button .theme-switcher {
   gap: 6px;
@@ -62,4 +75,22 @@ slice-theme-switcher .theme-switcher__value {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--primary-color);
+}
+
+slice-theme-switcher.theme-switcher--menu .theme-switcher:hover .theme-switcher__icon {
+  transform: rotate(-14deg) scale(1.08);
+}
+
+/* The icon spin is decorative: never animate it when the user asked the system
+   to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-theme-switcher .theme-switcher__icon,
+  slice-theme-switcher.theme-switcher--button .theme-switcher,
+  slice-theme-switcher.theme-switcher--menu .theme-switcher {
+    transition: none;
+  }
+
+  slice-theme-switcher.theme-switcher--menu .theme-switcher:hover .theme-switcher__icon {
+    transform: none;
+  }
 }

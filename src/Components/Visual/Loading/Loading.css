@@ -1,5 +1,8 @@
 slice-loading {
   display: block;
+  /* Own stacking context so an ancestor filter/transform/opacity cannot
+     distort the overlay, and nothing underneath can paint over it. */
+  isolation: isolate;
 }
 
 /* Container principal - ahora sin position hardcoded */
@@ -9,10 +12,13 @@ slice-loading .full-screen {
   /* position se maneja desde JavaScript */
   inset: 0; /* top: 0, right: 0, bottom: 0, left: 0 */
   background: rgba(90, 90, 90, 0.5);
-  z-index: 500;
   display: flex;
   justify-content: center;
   align-items: center;
+  /* position is set inline by JS; `relative` keeps the absolutely-positioned
+     ::before decorations anchored to the overlay rather than the page. */
+  position: relative;
+  overflow: hidden;
 }
 
 slice-loading .pizza-container {
@@ -50,11 +56,22 @@ slice-loading .pizza-container {
 }
 
 slice-loading .slice_logo {
-  animation: slice_loading_spin 0.1s linear infinite;
+  animation: slice_loading_spin 0.9s linear infinite;
   height: 50px;
   width: 50px;
+}
 
-  path {
-    fill: var(--primary-color);
+/* Flat selector: a bare nested `path { }` inside the rule above is not valid
+   plain CSS here, so the logo fill silently never applied. */
+slice-loading .slice_logo path {
+  fill: var(--primary-color);
+}
+
+/* The spinner is decorative and runs forever — never animate it when the user
+   has asked the system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-loading .slice_logo,
+  slice-loading .pizza-container {
+    animation: none !important;
   }
 }

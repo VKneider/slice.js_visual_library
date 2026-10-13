@@ -39,6 +39,12 @@ export default class Form extends HTMLElement {
     this._fields = []; // [{ name, instance, valueProp, config, $error, $field }]
     this._built = []; // every slice.build instance (fields + buttons) to destroy
     this._ready = false;
+    // In-flight render guard. The setters fire synchronously, so two schema
+    // changes in one tick both used to pass a boolean check and interleave their
+    // awaits — each destroying the other's half-built fields and leaving a
+    // duplicated form. Guarding with the PROMISE closes the gap: there is no
+    // await between the check and the assignment.
+    this._rendering = null;
 
     this._handleSubmit = this._handleSubmit.bind(this);
 
@@ -71,8 +77,11 @@ export default class Form extends HTMLElement {
     this._ready = true;
   }
 
-  beforeDestroy() {
+  async beforeDestroy() {
     this.$form.removeEventListener('submit', this._handleSubmit);
+    // An in-flight render would otherwise keep building fields into a detached
+    // form and push them onto _built after the teardown below.
+    await (this._rendering || Promise.resolve()).catch(() => {});
     // Children built with slice.build are not auto-cascaded on destroy — release
     // them explicitly (a Service among them would never be cleaned otherwise).
     this._destroyBuilt();
@@ -151,7 +160,21 @@ export default class Form extends HTMLElement {
   }
 
   // --- rendering ---
-  async _render() {
+  /**
+   * Queue a render. Concurrent callers chain onto the in-flight one instead of
+   * racing it, and a rejection does not poison the queue for the next render.
+   */
+  _render() {
+    const run = () => this._renderOnce();
+    const previous = this._rendering || Promise.resolve();
+    const current = previous.then(run, run);
+    this._rendering = current;
+    return current.finally(() => {
+      if (this._rendering === current) this._rendering = null;
+    });
+  }
+
+  async _renderOnce() {
     this._destroyBuilt();
     this._fields = [];
     this.$fields.innerHTML = '';

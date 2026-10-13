@@ -5,7 +5,7 @@ navLabel: DragDropService
 section: Services
 group: Interaction
 order: 60
-description: Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder.
+description: Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder, with full touch support.
 component: DragDropServiceDocumentation
 generate: true
 tags: [drag, drop, resize, dnd, sortable, reorder, service]
@@ -23,6 +23,25 @@ const dnd = await slice.build('DragDropService', { singleton: true });
 
 Because it is a singleton, build it once (anywhere) and recover the same instance elsewhere with `slice.getComponent('DragDropService')` — no need to thread a reference around.
 
+:::warning
+**This component ships TWO files, and `slice get` only delivers one.**
+
+```bash
+slice get DragDropService
+ls src/Components/Service/DragDropService/   # expect DragDropService.js AND dndGeometry.js
+```
+
+`DragDropService.js` imports `./dndGeometry.js`, a sibling module holding the resize maths. The
+CLI follows imports between *registered components*, but a bare `./relative.js` inside a component
+folder is not fetched — the download fails silently and the service throws at runtime with
+`dndGeometry is not defined`.
+
+If it is missing after `slice get`, copy it from the registry repo. This is the only component in
+the library with a sibling module, and the reason is deliberate: the geometry maths was split out so
+it could be tested in plain Node (`DragDropService.test.js` runs under `node --test`, with no
+browser).
+:::
+
 ## Draggable
 
 Make an element follow the pointer with a semi-transparent ghost.
@@ -33,7 +52,8 @@ dnd.makeDraggable(node, {
   axis: 'both',           // 'x', 'y', or 'both'
   ghost: true,            // show a ghost clone
   threshold: 0,           // px before activating
-  autoScroll: true,       // scroll the nearest scrollable ancestor near its edges
+  touchDelay: 200,        // ms of finger stillness before a TOUCH drag arms (mouse/pen unaffected)
+  autoScroll: true,       // scroll scrollable ancestors near their edges, chaining outward
   data: { id: 1 },
   onDragStart(node, event, data),
   onDrag(node, event, data, { dx, dy }),
@@ -226,11 +246,15 @@ dnd.makeSortable(container, {
   items: ':scope > *',     // selector for sortable items
   axis: 'y',               // 'x' or 'y'
   autoScroll: true,        // scroll a long/overflowing list while dragging near its edges
+  touchDelay: 200,         // ms of finger stillness before a TOUCH sort arms
   onReorder: ({ fromIndex, toIndex, item, container }) => {
     console.log(`Moved from ${fromIndex} to ${toIndex}`);
   }
 });
 ```
+
+`onReorder` fires **only when the order actually changed**. A gesture the browser interrupts with
+`pointercancel` puts the item back where it started and reports nothing.
 
 :::script label="Sortable list" expected="drag items to reorder the list"
 const dnd = await slice.build('DragDropService', { singleton: true });
@@ -272,6 +296,90 @@ wrapper.appendChild(note);
 mount(wrapper);
 :::
 
+## Touch support
+
+Drag-and-drop works on touch devices without any extra wiring.
+
+**A finger on a draggable is ambiguous** — scroll or drag? — and the browser settles it at the first
+move: unless `touch-action` forbids panning, it starts scrolling and fires `pointercancel`, after which
+no `pointermove`/`pointerup` ever arrives for that pointer. DragDropService handles this in two ways:
+
+**1. Hold-to-arm.** A touch drag does not begin at `pointerdown`. The finger has to stay put for
+`touchDelay` ms (200 by default) first. Moving more than 8 px during that hold means "scroll", so the
+service cancels and hands the gesture back to the page. Once armed, a non-passive `touchmove`
+listener calls `preventDefault()` — the only way to stop the browser panning mid-drag — and the
+long-press context menu and iOS selection callout are suppressed. Mouse and pen are unaffected: they
+start immediately.
+
+```js
+dnd.makeDraggable(node, { touchDelay: 200 });   // ms of stillness before a touch drag arms
+dnd.makeSortable(container, { touchDelay: 120 });
+```
+
+**2. `pointercancel` cleans up.** When the browser takes the gesture anyway (a scroll, an incoming
+call, a system gesture), the drag ends *cancelled*, not dropped:
+
+| What | On `pointercancel` |
+| --- | --- |
+| Draggable | `onDragLeave` fires for the hovered droppable, the live transform is cleared, and no free-position `left/top` is committed — the node snaps back |
+| Draggable | `onDragEnd` **still** fires, so you can undo any `onDragStart` state |
+| Sortable | the item returns to its original index and `onReorder` is **not** called |
+| Any | the ghost is removed and the service is immediately usable again |
+
+Without this the service wedged permanently: `_activeDrag` stayed set, so every later drag was
+refused, and a sortable left its item `display: none` with the ghost stuck on screen.
+
+## Auto-scroll chains across scrollers
+
+Holding a pointer near an edge scrolls the nearest scrollable ancestor — and when **that** reaches
+its end, the next ancestor takes over, ending at the page. This matters on a phone, where a drag out
+of a nested sidebar (a list, a card column) would otherwise only ever scroll that sidebar, leaving
+every drop target out of reach. The target is re-picked on every animation frame, so a finger held
+still at the edge still hands over.
+
+:::script label="Chained auto-scroll" expected="the inner box scrolls first, then the page takes over and brings a drop target under the held pointer"
+const dnd = await slice.build('DragDropService', { singleton: true });
+
+const frame = document.createElement('div');
+Object.assign(frame.style, { display: 'flex', gap: '1.5rem', alignItems: 'flex-start' });
+
+// A nested scroll container holding the draggable…
+const scroller = document.createElement('div');
+Object.assign(scroller.style, {
+  width: '200px', height: '180px', overflowY: 'auto',
+  border: '1px solid #cbd5e1', borderRadius: '8px', padding: '8px'
+});
+const box = document.createElement('div');
+box.textContent = 'Hold me at the bottom edge';
+Object.assign(box.style, {
+  padding: '10px', background: '#3b82f6', color: '#fff',
+  borderRadius: '6px', fontFamily: 'system-ui, sans-serif',
+  fontSize: '13px', fontWeight: '500', cursor: 'grab',
+  touchAction: 'none', marginBottom: '700px'
+});
+scroller.appendChild(box);
+scroller.appendChild(document.createElement('div'));   // makes the container scrollable
+dnd.makeDraggable(box, { ghost: true });
+
+// …and a drop target that lives on the page, far below the fold.
+const zone = document.createElement('div');
+zone.textContent = 'Drop here (far below)';
+Object.assign(zone.style, {
+  marginTop: '900px', padding: '24px', textAlign: 'center',
+  border: '2px dashed #a78bfa', borderRadius: '8px',
+  fontFamily: 'system-ui, sans-serif', color: '#6d28d9'
+});
+dnd.makeDroppable(zone, {
+  onDragEnter: () => { zone.style.background = '#ede9fe'; },
+  onDragLeave: () => { zone.style.background = ''; },
+  onDrop: () => { zone.textContent = 'Dropped!'; zone.style.background = '#dcfce7'; }
+});
+
+frame.appendChild(scroller);
+frame.appendChild(zone);
+mount(frame);
+:::
+
 ## Cleanup
 
 ```js
@@ -282,8 +390,17 @@ As an app-lifetime singleton, its global listeners, ghost, and registrations are
 
 ## Best Practices
 
-- Set `touch-action: none` on draggable elements (already set on resize handles).
+- Set `touch-action: none` on draggable elements (already set on resize handles). **It does not
+  disable scrolling by itself** — the hold-to-arm delay is what keeps a tap-scrollable list
+  scrollable while a deliberate hold starts a drag.
 - Use `handle` when elements should be draggable only from a specific child (e.g., a header).
 - Always call `detach(node)` when removing a registered element from the DOM.
 - Use `accept` on droppables to filter which draggables are accepted.
-- Auto-scroll is on by default: dragging near the edge of the nearest scrollable ancestor (or the viewport) scrolls it. Pass `autoScroll: false` to a draggable or sortable to opt out.
+- Auto-scroll is on by default: dragging near an edge scrolls the nearest scrollable ancestor that
+  can still move that way, handing over to the next one — and finally the page — as each is
+  exhausted. Pass `autoScroll: false` to a draggable or sortable to opt out.
+- Auto-scroll only runs when the drag has somewhere to go (`freePosition` or at least one
+  droppable). A ghost-only drag with no droppables never scrolls the page.
+- Sortables ignore presses that land on an interactive descendant (`button`, `input`, `select`,
+  `textarea`, `a`, `[contenteditable]`, `[data-act]`, and the Slice form controls), so a button
+  inside a sortable card still works.

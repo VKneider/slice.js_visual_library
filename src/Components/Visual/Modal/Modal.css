@@ -16,14 +16,18 @@ slice-modal .slice-modal {
   border-radius: var(--border-radius-slice, 0.75rem);
   background: var(--modal-bg, var(--primary-background-color, #fefbff));
   color: var(--modal-text, var(--font-primary-color, #1a0b2e));
-  box-shadow:
-    0 20px 60px -16px rgba(0, 0, 0, 0.4),
-    0 6px 20px -8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--slice-shadow-lg);
   max-width: var(--modal-max-width, 520px);
   width: var(--modal-width, min(90vw, 520px));
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  /* The dialog itself is the height constraint, and `overflow: hidden` is what
+     makes it one. Without both, `flex: 1; min-height: 0; overflow: auto` on the
+     body can never engage (a flex child only shrinks below its content height
+     when the container is constrained), so a tall body grows past the viewport
+     and the footer scrolls away instead of the body scrolling. */
+  max-height: var(--modal-max-height, min(85vh, 640px));
+  overflow: hidden;
   animation: slice-modal_enter 0.2s ease;
   position: relative;
 }
@@ -77,9 +81,13 @@ slice-modal .slice-modal__body {
   padding: 1rem 1.5rem;
   font-size: 0.9rem;
   line-height: 1.6;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: auto;
+  /* The app behind the dialog is scroll-locked, but on touch an inner scroll
+     that reaches its end should not chain into the page. */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 slice-modal .slice-modal__footer {

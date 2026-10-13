@@ -33,6 +33,12 @@ full-width `menu-item` row for dropdowns and user menus.
   the displayed value automatically.
 - `variant` switches the layout: `'button'` (default) hides the caption and renders a
   pill; `'menu-item'` shows the `label` caption on the left and the value on the right.
+- `display` maps a theme name to its label and icon, e.g. `{ LIGHT: { label: 'Light', icon: 'sun' } }`.
+  It is **opt-in and empty by default**, so without it the raw registered theme name (`LIGHT`,
+  `SOLARIZED`) is what the user sees. A theme with no entry falls back to its raw name and a generic
+  palette icon, so a custom theme never renders blank.
+- The control renders an icon slot that follows the current theme; an unknown icon name is ignored
+  rather than breaking the button.
 - The document listener is registered in `init()` and removed in `beforeDestroy()`.
 
 ## Live Preview
@@ -99,6 +105,21 @@ host.style.gap = '10px';
 host.appendChild(switcher);
 host.appendChild(status);
 return host;
+:::
+
+## Friendly theme names
+By default the switcher prints the registered theme name. `display` maps a name to what the user
+should actually read, plus an icon — without renaming the theme itself.
+
+:::script label="display map" expected="the pill reads 'Light' with a sun icon instead of 'LIGHT'"
+const switcher = await slice.build('ThemeSwitcher', {
+  label: 'Theme',
+  display: {
+    LIGHT: { label: 'Light', icon: 'sun' },
+    DARK: { label: 'Dark', icon: 'moon' }
+  }
+});
+return switcher;
 :::
 
 ## Best Practices

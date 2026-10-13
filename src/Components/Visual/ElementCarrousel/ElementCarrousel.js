@@ -47,12 +47,33 @@ export default class ElementCarrousel extends HTMLElement {
       window.removeEventListener('resize', this._resizeHandler);
       this._resizeHandler = null;
     }
+    this._destroySlides(new Set());
+  }
+
+  /**
+   * Clear the track, destroying any Slice component among the slides.
+   *
+   * `innerHTML = ''` would detach them WITHOUT running beforeDestroy, leaving
+   * every one registered in activeComponents for the life of the page — and the
+   * consumer's nodes are exactly where Slice components are most likely to be.
+   * A node still present in `keep` is left alone so re-rendering the same
+   * elements does not destroy and re-append them.
+   */
+  _destroySlides(keep) {
+    for (const slide of this.slides) {
+      for (const node of Array.from(slide.children)) {
+        if (keep.has(node)) continue;
+        const sliceId = node.getAttribute?.('slice-id');
+        if (sliceId) slice.controller.destroyComponent(sliceId);
+      }
+    }
+    this.$track.replaceChildren();
+    this.slides = [];
   }
 
   renderElements() {
-    this.$track.innerHTML = '';
-    this.$dotsNav.innerHTML = '';
-    this.slides = [];
+    this._destroySlides(new Set(this.elements));
+    this.$dotsNav.replaceChildren();
     this.currentSlideIndex = 0;
 
     if (this.elements.length === 0) return;

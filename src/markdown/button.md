@@ -18,7 +18,8 @@ The `Button` component renders an action trigger and supports text, callback, ic
 
 ## Core Behavior
 - `Button` dispatches action intent through `onClick` while keeping visual state driven by props.
-- The look is set with `variant` (`filled` · `outlined` · `ghost` · `soft`), all derived from theme tokens; `customColor` overrides the colors when you need an exact value.
+- The look is set with `variant` (`filled` · `outlined` · `ghost` · `soft` · `danger`), all derived from theme tokens; `customColor` overrides the colors when you need an exact value.
+- Density is set with `size` (`md` · `sm`); `sm` trims padding, type size and radius for toolbars and table rows.
 - Use script scenarios below as the living behavior contract; static props are documented in the generated props section.
 
 ## Live Preview
@@ -30,6 +31,39 @@ The `Button` component renders an action trigger and supports text, callback, ic
 
 ## Variants
 All variants are built from the theme tokens, so they follow the active theme automatically.
+Use `danger` for destructive actions (delete, remove, revoke) — it reads as a distinct intent, where
+`customColor` only repaints a button that already looks like every other one.
+
+## Sizes
+`size: 'sm'` is the compact modifier for dense rows. The class swap is idempotent, so toggling
+`size` back to `'md'` (or an unknown value) removes the modifier.
+
+:::script label="Sizes" expected="a full-size and a compact button side by side"
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:10px;align-items:center;';
+
+const big = await slice.build('Button', { value: 'Save changes' });
+const small = await slice.build('Button', { value: 'Save', size: 'sm' });
+row.appendChild(big);
+row.appendChild(small);
+mount(row);
+:::
+
+## Destructive action
+:::script label="Danger variant" expected="a red destructive button"
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:10px;align-items:center;';
+
+const save = await slice.build('Button', { value: 'Keep' });
+const del = await slice.build('Button', {
+  value: 'Delete project',
+  variant: 'danger',
+  icon: { name: 'trash-bin', iconStyle: 'filled' }
+});
+row.appendChild(save);
+row.appendChild(del);
+mount(row);
+:::
 
 :::script label="Variants" expected="filled, outlined, ghost and soft buttons"
 const row = document.createElement('div');
@@ -136,16 +170,18 @@ return host;
 
 :::script label="Icon-only utility row" expected="small icon buttons for quick actions"
 const iconConfigs = [
-  { name: 'search', iconStyle: 'filled', color: '#0f172a' },
-  { name: 'download', iconStyle: 'filled', color: '#0f172a' },
-  { name: 'copy', iconStyle: 'filled', color: '#0f172a' }
+  { name: 'search', iconStyle: 'filled', size: '16px', color: '#0f172a' },
+  { name: 'download', iconStyle: 'filled', size: '16px', color: '#0f172a' },
+  { name: 'copy', iconStyle: 'filled', size: '16px', color: '#0f172a' }
 ];
 
 const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:6px;';
 
 for (const iconConfig of iconConfigs) {
   const button = await slice.build('Button', {
     value: '',
+    size: 'sm',
     icon: iconConfig,
     customColor: { background: '#e2e8f0', text: '#0f172a' }
   });

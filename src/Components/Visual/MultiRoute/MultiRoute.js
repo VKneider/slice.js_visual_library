@@ -161,9 +161,12 @@ export default class MultiRoute extends HTMLElement {
    }
 
    /**
-    * Cleanup cuando el componente se destruye
+    * Cleanup cuando el componente se destruye.
+    *
+    * Named beforeDestroy, NOT destroy: the framework only ever calls
+    * `beforeDestroy()`, so a method called `destroy()` never runs.
     */
-   destroy() {
+   beforeDestroy() {
       this.renderedComponents.forEach((cached) => { cached.__sliceCached = false; });
       this.renderedComponents.clear();
       this.innerHTML = '';

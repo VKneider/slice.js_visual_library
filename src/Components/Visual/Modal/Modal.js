@@ -134,6 +134,13 @@ export default class Modal extends HTMLElement {
         this._lockScroll();
         if (this._dndEnabled()) this._resetDnDLayout();
         this.$dialog.showModal();
+        // A modal <dialog> only handles Escape while focus is inside it. UA
+        // auto-focus can land on the body (nothing focusable yet, or focus still
+        // settling), which made Escape-to-dismiss flaky. Claim focus explicitly;
+        // preventScroll keeps the page where the user left it.
+        if (!this.$dialog.contains(document.activeElement)) {
+          this.$dialog.focus({ preventScroll: true });
+        }
         if (this._dndEnabled()) this._pinForDnD();
       }
     }

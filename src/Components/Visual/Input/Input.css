@@ -14,6 +14,22 @@ slice-input .slice_eye_icon {
   right: 10px;
 }
 
+/* Both glyphs are always in the template; `aria-pressed` picks which one shows.
+   SVG inherits `currentColor`, so the toggle follows the field's error/disabled
+   colour — an emoji glyph would not. */
+slice-input .slice_eye_icon svg {
+  display: block;
+}
+
+slice-input .slice_eye_icon .eye-off,
+slice-input .slice_eye_icon[aria-pressed='true'] .eye-open {
+  display: none;
+}
+
+slice-input .slice_eye_icon[aria-pressed='true'] .eye-off {
+  display: block;
+}
+
 slice-input .input_area::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
@@ -52,17 +68,20 @@ slice-input .slice_input_placeholder {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  transition: all 0.2s ease;
+  transition: top 0.2s ease, transform 0.2s ease;
   user-select: none;
   cursor: text;
   pointer-events: none;
 }
 
+/* Floated label — same values as Textarea's, so the two fields float
+   identically. No background patch: the border runs continuously underneath. */
 slice-input .slice_input_value,
 slice-input .slice_input_focus {
-  top: -0.25rem;
-  transform: translateY(0) scale(0.8);
-  transition: all 0.2s ease;
+  top: -0.5rem;
+  transform: scale(0.8);
+  transform-origin: left center;
+  transition: top 0.2s ease, transform 0.2s ease;
 }
 
 slice-input .required,
@@ -115,5 +134,13 @@ slice-input .message {
 
 slice-input .error {
   --primary-color: var(--danger-color);
-  animation: slice_input_shake 0.5s infinite;
+  animation: slice_input_shake 0.5s;
+}
+
+/* An error shake is decorative: run it once, and never at all when the user has
+   asked the system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-input .error {
+    animation: none;
+  }
 }

@@ -1,3 +1,4 @@
+let _sliceSwitchSeq = 0;
 const _sliceDeprecated = new Set();
 function deprecate(oldName, newName) {
    if (_sliceDeprecated.has(oldName)) return;
@@ -77,8 +78,17 @@ export default class Switch extends HTMLElement {
 
    createLabel() {
       if (!this.querySelector('.switch_label')) {
+         // Associate the text label with the input via its [for] attribute, so clicking the
+         // text toggles the switch. A bare sibling <label> forwards clicks to
+         // nothing. Same fix Checkbox already had: its input sits
+         // inside a wrapping <label> for the slider, but the TEXT label is a
+         // separate sibling that forwards clicks nowhere.
+         // Kept as a sibling (not wrapping the input) so applyLabelPlacement's
+         // flex layout on .slice_switch is unaffected.
+         if (!this.$checkbox.id) this.$checkbox.id = `slice-switch-${++_sliceSwitchSeq}`;
          const label = document.createElement('label');
          label.classList.add('switch_label');
+         label.setAttribute('for', this.$checkbox.id);
          label.textContent = this.label;
          this.$switch.appendChild(label);
       }

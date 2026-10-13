@@ -64,15 +64,28 @@ test.describe('Modal', () => {
 
   test('Escape key dismisses the modal', async ({ mount, page }) => {
     const c = await mount('Modal', { title: 'Esc', open: true });
+    // `open` is applied from a requestAnimationFrame in init(), so wait for the
+    // dialog before pressing a key — otherwise the key lands before it exists.
+    await expect(c.locator('.slice-modal')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(c.locator('.slice-modal')).not.toBeVisible();
   });
 
   test('Escape does not dismiss when dismissable is false', async ({ mount, page }) => {
     const c = await mount('Modal', { title: 'Blocked', open: true, dismissable: false });
+    await expect(c.locator('.slice-modal')).toBeVisible();
     await page.keyboard.press('Escape');
     await page.waitForTimeout(200);
     await expect(c.locator('.slice-modal')).toBeVisible();
+  });
+
+  test('the dialog takes focus when it opens, so Escape always reaches it', async ({ mount }) => {
+    const c = await mount('Modal', { title: 'Focus', open: true });
+    await expect(c.locator('.slice-modal')).toBeVisible();
+    const inside = await c.component.evaluate((el) =>
+      el.querySelector('.slice-modal').contains(document.activeElement)
+    );
+    expect(inside).toBe(true);
   });
 
   test('locks body scroll when open and restores on close', async ({ mount, page }) => {
@@ -171,5 +184,37 @@ test.describe('Modal', () => {
     const c = await mount('Modal', { title: 'Plain', open: true });
     await expect(c.locator('.slice-modal')).toBeVisible();
     await expect(c.locator('.dnd-handle--se')).toHaveCount(0);
+  });
+
+  // Regression: the dialog had no height cap and `overflow: visible`, so the
+  // body's `flex: 1; min-height: 0; overflow: auto` could never engage — a tall
+  // body grew past the viewport and the footer scrolled away instead.
+  test('a tall body scrolls inside the dialog and keeps the footer in view', async ({ mount, page }) => {
+    const c = await mount('Modal', { title: 'Tall', open: true });
+    const dialog = c.locator('.slice-modal');
+    await expect(dialog).toBeVisible();
+    await page.waitForTimeout(260);   // let the enter animation settle
+
+    await c.component.evaluate((el) => {
+      const body = el.querySelector('.slice-modal__body');
+      for (let i = 0; i < 60; i++) {
+        const p = document.createElement('p');
+        p.textContent = `row ${i}`;
+        body.appendChild(p);
+      }
+    });
+
+    const scrollable = await c.locator('.slice-modal__body').evaluate((el) => ({
+      overflowing: el.scrollHeight > el.clientHeight,
+      overflowY: getComputedStyle(el).overflowY,
+    }));
+    expect(scrollable.overflowing).toBe(true);
+    expect(scrollable.overflowY).toBe('auto');
+
+    // The dialog itself is capped, and the footer is still on screen.
+    const box = await dialog.boundingBox();
+    const footer = await c.locator('.slice-modal__footer').boundingBox();
+    expect(box.height).toBeLessThanOrEqual(641);
+    expect(footer.y + footer.height).toBeLessThanOrEqual(721);
   });
 });

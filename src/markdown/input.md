@@ -18,7 +18,8 @@ tags: [input, forms]
 
 ## Core Behavior
 - `Input` handles standard text entry, typed inputs, and optional required-state feedback.
-- Password flows can expose/hide value with `secret` while preserving form semantics.
+- `onChange` fires with the new value on every `input` event. `value` stays readable for pull-style consumers, and `onChange` can be cleared with `null`.
+- Password flows can expose/hide value with `secret` while preserving form semantics. The reveal toggle swaps two inline SVGs from its `aria-pressed` state, so the glyph inherits the field's colour instead of being a fixed emoji.
 - Validation behavior is scenario-driven; use script blocks to verify condition checks in realistic forms.
 
 ## Live Preview
@@ -28,6 +29,17 @@ tags: [input, forms]
   "type": "email"
 }
 :::
+
+## Live validation
+
+An `Input` validates itself as you type in two cases, without any call from you:
+
+- `type: 'email'` — checked with the platform's own `validity.valid`, so a malformed address shows
+  the error state on the keystroke that breaks it;
+- `conditions` — run against the value on every keystroke.
+
+Clearing the field always drops the error state, so an emptied field never keeps showing as invalid.
+Call `validateValue()` from a submit handler as well to cover the empty case.
 
 ## Practical Setups
 :::script label="Login form fields" expected="email + password fields with proper input types"

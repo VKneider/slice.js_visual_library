@@ -1,4 +1,4 @@
-import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
+﻿import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
 // TreeView renders a `.simple_treeview` container and builds one TreeItem child
 // per top-level `items` node. Node shape: { value, path?, items? }.
@@ -58,7 +58,7 @@ test.describe('TreeView', () => {
       expect(await c.events('onClick')).toBe(1);
    });
 
-   // §7 deprecation/alias contract.
+   // Â§7 deprecation/alias contract.
    test('deprecated onClickCallback still wires the handler and warns once', async ({ mount }) => {
       const c = await mount('TreeView', { items: ITEMS }, { spies: ['onClickCallback'] });
       await c.locator('.slice_tree_item').first().click();
@@ -194,5 +194,107 @@ test.describe('TreeView', () => {
    test('visual: tree with nested items @visual', async ({ mount }) => {
       const c = await mount('TreeView', { items: ITEMS });
       await expect(c.component).toHaveScreenshot('treeview-nested.png');
+   });
+
+   test('setting items after build re-renders', async ({ mount }) => {
+      const c = await mount('TreeView', { items: ITEMS });
+      await expect(c.locator('.simple_treeview > .tree_item')).toHaveCount(ITEMS.length);
+
+      await c.component.evaluate((el) => { el.items = [{ path: 'solo', value: 'Solo' }]; });
+
+      await expect.poll(() => c.locator('.simple_treeview > .tree_item').count()).toBe(1);
+      await expect(c.locator('.simple_treeview')).toContainText('Solo');
+   });
+
+   test('re-rendering twice does not duplicate the tree', async ({ mount }) => {
+      const c = await mount('TreeView', { items: ITEMS });
+      await c.component.evaluate((el, items) => { el.items = items; }, ITEMS);
+      await c.component.evaluate((el, items) => { el.items = items; }, ITEMS);
+
+      await expect.poll(() => c.locator('.simple_treeview > .tree_item').count()).toBe(ITEMS.length);
+   });
+
+   test('a surviving TreeItem is MOVED, not rebuilt', async ({ mount, page }) => {
+      await page.evaluate(() => localStorage.clear());
+      const c = await mount('TreeView', { items: ITEMS });
+
+      const out = await c.component.evaluate((el, items) => {
+         const firstId = el.querySelector('.simple_treeview > .tree_item').sliceId;
+         el.items = [...items].reverse();
+         return { firstId };
+      }, ITEMS);
+
+      const ids = await c.component.evaluate((el) =>
+         [...el.querySelectorAll('.simple_treeview > .tree_item')].map((n) => n.sliceId)
+      );
+      // Reversed, so the original first node is now LAST, and it is the same
+      // node â€” a move, not a rebuild.
+      expect(ids[ids.length - 1]).toBe(out.firstId);
+      expect(new Set(ids).size).toBe(ITEMS.length);
+   });
+
+   test('a TreeItem whose data is gone is DESTROYED', async ({ mount }) => {
+      const c = await mount('TreeView', { items: ITEMS, sliceId: 'tv-under-test' });
+
+      const out = await c.component.evaluate(async (el, items) => {
+         const idsBefore = [...el.querySelectorAll('.simple_treeview > .tree_item')].map((n) => n.sliceId);
+         const registeredBefore = idsBefore.every((id) => slice.controller.activeComponents.has(id));
+
+         el.items = [items[0]];
+         // The setter kicks off an async reconcile; settle before asserting.
+         await el._renderItems();
+
+         return {
+            registeredBefore,
+            survivors: idsBefore.slice(1).filter((id) => slice.controller.activeComponents.has(id)),
+            children: el.querySelectorAll('.simple_treeview > .tree_item').length,
+         };
+      }, ITEMS);
+
+      expect(out.registeredBefore).toBe(true);
+      expect(out.survivors).toEqual([]);
+      expect(out.children).toBe(1);
+      expect(c.pageErrors()).toEqual([]);
+   });
+
+   test('destroying the tree destroys its TreeItems', async ({ mount }) => {
+      const c = await mount('TreeView', { items: ITEMS, sliceId: 'tv-destroy-me' });
+
+      const out = await c.component.evaluate((el) => {
+         const ids = [...el.querySelectorAll('.simple_treeview > .tree_item')].map((n) => n.sliceId);
+         const before = ids.filter((id) => slice.controller.activeComponents.has(id)).length;
+
+         slice.controller.destroyComponent('tv-destroy-me');
+         return { before, total: ids.length, after: ids.filter((id) => slice.controller.activeComponents.has(id)).length };
+      });
+
+      expect(out.before).toBe(out.total);
+      expect(out.after).toBe(0);
+   });
+
+   test('items without a path get stable per-object keys, not index keys', async ({ mount }) => {
+      const c = await mount('TreeView', {});
+
+      const out = await c.component.evaluate(async (el) => {
+         // The same two objects on every render: they must map to the same nodes.
+         const anon = [{ value: 'A' }, { value: 'B' }];
+         el.items = anon;
+         await el._renderItems();
+         const firstIds = [...el.querySelectorAll('.simple_treeview > .tree_item')].map((n) => n.sliceId);
+
+         el.items = anon;
+         await el._renderItems();
+         return {
+            firstIds,
+            secondIds: [...el.querySelectorAll('.simple_treeview > .tree_item')].map((n) => n.sliceId),
+            count: el.querySelectorAll('.simple_treeview > .tree_item').length,
+         };
+      });
+
+      // Two distinct keys, stable across renders. An index key would also be
+      // stable here, but it would swap identities on any splice.
+      expect(new Set(out.firstIds).size).toBe(2);
+      expect(out.secondIds).toEqual(out.firstIds);
+      expect(out.count).toBe(2);
    });
 });

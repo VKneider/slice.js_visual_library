@@ -17,8 +17,8 @@ slice-select .slice_select_container {
   display: flex;
   padding: 10px;
   border-radius: var(--border-radius-slice);
-  border: var(--slice-border) solid var(--primary-color);
-  background-color: var(--primary-background-color);
+  border: var(--slice-border) solid var(--slice-border-raised);
+  background-color: var(--slice-surface-raised);
   justify-content: space-between;
   align-items: center;
 }
@@ -63,9 +63,11 @@ slice-select .slice_select_menu {
   top: 100%;
   width: 100%;
   z-index: 50;
-  background-color: var(--primary-background-color);
+  /* Same floating-surface tokens as DropDown: one concept, one look. */
+  background-color: var(--slice-surface-raised);
+  border: var(--slice-border) solid var(--slice-border-raised);
   border-radius: var(--border-radius-slice);
-  box-shadow: 0 0 10px 0 #00000050;
+  box-shadow: var(--slice-shadow-md);
 }
 
 slice-select .slice_select_menu div {
@@ -118,7 +120,7 @@ slice-select .menu_open::-webkit-scrollbar-thumb {
 slice-select .slice_select_menu div.active {
   color: var(--primary-color);
   font-weight: 600;
-  background-color: color-mix(in srgb, var(--primary-color) 18%, transparent);
+  background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
 }
 
 slice-select .slice_select_menu div.active::after {

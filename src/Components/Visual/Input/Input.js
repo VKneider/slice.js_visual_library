@@ -30,6 +30,12 @@ export default class Input extends HTMLElement {
       conditions: { 
          type: 'object', 
          default: null 
+      },
+      // Canonical change handler (§3.1). Fired with the new value on every
+      // `input` event; `value` stays readable for pull-style consumers.
+      onChange: { 
+         type: 'function', 
+         default: null 
       }
    };
 
@@ -80,6 +86,7 @@ export default class Input extends HTMLElement {
       // Set up event listeners
       this.$input.addEventListener('input', () => {
          this.updateInputState();
+         if (typeof this._onChange === 'function') this._onChange(this.$input.value);
       });
 
       // ✅ AÑADIDO: Permitir clic en el placeholder para enfocar el input
@@ -107,13 +114,14 @@ export default class Input extends HTMLElement {
       this._secretToggleReady = true;
 
       this.$eyeIcon.style.display = 'block';
-      this.$eyeIcon.textContent = '👁️';
       this.$eyeIcon.setAttribute('aria-pressed', 'false');
 
+      // The two glyphs are static markup in Input.html and CSS picks one from the
+      // `aria-pressed` state — no innerHTML, and they inherit `currentColor` so
+      // they follow the error/disabled theming of the field.
       const toggleVisibility = () => {
          const revealed = this.$input.type === 'text';
          this.$input.type = revealed ? 'password' : 'text';
-         this.$eyeIcon.textContent = revealed ? '👁️' : '🙈';
          this.$eyeIcon.setAttribute('aria-pressed', String(!revealed));
       };
 
@@ -160,17 +168,42 @@ export default class Input extends HTMLElement {
    updateInputState() {
       if (this.$input.value !== '') {
          this.$placeholder.classList.add('slice_input_value');
-         this.triggerSuccess();
+         // `email` is the one constraint the platform gives us for free, so
+         // validate it on every keystroke instead of waiting for a manual
+         // `validateValue()` call from a submit button.
+         if (this._conditions || this.type === 'email') this.validateValue();
+         else this.triggerSuccess();
       } else {
          this.$placeholder.classList.remove('slice_input_value');
+         // Clear the error state left over from a previous non-empty value
+         // before re-evaluating `required`.
+         this.triggerSuccess();
          if (this.required) {
             this.triggerError();
          }
       }
    }
 
+   /**
+    * Move focus to the real field.
+    *
+    * Public because wrapper components (a confirm dialog with a text field, a
+    * form that focuses its first invalid input) legitimately need it — without
+    * it they have to reach into `.slice_input input`, which breaks the moment
+    * the internal markup changes.
+    */
+   focus() {
+      this.$input.focus();
+   }
+
    validateValue() {
       if (this._conditions && !this._conditions.test(this.$input.value)) {
+         this.triggerError();
+         return false;
+      }
+      // Native constraint validation, for the types the platform validates
+      // (notably `email`).
+      if (this.type === 'email' && this.$input.value !== '' && !this.$input.validity.valid) {
          this.triggerError();
          return false;
       }
@@ -270,6 +303,15 @@ export default class Input extends HTMLElement {
       if (value) {
          this.setupConditions();
       }
+   }
+
+   set onChange(value) {
+      // Accept null/non-function to CLEAR the handler.
+      this._onChange = typeof value === 'function' ? value : null;
+   }
+
+   get onChange() {
+      return this._onChange;
    }
 }
 

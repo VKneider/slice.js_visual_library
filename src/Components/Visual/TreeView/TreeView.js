@@ -36,26 +36,42 @@ export default class TreeView extends HTMLElement {
       this.$treeView = this.querySelector('.simple_treeview');
       this._previousActive = null;
       this._routeListenerRegistered = false;
+      this._routeHandler = null;
+      this._inited = false;
+      // A stable id per item OBJECT, for items that carry no path/id of their
+      // own. Keying on the array index instead would hand item 0's component —
+      // and its open/closed state — to whoever took its place after a splice.
+      this._anonymousIds = new WeakMap();
+      this._anonymousSeq = 0;
       slice.controller.setComponentProps(this, props);
    }
 
    async init() {
-      if (this.items) {
-         await this.setTreeItems(this.items);
-      }
+      this._inited = true;
+      await this._renderItems();
       if (this._activePath) {
          this.activateByPath(this._activePath);
       }
-      if (!this._routeListenerRegistered && typeof slice.router?.afterEach === 'function') {
-        this._routeListenerRegistered = true;
-        slice.router.afterEach((to) => {
-          this.activateByPath(to.path);
-        });
+      this._registerRouteListener();
+   }
+
+   beforeDestroy() {
+      // Nothing tore these down before, so every TreeItem built from a previous
+      // `items` stayed in activeComponents after the tree was gone.
+      for (const child of Array.from(this.$treeView?.children || [])) {
+         slice.controller.destroyComponent(child);
+      }
+      if (this._routeListenerRegistered && this._routeHandler) {
+         slice.router?.removeAfterEach?.(this._routeHandler);
+         this._routeListenerRegistered = false;
+         this._routeHandler = null;
       }
    }
 
+   /** Re-renders the tree. The setter used to only store the value. */
    set items(values) {
       this._items = values;
+      this._renderItems();
    }
 
    get items() {
@@ -137,16 +153,60 @@ export default class TreeView extends HTMLElement {
       if (this._onClick) {
          item.onClick = this._onClick;
       }
-
       const treeItem = await slice.build('TreeItem', item);
       treeItem.classList.add('tree_item');
       this.$treeView.appendChild(treeItem);
    }
 
    async setTreeItems(items) {
-      for (let i = 0; i < items.length; i++) {
-         await this.setTreeItem(items[i]);
+      this._items = items;
+      await this._renderItems();
+   }
+
+   _keyOf(item) {
+      if (item.path) return `treeitem-${item.path}`;
+      if (item.id) return `treeitem-${item.id}`;
+      if (!this._anonymousIds.has(item)) {
+         this._anonymousSeq += 1;
+         this._anonymousIds.set(item, `anon-${this._anonymousSeq}`);
       }
+      return `treeitem-${this._anonymousIds.get(item)}`;
+   }
+
+   async _renderItems() {
+      // The setters run from the constructor, before init(); there is nothing to
+      // render against yet, and init() renders.
+      if (!this._inited || !this.$treeView) return;
+
+      // Literal slice.build so the CLI dependency analyser can see it.
+      const dom = await slice.build('DomService', { singleton: true });
+
+      // reconcile, not a loop of appendChild: that way a TreeItem whose data
+      // survived keeps its node (and its open/closed state), one whose data is
+      // gone is destroyed, and re-ordering moves rather than re-creates.
+      await dom.reconcile(this.$treeView, this._items || [], {
+         keyOf: (item) => this._keyOf(item),
+         component: 'TreeItem',
+         props: (item) => ({ ...item, onClick: this._onClick || item.onClick }),
+      });
+
+      // reconcile() can adopt a node that predates this render, so the marker
+      // class is re-asserted rather than assumed.
+      for (const child of this.$treeView.children) {
+         if (child.tagName === 'SLICE-TREEITEM') child.classList.add('tree_item');
+      }
+
+      // A re-render drops the DOM, so the active highlight has to be re-applied.
+      if (this._activePath) this.activateByPath(this._activePath);
+   }
+
+   _registerRouteListener() {
+      if (this._routeListenerRegistered) return;
+      if (typeof slice.router?.afterEach !== 'function') return;
+
+      this._routeListenerRegistered = true;
+      this._routeHandler = (to) => this.activateByPath(to.path);
+      slice.router.afterEach(this._routeHandler);
    }
 }
 

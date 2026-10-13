@@ -25,7 +25,8 @@ an `onChange(value)` handler.
 - `rows` sets the initial visible height; `maxlength` caps the character count natively.
 - `autoGrow` disables manual resize and grows the field to fit its content on every keystroke.
 - `onChange` fires with the current string on every input event.
-- `conditions` accepts `{ regex }` or `{ minLength, maxLength }`; call `validateValue()` to run
+- `conditions` accepts `{ regex }` or `{ minLength, maxLength }`; they are checked live while typing
+  and can also be run on demand with `validateValue()`.
   the check and surface the error state.
 - All listeners live on the component's own nodes, so there is nothing to clean up manually.
 
@@ -122,6 +123,31 @@ message boxes — it keeps the field compact while making the limit visible.
 
 ## Pitfalls
 :::warning
-`conditions` only validates when you call `validateValue()` (e.g. from a submit handler), not on
-every keystroke. Wire it to your `Form`'s submit flow rather than expecting live validation.
+`conditions` also validates **live while typing** — as soon as the field has a value, `conditions`
+are checked on every keystroke. Call `validateValue()` from your `Form`'s submit handler as well so
+an empty field is caught on submit.
 :::
+
+## auto-grow details
+
+`autoGrow` measures `scrollHeight`, which is `0` whenever the field has no layout — while it is still
+detached, or anywhere up the tree it is `display: none`. The component handles both:
+
+- the first real measurement happens in `connectedCallback`, not `init` (`slice.build` runs `init`
+  **before** the parent appends the node, so a naive first measurement collapses the field to `0px`);
+- a hidden field keeps its **last good height** instead of being squashed, and re-measures as soon as
+  it becomes visible again;
+- a `ResizeObserver` re-measures when the field's **width** changes, so text that re-wraps on a
+  container resize is not clipped. The observer is disconnected in `beforeDestroy()`.
+
+Padding is tokenised so a dense consumer can compact the field without desyncing the floating label:
+
+```css
+slice-textarea {
+  --slice-textarea-pad-y: 9px;
+  --slice-textarea-pad-x: 12px;
+}
+```
+
+The label's rest position is derived from `--slice-textarea-pad-y`, so overriding the tokens moves
+both the field and its label together.

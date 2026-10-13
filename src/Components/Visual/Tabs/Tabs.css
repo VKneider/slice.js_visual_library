@@ -29,8 +29,12 @@ slice-tabs .slice_tab_button {
   cursor: pointer;
   position: relative;
   white-space: nowrap;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.1s ease;
   flex-shrink: 0;
+}
+
+slice-tabs .slice_tab_button:active {
+  transform: scale(0.96);
 }
 
 slice-tabs .slice_tab_button::after {
@@ -68,10 +72,63 @@ slice-tabs .slice_tabs_panels {
   padding: 16px 0;
 }
 
+/* The panels container renders unconditionally, so collapse it when no item
+   carries a `panel` — otherwise it adds 16px of dead padding. */
+slice-tabs .slice_tabs_panels:empty {
+  display: none;
+}
+
 slice-tabs .slice_tab_panel {
   display: none;
 }
 
 slice-tabs .slice_tab_panel.active {
   display: block;
+}
+
+/* ------------------------------------------------------- variant: secondary
+   A segmented control for switching views inside one screen (no underline, the
+   active tab reads as a pill). Same DOM and behaviour as `primary`. */
+
+slice-tabs .slice_tabs_list.variant-secondary {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--slice-border);
+  border-bottom: 1px solid var(--slice-border);
+  border-radius: calc(var(--border-radius-slice, 8px) * 1.25);
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  overflow-x: auto;
+}
+
+slice-tabs .slice_tabs_list.variant-secondary .slice_tab_button {
+  border-radius: calc(var(--border-radius-slice, 8px) * 0.9);
+  padding: 8px 14px;
+  font-weight: 600;
+}
+
+slice-tabs .slice_tabs_list.variant-secondary .slice_tab_button::after {
+  display: none;
+}
+
+slice-tabs .slice_tabs_list.variant-secondary .slice_tab_button:hover {
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+slice-tabs .slice_tabs_list.variant-secondary .slice_tab_button.active {
+  background: var(--primary-color);
+  color: var(--primary-color-contrast);
+}
+
+/* The press scale is decorative: never animate it when the user asked the
+   system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-tabs .slice_tab_button,
+  slice-tabs .slice_tab_button::after {
+    transition: none;
+  }
+
+  slice-tabs .slice_tab_button:active {
+    transform: none;
+  }
 }

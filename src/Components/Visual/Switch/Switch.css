@@ -11,11 +11,10 @@ slice-switch .slice_switch {
   --button-toggle-offset: calc(
     (var(--button-height) - var(--toggle-diameter)) / 2
   );
-  --toggle-shadow-offset: 10px;
-  --toggle-wider: 1.8em;
   display: flex;
   flex-direction: row;
   align-items: center;
+  gap: 8px;
   user-select: none;
 }
 
@@ -78,7 +77,35 @@ slice-switch .slice_switch input[type="checkbox"]:checked + .slider::after {
 }
 
 slice-switch .slice_switch input[type="checkbox"] {
-  display: none;
+  /* Visually hidden, NOT `display: none`: a display:none input is dropped from
+     the accessibility tree and the tab order, so the switch could not be
+     reached or toggled by keyboard at all. Kept focusable and 1px, clipped. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The focus ring lives on the visible control, since the input itself is clipped. */
+slice-switch .slice_switch input[type="checkbox"]:focus-visible + .slider {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* `gap` keeps the label off the slider; the slider sizes itself with its border
+   included, so `--slice-border` cannot inflate it past the declared box. */
+slice-switch .slider {
+  box-sizing: border-box;
+  flex: none;
+}
+
+slice-switch .switch_label {
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 slice-switch .disabled {
@@ -86,4 +113,12 @@ slice-switch .disabled {
   background-color: var(--primary-color-shade);
   color: var(--disabled-color);
   cursor: not-allowed;
+}
+
+/* The pop is decorative: never animate it when the user asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-switch .slider,
+  slice-switch .slider::after {
+    transition: none;
+  }
 }

@@ -82,4 +82,63 @@ test.describe('Switch', () => {
       const c = await mount('Switch', { label: 'Dark mode', checked: true });
       await expect(c.component).toHaveScreenshot('switch-default.png');
    });
+
+   // Regression: the input was `display: none`, which drops it from the
+   // accessibility tree AND the tab order — the switch was keyboard-unreachable.
+   test('the hidden input stays keyboard reachable and toggles with Space', async ({ mount, page }) => {
+      const c = await mount('Switch', { checked: false }, { spies: ['onChange'] });
+      const input = c.locator('input[type="checkbox"]');
+
+      await expect(input).toBeAttached();
+      const display = await input.evaluate((el) => getComputedStyle(el).display);
+      expect(display).not.toBe('none');
+
+      await input.focus();
+      const focused = await page.evaluate(() =>
+         document.activeElement?.tagName === 'INPUT' &&
+         document.activeElement?.type === 'checkbox'
+      );
+      expect(focused).toBe(true);
+
+      await page.keyboard.press('Space');
+      await expect.poll(() => c.events('onChange')).toBeGreaterThan(0);
+   });
+
+   test('the text label is associated with the input, so clicking it toggles', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'Enable notifications' });
+
+      // The slider's input is wrapped in its own <label>, but the TEXT label is
+      // a separate sibling: without a `for` it forwarded clicks nowhere.
+      const out = await c.component.evaluate((el) => {
+         const input = el.querySelector('input');
+         const label = el.querySelector('.switch_label');
+         return {
+            hasId: !!input.id,
+            forMatches: label.getAttribute('for') === input.id,
+            checkedBefore: input.checked,
+         };
+      });
+
+      expect(out.hasId).toBe(true);
+      expect(out.forMatches).toBe(true);
+      expect(out.checkedBefore).toBe(false);
+
+      await c.locator('.switch_label').click();
+      await expect(c.locator('input')).toBeChecked();
+   });
+
+   test('two switches on a page get distinct input ids', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'One' });
+
+      const ids = await c.root.page().evaluate(async () => {
+         const a = await slice.build('Switch', { sliceId: 'sw-a', label: 'A' });
+         const b = await slice.build('Switch', { sliceId: 'sw-b', label: 'B' });
+         document.body.appendChild(a);
+         document.body.appendChild(b);
+         return { a: a.querySelector('input').id, b: b.querySelector('input').id };
+      });
+
+      // A shared id would make one switch's text label toggle the other.
+      expect(ids.a).not.toBe(ids.b);
+   });
 });

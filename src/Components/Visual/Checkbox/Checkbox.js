@@ -29,6 +29,11 @@ export default class Checkbox extends HTMLElement {
          type: 'string',
          default: 'right'
       },
+      // Canonical change handler (§3.1). Fired with the new checked state.
+      onChange: {
+         type: 'function',
+         default: null
+      },
       customColor: {
          type: 'object',
          default: null
@@ -73,6 +78,7 @@ export default class Checkbox extends HTMLElement {
       // Set up change listener
       this.$input.addEventListener('change', (e) => {
          this.checked = e.target.checked;
+         if (typeof this._onChange === 'function') this._onChange(e.target.checked);
       });
    }
 
@@ -182,6 +188,15 @@ export default class Checkbox extends HTMLElement {
       if (value) {
          this.applyCustomColor();
       }
+   }
+
+   set onChange(value) {
+      // Accept null/non-function to CLEAR the handler.
+      this._onChange = typeof value === 'function' ? value : null;
+   }
+
+   get onChange() {
+      return this._onChange;
    }
 }
 

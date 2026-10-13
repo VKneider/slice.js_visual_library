@@ -39,6 +39,23 @@ The `Modal` component wraps the native `<dialog>` element to provide a focused o
 | `customColor`  | `object \| null`  | `null`      | `{ background, text, accent }`          |
 | `onClose`      | `function`        | `null`      | Called when the modal is dismissed      |
 
+## Scrolling
+
+The dialog is capped at `min(85vh, 640px)` and clips its own overflow, so `.slice-modal__body`
+always scrolls and the header and footer stay put. The body also sets `overscroll-behavior: contain`,
+so a scroll that reaches its end does not chain into the page behind the dialog on touch.
+
+Override the cap from CSS when you need a taller dialog:
+
+```css
+slice-modal { --modal-max-height: min(90vh, 900px); }
+```
+
+:::warning
+`resizable: true` clears `max-width` **and** `max-height` on the dialog while it is open, so
+resizing past the cap works. The cap is restored on the next open.
+:::
+
 ## Prop Scenarios
 
 :::script label="Open and close" expected="modal opens and closes via close button"

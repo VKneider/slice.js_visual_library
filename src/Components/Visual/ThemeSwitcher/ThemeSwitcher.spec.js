@@ -85,4 +85,37 @@ test.describe('ThemeSwitcher', () => {
       const c = await mount('ThemeSwitcher', {}, { theme: 'LIGHT' });
       await expect(c.component).toHaveScreenshot('themeswitcher-button-light.png');
    });
+
+   test('the raw theme name is shown by default (no display map)', async ({ mount }) => {
+      const c = await mount('ThemeSwitcher', {}, { theme: 'LIGHT' });
+      await expect(c.locator('.theme-switcher__value')).toHaveText('LIGHT');
+   });
+
+   test('display maps a theme to a friendly label and an icon', async ({ mount }) => {
+      const c = await mount('ThemeSwitcher', {
+         display: { LIGHT: { label: 'Light', icon: 'sun' } },
+      }, { theme: 'LIGHT' });
+
+      await expect(c.locator('.theme-switcher__value')).toHaveText('Light');
+      await expect(c.locator('.theme-switcher__icon slice-icon')).toBeAttached();
+   });
+
+   test('a theme with no display entry keeps its raw name and a fallback icon', async ({ mount }) => {
+      const c = await mount('ThemeSwitcher', {
+         themes: ['LIGHT', 'DARK'],
+         display: { LIGHT: { label: 'Light', icon: 'sun' } },
+      }, { theme: 'DARK' });
+
+      await expect(c.locator('.theme-switcher__value')).toHaveText('DARK');
+      // Fallback glyph, not an empty slot.
+      await expect(c.locator('.theme-switcher__icon slice-icon')).toBeAttached();
+   });
+
+   test('an unknown icon name does not break the control', async ({ mount }) => {
+      const c = await mount('ThemeSwitcher', {
+         display: { LIGHT: { label: 'Light', icon: 'not-a-real-icon' } },
+      }, { theme: 'LIGHT' });
+      await expect(c.locator('.theme-switcher__value')).toHaveText('Light');
+      expect(c.pageErrors()).toEqual([]);
+   });
 });

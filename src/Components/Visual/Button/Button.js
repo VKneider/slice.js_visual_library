@@ -21,7 +21,14 @@ export default class Button extends HTMLElement {
          type: 'string',
          default: 'filled',
          required: false,
-         allowedValues: ['filled', 'outlined', 'ghost', 'soft']
+         allowedValues: ['filled', 'outlined', 'ghost', 'soft', 'danger']
+      },
+      // Density. `md` is the default; `sm` is for dense toolbars and table rows.
+      size: {
+         type: 'string',
+         default: 'md',
+         required: false,
+         allowedValues: ['md', 'sm']
       },
       // Canonical click handler. `onClickCallback` is kept as a deprecated alias.
       onClick: {
@@ -73,8 +80,8 @@ export default class Button extends HTMLElement {
          this.$icon = await slice.build('Icon', {
             name: this._icon.name,
             iconStyle: this._icon.iconStyle,
-            size: '20px',
-            color: 'currentColor',
+            size: this._icon.size || '20px',
+            color: this._icon.color || 'currentColor',
          });
          this.$button.insertBefore(this.$icon, this.$value);
       } else if (!this._icon && this.$icon) {
@@ -111,6 +118,11 @@ export default class Button extends HTMLElement {
       if (!this.$icon || !value) return;   // appear/disappear handled in update()
       this.$icon.name = value.name;
       this.$icon.iconStyle = value.iconStyle;
+      // Per-instance icon sizing/colour. Omitting them keeps the previous
+      // behaviour (20px, `currentColor`); set them to make one Button's icon
+      // differ from another's without a stylesheet override.
+      if (value.size) this.$icon.size = value.size;
+      if (value.color) this.$icon.color = value.color;
    }
 
    get variant() {
@@ -118,12 +130,26 @@ export default class Button extends HTMLElement {
    }
 
    set variant(value) {
-      const allowed = ['filled', 'outlined', 'ghost', 'soft'];
+      const allowed = ['filled', 'outlined', 'ghost', 'soft', 'danger'];
       const next = allowed.includes(value) ? value : 'filled';
       if (this._variant) {
          this.$button.classList.remove('slice_button--' + this._variant);
       }
       this._variant = next;
+      this.$button.classList.add('slice_button--' + next);
+   }
+
+   get size() {
+      return this._size;
+   }
+
+   set size(value) {
+      const allowed = ['md', 'sm'];
+      const next = allowed.includes(value) ? value : 'md';
+      if (this._size) {
+         this.$button.classList.remove('slice_button--' + this._size);
+      }
+      this._size = next;
       this.$button.classList.add('slice_button--' + next);
    }
 

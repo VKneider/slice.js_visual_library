@@ -21,6 +21,20 @@ tags: [loading, feedback]
 - `stop()` removes it and restores container styles.
 - `active` can be toggled as a reactive state prop.
 
+## Layering and motion
+
+The overlay sets `z-index: 2147483000` inline when it starts, so it always covers the other global
+layers it can share a page with — the toast stack sits at `11000` and a drag ghost at `999999`. It is
+also the only value that beats both from CSS, since the host is positioned from JS.
+
+The spinner animation is disabled under `prefers-reduced-motion: reduce`, so a user who has asked the
+system to calm things down gets a still overlay instead of a perpetual rotation.
+
+:::warning
+A native `<dialog>` (`Modal`) lives in the browser's **top layer**, which no `z-index` can cover. Do
+not use `Loading` to block a modal — drive the modal's own state instead.
+:::
+
 ## Prop Scenarios
 :::script label="manual start and stop" expected="loading appears then hides via API"
 const loading = await slice.build('Loading');

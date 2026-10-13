@@ -39,6 +39,7 @@ slice-checkbox .checkbox_label {
   font-family: var(--font-family);
   color: var(--font-primary-color);
   font-size: 0.95rem;
+  cursor: pointer;
 }
 
 slice-checkbox .checkmark {
@@ -52,6 +53,14 @@ slice-checkbox .checkmark {
   transition: all 0.3s;
   border-radius: var(--border-radius-slice);
   cursor: pointer;
+  flex: none;
+}
+
+/* The real input is clipped to 0×0 for styling, so the focus ring has to be
+   drawn on the visible checkmark — otherwise a keyboard user gets no indicator. */
+slice-checkbox .slice_checkbox input:focus-visible ~ .checkmark {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 slice-checkbox .slice_checkbox input:checked ~ .checkmark {
@@ -59,6 +68,17 @@ slice-checkbox .slice_checkbox input:checked ~ .checkmark {
   background-color: var(--success-color);
   animation: slice_checkbox_pop 0.5s;
   animation-direction: alternate;
+}
+
+/* The pop is decorative: never animate it when the user asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-checkbox .slice_checkbox input:checked ~ .checkmark {
+    animation: none;
+  }
+
+  slice-checkbox .checkmark {
+    transition: none;
+  }
 }
 
 slice-checkbox .checkmark:after {

@@ -18,8 +18,10 @@ tags: [checkbox, input, forms]
 
 ## Core Behavior
 - `checked` controls current selection state.
+- `onChange` fires with the new checked state (`true`/`false`) whenever the user toggles it, whether they click the box or the label. Assign `null` to clear the handler.
 - `label` and `labelPlacement` define readable form semantics.
 - `disabled` prevents interaction while keeping current value visible.
+- The real `<input>` is visually hidden behind the styled `.checkmark` but stays focusable, and the focus ring is drawn on the checkmark so keyboard users can see where they are.
 
 ## Live Preview
 :::component name="Checkbox"

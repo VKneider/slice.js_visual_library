@@ -38,5 +38,34 @@
   --accent-color: #22d3ee;
 
   /** Shadow tokens for dark mode elevation **/
-  --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+
+  /**
+   * Elevation scale.
+   *
+   * Black here is deliberate: on a dark surface a shadow IS black. The palette still drives the surface and the border below.
+   *
+   *   --slice-shadow-sm  resting surfaces that do not float (cards, inputs)
+   *   --slice-shadow-md  floating surfaces (menus, popovers, tooltips, toasts)
+   *   --slice-shadow-lg  top-level overlays (modal, bottom nav)
+   */
+  --slice-shadow-sm:
+    0 1px 2px rgba(0, 0, 0, 0.32),
+    0 2px 8px rgba(0, 0, 0, 0.38);
+  --slice-shadow-md:
+    0 4px 12px rgba(0, 0, 0, 0.42),
+    0 12px 28px -8px rgba(0, 0, 0, 0.52);
+  --slice-shadow-lg:
+    0 8px 24px rgba(0, 0, 0, 0.48),
+    0 24px 60px -16px rgba(0, 0, 0, 0.60);
+
+  /**
+   * Floating surfaces. A menu, a dropdown and a popover are the SAME concept,
+   * and they used to pick different backgrounds and different black shadows —
+   * which is how DropDown ended up light-blue in a purple theme.
+   */
+  --slice-surface-raised: var(--tertiary-background-color);
+  --slice-border-raised: rgba(var(--primary-color-rgb), 0.28);
+
+  /** Back-compat alias: Card predates the scale. */
+  --card-shadow: var(--slice-shadow-sm);
 }

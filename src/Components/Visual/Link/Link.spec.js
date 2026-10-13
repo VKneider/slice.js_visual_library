@@ -47,4 +47,47 @@ test.describe('Link', () => {
       const c = await mount('Link', { text: 'Home', path: '/home', classes: 'item' });
       await expect(c.component).toHaveScreenshot('link-default.png');
    });
+
+   test('icon renders a decorative Icon inside .slice-link-icon', async ({ mount }) => {
+      const c = await mount('Link', {
+         text: 'Docs',
+         path: '/docs',
+         icon: 'check',
+         iconColor: 'rgb(9, 9, 9)',
+      });
+      const holder = c.locator('.slice-link-icon');
+      await expect(holder).toHaveAttribute('aria-hidden', 'true');
+      await expect(holder.locator('slice-icon')).toBeAttached();
+      const color = await holder.locator('slice-icon').evaluate((el) =>
+         getComputedStyle(el).color
+      );
+      expect(color).toBe('rgb(9, 9, 9)');
+   });
+
+   test('sub stacks a title and a subtitle under the label', async ({ mount }) => {
+      const c = await mount('Link', { text: 'Components', path: '/c', sub: '42 items' });
+      await expect(c.locator('.slice-link-title')).toHaveText('Components');
+      await expect(c.locator('.slice-link-sub')).toHaveText('42 items');
+      // Without `sub` the text stays a plain text node.
+      const plain = await mount('Link', { text: 'Components', path: '/c' });
+      await expect(plain.locator('.slice-link-title')).toHaveCount(0);
+   });
+
+   test('the anchor is a flex row with a gap so icon and label do not collide', async ({ mount }) => {
+      const c = await mount('Link', { text: 'Docs', path: '/docs', icon: 'check' });
+      const box = await c.locator('a').evaluate((el) => {
+         const cs = getComputedStyle(el);
+         return { display: cs.display, gap: cs.columnGap, decoration: cs.textDecorationLine, color: cs.color };
+      });
+      expect(box.display).toBe('inline-flex');
+      expect(parseFloat(box.gap)).toBeGreaterThan(0);
+      expect(box.decoration).toBe('none');
+   });
+
+   test('text is never injected as markup', async ({ mount }) => {
+      const c = await mount('Link', { text: '<img src=x onerror=alert(1)>', path: '/x' });
+      // A text node, so the markup shows as literal text and no <img> exists.
+      await expect(c.locator('a img')).toHaveCount(0);
+      await expect(c.locator('a')).toHaveText('<img src=x onerror=alert(1)>');
+   });
 });

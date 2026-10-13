@@ -111,8 +111,14 @@ Some components append nodes to `document.body` — those elements live outside 
 
 - **ToolTip** — `.slice-tooltip-bubble*` appended to `document.body`
 - **Toast** — `.toast-provider-container*` created on `document.body`
-- **Icon** — `.slc-*` icon-font glyph stylesheet
 - **Card** — `.slice-card*` is the host's own class (`this.classList.add('slice-card')`), already host-scoped
+
+:::note
+**Icon** used to be the fourth exception: its `.slc-*` icon-font glyph stylesheet was written at
+global scope (`[class^="slc-"] { font-family: slc !important }`), so any element in a consuming app
+whose class happened to start with `slc-` inherited the icon font. It is no longer an exception —
+the glyphs are inline `<svg>` and the stylesheet is scoped under `slice-icon`.
+:::
 
 ---
 
