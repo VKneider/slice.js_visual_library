@@ -1,0 +1,84 @@
+/* Encapsulated under the custom element so the badge styles never leak. */
+
+slice-badge {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+slice-badge .slice_badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  padding: 0 0.45em;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-family: var(--font-family);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--primary-color-contrast);
+  background: var(--primary-color);
+}
+
+slice-badge .slice_badge[hidden] {
+  display: none;
+}
+
+slice-badge .slice_badge--sm {
+  min-width: 1.25em;
+  height: 1.25em;
+  padding: 0 0.35em;
+  font-size: 0.65rem;
+}
+
+/* ------------------------------------------------------------------ variants
+   Each one derives from theme tokens, so a badge keeps its meaning across
+   themes. Colour is paired with the text, never the only signal. */
+
+slice-badge .slice_badge--neutral {
+  color: var(--font-primary-color);
+  background: color-mix(in srgb, var(--medium-color) 22%, transparent);
+  border-color: color-mix(in srgb, var(--medium-color) 40%, transparent);
+}
+
+slice-badge .slice_badge--accent {
+  color: var(--primary-color-contrast);
+  background: var(--primary-color);
+}
+
+slice-badge .slice_badge--success {
+  color: var(--success-contrast);
+  background: var(--success-color);
+}
+
+slice-badge .slice_badge--warning {
+  color: var(--warning-contrast);
+  background: var(--warning-color);
+}
+
+slice-badge .slice_badge--danger {
+  color: var(--danger-contrast);
+  background: var(--danger-color);
+}
+
+slice-badge .slice_badge--info {
+  color: var(--secondary-color-contrast);
+  background: var(--secondary-color);
+}
+
+/* A dot carries no text, so it collapses to a circle and relies on the
+   host's aria-label for its name. */
+slice-badge .slice_badge--dot {
+  min-width: 0.6em;
+  width: 0.6em;
+  height: 0.6em;
+  padding: 0;
+  border-radius: 50%;
+}
+
+slice-badge .slice_badge--dot .slice_badge__text {
+  display: none;
+}

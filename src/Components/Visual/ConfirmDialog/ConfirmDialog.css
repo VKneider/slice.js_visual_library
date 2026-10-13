@@ -1,0 +1,37 @@
+/* Encapsulated under the custom element so the dialog styles never leak. */
+
+slice-confirmdialog {
+  display: contents;
+}
+
+slice-confirmdialog .slice_confirm_dialog__message {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--font-secondary-color);
+  /* An unbounded message in a fixed-width dialog turns into a wall of text. */
+  max-width: 46ch;
+}
+
+slice-confirmdialog .slice_confirm_dialog__message[hidden] {
+  display: none;
+}
+
+slice-confirmdialog .slice_confirm_dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+  font-family: var(--font-family);
+}
+
+slice-confirmdialog .slice_confirm_dialog__field[hidden] {
+  display: none;
+}
+
+slice-confirmdialog .slice_confirm_dialog__field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}

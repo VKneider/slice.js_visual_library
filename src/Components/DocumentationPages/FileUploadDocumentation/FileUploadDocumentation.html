@@ -1,0 +1,25 @@
+<div class="documentation-content fileuploaddocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="fileupload">
+    <span class="doc-title-text">FileUpload</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>A drop zone for files that works with a mouse, a finger and a keyboard. The zone is a <code>&lt;label&gt;</code> wrapping a real <code>&lt;input type="file"&gt;</code>, so the browser gives you click-to-open, focus and Enter/Space for free — none of which a clickable <code>&lt;div&gt;</code> would have.</p>
+<h2 id="api">API</h2>
+<ul><li><code>accept</code> (string) — extensions or MIME types, e.g. <code>'image/*,.png'</code>. Empty means anything.</li><li><code>multiple</code> (boolean) — allow more than one file.</li><li><code>disabled</code> (boolean)</li><li><code>prompt</code> (string, default <code>'Drag files here, or click to choose'</code>)</li><li><code>hint</code> (string) — small print under the prompt, e.g. the size limit.</li><li><code>icon</code> (string, default <code>'upload'</code>) — an <code>Icon</code> name; empty renders no glyph.</li><li><code>list</code> (boolean) — show the picked files under the zone.</li><li><code>onFiles</code> (function) — called as <code>onFiles(filesArray, fileList)</code></li></ul>
+<p>The input is cleared after every pick, so choosing the <strong>same</strong> file twice still fires <code>onFiles</code> instead of silently doing nothing.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Validate the files in <code>onFiles</code> rather than relying on <code>accept</code>: it is only a picker hint, and a user
+can still drop anything. Check type and size there, and tell them what you rejected.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>accept</code> filters the picker, not the drop handler. A file dragged onto the zone is <strong>not</strong> filtered
+by it — always re-check <code>files</code> yourself.</div>
+<div class="component-block" data-block-id="doc-block-4"></div>
+</div>

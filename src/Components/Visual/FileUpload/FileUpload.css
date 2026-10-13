@@ -1,0 +1,103 @@
+/* Encapsulated under the custom element so the upload styles never leak. */
+
+slice-file-upload {
+  display: block;
+  width: 100%;
+}
+
+slice-file-upload .slice_file_upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+}
+
+slice-file-upload .slice_file_upload__zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px 16px;
+  text-align: center;
+  border: 2px dashed color-mix(in srgb, var(--primary-color) 40%, transparent);
+  border-radius: calc(var(--border-radius-slice) * 1.5);
+  background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+  color: var(--font-primary-color);
+  font-family: var(--font-family);
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+slice-file-upload .slice_file_upload__zone.is-over {
+  border-color: var(--primary-color);
+  border-style: solid;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+}
+
+slice-file-upload .slice_file_upload__zone.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  border-style: solid;
+}
+
+/* The focus ring belongs on the visible zone: the input itself is hidden. */
+slice-file-upload .slice_file_upload__input:focus-visible + .slice_file_upload__zone {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+slice-file-upload .slice_file_upload__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+
+slice-file-upload .slice_file_upload__icon:empty {
+  display: none;
+}
+
+slice-file-upload .slice_file_upload__prompt {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+slice-file-upload .slice_file_upload__hint {
+  font-size: 0.78rem;
+  color: var(--font-secondary-color);
+}
+
+slice-file-upload .slice_file_upload__hint[hidden] {
+  display: none;
+}
+
+slice-file-upload .slice_file_upload__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+slice-file-upload .slice_file_upload__list[hidden] {
+  display: none;
+}
+
+slice-file-upload .slice_file_upload__item {
+  padding: 6px 10px;
+  border-radius: calc(var(--border-radius-slice) * 0.8);
+  background: color-mix(in srgb, var(--medium-color) 16%, transparent);
+  font-family: var(--font-family);
+  font-size: 0.8rem;
+  color: var(--font-primary-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-file-upload .slice_file_upload__zone {
+    transition: none;
+  }
+}

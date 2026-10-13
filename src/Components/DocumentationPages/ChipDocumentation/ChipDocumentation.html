@@ -1,0 +1,25 @@
+<div class="documentation-content chipdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="chip">
+    <span class="doc-title-text">Chip</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>A <code>Chip</code> is a compact label for a filter, a tag, or a selected value in a multi-select. It sits inline, wraps long text with an ellipsis, and can carry an icon and a remove affordance.</p>
+<p>For a read-only status pill, use <code>Badge</code> instead — a Badge carries state, a Chip carries a selection you can act on.</p>
+<h2 id="api">API</h2>
+<ul><li><code>label</code> (string)</li><li><code>icon</code> (string) — an <code>Icon</code> name; empty renders no glyph</li><li><code>variant</code> (<code>neutral</code> | <code>accent</code> | <code>success</code> | <code>warning</code> | <code>danger</code>, default <code>neutral</code>)</li><li><code>size</code> (<code>sm</code> | <code>md</code>, default <code>md</code>)</li><li><code>disabled</code> (boolean)</li><li><code>removable</code> (boolean) — renders a real <code>&lt;button&gt;</code> remove affordance</li><li><code>removeLabel</code> (string, default <code>"Remove"</code>) — used for the button's <code>aria-label</code> and tooltip</li><li><code>onRemove</code> (function) — called with the chip's <code>label</code></li></ul>
+<p>The remove button is labelled <code>"&lt;removeLabel&gt;: &lt;label&gt;"</code>, so a screen-reader user hears *which* chip they are removing rather than a list of identical "Remove" buttons.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>Chip</code> for things the user chose and can remove, <code>Badge</code> for things the system decided. Mixing
+the two makes it unclear whether a pill is clickable.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">A Chip is not draggable. To reorder a list of chips, register them with <code>DragDropService</code> yourself —
+sorting is a container concern, not something a chip should own.</div>
+<div class="component-block" data-block-id="doc-block-3"></div>
+</div>

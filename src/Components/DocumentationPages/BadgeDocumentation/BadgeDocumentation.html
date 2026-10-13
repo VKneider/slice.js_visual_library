@@ -1,0 +1,26 @@
+<div class="documentation-content badgedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="badge">
+    <span class="doc-title-text">Badge</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>A <code>Badge</code> is a small status pill: a count, a label, or a bare dot. It answers "what state is this thing in" at a glance, next to a list item, a tab, an avatar or a button.</p>
+<p>Variants are <strong>semantic</strong> (<code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>accent</code>), not decorative, and each derives from theme tokens — so a badge means the same thing in light and dark without you picking a colour.</p>
+<h2 id="api">API</h2>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<ul><li><code>label</code> (string) — the text. Doubles as the accessible name when <code>dot</code> is set.</li><li><code>value</code> (number | null) — a count. Wins over <code>label</code>, and is capped by <code>max</code> (<code>99</code> → <code>99+</code>).</li><li><code>max</code> (number, default <code>99</code>) — the cap for <code>value</code>.</li><li><code>dot</code> (boolean) — render a bare dot instead of text.</li><li><code>size</code> (<code>sm</code> | <code>md</code>, default <code>md</code>)</li></ul>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Overlaid on a button or an avatar, keep the badge <code>absolute</code> in your own layout — <code>Badge</code> only
+styles itself, not its position relative to a sibling.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Colour alone is not enough of a signal. A <code>danger</code> badge next to a <code>success</code> one reads differently to
+everyone, but only the text tells a colourblind user which is which — keep <code>label</code> or <code>value</code> set.</div>
+<div class="component-block" data-block-id="doc-block-5"></div>
+</div>

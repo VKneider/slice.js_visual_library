@@ -1,0 +1,27 @@
+<div class="documentation-content emptystatedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="emptystate">
+    <span class="doc-title-text">EmptyState</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>The block you show where content *would* be, if there were any. It carries an icon, a title, a sentence explaining what will appear there, and usually one action that fixes the emptiness.</p>
+<p>An empty state is not decoration: it is the first thing a new user sees in that area, so the copy should say what goes here and how to get the first one in.</p>
+<h2 id="api">API</h2>
+<ul><li><code>icon</code> (string, default <code>'inbox-full'</code>) — an <code>Icon</code> name. Empty renders no glyph.</li><li><code>iconSize</code> (string, default <code>'large'</code>)</li><li><code>title</code> (string) — the heading. Hidden when empty.</li><li><code>description</code> (string) — the explanation. Hidden when empty.</li><li><code>buttonLabel</code> (string) — label of the optional action <code>Button</code></li><li><code>buttonRoute</code> (string) — where the action navigates</li><li><code>buttonOnClick</code> (function) — what the action does. <strong>Wins over <code>buttonRoute</code>.</strong></li></ul>
+<p><code>buttonOnClick</code> rather than <code>onClick</code> because the click belongs to the child <code>Button</code>, not to the empty state itself.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Write the description as a promise, not an apology: "Replies will show up here" beats "There are no
+replies". One concrete action beats a paragraph of explanation.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Give it a real empty state only where the absence is expected. A request that failed to load looks
+identical to an empty list, and "Nothing here" is the wrong message for a broken endpoint — handle
+errors separately.</div>
+<div class="component-block" data-block-id="doc-block-4"></div>
+</div>

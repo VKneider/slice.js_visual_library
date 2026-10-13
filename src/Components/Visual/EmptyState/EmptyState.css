@@ -1,0 +1,64 @@
+/* Encapsulated under the custom element so the empty-state styles never leak. */
+
+slice-emptystate {
+  display: block;
+  width: 100%;
+}
+
+slice-emptystate .slice_empty_state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+slice-emptystate .slice_empty_state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 4px;
+  border-radius: 50%;
+  color: var(--font-secondary-color);
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+}
+
+slice-emptystate .slice_empty_state__icon:empty {
+  display: none;
+}
+
+slice-emptystate .slice_empty_state__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--font-primary-color);
+}
+
+slice-emptystate .slice_empty_state__title[hidden] {
+  display: none;
+}
+
+slice-emptystate .slice_empty_state__description {
+  margin: 0;
+  max-width: 40ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--font-secondary-color);
+}
+
+slice-emptystate .slice_empty_state__description[hidden] {
+  display: none;
+}
+
+slice-emptystate .slice_empty_state__action:empty {
+  display: none;
+}
+
+slice-emptystate .slice_empty_state__action {
+  display: inline-flex;
+  margin-top: 8px;
+}

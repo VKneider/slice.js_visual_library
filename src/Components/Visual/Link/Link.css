@@ -1,0 +1,37 @@
+/* Encapsulated under the custom element so the link styles never leak. */
+
+slice-link {
+  display: inline-block;
+}
+
+/* A bare <a> inherits UA link styling (underline, link colour), which fights
+   every consumer that wants the link to read as part of its layout. Anchor the
+   text colour to the host and lay the optional icon + label out in a row. */
+slice-link > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+slice-link > a:hover {
+  text-decoration: underline;
+}
+
+slice-link .slice-link-icon {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+
+/* Only rendered when `sub` is set; the label needs its own block to stack on it. */
+slice-link .slice-link-title {
+  display: block;
+}
+
+slice-link .slice-link-sub {
+  display: block;
+  font-size: 0.85em;
+  opacity: 0.8;
+}

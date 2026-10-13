@@ -1,0 +1,39 @@
+<div class="documentation-content confirmdialogdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="confirmdialog">
+    <span class="doc-title-text">ConfirmDialog</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>The "are you sure?" dialog, and the single-value prompt. Built on [<code>Modal</code>](/docs/display/modal), so scroll-lock, focus, <code>Escape</code> and backdrop dismissal are already handled — this only owns the copy, the two buttons and the promise.</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="why-a-promise-and-not-an-event">Why a promise and not an event</h2>
+<p>The obvious alternative is a global <code>confirm:request</code> event plus callbacks. With that, every call site has to juggle two async channels plus a "did this already fire?" flag, and a caller that returns early leaves the event unfired.</p>
+<p>With a promise the control flow is linear and cannot get wrong:</p>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<h2 id="api">API</h2>
+<ul><li><code>ask(options) -&gt; Promise&lt;boolean&gt;</code> — <code>true</code> confirmed, <code>false</code> cancelled or dismissed.</li><li><code>prompt(options) -&gt; Promise&lt;string|null&gt;</code> — the value, or <code>null</code> if cancelled.</li><li><code>isOpen</code> (boolean) — whether a question is currently on screen.</li></ul>
+<p>Options for both (all optional):</p>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<p>Defaults can be set once on the component (<code>confirmLabel</code>, <code>cancelLabel</code>, <code>confirmVariant</code> props) and overridden per call.</p>
+<h2 id="the-one-invariant">The one invariant</h2>
+<p><strong>Every <code>ask()</code>/<code>prompt()</code> resolves exactly once.</strong> A dialog that could be dismissed without settling would leave the awaiting caller hanging for the life of the page, so <code>Escape</code>, the backdrop, the X button, a second question arriving while one is open, and destroying the component all resolve — as cancellations. There is a spec for each of those.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Put the consequence in <code>message</code>, not in the title. The title says what is being asked; the
+message says what happens if the answer is yes. "This cannot be undone" is worth more than
+"Confirm".</div>
+<div class="callout callout-tip">Use <code>danger: true</code> for anything irreversible. It is the only thing that distinguishes "shall I
+publish this?" from "shall I delete this?", and it is one property.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>required</code> blocks the confirm button and paints an error, but it does not disable it. That is
+deliberate: a permanently greyed-out button tells the user nothing about why. If the empty case
+should not even be reachable, validate before opening the dialog.</div>
+<p>A prompt's field is focused when it opens, so <code>Enter</code> confirms. If the answer is not something a user should be able to submit with a single keystroke, do not put a prompt on that action.</p>
+<div class="callout callout-warning"><code>ask()</code> cannot prevent the dialog from being dismissed — <code>Escape</code> and the backdrop always count as
+"no". If the answer must be explicit, do not make it cancellable: leave <code>dismissable</code> on and accept
+that a stray Escape reads as a refusal.</div>
+</div>
