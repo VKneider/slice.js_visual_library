@@ -233,3 +233,152 @@ test.describe('Form - a field with no renderable control', () => {
       await expect(c.locator('.slice-form__broken')).toHaveCount(0);
    });
 });
+// ── Layout API: variant, columns, full, maxWidth ──
+
+test.describe('Form - layout', () => {
+   const SCHEMA = [
+      { kind: 'section', title: 'Account' },
+      { kind: 'field', name: 'firstName', label: 'First name', component: 'Input' },
+      { kind: 'field', name: 'lastName', label: 'Last name', component: 'Input' },
+      { kind: 'field', name: 'bio', label: 'Bio', component: 'Input', full: true },
+   ];
+
+   test('card is the default variant and it draws a surface', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA });
+
+      const state = await c.component.evaluate((el) => {
+         const inner = el.querySelector('.slice-form');
+         const cs = getComputedStyle(inner);
+         return {
+            variant: el.dataset.variant,
+            padding: cs.padding,
+            borderTopWidth: cs.borderTopWidth,
+         };
+      });
+
+      expect(state.variant).toBe('card');
+      expect(Number.parseFloat(state.padding)).toBeGreaterThan(0);
+      expect(Number.parseFloat(state.borderTopWidth)).toBeGreaterThan(0);
+   });
+
+   test("plain has no surface - for a form already inside a Modal or Card", async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, variant: 'plain' });
+
+      const state = await c.component.evaluate((el) => {
+         const cs = getComputedStyle(el.querySelector('.slice-form'));
+         return { variant: el.dataset.variant, padding: cs.padding, borderTopWidth: cs.borderTopWidth };
+      });
+
+      expect(state.variant).toBe('plain');
+      expect(state.padding).toBe('0px');
+      expect(Number.parseFloat(state.borderTopWidth)).toBe(0);
+   });
+
+   test('an unknown variant falls back to card rather than rendering unstyled', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, variant: 'nonsense' });
+      expect(await c.component.evaluate((el) => el.dataset.variant)).toBe('card');
+   });
+
+   // One mount per test: a second mount() clears the harness root, so a
+   // side-by-side comparison in a single test measures the second component
+   // twice. This one bit me while writing them.
+   test('columns: 1 is a single-column stack', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, columns: 1 });
+
+      const state = await c.component.evaluate((el) => ({
+         declared: getComputedStyle(el).getPropertyValue('--form-columns').trim(),
+         tracks: getComputedStyle(el.querySelector('.slice-form__fields'))
+            .gridTemplateColumns.split(' ')
+            .filter(Boolean).length,
+      }));
+
+      expect(state.declared).toBe('1');
+      expect(state.tracks).toBe(1);
+   });
+
+   test('columns: 2 produces two real tracks', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, columns: 2 });
+
+      const state = await c.component.evaluate((el) => ({
+         declared: getComputedStyle(el).getPropertyValue('--form-columns').trim(),
+         tracks: getComputedStyle(el.querySelector('.slice-form__fields'))
+            .gridTemplateColumns.split(' ')
+            .filter(Boolean).length,
+      }));
+
+      expect(state.declared).toBe('2');
+      expect(state.tracks).toBe(2);
+   });
+
+   test('a `full` field spans every column', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, columns: 2 });
+
+      const spans = await c.component.evaluate((el) => {
+         const out = {};
+         for (const f of el.querySelectorAll('.slice-form__field')) {
+            out[f.dataset.name] = getComputedStyle(f).gridColumn;
+         }
+         return out;
+      });
+
+      // The opt-out exists for an address or a textarea, which read badly at
+      // half width.
+      expect(spans.bio).toContain('-1');
+      expect(spans.firstName).not.toContain('-1');
+   });
+
+   test('sections and separators always span the full row', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, columns: 2 });
+
+      const spans = await c.component.evaluate((el) => {
+         const section = el.querySelector('.slice-form__section');
+         return getComputedStyle(section).gridColumn;
+      });
+
+      expect(spans).toContain('-1');
+   });
+
+   test('maxWidth caps the form', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA, maxWidth: '30rem' });
+
+      const state = await c.component.evaluate((el) => ({
+         prop: getComputedStyle(el).getPropertyValue('--form-control').trim(),
+         inner: Math.round(el.querySelector('.slice-form').getBoundingClientRect().width),
+      }));
+
+      expect(state.prop).toBe('30rem');
+      // 30rem resolves to 480px, so the cap is real rather than advisory.
+      expect(state.inner).toBeLessThanOrEqual(481);
+   });
+
+   test('without maxWidth the default cap applies, not the container width', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA });
+
+      const state = await c.component.evaluate((el) => ({
+         prop: getComputedStyle(el).getPropertyValue('--form-control').trim(),
+         inner: Math.round(el.querySelector('.slice-form').getBoundingClientRect().width),
+      }));
+
+      // 40rem, not the full width of whatever contains it. A text field
+      // stretched across a whole docs column is most of why the old demos read
+      // as unfinished.
+      expect(state.prop).toBe('40rem');
+      expect(state.inner).toBeLessThanOrEqual(641);
+   });
+
+   test('columns and maxWidth can change at runtime', async ({ mount }) => {
+      const c = await mount('Form', { schema: SCHEMA });
+
+      await c.component.evaluate((el) => {
+         el.columns = 3;
+      });
+      await expect
+         .poll(() => c.component.evaluate((el) => getComputedStyle(el).getPropertyValue('--form-columns').trim()))
+         .toBe('3');
+
+      await c.component.evaluate((el) => {
+         el.variant = 'plain';
+      });
+      expect(await c.component.evaluate((el) => el.dataset.variant)).toBe('plain');
+   });
+});

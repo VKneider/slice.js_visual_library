@@ -52,8 +52,11 @@ slice-input .slice_input {
   font-family: var(--font-family);
   border: var(--slice-border) solid var(--primary-color);
   background-color: var(--primary-background-color);
-  margin-bottom: 25px;
-  margin-top: 25px;
+  /* Vertical spacing belongs to the container, not to the control. This
+     used to be hardcoded to 25px, which silently doubled every layout that
+     already spaced its own fields (the Form grid added its own gap on top).
+     Set --control-margin-block on the host to restore standalone spacing. */
+  margin: var(--control-margin-block, 0);
   position: relative;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }

@@ -1,4 +1,32 @@
+/* Form — layout system.
+ *
+ * The previous stylesheet set every gap and font-size ad hoc, which is why the
+ * demos read as a wall of floating elements: fields stretched the full 770px of
+ * the docs column, section titles were the same size as field labels, and there
+ * was no rhythm between a label, its description and its control.
+ *
+ * Everything now comes from three custom properties at the top, so the whole
+ * rhythm retunes from one place.
+ *
+ *   --form-gap      vertical space between fields
+ *   --form-control  max width of the form, so a text field is not 770px wide
+ *   --form-label    font size of a field label
+ *
+ * VARIANT
+ *   card  (default) a raised surface - use it when the form is a block in its
+ *                    own right, which is the usual case
+ *   plain no surface, rhythm only - use it when the form already sits inside
+ *                    something that provides the container (a Modal body, a
+ *                    Card, a Drawer). Auto-detecting that is worse than being
+ *                    explicit, so it is not attempted.
+ */
+
 slice-form {
+  --form-gap: 1.125rem;
+  --form-control: 40rem;
+  --form-label: 0.875rem;
+  --form-radius: 12px;
+
   display: block;
   width: 100%;
 }
@@ -6,66 +34,119 @@ slice-form {
 slice-form .slice-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--form-gap);
+  width: 100%;
+  /* Without this, max-width applies to the CONTENT box and the card variant's
+     padding + border push the rendered width 50px past the cap - measured 530px
+     for a 30rem cap. */
+  box-sizing: border-box;
+  max-width: var(--form-control);
 }
 
-slice-form .slice-form__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* ── surfaces ──────────────────────────────────────────────────────────── */
+
+slice-form[data-variant='card'] .slice-form {
+  padding: 1.5rem;
+  border-radius: var(--form-radius);
+  border: 1px solid var(--slice-border-raised, var(--slice-border, currentColor));
+  background: var(--slice-surface-raised, var(--primary-background-color));
+  box-shadow: var(--slice-shadow-sm, none);
 }
+
+slice-form[data-variant='plain'] .slice-form {
+  padding: 0;
+}
+
+/* ── the field grid ────────────────────────────────────────────────────── */
+
+/* A grid rather than a column stack, so short fields can sit side by side. At
+   one column this is exactly the old behaviour; `columns: 2` is what makes a
+   form read as designed rather than dumped. */
+slice-form .slice-form__fields {
+  display: grid;
+  grid-template-columns: repeat(var(--form-columns, 1), minmax(0, 1fr));
+  gap: var(--form-gap);
+  align-items: start;
+}
+
+/* A full-width field inside a multi-column form: the long ones (an address, a
+   description, a switch row) read badly at half width. */
+slice-form .slice-form__field[data-full='true'],
+slice-form .slice-form__section,
+slice-form .slice-form__separator {
+  grid-column: 1 / -1;
+}
+
+/* ── sections ──────────────────────────────────────────────────────────── */
 
 slice-form .slice-form__section {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  margin-top: 0.5rem;
+  /* Room to separate a section from the fields above it. Uses the same gap so
+     the rhythm stays on one scale. */
+  margin-top: 0.25rem;
 }
 
 slice-form .slice-form__section-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   color: var(--font-primary-color);
 }
 
 slice-form .slice-form__section-desc {
   margin: 0;
   font-size: 0.85rem;
-  color: color-mix(in srgb, var(--font-primary-color) 65%, transparent);
+  line-height: 1.5;
+  color: var(--font-secondary-color);
 }
 
 slice-form .slice-form__separator {
   border: none;
-  border-top: 1px solid color-mix(in srgb, var(--font-primary-color) 12%, transparent);
-  margin: 0.25rem 0;
+  border-top: 1px solid var(--slice-border, currentColor);
+  opacity: 0.25;
   width: 100%;
+  margin: 0;
 }
+
+/* ── fields ────────────────────────────────────────────────────────────── */
 
 slice-form .slice-form__field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  /* The gap BETWEEN a label, its description and its control. It was 0.25rem
+     before, which is far too tight for the label to read as belonging to the
+     field rather than floating above it. */
+  gap: 0.375rem;
+  min-width: 0;
 }
 
 slice-form .slice-form__label {
-  font-size: 0.9rem;
+  font-size: var(--form-label);
   font-weight: 600;
+  line-height: 1.4;
   color: var(--font-primary-color);
 }
 
 slice-form .slice-form__required {
   color: var(--danger-color);
+  margin-left: 0.125rem;
 }
 
 slice-form .slice-form__description {
-  margin: 0;
+  /* Descriptions sit UNDER the label but their tight leading keeps them from
+     competing with it. */
+  margin: -0.125rem 0 0;
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--font-primary-color) 60%, transparent);
+  line-height: 1.45;
+  color: var(--font-secondary-color);
 }
 
 slice-form .slice-form__error {
   font-size: 0.8rem;
+  line-height: 1.4;
   color: var(--danger-color);
   min-height: 0;
 }
@@ -90,14 +171,28 @@ slice-form .slice-form__broken {
   background: color-mix(in srgb, var(--danger-color) 8%, transparent);
 }
 
+/* ── actions ───────────────────────────────────────────────────────────── */
+
 slice-form .slice-form__actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+  /* Pinned to the baseline of the form rather than drifting with it. */
+  margin-top: 0.25rem;
+  padding-top: var(--form-gap);
+  border-top: 1px solid var(--slice-border, currentColor);
   justify-content: flex-end;
-  margin-top: 0.5rem;
 }
 
-/* Native submit proxy: enables Enter-to-submit without being visible. */
+slice-form[data-variant='plain'] .slice-form__actions {
+  /* No surface means no edge to separate the actions from the fields. */
+  border-top: none;
+  padding-top: 0;
+}
+
+/* ── native submit proxy ───────────────────────────────────────────────── */
+
+/* Enables Enter-to-submit without being visible. */
 slice-form .slice-form__submit-proxy {
   position: absolute;
   width: 1px;

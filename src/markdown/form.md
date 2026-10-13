@@ -38,6 +38,38 @@ Each item is discriminated by `kind`:
 - `required` — `true` or a custom message.
 - `validate(value, values)` — returns an error string (falsy when valid). Runs on submit.
 
+## Layout
+
+Three presentation props, and one per-field opt-out.
+
+| Prop | Default | What it does |
+| --- | --- | --- |
+| `variant` | `'card'` | `'card'` draws a raised surface. `'plain'` is rhythm only - use it when the form already sits inside one, such as a Modal body or a Card. |
+| `columns` | `1` | Field grid columns. `2` is what makes a form read as designed rather than dumped. |
+| `maxWidth` | `'40rem'` | Caps the form's width, so a single text field is not as wide as its container. |
+
+```javascript
+await slice.build('Form', {
+  columns: 2,
+  schema: [
+    { kind: 'field', name: 'first', label: 'First name', component: 'Input' },
+    { kind: 'field', name: 'last',  label: 'Last name',  component: 'Input' },
+    // full width - an address or a textarea reads badly at half width
+    { kind: 'field', name: 'bio', label: 'Bio', component: 'Textarea', full: true },
+  ],
+});
+```
+
+`full: true` on a **field** keeps it out of a shared grid row. Sections and
+separators always span the full row.
+
+:::tip
+The container owns the spacing, not the controls. `Input`, `Select` and
+`Textarea` carry no vertical margin of their own, so a form's rhythm is
+decided in one place. If you need the old standalone spacing, set
+`--control-margin-block` on the host.
+:::
+
 ## Methods
 | Method | Description |
 | --- | --- |
@@ -51,8 +83,12 @@ Each item is discriminated by `kind`:
 const form = await slice.build('Form', {
   submitText: 'Create account',
   resetText: 'Reset',
+  // Two columns: short fields share a row, long ones opt out with full: true.
+  columns: 2,
   schema: [
     { kind: 'section', title: 'Account', description: 'How you sign in' },
+    { kind: 'field', name: 'firstName', label: 'First name', component: 'Input', required: true },
+    { kind: 'field', name: 'lastName', label: 'Last name', component: 'Input', required: true },
     { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true,
       description: 'We never share it.',
       validate: (v) => (/\S+@\S+\.\S+/.test(v) ? null : 'Enter a valid email') },
@@ -61,7 +97,9 @@ const form = await slice.build('Form', {
     { kind: 'separator' },
     { kind: 'section', title: 'Preferences' },
     { kind: 'field', name: 'newsletter', label: 'Email me product news',
-      component: 'Switch', valueProp: 'checked', value: true }
+      component: 'Switch', valueProp: 'checked', value: true, full: true },
+    { kind: 'field', name: 'role', label: 'Role', component: 'Select', full: true,
+      props: { visibleProp: 'label', options: [{ label: 'Owner', value: 'owner' }, { label: 'Member', value: 'member' }] } }
   ],
   onSubmit: (values) => console.log('submit', values)
 });
@@ -70,8 +108,11 @@ return form;
 :::
 
 :::script label="Form inside a Modal" expected="the form lives in the modal body"
+// variant: 'plain' — the Modal body is already a surface, so a card inside
+// it would be a box in a box.
 const form = await slice.build('Form', {
   submitText: 'Save',
+  variant: 'plain',
   schema: [
     { kind: 'field', name: 'title', label: 'Title', component: 'Input', required: true },
     { kind: 'field', name: 'pinned', label: 'Pin to top', component: 'Checkbox', valueProp: 'checked' }

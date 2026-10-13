@@ -20,7 +20,21 @@ export default class Form extends HTMLElement {
     schema: { type: 'array', default: [] },
     submitText: { type: 'string', default: 'Submit' },
     resetText: { type: 'string', default: null },
-    onSubmit: { type: 'function', default: null }
+    onSubmit: { type: 'function', default: null },
+
+    // 'card' draws a raised surface; 'plain' is rhythm only, for a form that
+    // already sits inside one (a Modal body, a Card). Not auto-detected -
+    // guessing from the ancestor is worse than being explicit.
+    variant: { type: 'string', default: 'card' },
+
+    // Field grid columns. 1 is the plain stack; 2 is what makes a form read as
+    // designed. A field opts out of sharing a row with `full: true`.
+    columns: { type: 'number', default: 1 },
+
+    // Cap on the form's width, so a single text field is not as wide as the
+    // page. A long line of text to read into is a real usability problem, and
+    // it is the single thing that most made the old demos look unfinished.
+    maxWidth: { type: 'string', default: null }
   };
 
   constructor(props) {
@@ -35,6 +49,9 @@ export default class Form extends HTMLElement {
     this._submitText = 'Submit';
     this._resetText = null;
     this._onSubmit = null;
+    this._variant = 'card';
+    this._columns = 1;
+    this._maxWidth = null;
 
     this._fields = []; // [{ name, instance, valueProp, config, $error, $field }]
     this._built = []; // every slice.build instance (fields + buttons) to destroy
@@ -70,6 +87,28 @@ export default class Form extends HTMLElement {
   set onSubmit(value) {
     this._onSubmit = typeof value === 'function' ? value : null;
   }
+
+  // Presentation props. These only drive attributes and CSS custom properties,
+  // so they re-render like the text props do rather than needing their own
+  // update path.
+  set variant(value) {
+    this._variant = value === 'plain' ? 'plain' : 'card';
+    if (this._ready) this._render();
+  }
+  get variant() { return this._variant; }
+
+  set columns(value) {
+    const n = Number(value);
+    this._columns = Number.isFinite(n) && n >= 1 && n <= 4 ? Math.round(n) : 1;
+    if (this._ready) this._render();
+  }
+  get columns() { return this._columns; }
+
+  set maxWidth(value) {
+    this._maxWidth = typeof value === 'string' && value.trim() ? value.trim() : null;
+    if (this._ready) this._render();
+  }
+  get maxWidth() { return this._maxWidth; }
 
   async init() {
     this.$form.addEventListener('submit', this._handleSubmit);
@@ -165,6 +204,13 @@ export default class Form extends HTMLElement {
    * racing it, and a rejection does not poison the queue for the next render.
    */
   _render() {
+    // Presentation attributes live on the HOST, not the inner <form>, so the
+    // CSS can key off them and so a consumer can target the component.
+    this.dataset.variant = this._variant;
+    this.style.setProperty('--form-columns', String(this._columns));
+    if (this._maxWidth) this.style.setProperty('--form-control', this._maxWidth);
+    else this.style.removeProperty('--form-control');
+
     const run = () => this._renderOnce();
     const previous = this._rendering || Promise.resolve();
     const current = previous.then(run, run);
@@ -239,6 +285,11 @@ export default class Form extends HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = 'slice-form__field';
     if (config.name) wrap.dataset.name = config.name;
+
+    // `full: true` keeps a field out of the shared grid row - the escape hatch
+    // for an address, a textarea, or a switch row that reads badly at half
+    // width.
+    if (config.full === true) wrap.dataset.full = 'true';
 
     // Marked up front so CSS can style the whole field even though the
     // diagnosis below may append more children after this point.
