@@ -3,10 +3,19 @@ dist/
 
 portfolio/
 
-# Playwright component-testing artifacts (baselines under *-snapshots/ ARE committed)
+# Playwright component-testing artifacts
 test-results/
 playwright-report/
 blob-report/
 playwright/.cache/
+
+# Playwright writes one visual baseline per PLATFORM (`name-win32.png`,
+# `name-linux.png`, `name-darwin.png`). Committing a `-win32` one means CI on
+# Linux looks for `name-linux.png`, does not find it, and fails. The @visual
+# project is opt-in and generates its own baselines, so none are tracked.
+# The two pre-existing `-win32` baselines stay tracked from before this rule.
+*-visual-win32.png
+*-visual-linux.png
+*-visual-darwin.png
 
 .tmp
