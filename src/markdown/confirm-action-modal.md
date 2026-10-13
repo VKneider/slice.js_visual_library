@@ -32,6 +32,14 @@ singleton: a second instance would also subscribe to `confirm:request`, so
 every question would open two dialogs.
 :::
 
+:::warning
+It must be **in the document**. The Modal is built inside the component, and
+`showModal()` on a detached `<dialog>` is a silent no-op: nothing appears,
+the promise still settles, and it looks like the button is dead. Append it
+somewhere real — `document.body` is the usual choice — and the component logs
+a warning if you forget.
+:::
+
 ## The two ways in
 
 ### 1. A promise — when the answer decides what happens next
@@ -139,6 +147,11 @@ There is a spec for each of those.
 :::script label="Yes / no" expected="the flow stops at the dialog until you answer; try Escape and the backdrop too"
 const confirm = await slice.build('ConfirmActionModal', { sliceId: 'demo-confirm' });
 
+// It has to be IN the document. The Modal is built inside this element, and
+// showModal() on a detached <dialog> is a silent no-op - nothing appears and
+// the promise still settles, so the failure looks like "the button is dead".
+document.body.appendChild(confirm);
+
 const log = document.createElement('p');
 log.style.cssText = 'font-family:system-ui,sans-serif;font-size:.85rem;color:var(--font-secondary-color);margin:0 0 10px;';
 log.textContent = 'Nothing decided yet.';
@@ -186,6 +199,7 @@ const confirm = await slice.build('ConfirmActionModal', {
    sliceId: 'demo-confirm-evt',
    eventName: 'demo:confirm:request',
 });
+document.body.appendChild(confirm);
 
 const log = document.createElement('p');
 log.style.cssText = 'font-family:system-ui,sans-serif;font-size:.85rem;color:var(--font-secondary-color);margin:0 0 10px;';
@@ -254,20 +268,24 @@ reference to the component, not because callbacks read nicely at the call site.
 `required` blocks the confirm button and paints an error, but it does not disable it. That is
 deliberate: a permanently greyed-out button tells the user nothing about why. If the empty case
 should not even be reachable, validate before opening the modal.
+:::
 
 :::warning
 Do not pass `singleton: true`. That flag is only for components registered as `"Service"`, and
 `slice.build` returns **`null`** for a Visual component built with it — so `confirm.ask` is then
 "not a function". Build the modal once and share it with `slice.getComponent`.
+:::
 
 :::warning
 A prompt's field is focused when it opens, so `Enter` confirms. If the answer is not something a
 user should be able to submit with a single keystroke, do not put a prompt on that action.
+:::
 
 :::warning
 `ask()` cannot prevent the modal from being dismissed — `Escape` and the backdrop always count as
 "no". If the answer must be explicit, do not make it cancellable: leave `dismissable` on and accept
 that a stray Escape reads as a refusal.
+:::
 
 :::warning
 Every instance subscribes to `confirm:request`. Two instances means two dialogs for one question,

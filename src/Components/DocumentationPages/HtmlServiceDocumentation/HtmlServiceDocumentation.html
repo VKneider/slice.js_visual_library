@@ -32,9 +32,15 @@ attack surface.</div>
 <div class="callout callout-warning"><code>innerHTML = value</code> with an unsanitized <code>value</code> is an XSS hole even when the value "only" comes
 from your own database: anything that writes to it — a form field, an import, a support tool — turns
 it into a hole too. <code>sanitize()</code> at the boundary closes all of them at once.</div>
-<p>Do not use <code>sanitize()</code> on content written by someone else. It allows <code>&lt;img&gt;</code>, so <code>&lt;img src="https://tracker.example/pixel.gif"&gt;</code> survives — and that leaks the reader's IP address and User-Agent the moment the page renders, with nothing visible on screen. Use <code>sanitizeRichText()</code>, which drops images entirely. Links are kept on purpose: an <code>&lt;a href&gt;</code> only reaches its destination when the reader deliberately clicks it, and the destination is visible first.</p>
+<div class="callout callout-warning">Do not use <code>sanitize()</code> on content written by someone else. It allows <code>&lt;img&gt;</code>, so
+<code>&lt;img src="https://tracker.example/pixel.gif"&gt;</code> survives — and that leaks the reader's IP address
+and User-Agent the moment the page renders, with nothing visible on screen. Use
+<code>sanitizeRichText()</code>, which drops images entirely. Links are kept on purpose: an <code>&lt;a href&gt;</code> only
+reaches its destination when the reader deliberately clicks it, and the destination is visible
+first.</div>
 <div class="callout callout-warning"><code>sanitizeRichText()</code> drops tags but <strong>keeps their text</strong>, so a stripped <code>&lt;img&gt;</code> simply disappears
 while <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> leaves <code>alert(1)</code> as visible text. That is DOMPurify's
 <code>KEEP_CONTENT</code> behaviour, not a bug — but if you are rendering user comments, use <code>toText()</code>.</div>
-<p>Sanitizing is not the same as validating. <code>sanitize()</code> guarantees the string is safe to become markup; it says nothing about whether the content is *correct*. Check the shape of the data too.</p>
+<div class="callout callout-warning">Sanitizing is not the same as validating. <code>sanitize()</code> guarantees the string is safe to become
+markup; it says nothing about whether the content is *correct*. Check the shape of the data too.</div>
 </div>

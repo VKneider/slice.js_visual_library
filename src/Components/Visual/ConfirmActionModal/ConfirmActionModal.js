@@ -233,6 +233,18 @@ export default class ConfirmActionModal extends HTMLElement {
 
       await this._setIcon(merged);
 
+      // The Modal is built INSIDE this element, so a component that was never
+      // appended cannot show anything: showModal() on a detached <dialog> is a
+      // silent no-op. The promise would still settle, which makes it look like
+      // the caller's button is dead rather than like a wiring mistake.
+      if (!this.isConnected) {
+         slice.logger.logWarning(
+            this.sliceId,
+            'ConfirmActionModal is not in the document, so its Modal cannot open. ' +
+               'Append the component somewhere real (document.body is usual) before asking.'
+         );
+      }
+
       this.$modal.open = true;
 
       // showModal() claims focus for the dialog itself; for a prompt the field

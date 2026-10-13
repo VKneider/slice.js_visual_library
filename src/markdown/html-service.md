@@ -133,6 +133,8 @@ attack surface.
 from your own database: anything that writes to it — a form field, an import, a support tool — turns
 it into a hole too. `sanitize()` at the boundary closes all of them at once.
 
+:::
+
 :::warning
 Do not use `sanitize()` on content written by someone else. It allows `<img>`, so
 `<img src="https://tracker.example/pixel.gif">` survives — and that leaks the reader's IP address
@@ -141,10 +143,14 @@ and User-Agent the moment the page renders, with nothing visible on screen. Use
 reaches its destination when the reader deliberately clicks it, and the destination is visible
 first.
 
+:::
+
 :::warning
 `sanitizeRichText()` drops tags but **keeps their text**, so a stripped `<img>` simply disappears
 while `<script>alert(1)</script>` leaves `alert(1)` as visible text. That is DOMPurify's
 `KEEP_CONTENT` behaviour, not a bug — but if you are rendering user comments, use `toText()`.
+
+:::
 
 :::warning
 Sanitizing is not the same as validating. `sanitize()` guarantees the string is safe to become

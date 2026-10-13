@@ -26,5 +26,7 @@ in a way a wrong name is not.</div>
 <div class="callout callout-warning">Never revoke the object URL yourself after calling <code>download</code>. The service already revokes it after
 a short delay, and revoking it immediately cancels the download in some browsers — the navigation
 has not started yet.</div>
-<p>For a file larger than a few tens of MB, <code>Blob</code> + <code>URL.createObjectURL</code> is the only thing that works: a base64 <code>data:</code> URL has to fit in a string, and browser string limits are far below what that sounds like. Past that size, stream it from a server instead.</p>
+<div class="callout callout-warning">For a file larger than a few tens of MB, <code>Blob</code> + <code>URL.createObjectURL</code> is the only thing that
+works: a base64 <code>data:</code> URL has to fit in a string, and browser string limits are far below what
+that sounds like. Past that size, stream it from a server instead.</div>
 </div>

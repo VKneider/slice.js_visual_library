@@ -99,6 +99,8 @@ Never revoke the object URL yourself after calling `download`. The service alrea
 a short delay, and revoking it immediately cancels the download in some browsers — the navigation
 has not started yet.
 
+:::
+
 :::warning
 For a file larger than a few tens of MB, `Blob` + `URL.createObjectURL` is the only thing that
 works: a base64 `data:` URL has to fit in a string, and browser string limits are far below what

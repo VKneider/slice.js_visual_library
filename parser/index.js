@@ -115,6 +115,52 @@ const validateFrontMatter = (frontMatter, filePath) => {
   return errors;
 };
 
+/**
+ * Every `:::name` opens a callout or a script block; a bare `:::` closes one.
+ *
+ * Two callouts in a row with a missing closer nest into each other, and the
+ * parser then swallows everything up to the next bare `:::`. That is not a
+ * cosmetic warning: it silently deleted a whole `## Prop Scenarios` section
+ * and its live demos, while this linter passed the file.
+ */
+const lintBalancedDirectiveBlocks = (markdownSource, filePath) => {
+  if (!markdownSource || typeof markdownSource !== 'string') {
+    return [];
+  }
+
+  const lines = markdownSource.split(/\r?\n/);
+  let open = false;
+  let openLine = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    if (!lines[i].startsWith(':::')) {
+      continue;
+    }
+    const isCloser = lines[i].trim() === ':::';
+    if (!open) {
+      open = true;
+      openLine = i + 1;
+      continue;
+    }
+    if (isCloser) {
+      open = false;
+      continue;
+    }
+    return [
+      `[${filePath}] Unclosed directive block opened at line ${openLine}; ` +
+        `a new one starts at line ${i + 1}. Every ":::name" needs its own closing ":::".`
+    ];
+  }
+
+  if (open) {
+    return [
+      `[${filePath}] Unclosed directive block opened at line ${openLine}; the file ends before its closing ":::".`
+    ];
+  }
+
+  return [];
+};
+
 const lintMarkdownSourceForManualPropsTable = (markdownSource, filePath) => {
   if (!markdownSource || typeof markdownSource !== 'string') {
     return [];
@@ -315,6 +361,9 @@ const run = () => {
 
       validationErrors.push(
         ...lintMarkdownSourceForManualPropsTable(parsed.frontMatter?.markdownSource || '', relativePath)
+      );
+      validationErrors.push(
+        ...lintBalancedDirectiveBlocks(parsed.frontMatter?.markdownSource || '', relativePath)
       );
       if (validationErrors.length > 0) {
         continue;

@@ -151,6 +151,8 @@ which does cancel. `next('/some/path')` redirects correctly and is unaffected.
 
 ## Best Practices
 
+:::
+
 :::tip
 Disarm on **save success**, not on save click. Disarming optimistically loses the user's work if the
 save fails.
@@ -167,10 +169,14 @@ silently switching the other's guard off.
 Arming is not the same as validating. The guard warns about leaving; it does not check that what the
 user typed is worth keeping.
 
+:::
+
 :::warning
 Do not arm for trivial state — a collapsed panel, a ticked checkbox, a search filter. A guard that
 fires on things nobody would mourn is a guard the user learns to dismiss without reading, which
 costs you the warning you wanted for the one case that mattered.
+
+:::
 
 :::warning
 `beforeunload` cannot be styled or worded. If the confirmation must be your own design, you cannot

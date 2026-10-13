@@ -36,11 +36,16 @@ cancel a navigation, throw from the guard instead: the router's <code>catch</cod
 which does cancel. <code>next('/some/path')</code> redirects correctly and is unaffected.
 
 ## Best Practices</div>
-<p>Disarm on <strong>save success</strong>, not on save click. Disarming optimistically loses the user's work if the save fails.</p>
-<p>Use a different key per form. Two forms on one page then warn independently, instead of one saving silently switching the other's guard off.</p>
-<p>Arming is not the same as validating. The guard warns about leaving; it does not check that what the user typed is worth keeping.</p>
+<div class="callout callout-tip">Disarm on <strong>save success</strong>, not on save click. Disarming optimistically loses the user's work if the
+save fails.</div>
+<div class="callout callout-tip">Use a different key per form. Two forms on one page then warn independently, instead of one saving
+silently switching the other's guard off.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Arming is not the same as validating. The guard warns about leaving; it does not check that what the
+user typed is worth keeping.</div>
 <div class="callout callout-warning">Do not arm for trivial state — a collapsed panel, a ticked checkbox, a search filter. A guard that
 fires on things nobody would mourn is a guard the user learns to dismiss without reading, which
 costs you the warning you wanted for the one case that mattered.</div>
-<p><code>beforeunload</code> cannot be styled or worded. If the confirmation must be your own design, you cannot cover page close with it — only in-app navigation, through <code>confirmLeave()</code> or <code>setDialog()</code>.</p>
+<div class="callout callout-warning"><code>beforeunload</code> cannot be styled or worded. If the confirmation must be your own design, you cannot
+cover page close with it — only in-app navigation, through <code>confirmLeave()</code> or <code>setDialog()</code>.</div>
 </div>
