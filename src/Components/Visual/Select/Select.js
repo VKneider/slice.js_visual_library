@@ -120,6 +120,17 @@ export default class Select extends HTMLElement {
       this.$selectContainer.setAttribute('aria-expanded', open ? 'true' : 'false');
       this._clearHighlight();
 
+      // While searching, the input owns the visible text. The label is
+      // position:absolute in the input's own place whenever the field is empty,
+      // so leaving it up draws two strings on top of each other - the
+      // placeholder and the label overlapping into unreadable mush.
+      //
+      // The CSS only hides a NON-floated label: with a value selected the
+      // label is lifted clear of the input (slice_select_value) and there is
+      // nothing to overlap, so it must stay visible or the field loses its
+      // label the moment you start typing.
+      this.$label.classList.toggle('slice_select_searching', open && this._searchable);
+
       if (open && this._searchable) {
          this._search = '';
          this._applyFilter();

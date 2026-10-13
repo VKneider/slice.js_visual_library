@@ -50,6 +50,18 @@ slice-select .slice_select_value {
   transition: all 0.5s;
 }
 
+/* Searching: the input shows what is being typed, so a label still sitting in
+   the input's own place would overprint it. Only a NON-floated label is
+   hidden - `slice_select_value` lifts the label clear of the input, and hiding
+   that one would strip the field of its label the moment you start typing.
+
+   opacity rather than visibility/display, so the label keeps the 0.5s
+   transition above and no [hidden] companion rule is needed
+   (COMPONENT_API_STANDARDS.md 8.2 is about display, not opacity). */
+slice-select .slice_select_label.slice_select_searching:not(.slice_select_value) {
+  opacity: 0;
+}
+
 slice-select .slice_select_menu {
   display: none;
   border: var(--slice-border) solid var(--primary-color);

@@ -157,3 +157,157 @@ test.describe('Select — searchable / clearable / keyboard', () => {
       await expect(c.locator('.slice_select')).toHaveValue('Banana');
    });
 });
+
+// ── Searching must not overprint the label on the placeholder ──
+//
+// `.slice_select_label` is position:absolute in the input's own place whenever
+// the field is empty. _setOpen(true) also sets the input's placeholder, so
+// before this fix the two strings were drawn on top of each other and the field
+// read as garbled overlapping text rather than as "label + placeholder".
+
+test.describe('Select - searching', () => {
+   const FRAMEWORKS = [{ name: 'Angular' }, { name: 'React' }, { name: 'Slice.js' }];
+
+   const build = async (mount, extra = {}) =>
+      mount('Select', {
+         options: FRAMEWORKS,
+         visibleProp: 'name',
+         label: 'Framework',
+         placeholder: 'Pick one',
+         searchable: true,
+         ...extra,
+      });
+
+   test('an empty searchable hides the label while the menu is open', async ({ mount }) => {
+      const c = await build(mount);
+
+      const closed = await c.component.evaluate((el) => ({
+         searching: el.$label.classList.contains('slice_select_searching'),
+         opacity: getComputedStyle(el.$label).opacity,
+      }));
+      expect(closed.searching).toBe(false);
+      expect(closed.opacity).toBe('1');
+
+      await c.component.evaluate((el) => el._setOpen(true));
+      await expect(c.locator('.slice_select_label.slice_select_searching')).toHaveCount(1);
+
+      // Wait out the 0.5s opacity transition rather than sampling it mid-flight.
+      await expect
+         .poll(() => c.component.evaluate((el) => getComputedStyle(el.$label).opacity), {
+            timeout: 5000,
+         })
+         .toBe('0');
+   });
+
+   test('the input keeps the placeholder once the label is out of the way', async ({ mount }) => {
+      const c = await build(mount);
+
+      const state = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 600));
+         return {
+            placeholder: el.$select.placeholder,
+            labelOpacity: getComputedStyle(el.$label).opacity,
+            readOnly: el.$select.readOnly,
+         };
+      });
+
+      expect(state.placeholder).toBe('Pick one');
+      expect(state.readOnly).toBe(false);
+      expect(state.labelOpacity).toBe('0');
+   });
+
+   test('a FLOATED label stays visible while searching', async ({ mount }) => {
+      // With a value selected the label is lifted clear of the input
+      // (slice_select_value), so there is nothing to overprint and hiding it
+      // would strip the field of its label the moment you start typing.
+      const c = await build(mount);
+
+      const state = await c.component.evaluate(async (el) => {
+         await el._selectOption(el._optionEls[0].option, el._optionEls[0].el);
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 600));
+         return {
+            searching: el.$label.classList.contains('slice_select_searching'),
+            floated: el.$label.classList.contains('slice_select_value'),
+            opacity: getComputedStyle(el.$label).opacity,
+         };
+      });
+
+      // The class IS applied - the guard lives in the CSS selector, not here.
+      expect(state.searching).toBe(true);
+      expect(state.floated).toBe(true);
+      expect(state.opacity).toBe('1');
+   });
+
+   test('closing removes the searching state', async ({ mount }) => {
+      const c = await build(mount);
+
+      const state = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 50));
+         const whileOpen = el.$label.classList.contains('slice_select_searching');
+         el._setOpen(false);
+         await new Promise((r) => setTimeout(r, 50));
+         return {
+            whileOpen,
+            afterClose: el.$label.classList.contains('slice_select_searching'),
+         };
+      });
+
+      expect(state.whileOpen).toBe(true);
+      expect(state.afterClose).toBe(false);
+   });
+
+   test('a NON-searchable select never enters the searching state', async ({ mount }) => {
+      const c = await mount('Select', {
+         options: FRAMEWORKS,
+         visibleProp: 'name',
+         label: 'Framework',
+         placeholder: 'Pick one',
+      });
+
+      const state = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 300));
+         return {
+            searching: el.$label.classList.contains('slice_select_searching'),
+            opacity: getComputedStyle(el.$label).opacity,
+         };
+      });
+
+      expect(state.searching).toBe(false);
+      expect(state.opacity).toBe('1');
+   });
+
+   test('the label and the placeholder do not overlap on screen', async ({ mount }) => {
+      // The user-visible invariant behind all of the above: while searching an
+      // empty field, the only thing painted in the input is the placeholder.
+      const c = await build(mount);
+
+      const geom = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 600));
+         const input = el.$select.getBoundingClientRect();
+         const label = el.$label.getBoundingClientRect();
+
+         // Do the two boxes really share space? That is the whole reason the
+         // label has to go: they overlap, so both being painted is unreadable.
+         const overlap =
+            input.left < label.right &&
+            label.left < input.right &&
+            input.top < label.bottom &&
+            label.top < input.bottom;
+
+         return {
+            labelOpacity: Number(getComputedStyle(el.$label).opacity),
+            inputBox: `${Math.round(input.x)},${Math.round(input.y)} ${Math.round(input.width)}x${Math.round(input.height)}`,
+            labelBox: `${Math.round(label.x)},${Math.round(label.y)} ${Math.round(label.width)}x${Math.round(label.height)}`,
+            overlap,
+         };
+      });
+
+      expect(geom.overlap, `label ${geom.labelBox} vs input ${geom.inputBox}`).toBe(true);
+      expect(geom.labelOpacity).toBe(0);
+   });
+});
