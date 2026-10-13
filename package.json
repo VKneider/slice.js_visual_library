@@ -7,11 +7,13 @@
     "dev": "node ./node_modules/slicejs-cli/client.js dev --port 3001",
     "build": "node ./node_modules/slicejs-cli/client.js build",
     "start": "node ./node_modules/slicejs-cli/client.js start",
-    "test": "node --import \"./scripts/register-path-resolve.js\" --test --test-concurrency=1",
+    "test": "node --import \"./scripts/register-path-resolve.js\" --test --test-concurrency=1 \"src/**/*.test.js\" \"parser/tests/**/*.test.js\"",
     "test:e2e": "playwright test --project=components",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:visual": "playwright test --project=visual",
     "test:e2e:visual:update": "playwright test --project=visual --update-snapshots",
+    "check:teardown": "node scripts/check-teardown-hook.mjs",
+    "test:gate": "pnpm run check:teardown && pnpm test && pnpm test:e2e && pnpm run build",
     "test:e2e:report": "playwright show-report",
     "slice:create": "node ./node_modules/slicejs-cli/client.js component create",
     "slice:list": "node ./node_modules/slicejs-cli/client.js component list",
@@ -26,6 +28,8 @@
     "docs:generate": "node parser/index.js",
     "docs:lint-md": "node parser/index.js --lint-only",
     "docs:sync-registry": "node parser/index.js --sync-only",
+    "icons:generate": "node scripts/generate-icons.mjs && node scripts/generate-icon-table.mjs",
+    "icons:audit": "node scripts/icon-map-audit.mjs && node scripts/icon-verify.mjs",
     "run": "node ./node_modules/slicejs-cli/client.js dev",
     "slice:dev": "slice dev",
     "slice:start": "slice start",
@@ -42,6 +46,7 @@
   },
   "dependencies": {
     "compression": "^1.8.1",
+    "dompurify": "^3.4.16",
     "express": "^5.2.1",
     "gsap": "^3.15.0",
     "slicejs-cli": "^4.0.1",
@@ -51,6 +56,7 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "dayjs": "^1.11.21",
+    "lucide": "^1.55.0",
     "marked": "^18.0.5"
   }
 }

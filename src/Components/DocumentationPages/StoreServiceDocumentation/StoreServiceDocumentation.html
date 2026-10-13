@@ -1,0 +1,24 @@
+<div class="documentation-content storeservicedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="storeservice">
+    <span class="doc-title-text">StoreService</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p>A small facade over <code>slice.context</code>. It exists so context <strong>persistence is configured in one place</strong> instead of every state-owning service repeating <code>create(name, initial, { persist: true, ... })</code>.</p>
+<p>Build it first in your composition root, then recover it anywhere with <code>slice.getComponent('StoreService')</code>.</p>
+<h2 id="api">API</h2>
+<ul><li><code>ensure(name, initialState, storageKey)</code> — create the context only if it does not exist. Idempotent.</li><li><code>has(name)</code> / <code>get(name)</code></li><li><code>set(name, updater)</code> — <code>updater</code> is <code>(prev) =&gt; next</code>, the same contract as <code>slice.context.setState</code>.</li><li><code>watch(name, component, callback, selector)</code> — subscribe a component to a slice of state.</li></ul>
+<p>Watchers registered <strong>with a component</strong> are cleaned up automatically when it is destroyed — do not unwatch by hand. <code>selector</code> narrows the callback, so the watcher only fires when the relevant part changes rather than on every write.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">One context per domain concept, not per screen: a <code>settings</code> context everyone reads beats three
+copies of the same preferences that can drift apart.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>ensure</code> is create-if-absent, <strong>not</strong> a migration helper. Adding a key to a context's <code>initialState</code>
+after release does not backfill it for a returning user — their stored copy is already there. Shape
+migrations belong in the service that owns that state, in its own <code>init()</code>.</div>
+</div>

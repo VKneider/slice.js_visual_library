@@ -1,0 +1,40 @@
+<div class="documentation-content domservicedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="domservice">
+    <span class="doc-title-text">DomService</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>DomService.reconcile()</code> is the canonical way to render a variable-length list of child components. Give it your data and a stable key per item; it keeps the DOM, the component registry and the destroy lifecycle in sync.</p>
+<h2 id="why-it-exists">Why it exists</h2>
+<p>The two obvious alternatives are both broken, in ways that only show up as a slow memory leak:</p>
+<ul><li><code>container.innerHTML = ''</code> removes nodes <strong>without running <code>beforeDestroy()</code></strong>. Every child's</li></ul>
+<p>document/window listeners, timers and registry entry survive. The framework never gets to clean up.</p>
+<ul><li>Re-creating a node (rather than moving it) re-runs its constructor and does the same thing.</li></ul>
+<p>So <code>reconcile</code> does three things, in this order:</p>
+<ol><li><strong>Refresh in place.</strong> For each item, find the existing node by its stable <code>sliceId</code> and update it.</li></ol>
+<p>Only a genuinely new item is built.</p>
+<ol><li><strong>Prune.</strong> Every child whose data is gone is destroyed with <code>slice.controller.destroyComponent</code>,</li></ol>
+<p>which runs <code>beforeDestroy()</code>. This happens <strong>before</strong> reordering so a dead node is never a    reorder target.</p>
+<ol><li><strong>Enforce order.</strong> The DOM is moved to match <code>items</code>. <code>insertBefore</code> <strong>moves</strong> a node, it does not</li></ol>
+<p>clone it, so no constructor re-runs — and only nodes that are actually out of place move.</p>
+<h2 id="api">API</h2>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<ul><li><code>keyOf(item)</code> — <strong>the identity used across renders.</strong> Derive it from a stable id, never from the</li></ul>
+<p>array index: an index key makes item 1 keep its component (and its state) when it becomes item 2.</p>
+<ul><li><code>props(item)</code> — the props for one item.</li><li><code>refresh(node, props)</code> — replaces the default <code>slice.setComponentProps(node, props)</code>. Use it when</li></ul>
+<p>props are interdependent, or when the child builds sub-components asynchronously and needs its own   <code>update()</code> in a specific order.</p>
+<p><code>dom.destroyChildren(container)</code> tears down every registered child at once.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Call <code>reconcile</code> after every change to the data — a push, a filter, a re-sort — and nowhere else.
+If two places reconcile the same container, they will fight over the order.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not use the array index as <code>keyOf</code>. With an index key, inserting at the front makes item 1 inherit
+item 0's component — and its scroll position, its open/closed state, and its focus.</div>
+<div class="callout callout-warning"><code>reconcile</code> only manages <strong>direct</strong> children that carry a <code>slice-id</code>. Anything you append by hand
+inside the container is left alone; wrap it if it should be reconciled with the data.</div>
+</div>

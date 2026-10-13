@@ -1,0 +1,30 @@
+<div class="documentation-content filedownloadservicedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="filedownloadservice">
+    <span class="doc-title-text">FileDownloadService</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>FileDownloadService</code> is a <strong>Service</strong> component: a plain logic class (no DOM, no template) that saves content to the user's device as a file.</p>
+<p>It exists because the "save a file from JS" snippet is short, easy to get subtly wrong, and gets copy-pasted into every app. Build it once with a <code>sliceId</code> and call it:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="api">API</h2>
+<ul><li><code>download(filename, content, mimeType = 'text/plain')</code> — saves <code>content</code> as <code>filename</code>.</li><li><code>open(content, mimeType = 'text/plain')</code> — opens the content in a new tab instead of saving it.</li></ul>
+<p><code>content</code> may be a <code>string</code> or a ready-made <code>Blob</code>. When it is a <code>Blob</code>, the <code>mimeType</code> argument is ignored — a <code>Blob</code> already carries its own type.</p>
+<h2 id="usage">Usage</h2>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<div class="code-block" data-block-id="doc-block-3"></div>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Pass the <code>mimeType</code> even when the browser would guess from the extension. It decides whether the
+saved file opens in a text editor, a spreadsheet or an image viewer, and a wrong type is confusing
+in a way a wrong name is not.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Never revoke the object URL yourself after calling <code>download</code>. The service already revokes it after
+a short delay, and revoking it immediately cancels the download in some browsers — the navigation
+has not started yet.</div>
+<p>For a file larger than a few tens of MB, <code>Blob</code> + <code>URL.createObjectURL</code> is the only thing that works: a base64 <code>data:</code> URL has to fit in a string, and browser string limits are far below what that sounds like. Past that size, stream it from a server instead.</p>
+</div>

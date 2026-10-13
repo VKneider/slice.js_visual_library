@@ -1,0 +1,40 @@
+<div class="documentation-content htmlservicedocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="htmlservice">
+    <span class="doc-title-text">HtmlService</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>HtmlService</code> is a <strong>Service</strong> component: a plain logic class (no DOM, no template) that makes it safe to turn an HTML <strong>string</strong> into real markup.</p>
+<p>Most of the library never needs it, and that is the point — every visual component here assigns <code>textContent</code>, so it cannot produce markup injection at all. Reach for this service only at the <strong>boundary where HTML you did not write enters your app</strong>: a CMS field, a markdown renderer, a template someone imports, a comment left by another user.</p>
+<h2 id="requires-an-npm-dependency">Requires an npm dependency</h2>
+<p>This is the one component in the library that is not dependency-free:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p><code>slice get HtmlService</code> prints a warning naming the package if it is missing.</p>
+<h2 id="three-layers-in-increasing-paranoia">Three layers, in increasing paranoia</h2>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<p><code>sanitize()</code> is the net *underneath* <code>esc()</code>, not a replacement for it. Encode as you interpolate, sanitize as the final gate before the <code>innerHTML</code> assignment.</p>
+<h2 id="usage">Usage</h2>
+<div class="code-block" data-block-id="doc-block-3"></div>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Sanitize at the boundary, once, when the value enters — not at every render site. Then the value is
+just data for the rest of its life, and a new render path cannot forget to sanitize.</div>
+<div class="callout callout-tip"><code>sanitize()</code> already passes inline SVG through unchanged, including <code>viewBox</code> and <code>path</code>. There is
+no need to widen the tag or attribute allowlist to make icons work — doing so only widens the
+attack surface.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>innerHTML = value</code> with an unsanitized <code>value</code> is an XSS hole even when the value "only" comes
+from your own database: anything that writes to it — a form field, an import, a support tool — turns
+it into a hole too. <code>sanitize()</code> at the boundary closes all of them at once.</div>
+<p>Do not use <code>sanitize()</code> on content written by someone else. It allows <code>&lt;img&gt;</code>, so <code>&lt;img src="https://tracker.example/pixel.gif"&gt;</code> survives — and that leaks the reader's IP address and User-Agent the moment the page renders, with nothing visible on screen. Use <code>sanitizeRichText()</code>, which drops images entirely. Links are kept on purpose: an <code>&lt;a href&gt;</code> only reaches its destination when the reader deliberately clicks it, and the destination is visible first.</p>
+<div class="callout callout-warning"><code>sanitizeRichText()</code> drops tags but <strong>keeps their text</strong>, so a stripped <code>&lt;img&gt;</code> simply disappears
+while <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> leaves <code>alert(1)</code> as visible text. That is DOMPurify's
+<code>KEEP_CONTENT</code> behaviour, not a bug — but if you are rendering user comments, use <code>toText()</code>.</div>
+<p>Sanitizing is not the same as validating. <code>sanitize()</code> guarantees the string is safe to become markup; it says nothing about whether the content is *correct*. Check the shape of the data too.</p>
+</div>
