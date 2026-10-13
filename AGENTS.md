@@ -70,7 +70,7 @@ Playwright (the `mount` fixture builds it via `slice.build` on the `/__test` har
 
 - When you add or modify a component, add/update its `.spec.js` covering: smoke render,
   props/setters reflected in the DOM, deprecated aliases (§7) if any, handlers, and a11y.
-- Run `pnpm run test:e2e` (component gate) and `pnpm test` (node:test logic). Both must pass.
+- Run `pnpm run test:gate` — node tests, then e2e, then the production build. All three must pass.
 - File-suffix contract: **`*.spec.js` = Playwright**, **`*.test.js` = node:test** — never overlap.
 - Full guide + `mount` API: **`playwright/README.md`**. Reference test: `src/Components/Visual/Button/Button.spec.js`.
 - Use **pnpm** for everything (never npm). The browser binary is installed once with
@@ -80,6 +80,14 @@ Playwright (the `mount` fixture builds it via `slice.build` on the `/__test` har
   These are the browser e2e counterpart of the unit tests in `slice.js/Slice/tests/destroy-cascade.test.js`.
 - The framework repo (`slice.js`) only has node:unit tests. Any test that requires a real DOM
   (events, visual rendering, destroy with `querySelectorAll`) must be written here in the visual library.
+- **Two harness traps when writing a spec:**
+  - A function prop cannot be passed through `props` — it does not survive `JSON.stringify` into the
+    page. List it in `{ spies: [...] }`, which *injects* the function as that prop. Do not also put it
+    in `props`; the fixture overwrites it and the assertion reads as "prop was ignored".
+  - `File`/`Blob`/`DataTransfer` cannot cross `evaluate()` or `dispatchEvent`'s init object. Build
+    them **inside** the page (`locator.evaluate(el => { const dt = new DataTransfer(); ... })`).
+- `tests/leak-cleanup.spec.js` (the `Card.setupActions` case) is **known-flaky under parallel load**
+  and already carries `retries: 2`. It is not caused by your change unless you touched `Card`.
 
 ## Quality Rules
 - Do not introduce React/JSX in this repository.
@@ -118,3 +126,101 @@ The `/__test` TestHarness page always registers infrastructure components (`load
 
 ### `const` in components is safe
 All bundler transforms (`BundleGenerator.js`) preserve `const` declarations. Terser targets ES2022. No `const` → `var` downlevel exists. Module-level `const` in components is exclusively private data (`_sliceDeprecated`, icon name arrays, helper functions) — never exported or used as property/class names.
+
+### Never name internal state `_x` when `x` is a declared prop
+`setComponentProps` does `this['_' + prop] = null` **for every declared prop, canonical or deprecated alias**, before applying the setter. A component whose private flag happens to be named after a prop is silently nulled at build time.
+
+This bit `Loading`: its state field was `_isActive`, which is exactly the backing field derived from the deprecated `isActive` alias, so `get active()` returned `null` instead of `false`. The field is now `_running`. **Rule:** internal state goes on a name no declared prop can derive (`_running`, `_mounted`, …), never `_<propName>`.
+
+### Synthetic pointer/touch events do no actionability check
+`page.mouse.*` and `evaluate` + `dispatchEvent` skip Playwright's actionability wait, so a startup overlay can swallow the dispatch (`elementFromPoint` hits the overlay, not your node). Drag-touch specs drive the gesture with `pointerType: 'touch'` PointerEvents plus TouchEvents; `Touch`/`TouchEvent` constructors exist in Chromium but **not** in Firefox/WebKit, so touch specs are Chromium-only.
+
+### Icon renders inline SVG, and its data is GENERATED
+`Icon` draws Lucide glyphs as inline `<svg>` (no icon font) plus the original sprite outlines for the brand/language/Slice marks Lucide does not ship. All 291 pre-migration names still resolve.
+
+- `src/Components/Visual/Icon/icons.generated.js` is **generated — never hand-edit**. Regenerate with `pnpm run icons:generate` after bumping the pinned `lucide` devDependency.
+- `scripts/icon-legacy-map.mjs` holds `LEGACY_NAMES` (the public API), `ICON_ALIASES` (old name -> Lucide name) and `ICON_LEGACY_PATHS` (names that keep the original artwork). The generator **fails loudly** on an unmapped or misspelled name.
+- `pnpm run icons:audit` is the guard: it diffs `LEGACY_NAMES` against the previous version via git and fails if a public name disappeared. Run it whenever you touch those tables.
+- The 240 KB source sprite lives in `scripts/icon-sprite.source.svg`, **not** in the component folder, so `slice get Icon` does not ship it.
+- `src/markdown/icon.md`'s name table is generated too (`scripts/generate-icon-table.mjs`); edit the generator, not the table.
+
+### A component module must have exactly ONE export
+The production bundler inlines a component's relative imports but keeps their `export` statements,
+which Terser then rejects with **"Export statement may only appear at the top level"**. A named
+re-export in a `<Component>.js` (even alongside the default) breaks `pnpm run build` while the dev
+server keeps working — so **always run `pnpm run build` before calling a change done**, the test
+suite alone will not catch it. `scripts/icon-verify.mjs` also imports the generated module directly.
+
+### Setters run in the constructor, so they must not build children before `init()`
+`setComponentProps` applies every prop in the **constructor**, so each setter fires while the element
+is still disconnected and `init()` has not run. A setter that calls `slice.build` therefore builds an
+orphan, and then `init()` builds the real one — two children where there should be one, with only the
+second tracked in `childrenIndex` (so the first leaks).
+
+The pattern that avoids it:
+
+```js
+async _renderIcon() {
+  if (!this._inited) return;   // init() will render; the setter only records
+  this._destroyIcon();
+  ...
+}
+async init() { this._inited = true; await this._renderIcon(); }
+```
+
+This is the same class of bug as `_isActive` above: the framework's lifecycle is not the plain-DOM
+one, so the obvious implementation is wrong in a way that only shows up as a count mismatch.
+
+### Bare npm imports: only `HtmlService`, and the CLI will not install it for you
+Every component here is dependency-free except `HtmlService`, which imports `dompurify`. That is
+deliberate — a registry component that needs `pnpm add` before it loads is a bad experience, so it
+is worth exactly one component, the one where hand-rolling the alternative would be far worse.
+
+`slice get` **does not** auto-install bare imports. `getComponent.js` detects them and prints
+`↳ npm package required: "dompurify" — install it in your project`, then moves on. So the warning
+is the whole UX: state the dependency at the top of the component file and in its markdown page.
+
+The bundler resolves bare imports fine — `pnpm run build` prints `✓ dompurify` — and a spec can
+import one directly (see `ExternalDepsProbe`). What does **not** work is a *dynamic*
+`import('dompurify')` inside `page.evaluate`: bare specifiers are resolved at bundle time, not at
+runtime in the page, so it fails with "Failed to resolve module specifier".
+
+### `<dialog>`'s `close` event is dispatched in a QUEUED TASK, not synchronously
+`<dialog>.close()` returns **before** the `close` event fires. Verified in Chromium:
+
+```
+before close()
+after close()      <-- "close event fired" is NOT here
+close event fired  <-- one task later
+```
+
+This breaks any code that assumes "I closed it, so it is closed". `ConfirmDialog` hit all three
+variants of it:
+
+- **Reopen race.** Closing an old dialog and immediately opening a new one lets the *stale* close
+  event land on the new question and cancel it a moment after the user opened it. Fix: await the
+  real close before opening — `await new Promise(r => dlg.addEventListener('close', r, {once:true}))`
+  — and read the **native** `dialog.open`, not the wrapper's cached `_open`, to decide whether a
+  close is even pending.
+- **Settle order.** `Modal.close()` fires `onClose` synchronously on the way out, so
+  `_settle(value)` must come **before** `open = false` or every confirmation resolves as a
+  cancellation.
+- **Stale cached flags.** `Modal._open` is only corrected when its own handler runs, so it can
+  disagree with the DOM for a task. Never use it as the source of truth for "is it open?".
+
+The general lesson: any component that must settle exactly once (a promise, a callback) cannot use
+a DOM close event as its only exit path — it needs an explicit guard, because the event is async.
+
+### DOMPurify hooks and config are global to the module instance
+`addHook` / `setConfig` affect every sanitize call from that import, forever. Conclave's original
+`HtmlService` installed its link-hardening hook lazily on the first `sanitizeRichText()` call, which
+meant two bugs at once: `sanitize()` behaved differently depending on call order, and it forced
+`target="_blank"` onto the app's own in-app links (breaking SPA navigation).
+
+The fix here is a per-call flag flipped inside a `try/finally` around the synchronous
+`DOMPurify.sanitize()`. The `finally` is not decoration — a leaked flag makes every later
+`sanitize()` rewrite its links. Getting DOMPurify to throw *inside* `sanitize()` is impossible (it
+tolerates non-array, numeric and null `ALLOWED_TAGS`); the `String(html)` coercion is what throws,
+so the spec drives it with a Proxy that throws on `Symbol.toPrimitive`.
+
+

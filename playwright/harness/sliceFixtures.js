@@ -42,6 +42,20 @@ const DEFAULT_THEME = 'LIGHT';
  */
 
 /** @type {import('@playwright/test').TestType<import('@playwright/test').PlaywrightTestArgs & import('@playwright/test').PlaywrightTestOptions & SliceFixtures, import('@playwright/test').PlaywrightWorkerArgs & import('@playwright/test').PlaywrightWorkerOptions>} */
+/**
+ * Wait until the Slice runtime is actually USABLE.
+ *
+ * `window.slice` and `slice.build` are assigned early in Slice.js init(),
+ * long before it finishes. Waiting on those returns while themes, components
+ * and the router are still being fetched — and a test that then mounts finds a
+ * half-built runtime, which shows up as a different set of tests failing on
+ * every run. `slice.router` is the last thing init() assigns, so waiting on it
+ * is the cheap, reliable readiness signal.
+ */
+async function waitForSliceReady(page) {
+   await page.waitForFunction(() => !!window.slice?.router, null, { timeout: 30_000 });
+}
+
 export const test = base.extend({
    mount: async ({ page }, use) => {
       const consoleMessages = [];
@@ -51,7 +65,7 @@ export const test = base.extend({
 
       await page.goto('/__test');
       // Wait for the runtime and the harness mount point to be ready.
-      await page.waitForFunction(() => !!(window.slice && typeof window.slice.build === 'function'));
+      await waitForSliceReady(page);
       // The root is empty (0×0) until a component is mounted, so wait for it to be
       // ATTACHED, not visible — otherwise Playwright's default visibility wait times out.
       await page.waitForSelector('[data-test-root]', { state: 'attached' });
@@ -191,7 +205,7 @@ export const test = base.extend({
       page.on('pageerror', (err) => pageErrors.push(err.message));
 
       await page.goto('/__test');
-      await page.waitForFunction(() => !!(window.slice && typeof window.slice.build === 'function'));
+      await waitForSliceReady(page);
       await page.waitForSelector('[data-test-root]', { state: 'attached' });
 
       /**

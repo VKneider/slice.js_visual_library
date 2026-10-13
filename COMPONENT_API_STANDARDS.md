@@ -48,6 +48,18 @@
 | `onChange` | value/state changed (Select, Switch, Tabs, Checkbox, Input) | the new value |
 | `onSelect` | an item was chosen from a set (when distinct from `onChange`) | the selected item |
 | `onClose` / `onOpen` | open/close transitions (modals, drawers) | — |
+| `onRemove` | an item asked to be removed (`Chip`) | the removed item's label |
+| `onFiles` | files were picked or dropped (`FileUpload`) | `(filesArray, fileList)` |
+
+**`onFiles`, not `onChange`:** the payload is a `FileList`/`File[]`, not a value the component
+"holds". `onChange` would imply the component owns a value you can read back, which a file input
+does not — and a `File` cannot survive `JSON.stringify`, so it is not a *value* in the sense the
+rest of this table means.
+
+**When a component wraps another component's control, prefix the handler.** `EmptyState` builds a
+real `Button`; exposing its click as `onClick` would read as though the empty state itself were
+clickable, and would collide with any future `onClick` on the wrapper. So it is `buttonLabel` /
+`buttonRoute` / `buttonOnClick` — the prefix names *which* child control owns the click.
 
 **Deprecated aliases (still accepted, warn once):**
 
@@ -74,10 +86,18 @@
 
 | Prop | Values |
 | --- | --- |
-| `variant` | enumerated visual style, declared via `allowedValues` (e.g. `'default' \| 'outlined' \| 'elevated' \| 'minimal'`) |
+| `variant` | enumerated visual style, declared via `allowedValues` (e.g. `'default' \| 'outlined' \| 'elevated' \| 'minimal'`). Include a `danger` value on any destructive action control |
+| `size` | `'md' \| 'sm'` — density modifier, declared via `allowedValues`. The class swap must be **idempotent**: remove the previous modifier before adding the next, and fall back to the default on an unknown value |
 | `position` | `'static' \| 'fixed'` |
 | `direction` | `'normal' \| 'reverse'` |
 | `labelPlacement` | `'left' \| 'right' \| 'top' \| 'bottom'` |
+
+### 3.4 Item shapes with an action
+
+A `callback` key inside an `options`/`items` entry marks that entry as an **action** rather than a
+destination (`DropDown` options). It is checked **before** any navigation key, so an entry carrying
+both runs the callback and does not navigate. Without it, the only way to express a non-navigating
+item is a placeholder `href: '#'` that goes nowhere.
 
 ---
 
@@ -225,6 +245,25 @@ Pick the value by role:
 > (`slice-button { display: flex }` in app CSS, or a higher-specificity rule). Setting it just
 > removes the broken `inline` default — it doesn't lock layout.
 
+### 8.2 If JS assigns `.hidden`, the CSS must carry a `[hidden]` companion
+
+`el.hidden = true` is silently **ignored** as soon as any author-level rule sets `display` on that
+element. The browser's `[hidden] { display: none }` lives in the **user-agent** stylesheet, and
+cascade *origin* is resolved before specificity — so any author rule at normal priority beats it at
+any specificity.
+
+```css
+/* ❌ display wins; .hidden = true does nothing */
+slice-badge .slice_badge { display: inline-flex; }
+
+/* ✅ same-file companion, always */
+slice-badge .slice_badge[hidden] { display: none; }
+```
+
+Rule: **in the same edit that adds a `display` to an element, add the `[hidden]` companion if
+anything in your JS toggles `.hidden` on it.** This is a silent failure — the element just stays
+visible and nothing errors.
+
 ---
 
 ## 9. Lifecycle, safety & accessibility baseline
@@ -238,6 +277,12 @@ Pick the value by role:
 **Cleanup:** remove any `window`/`document` listeners, timers, and observers in
 `beforeDestroy()`. Listeners on the component's own node and Slice subscriptions
 (`slice.events.bind`, `slice.context.watch`) are auto-cleaned — do not clean those.
+- **`beforeDestroy()` is the ONLY teardown hook.** The framework calls that name and nothing else —
+  a method called `destroy()`, `dispose()` or `teardown()` is **dead code that reads like it works**,
+  which is the worst failure mode in a registry because consumers copy the pattern. This repo shipped
+  it three times (`Route`, `MultiRoute`, `UnsavedChangesGuard`) before it was caught. Verified in
+  `Slice.js` / `Controller.js`: `if (typeof component.beforeDestroy === 'function')` is the only hook
+  invocation.
 - **Put teardown in `beforeDestroy()`, not `disconnectedCallback()`.** `disconnectedCallback` also
   fires on *temporary* detach (router caching, `innerHTML=''`) and `init()` does **not** re-run on
   reconnect — tearing listeners down there breaks a detach/reattach cycle (see Modal).
@@ -245,10 +290,18 @@ Pick the value by role:
   reliably cascade to them, and a **Service has no DOM so it is never auto-cleaned by anything**.
   Destroy them explicitly with `slice.controller.destroyComponent(...)` (see Table → DataGridEngine +
   Pagination). App-lifetime singletons are the exception — they are never destroyed.
+- **The destroy cascade only covers what was inside the parent's DOM when `init()` finished.** Anything
+  appended to `document.body`, built *after* `init()`, or built outside the subtree is invisible to
+  `childrenIndex` and must be destroyed by hand.
 
 **Safety:**
 - No `innerHTML` for dynamic or user-supplied content. Use `textContent`, DOM nodes, or an
   explicit `{ html }` opt-in for trusted markup (see Table).
+- **`innerHTML` is only ever assigned from `HtmlService`.** If a component finds itself wanting to
+  turn a string into markup, that string is a trust boundary: route it through `esc()` as you
+  interpolate, then `sanitize()` for your own HTML or `sanitizeRichText()` for content someone else
+  wrote (`sanitize()` allows `<img>`, which leaks the reader's IP in foreign content). Do not widen
+  DOMPurify's allowlist to make something render — `sanitize()` already passes inline SVG through.
 - Build links/attributes with `setAttribute`/`textContent`, not string templates.
 - No hover-only dismissal (`mouseleave`/`mouseenter` as the only close path) — it breaks on
   touch. Use outside-click + an explicit close affordance; gate hover behavior with
@@ -261,6 +314,14 @@ Pick the value by role:
   + `aria-selected`; tooltips use `role="tooltip"`; tables set `scope="col"` on `<th>`.
 - Native `<button>` already gives focus + keyboard for free — prefer it, and add
   `type="button"` to avoid accidental form submits.
+- **Never hide a real `<input>` with `display: none`.** It is dropped from the accessibility tree
+  *and* the tab order, so the control becomes keyboard-unreachable. Use the visually-hidden pattern
+  (`position: absolute; 1px; clip-path: inset(50%)`) and draw the focus ring on the visible
+  surrogate, since the input itself has no box to outline.
+- Decorative animation (shakes, pops, spinners, ripples, press transforms) must run inside
+  `@media (prefers-reduced-motion: no-preference)` or be neutralised in a
+  `prefers-reduced-motion: reduce` block. Never `infinite` on an *error* state — it is a
+  persistent distraction, not feedback.
 
 ---
 
@@ -277,6 +338,10 @@ static props = {
 ```
 
 - Always provide a `default` unless the prop is `required`.
+- **Internal state must not be named `_<propName>`.** `setComponentProps` nulls the backing field
+  it derives from **every** declared prop, canonical or deprecated alias. A private flag named
+  `_isActive` next to a deprecated `isActive` prop gets silently wiped to `null` at build time. Use a
+  name no prop can derive (`_running`, `_mounted`).
 - Use `allowedValues` for enumerated props (dev-mode validation enforces it).
 - `type` is documentation/inspector metadata — **not** runtime-enforced — so setters must still
   guard their own inputs.
@@ -318,6 +383,8 @@ Prefer `color-mix(in srgb, var(--token) X%, transparent)` for tints over raw `rg
 | Button (and nav button items) | `customColor: { button, label }` | `customColor: { background, text }` |
 | Switch, Checkbox | `customColor: '<string>'` | `customColor: { accent }` |
 | Table cells | raw HTML string → injected | text by default; DOM node, or `{ html }` opt-in |
+| Button | hardcoded icon size/colour | `icon: { size, color }` honoured per instance |
+| DropDown options | placeholder `href: '#'` for an action | `callback` key in the option |
 
 All deprecated forms continue to work and emit a one-time console warning.
 
@@ -329,6 +396,8 @@ All deprecated forms continue to work and emit a one-time console warning.
 - [ ] `static props` complete with defaults / `allowedValues` (§10).
 - [ ] CSS fully scoped under the tag; keyframes prefixed; **explicit host `display`** (§8 / §8.1).
 - [ ] No `innerHTML` for dynamic content; links via `setAttribute` (§9).
+- [ ] Teardown is in `beforeDestroy()` — never `destroy()`/`dispose()`/`unmount()` (§9).
+- [ ] Every element whose `.hidden` is toggled in JS has a `[hidden]` companion rule in the same file (§8.2).
 - [ ] No hover-only dismissal; touch works (§9).
 - [ ] `beforeDestroy()` cleans global listeners/timers/observers (§9) **and destroys any child
       Service/component built with `slice.build`** (not auto-cascaded; Services have no DOM).

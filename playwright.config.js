@@ -24,7 +24,10 @@ const baseURL = `http://localhost:${PORT}`;
 export default defineConfig({
    testDir: './',
    testMatch: '**/*.spec.js',
-   testIgnore: ['**/node_modules/**', '**/playwright-report/**', '**/test-results/**'],
+   // `dist/` is gitignored but `pnpm run build` copies the sources there, so
+   // without this every test runs twice: once from src, once from the build
+   // output (with 1-based line numbers that point nowhere useful).
+   testIgnore: ['**/node_modules/**', '**/playwright-report/**', '**/test-results/**', '**/dist/**'],
 
    fullyParallel: true,
    forbidOnly: !!process.env.CI,

@@ -17,7 +17,9 @@ don't double up. Small, focused PRs are easier to review than one big one.
 > Already shipped — don't re-build these: `Form`, `Pagination`, `Table` (sorting + pagination + remote),
 > `Select` (searchable/clearable/keyboard), `Modal`, `Toast`/`ToastProvider`, `ToolTip`/`ToolTipProvider`,
 > `Tabs`, `Details`, `Loading` (indeterminate spinner), `Switch`, `Checkbox`, `Input`,
-> `Textarea` (auto-grow + validation + `onChange`), `Card`, `Grid`.
+> `Textarea` (auto-grow + validation + `onChange`), `Card`, `Grid`, `EmptyState`, `Badge`, `Chip`,
+> `FileUpload`, and the services `DomService`, `StoreService`, `FileDownloadService`, `HtmlService`
+> (the only one with an npm dependency — `pnpm add dompurify`).
 
 ## Form controls
 
@@ -26,7 +28,7 @@ don't double up. Small, focused PRs are easier to review than one big one.
 | **Radio / RadioGroup** | Single-choice control + group | 🟢🟡 | `Checkbox`, `Switch` | `RadioGroup` owns the value; only one option selected. `name`, `options`, `value`, `onChange`, `disabled`. |
 | **Input error/helper text** | Inline validation message + hint under `Input` | 🟢 | `Input` (has `conditions`) | Surface an `error` message and a `helperText`, with `aria-describedby`. Pairs with `Form`. |
 | **Slider / Range** | Numeric drag selector | 🟡 | `Switch` (drag/keyboard) | `min`/`max`/`step`/`value`, keyboard (←/→/Home/End), `aria-valuenow`. Optional dual-handle range. |
-| **FileUpload / Dropzone** | File picker with drag-and-drop | 🟡🔴 | `Button` | `accept`, `multiple`, drag-over state, list selected files, `onChange(files)`. |
+| ~~**FileUpload / Dropzone**~~ | File picker with drag-and-drop | ✅ shipped | — | See `/docs/input/file-upload`. Uses `onFiles(files)` rather than `onChange`, and the drop path is **not** filtered by `accept`. |
 | **DatePicker** | Calendar date selection | 🔴 | `Select`, `DropDown` | Month grid, keyboard nav, `min`/`max`, range mode later. Keep it dependency-free. |
 
 ## Feedback & display
@@ -34,11 +36,11 @@ don't double up. Small, focused PRs are easier to review than one big one.
 | Component | What | Size | Model after | Notes |
 | --- | --- | --- | --- | --- |
 | **Alert / Banner** | Inline, persistent message (info/success/warning/danger) | 🟢 | `Toast`, `Card` | Distinct from `Toast` (ephemeral). `variant`, optional `dismissable`, icon, title + body. |
-| **Badge** | Small count / status pill | 🟢 | `Button` (variants) | `variant`, `value` (count or dot). Often overlaid on an avatar/icon. |
+| ~~**Badge**~~ | Small count / status pill | ✅ shipped | — | See `/docs/display/badge`. Variants are **semantic** (`success`/`danger`/…), not decorative. |
 | **Avatar** | User image with initials/fallback | 🟢 | `Icon`, `Card` | `src`, `name` → initials fallback, `size`, optional status dot. |
 | **Skeleton** | Loading placeholder blocks | 🟢🟡 | `Loading` | Shimmer animation; `variant` (text/rect/circle), `lines`. Respect `prefers-reduced-motion`. |
 | **ProgressBar** | Determinate progress | 🟢 | `Loading` (indeterminate) | `value`/`max`, `aria-valuenow`; indeterminate variant optional. (The spinner already covers busy state.) |
-| **EmptyState** | "Nothing here" placeholder | 🟢 | `NotFound`, `Card` | Icon + title + description + optional action slot. Used by `Table` and lists. |
+| ~~**EmptyState**~~ | "Nothing here" placeholder | ✅ shipped | — | See `/docs/display/empty-state`. The action is a real `Button`, hence `buttonLabel`/`buttonOnClick` rather than `onClick`. |
 
 ## Layout & navigation
 
@@ -47,7 +49,7 @@ don't double up. Small, focused PRs are easier to review than one big one.
 | **Drawer / Off-canvas** | Side panel that slides in | 🟡 | `Modal` (native `<dialog>`, scroll-lock) | `side` (left/right/top/bottom), `open`, backdrop, focus trap + `Escape`. Reuse `Modal`'s scroll-lock lessons. |
 | **Accordion** | Group of collapsible panels (one/many open) | 🟢🟡 | `Details`, `Tabs` | Wraps multiple `Details`-style panels with single- or multi-expand. |
 | **Stepper / Wizard** | Multi-step progress + content | 🟡 | `Tabs`, `Breadcrumbs` | `steps`, `active`, next/back; pairs nicely with `Form`. |
-| **Chip / Tag** | Compact label, optionally removable | 🟢 | `Button`, `Badge` | `removable` + `onRemove`, `variant`. Useful for multi-select / filters. |
+| ~~**Chip / Tag**~~ | Compact label, optionally removable | ✅ shipped | — | See `/docs/display/chip`. Not draggable — wire `DragDropService` yourself if you need sorting. |
 
 ## Data
 
