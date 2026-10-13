@@ -205,302 +205,188 @@ return container;
 
 <!-- icon-table:start -->
 
-`Icon` exposes **291 names**. `Source` is the Lucide icon behind each name, or
-`legacy mark` for the brand, language and Slice marks Lucide does not ship (those keep their
-original artwork). The table is generated: see `scripts/generate-icon-table.mjs`.
+`Icon` exposes **291 names**. Every one is listed below, searchable, with its glyph
+   drawn next to it. Click a cell to copy its name.
 
-| Icon name | Source |
-|-----------|--------|
-| `address-book` | `contact` |
-| `adjustments-horizontal` | `sliders-horizontal` |
-| `adjustments-vertical` | `sliders-vertical` |
-| `align-center` | `align-center-horizontal` |
-| `angle-down` | `chevron-down` |
-| `angle-left` | `chevron-left` |
-| `angle-right` | `chevron-right` |
-| `angle-up` | `chevron-up` |
-| `annotation` | `message-square-text` |
-| `apple` | lucide |
-| `archive` | lucide |
-| `archive-arrow-down` | `archive-restore` |
-| `arrow-down` | lucide |
-| `arrow-down-to-bracket` | `corner-down-right` |
-| `arrow-left` | lucide |
-| `arrow-left-to-bracket` | `corner-left-down` |
-| `arrow-right` | lucide |
-| `arrow-right-alt` | `move-right` |
-| `arrow-right-to-bracket` | `corner-right-down` |
-| `arrow-sort-letters` | `arrow-down-a-z` |
-| `arrow-up` | lucide |
-| `arrow-up-down` | lucide |
-| `arrow-up-from-bracket` | `corner-left-up` |
-| `arrow-up-right-down-left` | `shuffle` |
-| `arrow-up-right-from-square` | `corner-up-right` |
-| `arrows-repeat` | `refresh-cw` |
-| `arrows-repeat-count` | `repeat-1` |
-| `atom` | lucide |
-| `backward-step` | `skip-back` |
-| `badge-check` | lucide |
-| `bars` | `menu` |
-| `bars-from-left` | `panel-left` |
-| `bell` | lucide |
-| `bell-active` | `bell-ring` |
-| `bell-active-alt` | `bell` |
-| `bell-ring` | lucide |
-| `blender-phone` | `phone-call` |
-| `book` | lucide |
-| `book-open` | lucide |
-| `bookmark` | lucide |
-| `brain` | lucide |
-| `briefcase` | lucide |
-| `bug` | lucide |
-| `building` | lucide |
-| `bullhorn` | `megaphone` |
-| `calendar-edit` | `calendar-cog` |
-| `calendar-month` | `calendar` |
-| `calendar-plus` | lucide |
-| `calendar-week` | `calendar-days` |
-| `camera-photo` | `camera` |
-| `caption` | `captions` |
-| `caret-down` | `chevron-down` |
-| `caret-left` | `chevron-left` |
-| `caret-right` | `chevron-right` |
-| `caret-sort` | `chevrons-up-down` |
-| `caret-up` | `chevron-up` |
-| `cart` | `shopping-cart` |
-| `cart-plus` | `shopping-cart` |
-| `cart-plus-alt` | `shopping-bag` |
-| `cash` | `banknote` |
-| `chart` | `chart-column` |
-| `chart-line-down` | `trending-down` |
-| `chart-line-up` | `trending-up` |
-| `chart-mixed` | `chart-no-axes-column` |
-| `chart-mixed-dollar` | `badge-dollar-sign` |
-| `chart-pie` | lucide |
-| `check` | lucide |
-| `check-circle` | `circle-check` |
-| `check-plus-circle` | `circle-check-big` |
-| `chevron-double-down` | `chevrons-down` |
-| `chevron-double-left` | `chevrons-left` |
-| `chevron-double-right` | `chevrons-right` |
-| `chevron-double-up` | `chevrons-up` |
-| `chevron-down` | lucide |
-| `chevron-left` | lucide |
-| `chevron-right` | lucide |
-| `chevron-sort` | `chevrons-up-down` |
-| `chevron-up` | lucide |
-| `circle-pause` | lucide |
-| `circle-plus` | lucide |
-| `clapperboard-play` | `clapperboard` |
-| `clipboard` | lucide |
-| `clipboard-check` | lucide |
-| `clipboard-list` | lucide |
-| `clock` | lucide |
-| `close` | `x` |
-| `close-circle` | `circle-x` |
-| `cloud-arrow-up` | `cloud-upload` |
-| `code` | lucide |
-| `code-branch` | `git-branch` |
-| `code-fork` | `git-fork` |
-| `code-merge` | `git-merge` |
-| `code-pull-request` | `git-pull-request` |
-| `cog` | lucide |
-| `column` | `columns-3` |
-| `command` | lucide |
-| `compress` | `shrink` |
-| `computer-speaker` | `volume-2` |
-| `credit-card` | lucide |
-| `css` | legacy mark |
-| `database` | lucide |
-| `desktop-pc` | `monitor` |
-| `discord` | legacy mark |
-| `dna` | lucide |
-| `dollar` | `dollar-sign` |
-| `dots-horizontal` | `ellipsis` |
-| `dots-vertical` | `ellipsis-vertical` |
-| `download` | lucide |
-| `draw-square` | `square` |
-| `dribbble` | legacy mark |
-| `dropbox` | legacy mark |
-| `edit` | `pencil` |
-| `envelope` | `mail` |
-| `envelope-open` | `mail-open` |
-| `euro` | lucide |
-| `exclamation-circle` | `circle-alert` |
-| `expand` | lucide |
-| `eye` | lucide |
-| `eye-slash` | `eye-off` |
-| `face-explode` | `face-grinning` |
-| `face-grin` | `face-grinning` |
-| `face-grin-stars` | `face-slightly-smiling` |
-| `face-laugh` | `face-slightly-smiling-plus` |
-| `facebook` | legacy mark |
-| `file` | lucide |
-| `file-chart-bar` | `file-chart-column` |
-| `file-check` | lucide |
-| `file-circle-plus` | `file-plus` |
-| `file-clone` | `copy` |
-| `file-code` | lucide |
-| `file-copy` | `copy` |
-| `file-copy-alt` | `copy-check` |
-| `file-csv` | `file-spreadsheet` |
-| `file-export` | `file-output` |
-| `file-image` | lucide |
-| `file-import` | `file-input` |
-| `file-invoice` | `receipt` |
-| `file-lines` | `file-text` |
-| `file-music` | lucide |
-| `file-paste` | `clipboard` |
-| `file-pdf` | `file-text` |
-| `file-pen` | lucide |
-| `file-ppt` | `file-chart-column` |
-| `file-search` | lucide |
-| `file-shield` | `shield` |
-| `file-video` | `video` |
-| `file-word` | `file-type` |
-| `file-zip` | `file-archive` |
-| `filter` | `list-filter` |
-| `fingerprint` | `scan-face` |
-| `fire` | `flame` |
-| `flag` | lucide |
-| `flowbite` | legacy mark |
-| `folder` | lucide |
-| `folder-arrow-right` | `folder-symlink` |
-| `folder-duplicate` | `folder-plus` |
-| `folder-open` | lucide |
-| `folder-plus` | lucide |
-| `forward` | lucide |
-| `forward-step` | `skip-forward` |
-| `gift-box` | `gift` |
-| `github` | legacy mark |
-| `globe` | lucide |
-| `google` | legacy mark |
-| `grid` | `layout-grid` |
-| `grid-plus` | `panel-top` |
-| `headphones` | lucide |
-| `heart` | lucide |
-| `home` | `house` |
-| `hourglass` | lucide |
-| `html` | legacy mark |
-| `image` | lucide |
-| `inbox` | lucide |
-| `inbox-full` | `inbox` |
-| `indent` | `list-indent-increase` |
-| `info-circle` | `info` |
-| `javascript` | legacy mark |
-| `keyboard` | lucide |
-| `label` | `tag` |
-| `landmark` | lucide |
-| `layers` | lucide |
-| `letter-bold` | `bold` |
-| `letter-italic` | `italic` |
-| `letter-underline` | `underline` |
-| `life-saver` | `life-buoy` |
-| `lightbulb` | lucide |
-| `link` | lucide |
-| `linkedin` | legacy mark |
-| `list` | lucide |
-| `list-music` | lucide |
-| `lock` | lucide |
-| `lock-open` | lucide |
-| `lock-time` | `lock-keyhole` |
-| `mail-box` | `mailbox` |
-| `map-pin` | lucide |
-| `map-pin-alt` | `map-pin` |
-| `message-caption` | `message-square-text` |
-| `message-dots` | `message-circle-more` |
-| `messages` | `messages-square` |
-| `microphone` | `mic` |
-| `minimize` | lucide |
-| `minus` | lucide |
-| `mobile-phone` | `smartphone` |
-| `moon` | lucide |
-| `newspaper` | lucide |
-| `npm` | legacy mark |
-| `ordered-list` | `list-ordered` |
-| `outdent` | `list-indent-decrease` |
-| `palette` | lucide |
-| `paper-clip` | `paperclip` |
-| `paper-plane` | `send` |
-| `paragraph` | `pilcrow` |
-| `pause` | lucide |
-| `pen` | lucide |
-| `pen-nib` | `pen-tool` |
-| `phone` | lucide |
-| `play` | lucide |
-| `plus` | lucide |
-| `printer` | lucide |
-| `profile-card` | `id-card` |
-| `question-circle` | `circle-question-mark` |
-| `quote` | lucide |
-| `react` | legacy mark |
-| `receipt` | lucide |
-| `rectangle-list` | `list` |
-| `redo` | lucide |
-| `refresh` | `refresh-cw` |
-| `reply` | lucide |
-| `reply-all` | lucide |
-| `restore-window` | `rotate-ccw` |
-| `rocket` | lucide |
-| `ruler-combined` | `ruler` |
-| `sale-percent` | `badge-percent` |
-| `scale-balanced` | `scale` |
-| `search` | lucide |
-| `share-all` | `share-2` |
-| `share-nodes` | `share-2` |
-| `shield` | lucide |
-| `shield-check` | lucide |
-| `shopping-bag` | lucide |
-| `shuffle` | lucide |
-| `singleSlice` | legacy mark |
-| `sliceJs` | legacy mark |
-| `sliceLogo` | legacy mark |
-| `slicePizza` | legacy mark |
-| `sort` | `arrow-up-down` |
-| `sort-horizontal` | `arrow-down-up` |
-| `stackoverflow` | legacy mark |
-| `star` | lucide |
-| `star-half` | lucide |
-| `star-half-stroke` | `star-half` |
-| `store` | lucide |
-| `sun` | lucide |
-| `swatchbook` | `palette` |
-| `table-column` | `table-2` |
-| `table-row` | `rows-3` |
-| `tablet` | lucide |
-| `tag` | lucide |
-| `tailwind` | legacy mark |
-| `terminal` | lucide |
-| `text-size` | `type` |
-| `text-slash` | `strikethrough` |
-| `thumbs-down` | lucide |
-| `thumbs-up` | lucide |
-| `ticket` | lucide |
-| `trash-bin` | `trash` |
-| `truck` | lucide |
-| `twitter` | legacy mark |
-| `undo` | lucide |
-| `upload` | lucide |
-| `user` | lucide |
-| `user-add` | `user-plus` |
-| `user-circle` | `circle-user` |
-| `user-edit` | `user-round-pen` |
-| `user-headset` | `headphones` |
-| `user-remove` | `user-minus` |
-| `user-settings` | `user-cog` |
-| `users` | lucide |
-| `users-group` | `users` |
-| `video-camera` | `video` |
-| `volume-down` | `volume-1` |
-| `volume-up` | `volume-2` |
-| `vue` | legacy mark |
-| `wallet` | lucide |
-| `wand-magic-sparkles` | `wand-sparkles` |
-| `window` | `app-window` |
-| `window-restore` | `copy` |
-| `X` | legacy mark |
-| `youtube` | legacy mark |
-| `zoom-in` | lucide |
-| `zoom-out` | lucide |
+   Hovering a cell names its **source**: which Lucide icon backs the name. Most need no
+   explanation, which is why it is a tooltip rather than a column. A name that says
+   `legacy mark` is a brand, language or Slice mark Lucide does not ship, so it keeps its
+   original artwork - and its original, non-24x24 viewBox.
 
-<!-- icon-table:end -->
+   Generated from `icons.generated.js` by `scripts/generate-icon-table.mjs`. Edit the generator,
+   not this block.
+
+:::script label="Every icon, searchable" expected="291 cells; type to filter, or narrow by source"
+const NAMES = ["address-book","adjustments-horizontal","adjustments-vertical","align-center","angle-down","angle-left","angle-right","angle-up","annotation","apple","archive","archive-arrow-down","arrow-down","arrow-down-to-bracket","arrow-left","arrow-left-to-bracket","arrow-right","arrow-right-alt","arrow-right-to-bracket","arrow-sort-letters","arrow-up","arrow-up-down","arrow-up-from-bracket","arrow-up-right-down-left","arrow-up-right-from-square","arrows-repeat","arrows-repeat-count","atom","backward-step","badge-check","bars","bars-from-left","bell","bell-active","bell-active-alt","bell-ring","blender-phone","book","book-open","bookmark","brain","briefcase","bug","building","bullhorn","calendar-edit","calendar-month","calendar-plus","calendar-week","camera-photo","caption","caret-down","caret-left","caret-right","caret-sort","caret-up","cart","cart-plus","cart-plus-alt","cash","chart","chart-line-down","chart-line-up","chart-mixed","chart-mixed-dollar","chart-pie","check","check-circle","check-plus-circle","chevron-double-down","chevron-double-left","chevron-double-right","chevron-double-up","chevron-down","chevron-left","chevron-right","chevron-sort","chevron-up","circle-pause","circle-plus","clapperboard-play","clipboard","clipboard-check","clipboard-list","clock","close","close-circle","cloud-arrow-up","code","code-branch","code-fork","code-merge","code-pull-request","cog","column","command","compress","computer-speaker","credit-card","css","database","desktop-pc","discord","dna","dollar","dots-horizontal","dots-vertical","download","draw-square","dribbble","dropbox","edit","envelope","envelope-open","euro","exclamation-circle","expand","eye","eye-slash","face-explode","face-grin","face-grin-stars","face-laugh","facebook","file","file-chart-bar","file-check","file-circle-plus","file-clone","file-code","file-copy","file-copy-alt","file-csv","file-export","file-image","file-import","file-invoice","file-lines","file-music","file-paste","file-pdf","file-pen","file-ppt","file-search","file-shield","file-video","file-word","file-zip","filter","fingerprint","fire","flag","flowbite","folder","folder-arrow-right","folder-duplicate","folder-open","folder-plus","forward","forward-step","gift-box","github","globe","google","grid","grid-plus","headphones","heart","home","hourglass","html","image","inbox","inbox-full","indent","info-circle","javascript","keyboard","label","landmark","layers","letter-bold","letter-italic","letter-underline","life-saver","lightbulb","link","linkedin","list","list-music","lock","lock-open","lock-time","mail-box","map-pin","map-pin-alt","message-caption","message-dots","messages","microphone","minimize","minus","mobile-phone","moon","newspaper","npm","ordered-list","outdent","palette","paper-clip","paper-plane","paragraph","pause","pen","pen-nib","phone","play","plus","printer","profile-card","question-circle","quote","react","receipt","rectangle-list","redo","refresh","reply","reply-all","restore-window","rocket","ruler-combined","sale-percent","scale-balanced","search","share-all","share-nodes","shield","shield-check","shopping-bag","shuffle","singleSlice","sliceJs","sliceLogo","slicePizza","sort","sort-horizontal","stackoverflow","star","star-half","star-half-stroke","store","sun","swatchbook","table-column","table-row","tablet","tag","tailwind","terminal","text-size","text-slash","thumbs-down","thumbs-up","ticket","trash-bin","truck","twitter","undo","upload","user","user-add","user-circle","user-edit","user-headset","user-remove","user-settings","users","users-group","video-camera","volume-down","volume-up","vue","wallet","wand-magic-sparkles","window","window-restore","X","youtube","zoom-in","zoom-out"];
+const SOURCE = {"address-book":"contact","adjustments-horizontal":"sliders-horizontal","adjustments-vertical":"sliders-vertical","align-center":"align-center-horizontal","angle-down":"chevron-down","angle-left":"chevron-left","angle-right":"chevron-right","angle-up":"chevron-up","annotation":"message-square-text","archive-arrow-down":"archive-restore","arrow-down-to-bracket":"corner-down-right","arrow-left-to-bracket":"corner-left-down","arrow-right-alt":"move-right","arrow-right-to-bracket":"corner-right-down","arrow-sort-letters":"arrow-down-a-z","arrow-up-from-bracket":"corner-left-up","arrow-up-right-down-left":"shuffle","arrow-up-right-from-square":"corner-up-right","arrows-repeat":"refresh-cw","arrows-repeat-count":"repeat-1","backward-step":"skip-back","bars":"menu","bars-from-left":"panel-left","bell-active":"bell-ring","bell-active-alt":"bell","blender-phone":"phone-call","bullhorn":"megaphone","calendar-edit":"calendar-cog","calendar-month":"calendar","calendar-week":"calendar-days","camera-photo":"camera","caption":"captions","caret-down":"chevron-down","caret-left":"chevron-left","caret-right":"chevron-right","caret-sort":"chevrons-up-down","caret-up":"chevron-up","cart":"shopping-cart","cart-plus":"shopping-cart","cart-plus-alt":"shopping-bag","cash":"banknote","chart":"chart-column","chart-line-down":"trending-down","chart-line-up":"trending-up","chart-mixed":"chart-no-axes-column","chart-mixed-dollar":"badge-dollar-sign","check-circle":"circle-check","check-plus-circle":"circle-check-big","chevron-double-down":"chevrons-down","chevron-double-left":"chevrons-left","chevron-double-right":"chevrons-right","chevron-double-up":"chevrons-up","chevron-sort":"chevrons-up-down","clapperboard-play":"clapperboard","close":"x","close-circle":"circle-x","cloud-arrow-up":"cloud-upload","code-branch":"git-branch","code-fork":"git-fork","code-merge":"git-merge","code-pull-request":"git-pull-request","column":"columns-3","compress":"shrink","computer-speaker":"volume-2","css":"legacy mark","desktop-pc":"monitor","discord":"legacy mark","dollar":"dollar-sign","dots-horizontal":"ellipsis","dots-vertical":"ellipsis-vertical","draw-square":"square","dribbble":"legacy mark","dropbox":"legacy mark","edit":"pencil","envelope":"mail","envelope-open":"mail-open","exclamation-circle":"circle-alert","eye-slash":"eye-off","face-explode":"face-grinning","face-grin":"face-grinning","face-grin-stars":"face-slightly-smiling","face-laugh":"face-slightly-smiling-plus","facebook":"legacy mark","file-chart-bar":"file-chart-column","file-circle-plus":"file-plus","file-clone":"copy","file-copy":"copy","file-copy-alt":"copy-check","file-csv":"file-spreadsheet","file-export":"file-output","file-import":"file-input","file-invoice":"receipt","file-lines":"file-text","file-paste":"clipboard","file-pdf":"file-text","file-ppt":"file-chart-column","file-shield":"shield","file-video":"video","file-word":"file-type","file-zip":"file-archive","filter":"list-filter","fingerprint":"scan-face","fire":"flame","flowbite":"legacy mark","folder-arrow-right":"folder-symlink","folder-duplicate":"folder-plus","forward-step":"skip-forward","gift-box":"gift","github":"legacy mark","google":"legacy mark","grid":"layout-grid","grid-plus":"panel-top","home":"house","html":"legacy mark","inbox-full":"inbox","indent":"list-indent-increase","info-circle":"info","javascript":"legacy mark","label":"tag","letter-bold":"bold","letter-italic":"italic","letter-underline":"underline","life-saver":"life-buoy","linkedin":"legacy mark","lock-time":"lock-keyhole","mail-box":"mailbox","map-pin-alt":"map-pin","message-caption":"message-square-text","message-dots":"message-circle-more","messages":"messages-square","microphone":"mic","mobile-phone":"smartphone","npm":"legacy mark","ordered-list":"list-ordered","outdent":"list-indent-decrease","paper-clip":"paperclip","paper-plane":"send","paragraph":"pilcrow","pen-nib":"pen-tool","profile-card":"id-card","question-circle":"circle-question-mark","react":"legacy mark","rectangle-list":"list","refresh":"refresh-cw","restore-window":"rotate-ccw","ruler-combined":"ruler","sale-percent":"badge-percent","scale-balanced":"scale","share-all":"share-2","share-nodes":"share-2","singleSlice":"legacy mark","sliceJs":"legacy mark","sliceLogo":"legacy mark","slicePizza":"legacy mark","sort":"arrow-up-down","sort-horizontal":"arrow-down-up","stackoverflow":"legacy mark","star-half-stroke":"star-half","swatchbook":"palette","table-column":"table-2","table-row":"rows-3","tailwind":"legacy mark","text-size":"type","text-slash":"strikethrough","trash-bin":"trash","twitter":"legacy mark","user-add":"user-plus","user-circle":"circle-user","user-edit":"user-round-pen","user-headset":"headphones","user-remove":"user-minus","user-settings":"user-cog","users-group":"users","video-camera":"video","volume-down":"volume-1","volume-up":"volume-2","vue":"legacy mark","wand-magic-sparkles":"wand-sparkles","window":"app-window","window-restore":"copy","X":"legacy mark","youtube":"legacy mark"};
+
+// Joins CSS chunks WITH a separator, and the chunks carry no trailing ";".
+// This is not fussy formatting: a naive chunks.join("") glues two
+// declarations into one invalid rule and the browser drops it silently, which
+// is how this grid first shipped collapsed to a single column.
+const css = (...chunks) => chunks.filter(Boolean).join(';');
+
+const host = document.createElement('div');
+host.style.cssText = 'display:flex;flex-direction:column;gap:12px';
+
+const count = document.createElement('p');
+count.style.cssText = 'margin:0;font-size:.8em;color:var(--font-secondary-color)';
+
+const bar = document.createElement('div');
+bar.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap';
+
+const search = document.createElement('input');
+search.type = 'search';
+search.placeholder = 'Filter 291 icons...';
+search.setAttribute('aria-label', 'Filter icons by name');
+search.style.cssText = css(
+   'flex:1 1 220px;min-width:0;padding:8px 10px',
+   'font:inherit;font-size:.85em',
+   'border:1px solid var(--slice-border,var(--medium-color))',
+   'border-radius:6px',
+   'background:var(--primary-background-color);color:var(--font-primary-color)'
+);
+
+const FILTERS = [
+   ['all', 'All'],
+   ['lucide', 'Lucide'],
+   ['alias', 'Renamed'],
+   ['legacy mark', 'Marks'],
+];
+const filters = document.createElement('div');
+filters.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap';
+let activeFilter = 'all';
+
+const grid = document.createElement('div');
+grid.style.cssText = css(
+   // The row maths that the broken version lost.
+   'display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr))',
+   'gap:8px;padding:4px',
+   'max-height:520px;overflow:auto'
+);
+
+const paintChip = (chip, on) => {
+   chip.style.background = on ? 'var(--primary-color)' : 'var(--primary-background-color)';
+   chip.style.color = on ? 'var(--primary-color-contrast,#fff)' : 'var(--font-primary-color)';
+};
+
+// async: it awaits slice.build for the glyph.
+const cellOf = async (name) => {
+   const source = SOURCE[name] || null;
+
+   const cell = document.createElement('button');
+   cell.type = 'button';
+   cell.dataset.name = name;
+   cell.title = source ? name + ' -> ' + source + ' (click to copy)' : name + ' (click to copy)';
+   cell.style.cssText = css(
+      'display:flex;flex-direction:column;align-items:center;gap:6px',
+      'padding:12px 6px;border-radius:8px',
+      'font:inherit;cursor:pointer',
+      'border:1px solid transparent',
+      'background:color-mix(in srgb,var(--primary-background-color) 96%,var(--primary-color))',
+      'color:var(--font-primary-color)'
+   );
+
+   cell.addEventListener('mouseenter', () => {
+      cell.style.borderColor = 'color-mix(in srgb,var(--primary-color) 45%,transparent)';
+   });
+   cell.addEventListener('mouseleave', () => {
+      cell.style.borderColor = 'transparent';
+   });
+   cell.addEventListener('click', async () => {
+      try {
+         await navigator.clipboard.writeText(name);
+         count.textContent = 'Copied "' + name + '"';
+      } catch {
+         // Clipboard is permission-gated; the name is right there on screen.
+         count.textContent = name;
+      }
+   });
+
+   const glyph = document.createElement('span');
+   glyph.style.cssText = 'display:flex;align-items:center;justify-content:center;height:26px';
+   glyph.appendChild(await slice.build('Icon', { name, size: '22px' }));
+   cell.appendChild(glyph);
+
+   const tag = document.createElement('span');
+   tag.textContent = name;
+   tag.style.cssText = css(
+      'font-size:.5em;line-height:1.2;text-align:center;max-width:100%',
+      'overflow:hidden;text-overflow:ellipsis;white-space:nowrap',
+      'color:' + (source === 'legacy mark' ? 'var(--primary-color)' : 'var(--font-secondary-color)'),
+      source === 'legacy mark' ? 'font-weight:600' : null
+   );
+   cell.appendChild(tag);
+
+   return cell;
+};
+
+const matches = () => {
+   const q = search.value.trim().toLowerCase();
+   return NAMES.filter((name) => {
+      const source = SOURCE[name] || null;
+      const bySource =
+         activeFilter === 'all' ||
+         (activeFilter === 'lucide' && source === null) ||
+         (activeFilter === 'alias' && source !== null && source !== 'legacy mark') ||
+         (activeFilter === 'legacy mark' && source === 'legacy mark');
+      if (!bySource) return false;
+      if (!q) return true;
+      // Match the public name AND the Lucide name behind it, so either
+      // spelling finds the icon.
+      return name.toLowerCase().includes(q) || (source || '').toLowerCase().includes(q);
+   });
+};
+
+const render = async () => {
+   const list = matches();
+   grid.replaceChildren();
+   // Awaited in order so the grid fills top-to-bottom as each glyph resolves.
+   for (const name of list) grid.appendChild(await cellOf(name));
+   count.textContent =
+      list.length === NAMES.length
+         ? NAMES.length + ' icons'
+         : list.length + ' of ' + NAMES.length + ' icons';
+};
+
+for (const [key, label] of FILTERS) {
+   const chip = document.createElement('button');
+   chip.type = 'button';
+   chip.textContent = label;
+   chip.dataset.filter = key;
+   chip.setAttribute('aria-pressed', String(key === activeFilter));
+   chip.style.cssText = css(
+      'padding:6px 12px;border-radius:999px',
+      'font:inherit;font-size:.75em;cursor:pointer',
+      'border:1px solid var(--slice-border,var(--medium-color))'
+   );
+   paintChip(chip, key === activeFilter);
+   chip.addEventListener('click', () => {
+      activeFilter = key;
+      for (const other of filters.children) {
+         const on = other.dataset.filter === key;
+         other.setAttribute('aria-pressed', String(on));
+         paintChip(other, on);
+      }
+      render();
+   });
+   filters.appendChild(chip);
+}
+
+bar.appendChild(search);
+bar.appendChild(filters);
+
+host.appendChild(count);
+host.appendChild(bar);
+host.appendChild(grid);
+
+let timer = null;
+search.addEventListener('input', () => {
+   clearTimeout(timer);
+   timer = setTimeout(render, 120);
+});
+
+await render();
+return host;
+:::
+
