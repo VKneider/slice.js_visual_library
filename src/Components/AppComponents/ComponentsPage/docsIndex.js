@@ -33,6 +33,39 @@ const docsIndex = [
     tags: ['icon', 'display', 'reference']
   },
   {
+    title: 'EmptyState',
+    route: '/docs/display/empty-state',
+    description: 'The "nothing here yet" placeholder, with an optional icon, explanation and action.',
+    section: 'Display',
+    group: 'Basic',
+    order: 24,
+    navLabel: 'EmptyState',
+    component: 'EmptyStateDocumentation',
+    tags: ['empty', 'placeholder', 'zero-state', 'onboarding']
+  },
+  {
+    title: 'Badge',
+    route: '/docs/display/badge',
+    description: 'Small status pill or count, with semantic variants that follow the theme.',
+    section: 'Display',
+    group: 'Basic',
+    order: 25,
+    navLabel: 'Badge',
+    component: 'BadgeDocumentation',
+    tags: ['badge', 'pill', 'status', 'count', 'dot']
+  },
+  {
+    title: 'Chip',
+    route: '/docs/display/chip',
+    description: 'Compact label for filters, tags and selections, optionally removable.',
+    section: 'Display',
+    group: 'Basic',
+    order: 26,
+    navLabel: 'Chip',
+    component: 'ChipDocumentation',
+    tags: ['chip', 'tag', 'pill', 'filter', 'removable']
+  },
+  {
     title: 'CodeVisualizer',
     route: '/docs/display/code-visualizer',
     description: 'CodeVisualizer documentation with syntax highlighting and copy scenarios.',
@@ -42,6 +75,17 @@ const docsIndex = [
     navLabel: 'CodeVisualizer',
     component: 'CodeVisualizerDocumentation',
     tags: ['code', 'syntax', 'highlight', 'display']
+  },
+  {
+    title: 'ConfirmDialog',
+    route: '/docs/display/confirm-dialog',
+    description: 'Promise-based "are you sure?" dialog and single-value prompt, built on Modal.',
+    section: 'Display',
+    group: 'Feedback',
+    order: 32,
+    navLabel: 'ConfirmDialog',
+    component: 'ConfirmDialogDocumentation',
+    tags: ['dialog', 'confirm', 'alert', 'prompt', 'modal', 'danger', 'confirmation']
   },
   {
     title: 'ToolTip',
@@ -119,6 +163,17 @@ const docsIndex = [
     navLabel: 'Input',
     component: 'InputDocumentation',
     tags: ['input', 'forms']
+  },
+  {
+    title: 'FileUpload',
+    route: '/docs/input/file-upload',
+    description: 'Drag-and-drop zone that is also a real, keyboard-operable file input.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 12,
+    navLabel: 'FileUpload',
+    component: 'FileUploadDocumentation',
+    tags: ['file', 'upload', 'dropzone', 'drop', 'input']
   },
   {
     title: 'Select',
@@ -341,6 +396,17 @@ const docsIndex = [
     tags: ['treeview', 'navigation', 'tree']
   },
   {
+    title: 'Link',
+    route: '/docs/navigation/link',
+    description: 'Route-aware anchor with optional icon and subtitle — the one link primitive that navigates through slice.router.',
+    section: 'Navigation Components',
+    group: 'Basic',
+    order: 30,
+    navLabel: 'Link',
+    component: 'LinkDocumentation',
+    tags: ['link', 'navigation', 'anchor']
+  },
+  {
     title: 'Route',
     route: '/docs/routing/route',
     description: 'Route container documentation with dynamic path and metadata scenarios.',
@@ -376,7 +442,7 @@ const docsIndex = [
   {
     title: 'DragDropService',
     route: '/docs/services/drag-drop',
-    description: 'Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder.',
+    description: 'Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder, with full touch support.',
     section: 'Services',
     group: 'Interaction',
     order: 60,
@@ -407,6 +473,50 @@ const docsIndex = [
     tags: ['tooltip', 'provider', 'service', 'overlay']
   },
   {
+    title: 'DomService',
+    route: '/docs/services/dom-service',
+    description: 'Reconciles a list of data against the child components that render it, without leaking.',
+    section: 'Services',
+    group: 'Rendering',
+    order: 62,
+    navLabel: 'DomService',
+    component: 'DomServiceDocumentation',
+    tags: ['dom', 'list', 'reconcile', 'reconcile', 'rendering', 'service']
+  },
+  {
+    title: 'HtmlService',
+    route: '/docs/services/html-service',
+    description: 'Escape, sanitize and strip HTML at the boundary where untrusted markup becomes real DOM.',
+    section: 'Services',
+    group: 'Security',
+    order: 12,
+    navLabel: 'HtmlService',
+    component: 'HtmlServiceDocumentation',
+    tags: ['service', 'html', 'sanitize', 'xss', 'security', 'dompurify', 'escape']
+  },
+  {
+    title: 'UnsavedChangesGuard',
+    route: '/docs/services/unsaved-changes-guard',
+    description: 'Warns before the user throws away work in progress — tab close, in-app navigation, or the back button.',
+    section: 'Services',
+    group: 'Security',
+    order: 13,
+    navLabel: 'UnsavedChangesGuard',
+    component: 'UnsavedChangesGuardDocumentation',
+    tags: ['service', 'unsaved', 'guard', 'navigation', 'beforeunload', 'confirm', 'dirty']
+  },
+  {
+    title: 'StoreService',
+    route: '/docs/services/store-service',
+    description: 'A thin facade over slice.context, so context persistence is configured in one place.',
+    section: 'Services',
+    group: 'State',
+    order: 63,
+    navLabel: 'StoreService',
+    component: 'StoreServiceDocumentation',
+    tags: ['store', 'context', 'state', 'persistence', 'service']
+  },
+  {
     title: 'LocalStorageManager',
     route: '/docs/services/local-storage-manager',
     description: 'Service wrapper over window.localStorage with automatic JSON serialization.',
@@ -416,6 +526,17 @@ const docsIndex = [
     navLabel: 'LocalStorageManager',
     component: 'LocalStorageManagerDocumentation',
     tags: ['service', 'storage', 'localstorage']
+  },
+  {
+    title: 'FileDownloadService',
+    route: '/docs/services/file-download-service',
+    description: 'Saves a string or Blob to the user\'s device, with the object URL lifecycle handled for you.',
+    section: 'Services',
+    group: 'Storage',
+    order: 11,
+    navLabel: 'FileDownloadService',
+    component: 'FileDownloadServiceDocumentation',
+    tags: ['service', 'download', 'file', 'blob', 'export']
   },
   {
     title: 'IndexedDbManager',

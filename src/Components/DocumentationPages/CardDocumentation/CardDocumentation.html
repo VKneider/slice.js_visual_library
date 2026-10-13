@@ -12,6 +12,17 @@
 <ul><li><code>Card</code> provides a reusable container for structured content with variant-driven presentation.</li><li>Interactive mode supports actionable cards for dashboards, release notes and workflow states.</li><li>Scenario scripts below cover status, metrics, and action-footer compositions used in production screens.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="icons">Icons</h2>
+<p>Two independent slots, and they are different things:</p>
+<ul><li><code>headerIcon</code> — the small mark <strong>beside the title</strong>, in a rounded chip. This is the</li></ul>
+<p>usual "card with an avatar or a glyph" look. Accepts a name or   <code>{ name, size, color }</code>:</p>
+<p>``<code>javascript   await slice.build('Card', { title: 'Slice.js', headerIcon: 'sliceJs' });   </code>``</p>
+<ul><li><code>icon</code> — the <strong>banner above the content</strong>, for an image or a large mark. Use it for</li></ul>
+<p>artwork, not for a glyph; for a glyph, use <code>headerIcon</code>.</p>
+<p>Neither is shown unless you ask. A Card with neither has no icon row at all.</p>
+<div class="callout callout-tip">The Slice marks (<code>sliceJs</code>, <code>slicePizza</code>, <code>sliceLogo</code>, <code>singleSlice</code>) carry their own
+viewBox from the original sprite — <code>sliceJs</code> is 1061x1320, not 24x24 — so they fill the
+chip correctly instead of overflowing it.</div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>

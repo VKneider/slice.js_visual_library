@@ -1,0 +1,25 @@
+<div class="documentation-content linkdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="link">
+    <span class="doc-title-text">Link</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>Link</code> is a route-aware <code>&lt;a&gt;</code>: it keeps a real <code>href</code> in the DOM (so right-click → open in new tab still works, and the URL is visible on hover) but intercepts the click and hands the path to <code>slice.router.navigate</code>, so navigation goes through the client-side router instead of a full page load.</p>
+<p>It is built with DOM APIs (<code>setAttribute</code> / <code>textContent</code>) rather than an <code>innerHTML</code> template, so a <code>path</code> like <code>javascript:...</code> or text containing markup can never inject into the page.</p>
+<h2 id="api-and-behavior">API and Behavior</h2>
+<ul><li><code>path</code> — the route to navigate to. Also the anchor's <code>href</code>. Defaults to <code>'#'</code>.</li><li><code>text</code> — the link label.</li><li><code>classes</code> — extra class names applied to the <code>&lt;a&gt;</code>.</li><li><code>icon</code> — an <code>Icon</code> name rendered before the label, <code>aria-hidden</code> (the label is the accessible name).</li><li><code>iconSize</code> / <code>iconColor</code> — passed through to the <code>Icon</code>.</li><li><code>sub</code> — a secondary line under the label (a count, a description).</li></ul>
+<p>The anchor is an inline flex row with a gap, <code>text-decoration: none</code> and <code>color: inherit</code>, so a link reads as part of its layout instead of fighting the UA's default link styling. Pass <code>classes</code> to add your own hover/underline treatment.</p>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>Link</code> for in-app navigation. For external destinations use a plain <code>&lt;a&gt;</code> with <code>target</code> /
+<code>rel</code> — routing an off-site URL through the router buys nothing.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>Link</code> has no template and no <code>setComponentProps</code>: its props are read once, in the constructor, from
+whoever built the element. Changing them later means calling <code>render()</code> again — it is not a reactive
+component like <code>Button</code> or <code>Tabs</code>.</div>
+</div>

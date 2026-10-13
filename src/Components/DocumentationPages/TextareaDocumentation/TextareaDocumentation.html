@@ -11,8 +11,8 @@
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>value</code> / <code>placeholder</code> mirror <code>Input</code>. The label floats above the border on focus or once</li></ul>
 <p>the field has a value.</p>
-<ul><li><code>rows</code> sets the initial visible height; <code>maxlength</code> caps the character count natively.</li><li><code>autoGrow</code> disables manual resize and grows the field to fit its content on every keystroke.</li><li><code>onChange</code> fires with the current string on every input event.</li><li><code>conditions</code> accepts <code>{ regex }</code> or <code>{ minLength, maxLength }</code>; call <code>validateValue()</code> to run</li></ul>
-<p>the check and surface the error state.</p>
+<ul><li><code>rows</code> sets the initial visible height; <code>maxlength</code> caps the character count natively.</li><li><code>autoGrow</code> disables manual resize and grows the field to fit its content on every keystroke.</li><li><code>onChange</code> fires with the current string on every input event.</li><li><code>conditions</code> accepts <code>{ regex }</code> or <code>{ minLength, maxLength }</code>; they are checked live while typing</li></ul>
+<p>and can also be run on demand with <code>validateValue()</code>.   the check and surface the error state.</p>
 <ul><li>All listeners live on the component's own nodes, so there is nothing to clean up manually.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
@@ -28,7 +28,19 @@
 <div class="callout callout-tip">Pair <code>autoGrow</code> with <code>maxlength</code> and an external counter (via <code>onChange</code>) for comment and
 message boxes — it keeps the field compact while making the limit visible.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning"><code>conditions</code> only validates when you call <code>validateValue()</code> (e.g. from a submit handler), not on
-every keystroke. Wire it to your <code>Form</code>'s submit flow rather than expecting live validation.</div>
-<div class="component-block" data-block-id="doc-block-8"></div>
+<div class="callout callout-warning"><code>conditions</code> also validates <strong>live while typing</strong> — as soon as the field has a value, <code>conditions</code>
+are checked on every keystroke. Call <code>validateValue()</code> from your <code>Form</code>'s submit handler as well so
+an empty field is caught on submit.</div>
+<h2 id="auto-grow-details">auto-grow details</h2>
+<p><code>autoGrow</code> measures <code>scrollHeight</code>, which is <code>0</code> whenever the field has no layout — while it is still detached, or anywhere up the tree it is <code>display: none</code>. The component handles both:</p>
+<ul><li>the first real measurement happens in <code>connectedCallback</code>, not <code>init</code> (<code>slice.build</code> runs <code>init</code></li></ul>
+<p><strong>before</strong> the parent appends the node, so a naive first measurement collapses the field to <code>0px</code>);</p>
+<ul><li>a hidden field keeps its <strong>last good height</strong> instead of being squashed, and re-measures as soon as</li></ul>
+<p>it becomes visible again;</p>
+<ul><li>a <code>ResizeObserver</code> re-measures when the field's <strong>width</strong> changes, so text that re-wraps on a</li></ul>
+<p>container resize is not clipped. The observer is disconnected in <code>beforeDestroy()</code>.</p>
+<p>Padding is tokenised so a dense consumer can compact the field without desyncing the floating label:</p>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<p>The label's rest position is derived from <code>--slice-textarea-pad-y</code>, so overriding the tokens moves both the field and its label together.</p>
+<div class="component-block" data-block-id="doc-block-9"></div>
 </div>

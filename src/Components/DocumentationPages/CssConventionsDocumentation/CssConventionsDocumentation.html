@@ -30,7 +30,7 @@
 <p>---</p>
 <h2 id="exceptions-deliberate-leaks">Exceptions (deliberate leaks)</h2>
 <p>Some components append nodes to <code>document.body</code> — those elements live outside the component tree, so their styles stay global with a comment explaining why:</p>
-<ul><li><strong>ToolTip</strong> — <code>.slice-tooltip-bubble*</code> appended to <code>document.body</code></li><li><strong>Toast</strong> — <code>.toast-provider-container*</code> created on <code>document.body</code></li><li><strong>Icon</strong> — <code>.slc-*</code> icon-font glyph stylesheet</li><li><strong>Card</strong> — <code>.slice-card*</code> is the host's own class (<code>this.classList.add('slice-card')</code>), already host-scoped</li></ul>
+<ul><li><strong>ToolTip</strong> — <code>.slice-tooltip-bubble*</code> appended to <code>document.body</code></li><li><strong>Toast</strong> — <code>.toast-provider-container*</code> created on <code>document.body</code></li><li><strong>Card</strong> — <code>.slice-card*</code> is the host's own class (<code>this.classList.add('slice-card')</code>), already host-scoped</li></ul>
 <p>---</p>
 <h2 id="common-mistakes">Common mistakes</h2>
 <div class="callout callout-warning"><strong>Renaming a class to scope it changes the CSS selector, not the DOM.</strong> Components keep adding the same class names, so <code>*.spec.js</code> assertions on <code>.some_class</code> still pass. If a rule was intentionally matching outside the component (a true leak), scoping will stop it — move that styling into the consuming app.</div>

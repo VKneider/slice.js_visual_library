@@ -7,13 +7,16 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>DropDown</code> groups related links under a compact expandable navigation trigger.</p>
+<p><code>DropDown</code> groups related links <strong>or actions</strong> under a compact expandable trigger.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>label</code> sets the trigger text.</li><li><code>options</code> renders link items (<code>text</code> + <code>href</code>).</li><li>The menu opens on click and closes when you pick an option, click the trigger again, or click outside it.</li></ul>
+<ul><li><code>label</code> sets the trigger text.</li><li><code>options</code> renders items. Each item is a <strong>link</strong> (<code>text</code> + <code>href</code>/<code>path</code>, <code>path</code> navigates through <code>slice.router</code>) or an <strong>action</strong> (<code>text</code> + <code>callback</code>).</li><li>The menu opens on click and closes when you pick an option, click the trigger again, or click outside it.</li><li>The box is right-anchored so it stays on screen for a trigger at the end of a toolbar, and flips back to left-anchored below 760px.</li></ul>
+<h2 id="actions-not-just-links">Actions, not just links</h2>
+<p>An item with a <code>callback</code> runs the function and closes the menu. It never navigates — <code>callback</code> takes precedence over <code>path</code>/<code>href</code>, so an item carrying both runs the callback and stays put. Before <code>callback</code>, the only way to express a non-navigating item was a placeholder <code>href: '#'</code> that went nowhere.</p>
+<div class="script-block" data-block-id="doc-block-1"></div>
 <h2 id="live-preview">Live Preview</h2>
-<div class="component-block" data-block-id="doc-block-1"></div>
+<div class="component-block" data-block-id="doc-block-2"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
-<div class="component-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="component-block" data-block-id="doc-block-5"></div>
 </div>

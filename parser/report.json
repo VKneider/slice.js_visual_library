@@ -1,6 +1,10 @@
 {
   "generated": [
     {
+      "filePath": "src/markdown/badge.md",
+      "component": "BadgeDocumentation"
+    },
+    {
       "filePath": "src/markdown/bottom-nav.md",
       "component": "BottomNavDocumentation"
     },
@@ -25,8 +29,16 @@
       "component": "CheckboxDocumentation"
     },
     {
+      "filePath": "src/markdown/chip.md",
+      "component": "ChipDocumentation"
+    },
+    {
       "filePath": "src/markdown/code-visualizer.md",
       "component": "CodeVisualizerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/confirm-dialog.md",
+      "component": "ConfirmDialogDocumentation"
     },
     {
       "filePath": "src/markdown/css-conventions.md",
@@ -37,6 +49,10 @@
       "component": "DetailsDocumentation"
     },
     {
+      "filePath": "src/markdown/dom-service.md",
+      "component": "DomServiceDocumentation"
+    },
+    {
       "filePath": "src/markdown/drag-drop-service.md",
       "component": "DragDropServiceDocumentation"
     },
@@ -45,8 +61,20 @@
       "component": "DropDownDocumentation"
     },
     {
+      "filePath": "src/markdown/empty-state.md",
+      "component": "EmptyStateDocumentation"
+    },
+    {
       "filePath": "src/markdown/fetch-manager.md",
       "component": "FetchManagerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/file-download-service.md",
+      "component": "FileDownloadServiceDocumentation"
+    },
+    {
+      "filePath": "src/markdown/file-upload.md",
+      "component": "FileUploadDocumentation"
     },
     {
       "filePath": "src/markdown/form.md",
@@ -55,6 +83,10 @@
     {
       "filePath": "src/markdown/grid.md",
       "component": "GridDocumentation"
+    },
+    {
+      "filePath": "src/markdown/html-service.md",
+      "component": "HtmlServiceDocumentation"
     },
     {
       "filePath": "src/markdown/icon.md",
@@ -71,6 +103,10 @@
     {
       "filePath": "src/markdown/layout.md",
       "component": "LayoutDocumentation"
+    },
+    {
+      "filePath": "src/markdown/link.md",
+      "component": "LinkDocumentation"
     },
     {
       "filePath": "src/markdown/loading.md",
@@ -117,6 +153,10 @@
       "component": "SelectDocumentation"
     },
     {
+      "filePath": "src/markdown/store-service.md",
+      "component": "StoreServiceDocumentation"
+    },
+    {
       "filePath": "src/markdown/switch.md",
       "component": "SwitchDocumentation"
     },
@@ -159,12 +199,16 @@
     {
       "filePath": "src/markdown/treeview.md",
       "component": "TreeViewDocumentation"
+    },
+    {
+      "filePath": "src/markdown/unsaved-changes-guard.md",
+      "component": "UnsavedChangesGuardDocumentation"
     }
   ],
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\victo\\Documents\\baby\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "C:\\Users\\victo\\Desktop\\SPIKE-PWA-SLICE\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

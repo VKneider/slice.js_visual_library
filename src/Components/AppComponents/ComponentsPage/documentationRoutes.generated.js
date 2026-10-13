@@ -42,14 +42,34 @@ const documentationRoutes = {
     path: '/docs/display',
     items: [
       {
+        title: 'Icon',
+        path: '/docs/display/icon',
+        component: 'IconDocumentation'
+      },
+      {
+        title: 'EmptyState',
+        path: '/docs/display/empty-state',
+        component: 'EmptyStateDocumentation'
+      },
+      {
+        title: 'Badge',
+        path: '/docs/display/badge',
+        component: 'BadgeDocumentation'
+      },
+      {
+        title: 'Chip',
+        path: '/docs/display/chip',
+        component: 'ChipDocumentation'
+      },
+      {
         title: 'CodeVisualizer',
         path: '/docs/display/code-visualizer',
         component: 'CodeVisualizerDocumentation'
       },
       {
-        title: 'Icon',
-        path: '/docs/display/icon',
-        component: 'IconDocumentation'
+        title: 'ConfirmDialog',
+        path: '/docs/display/confirm-dialog',
+        component: 'ConfirmDialogDocumentation'
       },
       {
         title: 'ToolTip',
@@ -97,6 +117,11 @@ const documentationRoutes = {
         title: 'Input',
         path: '/docs/input/input',
         component: 'InputDocumentation'
+      },
+      {
+        title: 'FileUpload',
+        path: '/docs/input/file-upload',
+        component: 'FileUploadDocumentation'
       },
       {
         title: 'Select',
@@ -202,6 +227,17 @@ const documentationRoutes = {
       },
     ]
   },
+  NavigationComponents: {
+    title: 'Navigation Components',
+    path: '/docs/navigation-components',
+    items: [
+      {
+        title: 'Link',
+        path: '/docs/navigation/link',
+        component: 'LinkDocumentation'
+      },
+    ]
+  },
   Routing: {
     title: 'Routing',
     path: '/docs/routing',
@@ -223,6 +259,11 @@ const documentationRoutes = {
     path: '/docs/services',
     items: [
       {
+        title: 'DomService',
+        path: '/docs/services/dom-service',
+        component: 'DomServiceDocumentation'
+      },
+      {
         title: 'DragDropService',
         path: '/docs/services/drag-drop',
         component: 'DragDropServiceDocumentation'
@@ -238,9 +279,29 @@ const documentationRoutes = {
         component: 'LocalStorageManagerDocumentation'
       },
       {
+        title: 'FileDownloadService',
+        path: '/docs/services/file-download-service',
+        component: 'FileDownloadServiceDocumentation'
+      },
+      {
         title: 'IndexedDbManager',
         path: '/docs/services/indexed-db-manager',
         component: 'IndexedDbManagerDocumentation'
+      },
+      {
+        title: 'HtmlService',
+        path: '/docs/services/html-service',
+        component: 'HtmlServiceDocumentation'
+      },
+      {
+        title: 'UnsavedChangesGuard',
+        path: '/docs/services/unsaved-changes-guard',
+        component: 'UnsavedChangesGuardDocumentation'
+      },
+      {
+        title: 'StoreService',
+        path: '/docs/services/store-service',
+        component: 'StoreServiceDocumentation'
       },
       {
         title: 'ToastProvider',
