@@ -171,6 +171,107 @@ slice-form .slice-form__broken {
   background: color-mix(in srgb, var(--danger-color) 8%, transparent);
 }
 
+/* ── steps ─────────────────────────────────────────────────────────────── */
+
+/* Only the current step is on screen, but every step's controls stay built -
+   that is what keeps a value typed on step 1 alive after three Nexts. */
+slice-form .slice-form__step {
+  display: grid;
+  grid-template-columns: repeat(var(--form-columns, 1), minmax(0, 1fr));
+  gap: var(--form-gap);
+  align-items: start;
+}
+
+/* Mandatory companion: the rule above sets `display`, and any author-level
+   display beats the user-agent [hidden] rule at any specificity
+   (COMPONENT_API_STANDARDS.md 8.2). Without this the other steps would all
+   show at once. */
+slice-form .slice-form__step[hidden] {
+  display: none;
+}
+
+slice-form .slice-form__step-title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--font-primary-color);
+}
+
+/* Focus moves here on a step change, so it must not draw a ring the mouse
+   never asked for. */
+slice-form .slice-form__step-title:focus {
+  outline: none;
+}
+
+slice-form .slice-form__step-title:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+slice-form .slice-form__step-desc {
+  grid-column: 1 / -1;
+  margin: -0.25rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--font-secondary-color);
+}
+
+/* ── progress ──────────────────────────────────────────────────────────── */
+
+slice-form .slice-form__progress {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+slice-form .slice-form__progress-step {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+/* A done step is a link back to it; the current one is not, because you are
+   already there and clicking it does nothing. */
+slice-form .slice-form__progress-step[data-state='done'] slice-button,
+slice-form .slice-form__progress-step[data-state='todo'] slice-button {
+  opacity: 1;
+}
+
+slice-form .slice-form__progress-step[data-state='done'] slice-button {
+  color: var(--primary-color);
+}
+
+slice-form .slice-form__progress-step[data-state='todo'] slice-button {
+  opacity: 0.55;
+}
+
+slice-form .slice-form__progress-step[data-state='current'] slice-button {
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* ── announcements ─────────────────────────────────────────────────────── */
+
+/* Step changes are announced here rather than by moving focus, so a screen
+   reader hears them without a focus ring being painted around the heading. */
+slice-form .slice-form__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ── actions ───────────────────────────────────────────────────────────── */
 
 slice-form .slice-form__actions {

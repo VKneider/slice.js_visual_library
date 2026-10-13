@@ -22,6 +22,10 @@ export default class Form extends HTMLElement {
     resetText: { type: 'string', default: null },
     onSubmit: { type: 'function', default: null },
 
+    // Label for the button that advances a step. On the last step the button
+    // becomes the submit button and shows submitText instead.
+    nextText: { type: 'string', default: 'Next' },
+
     // 'card' draws a raised surface; 'plain' is rhythm only, for a form that
     // already sits inside one (a Modal body, a Card). Not auto-detected -
     // guessing from the ancestor is worse than being explicit.
@@ -47,11 +51,16 @@ export default class Form extends HTMLElement {
 
     this._schema = [];
     this._submitText = 'Submit';
+    this._nextText = 'Next';
     this._resetText = null;
     this._onSubmit = null;
     this._variant = 'card';
     this._columns = 1;
     this._maxWidth = null;
+    // Steps. Every schema is grouped into steps; a plain schema is just a
+    // single implicit one, so there is no separate code path to keep correct.
+    this._steps = [];
+    this._stepIndex = 0;
 
     this._fields = []; // [{ name, instance, valueProp, config, $error, $field }]
     this._built = []; // every slice.build instance (fields + buttons) to destroy
@@ -82,6 +91,11 @@ export default class Form extends HTMLElement {
   set resetText(value) {
     this._resetText = typeof value === 'string' ? value : null;
     if (this._ready) this._render();
+  }
+
+  set nextText(value) {
+    this._nextText = typeof value === 'string' ? value : 'Next';
+    this._syncActionLabels();
   }
 
   set onSubmit(value) {
@@ -161,12 +175,26 @@ export default class Form extends HTMLElement {
     }
   }
 
-  validate() {
-    this.clearErrors();
+  /**
+   * Validate the form, or just the fields on one step.
+   * @param {number[]} [stepIndexes] restrict to these steps
+   */
+  validate(stepIndexes = null) {
+    const scope = stepIndexes
+      ? this._fields.filter((f) => stepIndexes.includes(f.step))
+      : this._fields;
+
+    // Clear only what is about to be checked. On a stepped form, clearing
+    // everything first would wipe the errors on the steps you already passed.
+    for (const field of scope) {
+      field.$error.textContent = '';
+      field.$field.classList.remove('slice-form__field--error');
+    }
+
     const values = this.getValues();
     let valid = true;
 
-    for (const field of this._fields) {
+    for (const field of scope) {
       if (!field.name) continue;
       const value = values[field.name];
       let error = null;
@@ -183,6 +211,118 @@ export default class Form extends HTMLElement {
       }
     }
     return valid;
+  }
+
+  /** Number of steps. 1 for a plain schema. */
+  get stepCount() {
+    return this._steps.length;
+  }
+
+  /** Zero-based index of the step on screen. */
+  get stepIndex() {
+    return this._stepIndex;
+  }
+
+  get isStepped() {
+    return this._steps.length > 1;
+  }
+
+  /**
+   * Advance, but only if the steps BEHIND the current one are valid. Returns
+   * false and paints the errors in place when they are not.
+   */
+  nextStep() {
+    if (!this.isStepped) return false;
+    if (this._stepIndex >= this._steps.length - 1) return false;
+
+    const done = Array.from({ length: this._stepIndex + 1 }, (_, i) => i);
+    if (!this.validate(done)) return false;
+
+    this._stepIndex += 1;
+    this._syncSteps();
+    return true;
+  }
+
+  /** Go back. Never validates - leaving a step does not make it invalid. */
+  prevStep() {
+    if (!this.isStepped || this._stepIndex === 0) return false;
+    this._stepIndex -= 1;
+    this._syncSteps();
+    return true;
+  }
+
+  /**
+   * Jump to a step, from the progress indicator.
+   *
+   * Forward jumps are gated exactly like Next: the steps being skipped over
+   * must validate. Without that, clicking step 3 in the indicator would be a
+   * way around every check Next enforces - the indicator would be a hole in
+   * the form rather than a shortcut through it. Going BACK is always allowed.
+   *
+   * @returns {boolean} whether the move happened
+   */
+  gotoStep(index) {
+    if (!this.isStepped) return false;
+    const target = Math.max(0, Math.min(index, this._steps.length - 1));
+    if (target === this._stepIndex) return false;
+
+    if (target > this._stepIndex) {
+      const passed = Array.from({ length: target }, (_, i) => i);
+      if (!this.validate(passed)) return false;
+    }
+
+    this._stepIndex = target;
+    this._syncSteps();
+    return true;
+  }
+
+  /**
+   * @param {boolean} announce pass false on the INITIAL render. Announcing
+   * "Step 1 of 3" the moment a page loads is noise: a screen reader already
+   * reads the content on arrival. Only a CHANGE the user made is announced.
+   */
+  _syncSteps(announce = true) {
+    for (const [i, box] of this.$steps.entries()) {
+      box.hidden = i !== this._stepIndex;
+    }
+    if (this.$progress) {
+      for (const [i, item] of this.$progressItems.entries()) {
+        const state = i === this._stepIndex ? 'current' : i < this._stepIndex ? 'done' : 'todo';
+        item.dataset.state = state;
+        if (item.firstElementChild) {
+          item.firstElementChild.setAttribute('aria-current', state === 'current' ? 'step' : 'false');
+        }
+      }
+    }
+    this._syncActionLabels();
+    if (announce) this._announceStep();
+  }
+
+  /**
+   * Announce the step change to assistive tech.
+   *
+   * This used to move FOCUS to the new step's heading, which a screen reader
+   * announces - but it painted a focus ring around the heading that read as a
+   * text input sitting on the page. A polite live region announces the same
+   * thing with nothing drawn, which is the standard pattern for a wizard and
+   * does not fight the user's eyes.
+   */
+  _announceStep() {
+    if (!this.$live) return;
+    const step = this._steps[this._stepIndex];
+    const where = `Step ${this._stepIndex + 1} of ${this._steps.length}`;
+    this.$live.textContent = step?.label ? `${where}: ${step.label}` : where;
+  }
+
+  _syncActionLabels() {
+    const last = this._steps.length - 1;
+    if (this.$nextBtn) {
+      this.$nextBtn.value = this._stepIndex >= last ? this._submitText : this._nextText;
+      this.$nextBtn.hidden = !this.isStepped;
+    }
+    if (this.$backBtn) {
+      this.$backBtn.hidden = !this.isStepped || this._stepIndex === 0;
+    }
   }
 
   submit() {
@@ -220,32 +360,112 @@ export default class Form extends HTMLElement {
     });
   }
 
+  /**
+   * Group the schema into steps.
+   *
+   * A schema with no `kind: 'step'` still produces ONE implicit step, so
+   * there is no separate single-page code path to keep correct - stepping is
+   * always what the renderer does, it just happens to have nothing to step
+   * between. Items declared before the first step land in an unlabelled
+   * leading step rather than being silently dropped.
+   */
+  _groupSteps() {
+    const steps = [];
+    let current = null;
+
+    for (const item of this._schema) {
+      if ((item.kind || 'field') === 'step') {
+        current = {
+          label: item.label || item.title || '',
+          description: item.description || '',
+          items: Array.isArray(item.schema) ? item.schema : [],
+        };
+        steps.push(current);
+        continue;
+      }
+      if (!current) {
+        current = { label: '', description: '', items: [], implicit: true };
+        steps.push(current);
+      }
+      current.items.push(item);
+    }
+
+    return steps;
+  }
+
   async _renderOnce() {
     this._destroyBuilt();
     this._fields = [];
     this.$fields.innerHTML = '';
     this.$actions.innerHTML = '';
+    this.$steps = [];
+    this.$progress = null;
+    this.$progressItems = [];
+    this.$live = null;
+    this.$backBtn = null;
+    this.$nextBtn = null;
 
-    for (const item of this._schema) {
-      const kind = item.kind || 'field';
-      if (kind === 'section') {
-        this.$fields.appendChild(this._renderSection(item));
-      } else if (kind === 'separator') {
-        this.$fields.appendChild(this._renderSeparator());
-      } else {
-        await this._renderField(item);
+    this._steps = this._groupSteps();
+    this._stepIndex = Math.min(this._stepIndex, Math.max(0, this._steps.length - 1));
+
+    if (this.isStepped) await this._renderProgress();
+
+    for (const [i, step] of this._steps.entries()) {
+      const box = document.createElement('div');
+      box.className = 'slice-form__step';
+      box.dataset.step = String(i);
+      this.$steps.push(box);
+
+      if (step.label) {
+        const heading = document.createElement('h3');
+        heading.className = 'slice-form__step-title';
+        heading.dataset.stepHeading = '';
+        heading.textContent = step.label;
+        box.appendChild(heading);
+      }
+      if (step.description) {
+        const desc = document.createElement('p');
+        desc.className = 'slice-form__step-desc';
+        desc.textContent = step.description;
+        box.appendChild(desc);
+      }
+
+      for (const item of step.items) {
+        const kind = item.kind || 'field';
+        if (kind === 'section') box.appendChild(this._renderSection(item));
+        else if (kind === 'separator') box.appendChild(this._renderSeparator());
+        else await this._renderField(item, box, i);
+      }
+
+      this.$fields.appendChild(box);
+    }
+
+    // Back comes FIRST in the DOM so a stray Enter lands on the safe action,
+    // the same reasoning the original used for cancel-before-confirm.
+    if (this.isStepped) {
+      const back = await slice.build('Button', {
+        value: 'Back',
+        variant: 'outlined',
+        onClick: () => this.prevStep(),
+      });
+      if (back) {
+        this._built.push(back);
+        this.$backBtn = back;
+        this.$actions.appendChild(back);
       }
     }
 
     const submit = await slice.build('Button', { value: this._submitText, onClick: () => this.submit() });
     if (submit) {
       this._built.push(submit);
+      this.$nextBtn = submit;
       this.$actions.appendChild(submit);
     }
+
     if (this._resetText) {
       const reset = await slice.build('Button', {
         value: this._resetText,
-        variant: 'outlined',
+        variant: 'ghost',
         onClick: () => this.reset()
       });
       if (reset) {
@@ -253,6 +473,48 @@ export default class Form extends HTMLElement {
         this.$actions.appendChild(reset);
       }
     }
+
+    for (const [i, box] of this.$steps.entries()) box.hidden = i !== this._stepIndex;
+    this._syncSteps(false);
+  }
+
+  /**
+   * The progress indicator. Clickable steps are a convenience, NOT a bypass:
+   * `gotoStep` refuses to jump FORWARD past a step that does not validate,
+   * because Next would refuse too.
+   */
+  async _renderProgress() {
+    const nav = document.createElement('ol');
+    nav.className = 'slice-form__progress';
+    nav.setAttribute('aria-label', 'Form progress');
+
+    for (const [i, step] of this._steps.entries()) {
+      const btn = await slice.build('Button', {
+        value: step.label || `Step ${i + 1}`,
+        variant: 'ghost',
+        onClick: () => this.gotoStep(i),
+      });
+      if (!btn) continue;
+
+      const li = document.createElement('li');
+      li.className = 'slice-form__progress-step';
+      li.appendChild(btn);
+      this._built.push(btn);
+      nav.appendChild(li);
+      this.$progressItems.push(li);
+    }
+
+    // Visually hidden, still announced. See _announceStep.
+    this.$live = document.createElement('p');
+    this.$live.className = 'slice-form__live';
+    this.$live.setAttribute('aria-live', 'polite');
+    this.$live.setAttribute('role', 'status');
+
+    if (this.$progressItems.length) {
+      this.$progress = nav;
+      this.$form.insertBefore(nav, this.$fields);
+    }
+    this.$form.appendChild(this.$live);
   }
 
   _renderSection(item) {
@@ -279,7 +541,10 @@ export default class Form extends HTMLElement {
     return hr;
   }
 
-  async _renderField(config) {
+  async _renderField(config, target, stepIndex = 0) {
+    // Which container this field lands in. A stepped form passes its own step
+    // box; everything else appends to the shared field list.
+    const host = target || this.$fields;
     const valueProp = config.valueProp || 'value';
 
     const wrap = document.createElement('div');
@@ -355,8 +620,19 @@ export default class Form extends HTMLElement {
     error.setAttribute('role', 'alert');
     wrap.appendChild(error);
 
-    this.$fields.appendChild(wrap);
-    this._fields.push({ name: config.name, instance, valueProp, config, $error: error, $field: wrap });
+    // A stepped form passes its own step box; everything else appends to the
+    // shared field list.
+    (target || this.$fields).appendChild(wrap);
+    this._fields.push({
+      name: config.name,
+      instance,
+      valueProp,
+      config,
+      $error: error,
+      $field: wrap,
+      // Which step this field belongs to, so validate([n]) can scope itself.
+      step: stepIndex,
+    });
   }
 
   _handleSubmit(event) {

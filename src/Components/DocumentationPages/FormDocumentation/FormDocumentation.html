@@ -13,24 +13,38 @@
 <div class="table-block" data-block-id="doc-block-1"></div>
 <p><strong>Field item:</strong></p>
 <ul><li><code>name</code> — key in the values object.</li><li><code>label</code>, <code>description</code> — field chrome rendered by the Form.</li><li><code>component</code> — a Slice component name, built via <code>slice.build</code>.</li><li><code>props</code> — props passed to that component.</li><li><code>valueProp</code> — which prop holds the value (default <code>'value'</code>; use <code>'checked'</code> for <code>Checkbox</code>/<code>Switch</code>).</li><li><code>value</code> — initial value (merged into <code>props</code> under <code>valueProp</code>).</li><li><code>required</code> — <code>true</code> or a custom message.</li><li><code>validate(value, values)</code> — returns an error string (falsy when valid). Runs on submit.</li></ul>
+<h2 id="steps">Steps</h2>
+<p>A schema item may be a <code>step</code>, with its own nested <code>schema</code>:</p>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<ul><li><strong>Values live in one Form.</strong> Every step's controls stay built, so what you typed on</li></ul>
+<p>step 1 is still there after three Nexts. That is the thing wizards usually get wrong.</p>
+<ul><li><strong>Next validates the steps behind you</strong>, not just the current one, and refuses to move</li></ul>
+<p>while any of them is invalid — painting the errors in place.</p>
+<ul><li><strong>Back never validates.</strong> Leaving a half-filled step is allowed; only moving on is gated.</li><li><strong>The progress indicator cannot skip validation.</strong> Clicking a step ahead is refused</li></ul>
+<p>exactly as Next would be, so the indicator is a shortcut and not a hole.</p>
+<ul><li>The last step's button is the <strong>Submit</strong> button, and says <code>submitText</code>.</li><li>A schema with no <code>step</code> is one implicit step: no progress bar, no Back, no Next.</li></ul>
+<p><code>stepIndex</code>, <code>stepCount</code>, <code>isStepped</code>, <code>nextStep()</code>, <code>prevStep()</code> and <code>gotoStep(i)</code> are public. <code>nextText</code> sets the label of the advance button.</p>
+<div class="callout callout-tip">Use a Modal for two or three short steps, and a route per step for anything longer. A Modal
+has no URL, so there is nothing to link to and nothing for the back button to go back to.</div>
 <h2 id="layout">Layout</h2>
 <p>Three presentation props, and one per-field opt-out.</p>
-<div class="table-block" data-block-id="doc-block-2"></div>
-<div class="code-block" data-block-id="doc-block-3"></div>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<div class="code-block" data-block-id="doc-block-4"></div>
 <p><code>full: true</code> on a <strong>field</strong> keeps it out of a shared grid row. Sections and separators always span the full row.</p>
 <div class="callout callout-tip">The container owns the spacing, not the controls. <code>Input</code>, <code>Select</code> and
 <code>Textarea</code> carry no vertical margin of their own, so a form's rhythm is
 decided in one place. If you need the old standalone spacing, set
 <code>--control-margin-block</code> on the host.</div>
 <h2 id="methods">Methods</h2>
-<div class="table-block" data-block-id="doc-block-4"></div>
+<div class="table-block" data-block-id="doc-block-5"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <div class="script-block" data-block-id="doc-block-7"></div>
 <div class="script-block" data-block-id="doc-block-8"></div>
 <div class="script-block" data-block-id="doc-block-9"></div>
 <div class="script-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Let the Form own the field's <code>label</code>/<code>description</code>; don't also set the component's own <code>label</code> in
 <code>props</code> or it doubles up (for <code>Checkbox</code>/<code>Switch</code> you may prefer the component's inline label — then omit
@@ -49,5 +63,5 @@ disappears from the payload. If a field is required, the usual validation is wha
 <code>beforeDestroy()</code>. Components built with <code>slice.build</code> are not auto-destroyed by a parent — so destroy
 the <code>Form</code> itself through <code>slice.controller.destroyComponent(form)</code> / <code>destroyByContainer(node)</code> when you
 tear down whatever hosts it (a Modal, a view).</div>
-<div class="component-block" data-block-id="doc-block-11"></div>
+<div class="component-block" data-block-id="doc-block-13"></div>
 </div>

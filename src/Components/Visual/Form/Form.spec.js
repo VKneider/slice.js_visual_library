@@ -382,3 +382,319 @@ test.describe('Form - layout', () => {
       expect(await c.component.evaluate((el) => el.dataset.variant)).toBe('plain');
    });
 });
+// ── Multi-page forms: { kind: 'step' } ──
+
+test.describe('Form - steps', () => {
+   const STEP_SCHEMA = [
+      { kind: 'step', label: 'Account', description: 'How you sign in', schema: [
+         { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true },
+      ] },
+      { kind: 'step', label: 'Profile', description: 'How people see you', schema: [
+         { kind: 'field', name: 'nickname', label: 'Nickname', component: 'Input', required: true },
+         { kind: 'field', name: 'newsletter', label: 'News', component: 'Switch', valueProp: 'checked' },
+      ] },
+      { kind: 'step', label: 'Done', description: 'All set', schema: [
+         { kind: 'field', name: 'notes', label: 'Notes', component: 'Input' },
+      ] },
+   ];
+
+   test('a plain schema is one implicit step, with no progress or Back', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [{ kind: 'field', name: 'a', label: 'A', component: 'Input' }],
+      });
+
+      const state = await c.component.evaluate((el) => ({
+         stepCount: el.stepCount,
+         isStepped: el.isStepped,
+         steps: el.querySelectorAll('.slice-form__step').length,
+         progress: el.querySelectorAll('.slice-form__progress').length,
+         backHidden: el.querySelector('.slice-form__actions slice-button')?.hidden ?? null,
+         visible: [...el.querySelectorAll('.slice-form__step')].filter((s) => !s.hidden).length,
+      }));
+
+      expect(state.stepCount).toBe(1);
+      expect(state.isStepped).toBe(false);
+      expect(state.steps).toBe(1);
+      expect(state.progress).toBe(0);
+      expect(state.visible).toBe(1);
+   });
+
+   test('steps render one at a time, with only the first visible', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      const state = await c.component.evaluate((el) => ({
+         stepCount: el.stepCount,
+         isStepped: el.isStepped,
+         steps: el.querySelectorAll('.slice-form__step').length,
+         visible: [...el.querySelectorAll('.slice-form__step')].filter((s) => !s.hidden).length,
+         firstHeading: el.querySelector('.slice-form__step:not([hidden]) .slice-form__step-title')?.textContent,
+      }));
+
+      expect(state.stepCount).toBe(3);
+      expect(state.isStepped).toBe(true);
+      expect(state.steps).toBe(3);
+      // The [hidden] companion is what makes this true; see Form.css.
+      expect(state.visible).toBe(1);
+      expect(state.firstHeading).toBe('Account');
+   });
+
+   test('Next advances, but only when the steps behind are valid', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      // Email is required and empty, so Next must refuse.
+      const refused = await c.component.evaluate((el) => el.nextStep());
+      expect(refused).toBe(false);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      // And it said why, in place.
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error')).toHaveText(
+         'This field is required'
+      );
+
+      // Fill it, and now it goes through.
+      await c.component.evaluate((el) => el.setValue('email', 'a@b.co'));
+      expect(await c.component.evaluate((el) => el.nextStep())).toBe(true);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
+      await expect(c.locator('.slice-form__step[data-step="1"]')).toBeVisible();
+      await expect(c.locator('.slice-form__step[data-step="0"]')).toBeHidden();
+   });
+
+   test('Back never validates - leaving an incomplete step is allowed', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      await c.component.evaluate((el) => el.setValue('email', 'a@b.co'));
+      await c.component.evaluate((el) => el.nextStep());
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
+
+      // Nickname is required and still empty. Going BACK must still work.
+      expect(await c.component.evaluate((el) => el.prevStep())).toBe(true);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+   });
+
+   test('a value typed on step 1 survives the whole round trip', async ({ mount }) => {
+      // The reason every step's controls stay built rather than being torn down
+      // and re-created per step.
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      const values = await c.component.evaluate(async (el) => {
+         el.setValue('email', 'keep@example.com');
+         el.setValue('nickname', 'vicky');
+         el.setValue('newsletter', true);
+         el.nextStep();
+         el.nextStep();
+         el.prevStep();
+         el.prevStep();
+         return el.getValues();
+      });
+
+      expect(values.email).toBe('keep@example.com');
+      expect(values.nickname).toBe('vicky');
+      expect(values.newsletter).toBe(true);
+   });
+
+   test('the last step submits instead of advancing', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      const state = await c.component.evaluate(async (el) => {
+         el.setValue('email', 'a@b.co');
+         el.nextStep();
+         el.setValue('nickname', 'vicky');
+         el.nextStep();
+         return {
+            index: el.stepIndex,
+            buttonLabel: el.$nextBtn.value,
+            // Past the end, Next is a no-op rather than an error.
+            advanced: el.nextStep(),
+         };
+      });
+
+      expect(state.index).toBe(2);
+      expect(state.buttonLabel).toBe('Submit');
+      expect(state.advanced).toBe(false);
+   });
+
+   test('submit on a stepped form validates EVERY step, not just the last', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA, submitText: 'Finish' });
+
+      const state = await c.component.evaluate((el) => {
+         el.gotoStep(2); // jump to the end without filling anything
+         return { submitted: el.submit() };
+      });
+
+      expect(state.submitted).toBe(false);
+      // The error is on step 1, which is not even on screen - the progress
+      // indicator is the only way back to it.
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error')).toHaveText(
+         'This field is required'
+      );
+   });
+
+   test('rechecking one step does not wipe the errors on another', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      // Put a real error on BOTH steps on purpose: validate() covers everything.
+      const before = await c.component.evaluate((el) => {
+         el.validate();
+         return [...el.querySelectorAll('.slice-form__error')].map((e) => e.textContent).filter(Boolean);
+      });
+      expect(before).toHaveLength(2);
+
+      // Now recheck ONLY step 0, with it fixed. Step 1's error must survive:
+      // clearing everything on every validate would wipe the reason the user
+      // was sent back, which is the whole point of a per-step error.
+      const after = await c.component.evaluate(async (el) => {
+         el.setValue('email', 'a@b.co');
+         el.nextStep();
+         return {
+            email: el.querySelector('.slice-form__field[data-name="email"] .slice-form__error').textContent,
+            nickname: el.querySelector('.slice-form__field[data-name="nickname"] .slice-form__error').textContent,
+         };
+      });
+
+      expect(after.email).toBe('');
+      expect(after.nickname).toBe('This field is required');
+   });
+
+   test('the progress indicator cannot be used to skip validation', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      // Email is required and empty. Clicking step 3 in the indicator must be
+      // refused exactly as Next would be, or the indicator is a hole in the
+      // form rather than a shortcut through it.
+      const blocked = await c.component.evaluate((el) => el.gotoStep(2));
+      expect(blocked).toBe(false);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error')).toHaveText(
+         'This field is required'
+      );
+
+      // Going BACK is always allowed, valid or not.
+      await c.component.evaluate((el) => el.setValue('email', 'a@b.co'));
+      await c.component.evaluate((el) => el.nextStep());
+      expect(await c.component.evaluate((el) => el.gotoStep(0))).toBe(true);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+   });
+
+   test('progress marks done, current and todo', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      const states = async () =>
+         c.component.evaluate(() =>
+            [...document.querySelectorAll('.slice-form__progress-step')].map((s) => s.dataset.state)
+         );
+
+      expect(await states()).toEqual(['current', 'todo', 'todo']);
+
+      await c.component.evaluate((el) => el.setValue('email', 'a@b.co'));
+      await c.component.evaluate((el) => el.nextStep());
+      expect(await states()).toEqual(['done', 'current', 'todo']);
+
+      await c.component.evaluate((el) => el.prevStep());
+      expect(await states()).toEqual(['current', 'todo', 'todo']);
+   });
+
+   test('Back is hidden on the first step and Next becomes Submit on the last', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA, submitText: 'Finish' });
+
+      const state = async () =>
+         c.component.evaluate((el) => {
+            const buttons = [...el.$actions.querySelectorAll('slice-button')];
+            return {
+               backHidden: buttons[0]?.hidden ?? null,
+               backLabel: buttons[0]?.value,
+               nextLabel: buttons[1]?.value,
+            };
+         });
+
+      expect(await state()).toMatchObject({ backHidden: true, nextLabel: 'Next' });
+
+      await c.component.evaluate(async (el) => {
+         el.setValue('email', 'a@b.co');
+         el.nextStep();
+      });
+      expect((await state()).backHidden).toBe(false);
+
+      await c.component.evaluate(async (el) => {
+         el.setValue('nickname', 'v');
+         el.nextStep();
+      });
+      expect((await state()).nextLabel).toBe('Finish');
+   });
+
+   test('nextText is configurable', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA, nextText: 'Continue', submitText: 'Finish' });
+      const label = await c.component.evaluate((el) => el.$nextBtn.value);
+      expect(label).toBe('Continue');
+   });
+
+   test('a step change is announced through a live region, not by moving focus', async ({ mount }) => {
+      // Moving focus to the new step's heading did announce it, but it painted
+      // a focus ring around the heading that read as a text input sitting on
+      // the page. A polite live region announces the same thing invisibly.
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      const live = await c.component.evaluate(async (el) => {
+         const region = el.querySelector('.slice-form__live');
+         const before = region?.textContent ?? null;
+         el.setValue('email', 'a@b.co');
+         el.nextStep();
+         await new Promise((r) => setTimeout(r, 60));
+         return {
+            exists: !!region,
+            ariaLive: region?.getAttribute('aria-live'),
+            before,
+            after: region?.textContent,
+            // Nothing should have been focused.
+            activeTag: document.activeElement?.tagName ?? null,
+            activeIsStepTitle: !!document.activeElement?.matches?.('[data-step-heading]'),
+         };
+      });
+
+      expect(live.exists).toBe(true);
+      expect(live.ariaLive).toBe('polite');
+      expect(live.before).toBe('');
+      expect(live.after).toBe('Step 2 of 3: Profile');
+      expect(live.activeIsStepTitle).toBe(false);
+   });
+
+   test('the live region is visually hidden but not display:none', async ({ mount }) => {
+      // display:none would stop it being announced at all.
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+      const cs = await c.component.evaluate((el) => {
+         const region = el.querySelector('.slice-form__live');
+         const style = getComputedStyle(region);
+         return { display: style.display, w: Math.round(region.getBoundingClientRect().width) };
+      });
+      expect(cs.display).not.toBe('none');
+      expect(cs.w).toBeLessThanOrEqual(1);
+   });
+
+   test('items before the first step land in an unlabelled leading step', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [
+            { kind: 'field', name: 'intro', label: 'Intro', component: 'Input' },
+            { kind: 'step', label: 'One', schema: [{ kind: 'field', name: 'a', label: 'A', component: 'Input' }] },
+         ],
+      });
+
+      const state = await c.component.evaluate((el) => ({
+         stepCount: el.stepCount,
+         // Both items survive - the leading one is not dropped.
+         fields: el.querySelectorAll('.slice-form__field').length,
+      }));
+
+      expect(state.stepCount).toBe(2);
+      expect(state.fields).toBe(2);
+   });
+
+   test('a step with no schema renders an empty step, not a crash', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [
+            { kind: 'step', label: 'Empty', schema: [] },
+            { kind: 'step', label: 'One', schema: [{ kind: 'field', name: 'a', label: 'A', component: 'Input' }] },
+         ],
+      });
+
+      expect(await c.component.evaluate((el) => el.nextStep())).toBe(true);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
+   });
+});

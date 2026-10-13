@@ -38,6 +38,39 @@ Each item is discriminated by `kind`:
 - `required` — `true` or a custom message.
 - `validate(value, values)` — returns an error string (falsy when valid). Runs on submit.
 
+## Steps
+
+A schema item may be a `step`, with its own nested `schema`:
+
+```javascript
+schema: [
+  { kind: 'step', label: 'Account', description: 'Where we sign you in', schema: [
+      { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true },
+  ] },
+  { kind: 'step', label: 'Profile', schema: [
+      { kind: 'field', name: 'nickname', label: 'Nickname', component: 'Input' },
+  ] },
+]
+```
+
+- **Values live in one Form.** Every step's controls stay built, so what you typed on
+  step 1 is still there after three Nexts. That is the thing wizards usually get wrong.
+- **Next validates the steps behind you**, not just the current one, and refuses to move
+  while any of them is invalid — painting the errors in place.
+- **Back never validates.** Leaving a half-filled step is allowed; only moving on is gated.
+- **The progress indicator cannot skip validation.** Clicking a step ahead is refused
+  exactly as Next would be, so the indicator is a shortcut and not a hole.
+- The last step's button is the **Submit** button, and says `submitText`.
+- A schema with no `step` is one implicit step: no progress bar, no Back, no Next.
+
+`stepIndex`, `stepCount`, `isStepped`, `nextStep()`, `prevStep()` and `gotoStep(i)`
+are public. `nextText` sets the label of the advance button.
+
+:::tip
+Use a Modal for two or three short steps, and a route per step for anything longer. A Modal
+has no URL, so there is nothing to link to and nothing for the back button to go back to.
+:::
+
 ## Layout
 
 Three presentation props, and one per-field opt-out.
@@ -214,6 +247,63 @@ const form = await slice.build('Form', {
 });
 
 return form;
+:::
+
+:::script label="Multi-page onboarding" expected="try Next with the fields empty — it refuses and tells you why"
+const log = document.createElement('p');
+log.style.cssText = 'font-family:system-ui,sans-serif;font-size:.8em;color:var(--font-secondary-color);margin:0';
+
+const form = await slice.build('Form', {
+  columns: 2,
+  submitText: 'Create account',
+  nextText: 'Next',
+  schema: [
+    {
+      kind: 'step',
+      label: 'Account',
+      description: 'Where we send your sign-in link.',
+      schema: [
+        { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true },
+        { kind: 'field', name: 'password', label: 'Password', component: 'Input',
+          required: true, props: { secret: true } },
+      ],
+    },
+    {
+      kind: 'step',
+      label: 'Profile',
+      description: 'How people see you.',
+      schema: [
+        { kind: 'field', name: 'firstName', label: 'First name', component: 'Input', required: true },
+        { kind: 'field', name: 'lastName', label: 'Last name', component: 'Input', required: true },
+        { kind: 'field', name: 'bio', label: 'Bio', component: 'Input', full: true,
+          description: 'Optional. Shown under your name.' },
+      ],
+    },
+    {
+      kind: 'step',
+      label: 'Preferences',
+      description: 'You can change these later.',
+      schema: [
+        { kind: 'field', name: 'newsletter', label: 'Email me product news',
+          component: 'Switch', valueProp: 'checked', full: true },
+        { kind: 'field', name: 'role', label: 'Role', component: 'Select', full: true,
+          props: { visibleProp: 'label', options: [
+            { label: 'Owner', value: 'owner' },
+            { label: 'Member', value: 'member' },
+          ] } },
+      ],
+    },
+  ],
+  onSubmit: (values) => {
+    log.textContent = 'Submitted: ' + Object.keys(values).join(', ');
+    console.log('submit', values);
+  },
+});
+
+const wrap = document.createElement('div');
+wrap.appendChild(form);
+wrap.appendChild(log);
+return wrap;
 :::
 
 ## Best Practices
