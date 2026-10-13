@@ -7,57 +7,38 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Icon</code> renders a symbol from the built-in <strong>slc</strong> icon font. Every icon is available in <strong>filled</strong> (<code>iconStyle: "filled"</code>) and/or <strong>outlined</strong> (<code>iconStyle: "outlined"</code>) style. Use the <code>name</code> prop with the exact names listed below.</p>
+<p><code>Icon</code> renders an inline <strong>SVG</strong> glyph: no icon font, no webfont download, no global stylesheet. Use the <code>name</code> prop with the exact names listed below.</p>
+<div class="callout callout-warning">Icon used to render a glyph from the <strong>slc</strong> icon font, where every symbol came in a <code>filled</code> and an <code>outlined</code> variant. It now renders <strong>Lucide</strong>, which is stroke-only.
+
+- <strong>All 291 names still work.</strong> Names Lucide spells differently (<code>trash-bin</code>, <code>angle-down</code>, <code>check-circle</code>, ...) are aliased to their Lucide equivalent; the brand, language and Slice marks Lucide does not ship keep their original artwork. Run <code>node scripts/icon-map-audit.mjs</code> to see the full mapping, or read <code>ALIASES</code> in <code>icons.generated.js</code>.
+- <strong><code>iconStyle</code> is a deprecated no-op.</strong> It is still accepted (and warns once) so existing callers keep working, but it no longer selects anything: drop it.
+- **The <code>slc-*</code> glyph classes are gone.<strong> If your CSS targeted <code>slice-icon .slc-filrocket</code>, delete that rule and style the host or the <code>&lt;svg&gt;</code> instead. The old stylesheet styled <code>[class^="slc-"]</code> at global scope, so those rules were leaking anyway.
+- </strong><code>color</code> now defaults to <code>currentColor</code><strong>, so an icon inherits its surroundings and follows the theme. Pass an explicit color to override.
+- </strong>Size and color land on the host<strong>, so <code>getComputedStyle(icon).fontSize</code> is meaningful and the glyph scales with the surrounding text.
+- </strong>A few names now draw the same glyph** (<code>angle-down</code> and <code>caret-down</code> are both the chevron) because Lucide merged the old duplicates.</div>
 <h2 id="api">API</h2>
-<ul><li><code>name</code> (string, default <code>"youtube"</code>) — Icon symbol name (see full list below).</li><li><code>iconStyle</code> (string, default <code>"filled"</code>) — <code>"filled"</code> or <code>"outlined"</code>.</li><li><code>size</code> (string, default <code>"small"</code>) — <code>"small"</code> (16px), <code>"medium"</code> (20px), <code>"large"</code> (24px), or any CSS size.</li><li><code>color</code> (string, default <code>"black"</code>) — Any CSS color value.</li></ul>
+<ul><li><code>name</code> (string, default <code>"youtube"</code>) — Icon symbol name (see full list below). An unknown name warns and renders nothing.</li><li><code>size</code> (string, default <code>"small"</code>) — <code>"small"</code> (16px), <code>"medium"</code> (20px), <code>"large"</code> (24px), or any CSS size.</li><li><code>color</code> (string, default <code>"currentColor"</code>) — Any CSS color value.</li><li><code>label</code> (string, default <code>""</code>) — Accessible name. Omitted, the icon is <code>aria-hidden</code> (right next to a visible label); set it for an icon that stands alone.</li><li><code>iconStyle</code> (string, <code>"filled"</code> / <code>"outlined"</code>) — <strong>deprecated, ignored.</strong> Kept so existing callers do not break.</li></ul>
+<p>Setting any prop re-renders immediately; you no longer need a separate <code>update()</code> call.</p>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="semantic-colour">Semantic colour</h2>
+<p>Colour an icon by what it *means*, not by what it looks like, so the same glyph keeps its meaning across themes:</p>
+<div class="table-block" data-block-id="doc-block-2"></div>
 <h2 id="demos">Demos</h2>
-<div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<h2 id="icon-galleries">Icon Galleries</h2>
-<p>Browse icons by category.</p>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="icon-galleries">Icon Galleries</h2>
+<p>Browse icons by category.</p>
 <div class="script-block" data-block-id="doc-block-7"></div>
 <div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<div class="script-block" data-block-id="doc-block-10"></div>
 <h2 id="icon-reference">Icon Reference</h2>
-<p>The slc font contains <strong>291 unique symbols</strong>. Icons with a checkmark are available in that style.</p>
-<h3 id="ui-navigation">UI &amp; Navigation</h3>
-<div class="table-block" data-block-id="doc-block-9"></div>
-<h3 id="arrows-directional">Arrows &amp; Directional</h3>
-<div class="table-block" data-block-id="doc-block-10"></div>
-<h3 id="communication">Communication</h3>
+<p>&lt;!-- icon-table:start --&gt;</p>
+<p><code>Icon</code> exposes <strong>291 names</strong>. <code>Source</code> is the Lucide icon behind each name, or <code>legacy mark</code> for the brand, language and Slice marks Lucide does not ship (those keep their original artwork). The table is generated: see <code>scripts/generate-icon-table.mjs</code>.</p>
 <div class="table-block" data-block-id="doc-block-11"></div>
-<h3 id="media-audio">Media &amp; Audio</h3>
-<div class="table-block" data-block-id="doc-block-12"></div>
-<h3 id="files-storage">Files &amp; Storage</h3>
-<div class="table-block" data-block-id="doc-block-13"></div>
-<h3 id="users-people">Users &amp; People</h3>
-<div class="table-block" data-block-id="doc-block-14"></div>
-<h3 id="commerce-finance">Commerce &amp; Finance</h3>
-<div class="table-block" data-block-id="doc-block-15"></div>
-<h3 id="status-feedback">Status &amp; Feedback</h3>
-<div class="table-block" data-block-id="doc-block-16"></div>
-<h3 id="objects-essentials">Objects &amp; Essentials</h3>
-<div class="table-block" data-block-id="doc-block-17"></div>
-<h3 id="design-layout">Design &amp; Layout</h3>
-<div class="table-block" data-block-id="doc-block-18"></div>
-<h3 id="development">Development</h3>
-<div class="table-block" data-block-id="doc-block-19"></div>
-<h3 id="brands-social">Brands &amp; Social</h3>
-<div class="table-block" data-block-id="doc-block-20"></div>
-<h3 id="slice-brand">Slice Brand</h3>
-<div class="table-block" data-block-id="doc-block-21"></div>
-<h3 id="weather-time">Weather &amp; Time</h3>
-<div class="table-block" data-block-id="doc-block-22"></div>
-<h3 id="miscellaneous">Miscellaneous</h3>
-<div class="table-block" data-block-id="doc-block-23"></div>
-<h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use consistent <code>size</code> and <code>color</code> values within a feature to maintain visual alignment. Prefer theme tokens (<code>var(--primary-color)</code>, <code>var(--font-secondary-color)</code>) over hardcoded hex values when possible.</div>
-<div class="callout callout-tip">For Slice brand logos (<code>singleSlice</code>, <code>sliceJs</code>, <code>sliceLogo</code>) always use <code>filled</code> style — the outlined variants do not exist.</div>
-<h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Icon names are case-sensitive and use kebab-case. For example, use <code>arrow-up-right-from-square</code>, not <code>arrowUpRightFromSquare</code>.</div>
-<div class="component-block" data-block-id="doc-block-24"></div>
+<p>&lt;!-- icon-table:end --&gt;</p>
+<div class="component-block" data-block-id="doc-block-12"></div>
 </div>
