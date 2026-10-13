@@ -40,24 +40,30 @@ slice-select .slice_select {
 slice-select .slice_select_label {
   color: var(--primary-color);
   position: absolute;
-  transition: all 0.5s;
+  /* Deliberately NOT `all`: the float below animates transform + scale, but
+     opacity must never tween here. While searching, the label and the input's
+     placeholder share the same box, so fading one out while the other is
+     already painted prints both at once for the length of the fade -
+     measured at opacity 0.78 about 70ms in, with "Framework" bleeding through
+     "Type to search". */
+  transition: transform 0.5s, scale 0.5s;
   user-select: none;
 }
 
 slice-select .slice_select_value {
   scale: 0.8;
   transform: translateY(-200%);
-  transition: all 0.5s;
+  /* Same narrowing as the base label, and it has to be repeated here: this rule
+     comes later, so `all` would win and hand the crossfade straight back the
+     moment a value was selected - which is exactly when a searchable is most
+     often used again. */
+  transition: transform 0.5s, scale 0.5s;
 }
 
 /* Searching: the input shows what is being typed, so a label still sitting in
    the input's own place would overprint it. Only a NON-floated label is
    hidden - `slice_select_value` lifts the label clear of the input, and hiding
-   that one would strip the field of its label the moment you start typing.
-
-   opacity rather than visibility/display, so the label keeps the 0.5s
-   transition above and no [hidden] companion rule is needed
-   (COMPONENT_API_STANDARDS.md 8.2 is about display, not opacity). */
+   that one would strip the field of its label the moment you start typing. */
 slice-select .slice_select_label.slice_select_searching:not(.slice_select_value) {
   opacity: 0;
 }

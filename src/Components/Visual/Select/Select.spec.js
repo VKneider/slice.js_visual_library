@@ -387,4 +387,67 @@ test('closing CLEARS the search placeholder', async ({ mount }) => {
       expect(state.value).toBe('Angular');
       expect(state.floated).toBe(true);
    });
+
+// The label and the placeholder share one box, so they must never crossfade.
+
+   test('the label is gone INSTANTLY when searching - no crossfade', async ({ mount }) => {
+      // With `transition: all .5s` on the label, opening a searchable faded the
+      // label out over half a second while the placeholder was painted from
+      // the first frame. Measured 70ms in: label at opacity 0.78, "Framework"
+      // visibly bleeding through "Type to search".
+      const c = await build(mount);
+
+      const samples = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         const seen = [];
+         for (const ms of [0, 30, 70, 150, 400]) {
+            await new Promise((r) => setTimeout(r, ms === 0 ? 0 : ms - seen.at(-1).waited));
+            seen.push({
+               waited: ms,
+               opacity: Number(getComputedStyle(el.$label).opacity),
+               placeholder: el.$select.placeholder,
+            });
+         }
+         return seen;
+      });
+
+      // The placeholder is up from the first frame...
+      expect(samples[0].placeholder).toBe('Pick one');
+      // ...and the label is already gone at the first frame too. No frame ever
+      // shows both.
+      for (const s of samples) {
+         expect(s.opacity, `label opacity at ${s.waited}ms`).toBe(0);
+      }
+   });
+
+   test('the float animation still works - only opacity stopped transitioning', async ({ mount }) => {
+      // The fix narrowed `transition: all` to `transform, scale`. If that had
+      // been narrowed wrongly the label would snap into place instead of
+      // floating up, which is the component's whole look.
+      const c = await build(mount);
+
+      const states = await c.component.evaluate(async (el) => {
+         await el._selectOption(el._optionEls[0].option, el._optionEls[0].el);
+         await new Promise((r) => setTimeout(r, 40));
+         const early = getComputedStyle(el.$label).transform;
+         await new Promise((r) => setTimeout(r, 700));
+         const settled = getComputedStyle(el.$label).transform;
+
+         return {
+            floated: el.$label.classList.contains('slice_select_value'),
+            early,
+            settled,
+            transition: getComputedStyle(el.$label).transitionProperty,
+         };
+      });
+
+      expect(states.floated).toBe(true);
+      // Still animating 40ms in (matrix identity, not yet translated)...
+      expect(states.early).toContain('matrix');
+      // ...and it actually moved.
+      expect(states.settled).not.toBe(states.early);
+      // opacity is not in the transition list any more.
+      expect(states.transition).not.toContain('opacity');
+      expect(states.transition).toContain('transform');
+   });
 });
