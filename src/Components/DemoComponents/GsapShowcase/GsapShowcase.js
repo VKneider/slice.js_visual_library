@@ -402,20 +402,32 @@ export default class GsapShowcase extends HTMLElement {
       });
 
       // ── 8. Timeline play/reverse (existing) ──
+      //
+      // `data-tl` is a STATE READOUT. Root cause of the old breakage was NOT
+      // here - it was the ResizeObserver below rebuilding this timeline with
+      // clear(), which reset the playhead mid-animation and left the readout
+      // stuck. With that fixed, onUpdate plus the timeline's promise is a
+      // straightforward way to express it: a GSAP animation is thenable and
+      // that promise settles when it finishes in EITHER direction, so the
+      // terminal value never depends on which edge callback happens to fire.
       this._tl = gsap.timeline({
          paused: true,
-         onComplete: () => { this.$tlTrack.dataset.tl = 'done'; },
-         onReverseComplete: () => { this.$tlTrack.dataset.tl = 'start'; }
+         onUpdate: () => {
+            const p = this._tl.progress();
+            // Only the in-flight value comes from here; "done"/"start" are set
+            // by the completion promise, not guessed from a threshold.
+            if (p > 0.001 && p < 0.999) this.$tlTrack.dataset.tl = 'running';
+         }
       });
       this._tl.to(this.$tlDot, { x: () => this.$tlTrack.clientWidth - 20, duration: 0.6, ease: 'power2.inOut' });
       this.$tlToggle.addEventListener('click', () => {
          const playing = this.$tlToggle.dataset.playing === 'true';
          if (playing) {
-            this._tl.reverse();
+            this._tl.reverse().then(() => { this.$tlTrack.dataset.tl = 'start'; });
             this.$tlToggle.dataset.playing = 'false';
             this.$tlToggle.textContent = 'Play';
          } else {
-            this._tl.play();
+            this._tl.play().then(() => { this.$tlTrack.dataset.tl = 'done'; });
             this.$tlToggle.dataset.playing = 'true';
             this.$tlToggle.textContent = 'Reverse';
          }
@@ -583,11 +595,41 @@ export default class GsapShowcase extends HTMLElement {
       });
 
       // ── handle resize for dynamic widths ──
+      //
+      // The tween's x target is function-based, so a resize has to be re-applied.
+      //
+      // `clear()` resets the playhead. It also silently killed whatever
+      // animation happened to be running: after play() reached the end, the
+      // following reverse() produced exactly ONE tick (progress 0.975) and
+      // then a hard reset to progress 0 / totalTime 0, with neither
+      // onReverseComplete nor the timeline's promise ever settling - so
+      // data-tl stayed on "done". Isolated, the same GSAP timeline reverses
+      // perfectly, so this was never a GSAP bug.
+      //
+      // Two fixes: only rebuild when the width actually changed (the tween
+      // moves the dot, which resizes the track, which fires this observer
+      // again), and carry the playhead across the rebuild.
+      this._lastTrackWidth = this.$tlTrack.clientWidth;
       this._resizeObserver = new ResizeObserver(() => {
-         if (this._tl) {
-            this._tl.clear();
-            this._tl.to(this.$tlDot, { x: () => this.$tlTrack.clientWidth - 20, duration: 0.6, ease: 'power2.inOut' });
-         }
+         const tl = this._tl;
+         if (!tl) return;
+
+         const width = this.$tlTrack.clientWidth;
+         if (width === this._lastTrackWidth) return;
+         this._lastTrackWidth = width;
+
+         const progress = tl.progress();
+         const wasReversed = tl.reversed();
+         const wasActive = tl.isActive();
+
+         tl.clear();
+         tl.to(this.$tlDot, { x: () => this.$tlTrack.clientWidth - 20, duration: 0.6, ease: 'power2.inOut' });
+
+         // clear() dropped the playhead; put it back, and keep going the way
+         // it was already going.
+         tl.progress(progress);
+         if (wasReversed) tl.reverse();
+         else if (wasActive) tl.play();
       });
       this._resizeObserver.observe(this.$tlTrack);
       this._resizeObserver.observe(this.$scrubTrack);
