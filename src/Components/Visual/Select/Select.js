@@ -344,6 +344,13 @@ export default class Select extends HTMLElement {
    updateSelectLabel() {
       this.$select.value = '';
 
+      // The placeholder belongs to the SEARCH state only. _setOpen(true) sets
+      // it so the user sees a hint while typing, but nothing ever cleared it -
+      // so after one search the closed field still showed the hint, painted
+      // straight through the label (which is position:absolute in the same
+      // place). The mirror of the overlap that slice_select_searching fixes.
+      this.$select.placeholder = '';
+
       if (this._value.length > 0) {
          this.$select.value = this._value.map((option) => option[this.visibleProp]).join(', ');
          this.$label.classList.add('slice_select_value');

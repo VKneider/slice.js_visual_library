@@ -310,4 +310,81 @@ test.describe('Select - searching', () => {
       expect(geom.overlap, `label ${geom.labelBox} vs input ${geom.inputBox}`).toBe(true);
       expect(geom.labelOpacity).toBe(0);
    });
+
+test('closing CLEARS the search placeholder', async ({ mount }) => {
+      // The mirror of the overlap above. _setOpen(true) sets the placeholder so
+      // the user gets a hint while typing, but nothing cleared it - so after one
+      // search the closed field painted the hint straight through the label,
+      // which is position:absolute in the same place. Measured across two
+      // cycles before the fix: placeholder stayed "Type to search." forever.
+      const c = await build(mount, { placeholder: 'Type to search.' });
+
+      const state = await c.component.evaluate(async (el) => {
+         const steps = [];
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 80));
+         steps.push({ at: 'open', placeholder: el.$select.placeholder });
+
+         el._setOpen(false);
+         await new Promise((r) => setTimeout(r, 120));
+         steps.push({ at: 'closed', placeholder: el.$select.placeholder });
+
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 80));
+         el._setOpen(false);
+         await new Promise((r) => setTimeout(r, 120));
+         steps.push({ at: 'second cycle', placeholder: el.$select.placeholder });
+
+         return steps;
+      });
+
+      expect(state[0].placeholder).toBe('Type to search.');
+      expect(state[1].placeholder).toBe('');
+      expect(state[2].placeholder).toBe('');
+   });
+
+   test('a closed field paints only its label', async ({ mount }) => {
+      // The user-visible invariant: with the menu closed and nothing selected,
+      // the label is the only thing in the input's box.
+      const c = await build(mount, { placeholder: 'Type to search.' });
+
+      const state = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 80));
+         el._setOpen(false);
+         await new Promise((r) => setTimeout(r, 600));
+         return {
+            placeholder: el.$select.placeholder,
+            labelOpacity: getComputedStyle(el.$label).opacity,
+            searching: el.$label.classList.contains('slice_select_searching'),
+            value: el.$select.value,
+         };
+      });
+
+      expect(state.placeholder).toBe('');
+      expect(state.value).toBe('');
+      expect(state.searching).toBe(false);
+      expect(state.labelOpacity).toBe('1');
+   });
+
+   test('selecting a value then closing keeps the placeholder cleared', async ({ mount }) => {
+      const c = await build(mount, { placeholder: 'Type to search.' });
+
+      const state = await c.component.evaluate(async (el) => {
+         el._setOpen(true);
+         await new Promise((r) => setTimeout(r, 80));
+         await el._selectOption(el._optionEls[0].option, el._optionEls[0].el);
+         el._setOpen(false);
+         await new Promise((r) => setTimeout(r, 600));
+         return {
+            placeholder: el.$select.placeholder,
+            value: el.$select.value,
+            floated: el.$label.classList.contains('slice_select_value'),
+         };
+      });
+
+      expect(state.placeholder).toBe('');
+      expect(state.value).toBe('Angular');
+      expect(state.floated).toBe(true);
+   });
 });
