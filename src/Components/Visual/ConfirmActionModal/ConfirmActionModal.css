@@ -1,0 +1,69 @@
+/* Everything is scoped under `slice-confirmactionmodal`, which only works
+   because the Modal is built INSIDE this element. The previous version
+   appended it to document.body, so this element was never an ancestor of
+   anything it styled and the whole stylesheet was dead code - the message
+   rendered as an unstyled <p> and the field had no gap. */
+
+slice-confirmactionmodal {
+  display: contents;
+}
+
+/* Header mark. Sits before the title, in its own slot so the title's line
+   height is untouched. */
+slice-confirmactionmodal .slice_confirm_action_modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--font-primary-color) 8%, transparent);
+}
+
+/* The rule above sets `display`, and any author-level display beats the
+   user-agent [hidden] rule at any specificity (COMPONENT_API_STANDARDS.md
+   8.2), so the hidden companion is mandatory rather than tidy. */
+slice-confirmactionmodal .slice_confirm_action_modal__icon[hidden] {
+  display: none;
+}
+
+/* A destructive question should not look like a routine one. The badge colour
+   follows an explicit class, not :has() - the danger mark and the neutral one
+   are the same element type, so no structural selector can tell them apart. */
+slice-confirmactionmodal .slice_confirm_action_modal__icon.is-danger {
+  background: color-mix(in srgb, var(--danger-color) 14%, transparent);
+}
+
+slice-confirmactionmodal .slice_confirm_action_modal__message {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--font-secondary-color);
+  /* An unbounded message in a fixed-width dialog turns into a wall of text. */
+  max-width: 46ch;
+}
+
+slice-confirmactionmodal .slice_confirm_action_modal__message[hidden] {
+  display: none;
+}
+
+slice-confirmactionmodal .slice_confirm_action_modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+  font-family: var(--font-family);
+}
+
+slice-confirmactionmodal .slice_confirm_action_modal__field[hidden] {
+  display: none;
+}
+
+slice-confirmactionmodal .slice_confirm_action_modal__field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}

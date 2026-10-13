@@ -37,8 +37,8 @@
       "component": "CodeVisualizerDocumentation"
     },
     {
-      "filePath": "src/markdown/confirm-dialog.md",
-      "component": "ConfirmDialogDocumentation"
+      "filePath": "src/markdown/confirm-action-modal.md",
+      "component": "ConfirmActionModalDocumentation"
     },
     {
       "filePath": "src/markdown/css-conventions.md",

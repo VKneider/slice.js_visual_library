@@ -77,15 +77,15 @@ const docsIndex = [
     tags: ['code', 'syntax', 'highlight', 'display']
   },
   {
-    title: 'ConfirmDialog',
-    route: '/docs/display/confirm-dialog',
-    description: 'Promise-based "are you sure?" dialog and single-value prompt, built on Modal.',
+    title: 'ConfirmActionModal',
+    route: '/docs/display/confirm-action-modal',
+    description: 'Promise-based "are you sure?" modal and single-value prompt, built on Modal, with an event-manager channel.',
     section: 'Display',
     group: 'Feedback',
     order: 32,
-    navLabel: 'ConfirmDialog',
-    component: 'ConfirmDialogDocumentation',
-    tags: ['dialog', 'confirm', 'alert', 'prompt', 'modal', 'danger', 'confirmation']
+    navLabel: 'ConfirmActionModal',
+    component: 'ConfirmActionModalDocumentation',
+    tags: ['modal', 'confirm', 'alert', 'prompt', 'danger', 'confirmation', 'dialog', 'events']
   },
   {
     title: 'ToolTip',

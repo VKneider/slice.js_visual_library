@@ -67,9 +67,9 @@ const documentationRoutes = {
         component: 'CodeVisualizerDocumentation'
       },
       {
-        title: 'ConfirmDialog',
-        path: '/docs/display/confirm-dialog',
-        component: 'ConfirmDialogDocumentation'
+        title: 'ConfirmActionModal',
+        path: '/docs/display/confirm-action-modal',
+        component: 'ConfirmActionModalDocumentation'
       },
       {
         title: 'ToolTip',
