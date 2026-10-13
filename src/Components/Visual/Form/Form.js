@@ -240,6 +240,10 @@ export default class Form extends HTMLElement {
     wrap.className = 'slice-form__field';
     if (config.name) wrap.dataset.name = config.name;
 
+    // Marked up front so CSS can style the whole field even though the
+    // diagnosis below may append more children after this point.
+    if (!config.component) wrap.dataset.broken = 'true';
+
     if (config.label) {
       const label = document.createElement('label');
       label.className = 'slice-form__label';
@@ -262,10 +266,37 @@ export default class Form extends HTMLElement {
 
     const props = { ...(config.props || {}) };
     if (config.value !== undefined) props[valueProp] = config.value;
-    const instance = await slice.build(config.component, props);
+    const instance = config.component ? await slice.build(config.component, props) : null;
+
     if (instance) {
       this._built.push(instance);
       wrap.appendChild(instance);
+    } else {
+      // slice.build returns null for an unregistered name, and a schema item
+      // may simply omit `component`. Either way this used to fall through the
+      // `if (instance)` and leave a label and an error slot with NOTHING
+      // between them - which reads as a layout accident, not as a broken
+      // schema, and the field then vanishes from getValues() with no way for
+      // the caller to tell why.
+      //
+      // So: say it in the console, and say it on screen too.
+      const reason = config.component
+        ? `"${config.component}" is not a registered component`
+        : 'the schema item has no `component`';
+      slice.logger.logWarning(
+        this.sliceId,
+        `Form field "${config.name || config.label || '(unnamed)'}" rendered no control: ` +
+          `${reason}. It is shown as broken and will be absent from getValues().`
+      );
+
+      wrap.dataset.broken = 'true';
+      const note = document.createElement('p');
+      note.className = 'slice-form__broken';
+      note.setAttribute('role', 'note');
+      note.textContent = config.component
+        ? `Missing component "${config.component}"`
+        : 'No component declared for this field';
+      wrap.appendChild(note);
     }
 
     const error = document.createElement('div');

@@ -488,7 +488,22 @@ export default class ThreeAimTrainer extends HTMLElement {
          if (!fullscreenSupported) return;
          try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
       }
-      function lockPointer() { try { wrap.requestPointerLock?.(); } catch (_) {} }
+      function lockPointer() {
+               // `requestPointerLock()` returns a PROMISE in modern browsers, and
+               // it rejects when there is no user gesture - which is always the
+               // case here, since init() runs outside any gesture. A `try/catch`
+               // only catches a synchronous throw, so the rejection escaped as
+               // an unhandled promise rejection and the specs caught it as a
+               // page error - intermittently, depending on when the rejection
+               // landed relative to the assertion.
+               //
+               // So handle the promise. `enterFullscreen()` next door does not
+               // need this because it is `async` and awaits inside the try.
+               try {
+                  const pending = wrap.requestPointerLock?.();
+                  if (pending && typeof pending.catch === 'function') pending.catch(() => {});
+               } catch (_) {}
+            }
       function unlockPointer() { try { document.exitPointerLock?.(); } catch (_) {} }
 
       function pauseGame() {

@@ -78,6 +78,18 @@ slice-form .slice-form__field--error .slice-form__error {
   display: block;
 }
 
+/* A field whose schema item named no component, or one that is not registered.
+   It renders in the control's slot so the form does not read as if a control
+   had simply failed to paint. `data-broken` is set by _renderField. */
+slice-form .slice-form__broken {
+  font-size: 0.8rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px dashed var(--danger-color);
+  border-radius: var(--border-radius-slice, 4px);
+  color: var(--danger-color);
+  background: color-mix(in srgb, var(--danger-color) 8%, transparent);
+}
+
 slice-form .slice-form__actions {
   display: flex;
   gap: 0.5rem;

@@ -189,6 +189,16 @@ async `onSubmit`.
 :::
 
 ## Pitfalls
+
+:::warning
+A field whose `component` is missing — or names something that is not registered — renders **nothing**
+where the control should be. It is left visible as a dashed marker naming the problem, and the Form logs
+a warning naming the field, but the field contributes **no key** to `getValues()`.
+
+That is worth knowing at submit time: a broken field does not block the form, it just quietly
+disappears from the payload. If a field is required, the usual validation is what catches it.
+:::
+
 :::warning
 The Form **builds** its field + button components with `slice.build` and destroys them in
 `beforeDestroy()`. Components built with `slice.build` are not auto-destroyed by a parent — so destroy

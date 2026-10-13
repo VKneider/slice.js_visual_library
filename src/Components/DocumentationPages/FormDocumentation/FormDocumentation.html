@@ -30,6 +30,12 @@ the field <code>label</code>).</div>
 rules (confirm-password, date ranges). For server-side errors, call <code>form.setError(name, message)</code> from an
 async <code>onSubmit</code>.</div>
 <h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">A field whose <code>component</code> is missing — or names something that is not registered — renders <strong>nothing</strong>
+where the control should be. It is left visible as a dashed marker naming the problem, and the Form logs
+a warning naming the field, but the field contributes <strong>no key</strong> to <code>getValues()</code>.
+
+That is worth knowing at submit time: a broken field does not block the form, it just quietly
+disappears from the payload. If a field is required, the usual validation is what catches it.</div>
 <div class="callout callout-warning">The Form <strong>builds</strong> its field + button components with <code>slice.build</code> and destroys them in
 <code>beforeDestroy()</code>. Components built with <code>slice.build</code> are not auto-destroyed by a parent — so destroy
 the <code>Form</code> itself through <code>slice.controller.destroyComponent(form)</code> / <code>destroyByContainer(node)</code> when you
