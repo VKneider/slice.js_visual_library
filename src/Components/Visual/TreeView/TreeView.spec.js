@@ -297,4 +297,152 @@ test.describe('TreeView', () => {
       expect(out.secondIds).toEqual(out.firstIds);
       expect(out.count).toBe(2);
    });
+
+// ── schema shape and row geometry ──────────────────────────────────────────
+//
+// Two defects here were invisible to every existing spec: the component built,
+// the classes were right, and nothing failed. One dropped whole branches, the
+// other silently clipped every row.
+
+const ALT_ITEMS = [
+   {
+      text: 'Documents',
+      children: [
+         { text: 'Invoices.pdf', path: '/docs/invoices' },
+         { text: 'Contracts', children: [{ text: '2024.pdf', path: '/docs/c24' }] },
+         { text: 'Notes.md', path: '/docs/notes' },
+      ],
+   },
+   { text: 'Images', children: [{ text: 'logo.png', path: '/img/logo' }] },
+   { text: 'README.md', path: '/readme' },
+];
+
+test.describe('TreeView - schema tolerance', () => {
+   test('an item using text + children renders the whole tree', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const state = await h.page.evaluate(async (items) => {
+         const nav = await slice.build('TreeView', { items });
+         document.body.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+         const all = [...nav.querySelectorAll('slice-treeitem')];
+         return {
+            total: all.length,
+            topLevel: nav.querySelectorAll(':scope > .simple_treeview > slice-treeitem').length,
+            carets: nav.querySelectorAll('.caret').length,
+            labels: all.map((it) => it.querySelector('.slice_tree_item')?.textContent.trim() ?? null),
+         };
+      }, ALT_ITEMS);
+
+      // Before: ONE TreeItem, the only leaf without a `children` key. `children`
+      // is a getter-only property on HTMLElement, so spreading the item made
+      // setComponentProps throw "Cannot set property children" and the instance
+      // was never created — every branch vanished, leaving one ERROR in a
+      // console nobody was watching.
+      expect(state.total).toBe(8);
+      expect(state.topLevel).toBe(3);
+      expect(state.carets).toBe(3);
+      expect(state.labels).toContain('Documents');
+      expect(state.labels).toContain('Invoices.pdf');
+      expect(state.labels).toContain('README.md');
+      expect(state.labels.every((l) => l && l.length > 0)).toBe(true);
+   });
+
+   test('building a tree logs no component errors', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+      const errors = [];
+      h.page.on('console', (m) => {
+         if (m.type() === 'error') errors.push(m.text());
+      });
+
+      await h.page.evaluate(async (items) => {
+         const nav = await slice.build('TreeView', { items });
+         document.body.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+      }, ALT_ITEMS);
+
+      expect(errors.filter((e) => e.includes('Error creating instance'))).toEqual([]);
+   });
+
+   test('the documented value + items schema still works', async ({ mount }) => {
+      const c = await mount('TreeView', {
+         items: [
+            { value: 'Root', items: [{ value: 'Child', path: '/c' }] },
+            { value: 'Other', path: '/o' },
+         ],
+      });
+
+      const labels = await c.component.evaluate((el) =>
+         [...el.querySelectorAll('.slice_tree_item')].map((l) => l.textContent.trim())
+      );
+
+      // Every label present, in the DOM: a collapsed branch keeps its children
+      // mounted, it just clips them, so asserting an exact order would be
+      // asserting the tree's expansion state rather than its structure.
+      expect(labels).toHaveLength(3);
+      expect(labels.sort()).toEqual(['Child', 'Other', 'Root']);
+   });
+
+   test('the caller data is not mutated while building', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const mutated = await h.page.evaluate(async () => {
+         const child = { value: 'Child', path: '/c' };
+         const parent = { value: 'Parent', items: [child] };
+
+         const nav = await slice.build('TreeView', { items: [parent] });
+         document.body.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+
+         return {
+            // The old setItem did `value.onClick = this._onClick`, stamping the
+            // handler onto the caller's own objects, so the first child built
+            // shared its handler with every later branch.
+            json: JSON.stringify(parent),
+            childHasOnClick: Object.prototype.hasOwnProperty.call(child, 'onClick'),
+            parentKeys: Object.keys(parent).join(','),
+         };
+      });
+
+      expect(mutated.json).toBe(JSON.stringify({ value: 'Parent', items: [{ value: 'Child', path: '/c' }] }));
+      expect(mutated.childHasOnClick).toBe(false);
+      expect(mutated.parentKeys).toBe('value,items');
+   });
 });
+
+test.describe('TreeView - row geometry', () => {
+   test('no row is wider than the tree', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const out = await h.page.evaluate(async (items) => {
+         const stage = document.createElement('div');
+         stage.style.cssText = 'padding:24px;width:468px';
+         document.body.appendChild(stage);
+
+         const nav = await slice.build('TreeView', { items });
+         stage.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+         for (const c of nav.querySelectorAll('.container')) c.classList.add('container_open');
+         await new Promise((r) => setTimeout(r, 400));
+
+         const host = nav.getBoundingClientRect();
+         const rows = [...nav.querySelectorAll('.slice_tree_item')].map((l) => {
+            const r = l.getBoundingClientRect();
+            return { text: l.textContent.trim().slice(0, 16), w: r.width, over: r.right > host.right + 0.5 };
+         });
+         return { hostW: host.width, rows };
+      }, [
+         { value: 'Docs', items: [{ value: 'A.pdf', path: '/a' }, { value: 'B.pdf', path: '/b' }] },
+         { value: 'Readme', path: '/r' },
+      ]);
+
+      expect(out.rows.length).toBeGreaterThan(2);
+      // `width: 100%` with content-box sizing put the 10px of horizontal padding
+      // on top: every row measured 488px inside a 468px tree, and
+      // `.simple_treeview`'s overflow-x: hidden cut it with no scrollbar.
+      for (const row of out.rows) {
+         expect(row.over, `"${row.text}" overflows the tree`).toBe(false);
+         expect(row.w, `"${row.text}" width`).toBeLessThanOrEqual(out.hostW + 0.5);
+      }
+   });
+});});

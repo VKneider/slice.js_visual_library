@@ -1,3 +1,29 @@
+/**
+ * Map a consumer's tree item onto TreeItem's props.
+ *
+ * `children` and `text` are accepted as aliases for `items` and `value`.
+ * Not as a nicety: `children` is a getter-only property on `HTMLElement`, so
+ * spreading an item that carries one made `setComponentProps` throw
+ * `Cannot set property children`, the instance was never created, and a whole
+ * branch of the tree vanished with nothing on screen but one console ERROR.
+ *
+ * Only the keys TreeItem declares are forwarded, so no future data shape can
+ * clobber a native DOM property the same way.
+ */
+function treeItemProps(item, onClick) {
+   const children = item.items ?? item.children;
+   const props = {
+      value: item.value ?? item.text ?? item.label ?? '',
+      path: item.path ?? '',
+   };
+
+   if (Array.isArray(children) && children.length > 0) props.items = children;
+   if (typeof onClick === 'function') props.onClick = onClick;
+   else if (typeof item.onClick === 'function') props.onClick = item.onClick;
+
+   return props;
+}
+
 const _sliceDeprecated = new Set();
 function deprecate(oldName, newName) {
    if (_sliceDeprecated.has(oldName)) return;
@@ -187,7 +213,8 @@ export default class TreeView extends HTMLElement {
       await dom.reconcile(this.$treeView, this._items || [], {
          keyOf: (item) => this._keyOf(item),
          component: 'TreeItem',
-         props: (item) => ({ ...item, onClick: this._onClick || item.onClick }),
+         // Normalised rather than spread: see treeItemProps above.
+         props: (item) => treeItemProps(item, this._onClick),
       });
 
       // reconcile() can adopt a node that predates this render, so the marker

@@ -6,6 +6,12 @@ slice-treeitem > .slice_tree_item {
    user-select: none;
    cursor: pointer;
    width: 100%;
+   /* Without border-box, `width: 100%` sizes the CONTENT box and the 10px of
+      horizontal padding lands on top: measured, every row rendered 488px inside
+      a 468px tree. `.simple_treeview` clips with overflow-x: hidden, so those
+      20px vanished with no scrollbar and nothing pointing at the cause —
+      hover backgrounds and the active gradient lost their right edge. */
+   box-sizing: border-box;
    display: flex;
    flex-direction: row-reverse;
    align-items: center;

@@ -23,6 +23,25 @@ tags: [treeview, navigation, tree]
 - `TreeView` uses `TreeItem` internally via `slice.build('TreeItem', ...)`.
 - Collapse state is persisted to `localStorage`.
 
+### Item aliases
+
+`text`/`label` are accepted for `value`, and `children` for `items`. The `children`
+alias exists because it is what nearly every other tree library calls it, and the
+cost of *not* accepting it was severe: `children` is a **getter-only property on
+`HTMLElement`**, so spreading an item that carried one made the props assignment
+throw `Cannot set property children`, the item was never created, and **every
+branch of the tree disappeared** — with one `ERROR` in a console you are not
+watching and nothing at all on screen.
+
+Only the keys `TreeItem` declares are forwarded to it, so no data shape can
+clobber a native DOM property the same way.
+
+```javascript
+// Both of these render the same tree.
+{ value: 'Docs', items: [ ... ] }
+{ text: 'Docs', children: [ ... ] }
+```
+
 ## Live Preview
 :::component name="TreeView"
 {
@@ -127,4 +146,12 @@ Use `path` on items that should navigate. Items without `path` toggle their chil
 ## Pitfalls
 :::warning
 `TreeItem` uses `localStorage` to persist open/closed state. State persists across sessions for items with the same label.
+:::
+
+:::tip
+How a branch opens depends on whether it has a `path`. A branch **with** one toggles only from its caret — clicking the label is left free for navigation. A branch **without** one toggles from the caret *or* the label, so it works with no caret affordance expected. Drop the `path` from a branch you always want collapsible.
+:::
+
+:::warning
+A branch collapses by animating `.container` from `scrollHeight` to `0`, then leaving `height: auto`. A branch that is *route*-opened goes straight to `height: auto`, so it will not animate — that is deliberate, since a fixed pixel height clips descendants that expand later.
 :::
