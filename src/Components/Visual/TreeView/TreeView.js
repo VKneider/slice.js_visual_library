@@ -44,6 +44,22 @@ export default class TreeView extends HTMLElement {
          default: '',
          required: false
       },
+      /**
+       * How much of the tree starts open.
+       *
+       * `'none'` (the default) leaves every branch to localStorage and to
+       * activePath — right for a nav sidebar, which should show the current
+       * page rather than the whole site.
+       *
+       * `'all'` opens every branch, for a tree you want to READ. Without it a
+       * docs page handed a nested schema shows three flat rows with a caret
+       * each and no visible hierarchy.
+       */
+      expanded: {
+         type: 'string',
+         default: 'none',
+         required: false
+      },
       // Canonical handler. `onClickCallback` is kept as a deprecated alias.
       onClick: {
          type: 'function',
@@ -125,6 +141,22 @@ export default class TreeView extends HTMLElement {
       if (typeof value === 'function') {
          this._onClick ??= value;
          deprecate('onClickCallback', 'onClick');
+      }
+   }
+
+   get expanded() {
+      return this._expanded;
+   }
+
+   set expanded(value) {
+      this._expanded = value;
+      if (this._inited) this.openAllBranches();
+   }
+
+   /** Opens every branch in the tree, at any depth. */
+   openAllBranches() {
+      for (const branch of this.$treeView.querySelectorAll('slice-treeitem.is-branch')) {
+         branch.setExpanded?.(true);
       }
    }
 
@@ -225,6 +257,9 @@ export default class TreeView extends HTMLElement {
 
       // A re-render drops the DOM, so the active highlight has to be re-applied.
       if (this._activePath) this.activateByPath(this._activePath);
+
+      // Last, so it overrides whatever activePath or localStorage decided.
+      if (this._expanded === 'all') this.openAllBranches();
    }
 
    _registerRouteListener() {

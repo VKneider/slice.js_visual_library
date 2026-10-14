@@ -19,9 +19,36 @@ tags: [treeview, navigation, tree]
 ## API and Behavior
 - `items` (array of objects) defines the tree hierarchy.
 - Each item accepts: `value` (label), `path` (for navigation), `items` (child array), `onClickCallback`.
+- `expanded` — `'none'` (default) or `'all'`. See below; this one matters.
 - `onClickCallback` is propagated to all child `TreeItem` nodes.
 - `TreeView` uses `TreeItem` internally via `slice.build('TreeItem', ...)`.
 - Collapse state is persisted to `localStorage`.
+
+### Everything starts closed by default
+
+A branch is collapsed until something opens it, and there are only two things
+that do: the caret, and `activePath` auto-opening the ancestors of the current
+page. Hand a `TreeView` nested items that carry a `path` and no `activePath`,
+and you get **three flat rows, 79–119px of blank space where the children
+should be, and a label that does nothing when clicked** — because the label's
+toggle is only wired for branches *without* a `path`:
+
+```javascript
+if (!this.path) {
+  this.$item.addEventListener('click', toggleContainer);
+}
+```
+
+That is the right default for a nav sidebar, which should show the current page
+rather than the whole site. It is the wrong default for a tree you want to
+**read**, so ask for it:
+
+```javascript
+const tree = await slice.build('TreeView', { items, expanded: 'all' });
+```
+
+`TreeItem.setExpanded(open)` is public too, for opening one branch yourself.
+`activePath` and `expanded: 'all'` compose: `expanded` is applied last and wins.
 
 ### Item aliases
 
@@ -103,7 +130,8 @@ const treeview = await slice.build('TreeView', {
       value: 'API Reference',
       path: '/docs/api'
     }
-  ]
+  ],
+  expanded: 'all'
 });
 
 return treeview;

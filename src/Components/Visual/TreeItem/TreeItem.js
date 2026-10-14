@@ -57,7 +57,7 @@ export default class TreeItem extends HTMLElement {
          type: 'array',
          default: [],
          required: false
-      }
+      },
    };
 
    constructor(props) {
@@ -189,6 +189,28 @@ export default class TreeItem extends HTMLElement {
             this.$container.classList.add('container_open');
          }
       }
+   }
+
+   /**
+    * Open or close this branch programmatically.
+    *
+    * Public because a parent that has to show a tree expanded has no other
+    * lever: the label's click handler is only wired for branches with no
+    * `path`, and the caret is a 10px triangle.
+    */
+   setExpanded(open) {
+      if (!this.$container) return;
+
+      const caret = this.$item.querySelector('.caret');
+      const wantOpen = open === true;
+
+      if (caret) caret.classList.toggle('caret_open', wantOpen);
+      this.$container.classList.toggle('container_open', wantOpen);
+      // height:auto rather than a pixel value: descendants that expand later
+      // would otherwise be clipped, the same reason openBranch does it.
+      this.$container.style.height = wantOpen ? 'auto' : '0px';
+
+      localStorage.setItem(this.getContainerKey(), wantOpen ? 'open' : 'closed');
    }
 
    setActive(active) {

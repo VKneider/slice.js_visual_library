@@ -445,4 +445,125 @@ test.describe('TreeView - row geometry', () => {
          expect(row.w, `"${row.text}" width`).toBeLessThanOrEqual(out.hostW + 0.5);
       }
    });
+});
+// ── expanded: a tree you can be shown ──────────────────────────────────────
+//
+// Without this, a nested schema rendered three flat rows, 79-119px of blank
+// space where the children should be, and a label that did nothing when
+// clicked — because the label's toggle is only wired for branches with no
+// `path`, and the only auto-open lever was `activePath`, which is about
+// navigation rather than expansion.
+
+const NESTED = [
+   {
+      value: 'Getting Started',
+      path: '/docs/getting-started',
+      items: [
+         { value: 'Installation', path: '/docs/installation' },
+         { value: 'Quick Start', path: '/docs/quick-start' },
+      ],
+   },
+   {
+      value: 'Components',
+      path: '/docs/components',
+      items: [
+         { value: 'Button', path: '/docs/input/button' },
+         { value: 'Card', path: '/docs/layout/card' },
+      ],
+   },
+   { value: 'API Reference', path: '/docs/api' },
+];
+
+test.describe('TreeView - expanded', () => {
+   /** Counts the TreeItems a user can actually see, not just those in the DOM. */
+   const visibleCount = (h, props) =>
+      h.page.evaluate(async (p) => {
+         const stage = document.createElement('div');
+         stage.id = 'stage';
+         stage.style.cssText = 'padding:24px;width:420px';
+         document.body.appendChild(stage);
+
+         const nav = await slice.build('TreeView', p);
+         stage.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+
+         const all = [...nav.querySelectorAll('slice-treeitem')];
+         const visible = all.filter((it) => it.parentElement.getBoundingClientRect().height > 0);
+
+         return {
+            inDom: all.length,
+            visible: visible.length,
+            labels: visible.map((it) => it.querySelector('.slice_tree_item').textContent.trim()),
+         };
+      }, props);
+
+   test("expanded: 'all' shows every branch", async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const out = await visibleCount(h, { items: NESTED, expanded: 'all' });
+
+      expect(out.inDom).toBe(7);
+      expect(out.visible).toBe(7);
+      expect(out.labels).toContain('Installation');
+      expect(out.labels).toContain('Components');
+   });
+
+   test('the default still collapses, so a nav sidebar is unaffected', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const out = await visibleCount(h, { items: NESTED });
+
+      // Only the three top-level rows. Before the fix this looked broken
+      // rather than collapsed, which is the whole point of `expanded`.
+      expect(out.inDom).toBe(7);
+      expect(out.visible).toBe(3);
+   });
+
+   test('a branch label does nothing on click, which is why expanded exists', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const result = await h.page.evaluate(async (items) => {
+         const nav = await slice.build('TreeView', { items });
+         document.body.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+
+         const branch = [...nav.querySelectorAll('slice-treeitem')].find((it) => it.querySelector('.caret'));
+         branch.querySelector('.slice_tree_item').click();
+         await new Promise((r) => setTimeout(r, 600));
+
+         const byLabel = !!branch.querySelector('.container_open');
+
+         branch.querySelector('.caret').click();
+         await new Promise((r) => setTimeout(r, 600));
+
+         return { byLabel, byCaret: !!branch.querySelector('.container_open') };
+      }, NESTED);
+
+      // Documented, not accidental: a branch with a `path` keeps its label free.
+      expect(result.byLabel).toBe(false);
+      expect(result.byCaret).toBe(true);
+   });
+
+   test('setExpanded opens one branch without touching the rest', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const out = await h.page.evaluate(async (items) => {
+         const nav = await slice.build('TreeView', { items });
+         document.body.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+
+         const branches = [...nav.querySelectorAll('slice-treeitem.is-branch')];
+         const heights = () => branches.map((b) => Math.round(b.$container.getBoundingClientRect().height));
+
+         const before = heights();
+         branches[0].setExpanded(true);
+         await new Promise((r) => setTimeout(r, 400));
+
+         return { before, after: heights() };
+      }, NESTED);
+
+      expect(out.before).toEqual([0, 0]);
+      expect(out.after[0]).toBeGreaterThan(0);
+      expect(out.after[1]).toBe(0);
+   });
 });});
