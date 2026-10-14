@@ -142,11 +142,31 @@ export default class Form extends HTMLElement {
   }
 
   // --- public API ---
+  /**
+   * Read every value back.
+   *
+   * Group items are stored FLAT internally - `phones[0].number` - so that
+   * `setValue` and `setError` work on them with no special cases. This method
+   * is the one place that turns them back into the nested shape the caller
+   * declared: `{ phones: [{ number, type }, ...] }`.
+   */
   getValues() {
     const values = {};
+
     for (const field of this._fields) {
-      if (field.name && field.instance) values[field.name] = field.instance[field.valueProp];
+      if (!field.name || !field.instance) continue;
+      const value = field.instance[field.valueProp];
+
+      if (field.group) {
+        const list = values[field.group.name] || (values[field.group.name] = []);
+        const item = list[field.group.index] || (list[field.group.index] = {});
+        item[field.group.itemName] = value;
+        continue;
+      }
+
+      values[field.name] = value;
     }
+
     return values;
   }
 
@@ -196,7 +216,7 @@ export default class Form extends HTMLElement {
 
     for (const field of scope) {
       if (!field.name) continue;
-      const value = values[field.name];
+      const value = this._valueFor(field, values);
       let error = null;
 
       if (field.config.required && this._isEmpty(value)) {
@@ -336,6 +356,14 @@ export default class Form extends HTMLElement {
     for (const field of this._fields) {
       if (field.config.value !== undefined) this.setValue(field.name, field.config.value);
     }
+    // A group's seed lives on the ITEM, not on the field, so it needs its own
+    // pass - otherwise Reset would blank a seeded group instead of restoring it.
+    for (const seed of this._groupSeeds || []) {
+      if (!Array.isArray(seed.values) || !seed.values[0]) continue;
+      for (const [fieldName, value] of Object.entries(seed.values[0])) {
+        this.setValue(`${seed.name}[0].${fieldName}`, value);
+      }
+    }
   }
 
   // --- rendering ---
@@ -401,6 +429,8 @@ export default class Form extends HTMLElement {
     this.$steps = [];
     this.$progress = null;
     this.$progressItems = [];
+    this._groups = [];
+    this._groupSeeds = [];
     this.$live = null;
     this.$backBtn = null;
     this.$nextBtn = null;
@@ -434,6 +464,7 @@ export default class Form extends HTMLElement {
         const kind = item.kind || 'field';
         if (kind === 'section') box.appendChild(this._renderSection(item));
         else if (kind === 'separator') box.appendChild(this._renderSeparator());
+        else if (kind === 'group') await this._renderGroup(item, box, i);
         else await this._renderField(item, box, i);
       }
 
@@ -517,6 +548,193 @@ export default class Form extends HTMLElement {
     this.$form.appendChild(this.$live);
   }
 
+  /**
+   * A repeatable group: phone numbers, addresses, team members. This is the
+   * thing that most often makes a real form impossible without it, since no
+   * flat schema can express "however many of these the user needs".
+   *
+   * Items are added and removed in place - no re-render of the whole form -
+   * so what is already typed elsewhere in it is never disturbed.
+   */
+  /**
+   * A repeatable group: phone numbers, addresses, team members. This is the
+   * thing that most often makes a real form impossible without it, since no
+   * flat schema can express "however many of these the user needs".
+   *
+   * Items are added and removed in place - the form is not re-rendered - so
+   * what is typed anywhere else in it is never disturbed.
+   */
+  async _renderGroup(config, target, stepIndex = 0) {
+    const host = target || this.$fields;
+    const groupName = config.name;
+    if (!groupName) return;
+
+    const min = Number.isFinite(config.min) ? Math.max(0, config.min) : 0;
+    const max = Number.isFinite(config.max) ? Math.max(min, config.max) : Infinity;
+    const itemSchema = Array.isArray(config.fields) ? config.fields : [];
+    const seeded = Array.isArray(config.value) ? config.value : [];
+    const count = Math.max(min, Math.min(max, seeded.length || (min > 0 ? min : 1)));
+
+    this._groupSeeds.push({ name: groupName, values: seeded });
+
+    const wrap = document.createElement('fieldset');
+    wrap.className = 'slice-form__group';
+    wrap.dataset.name = groupName;
+
+    if (config.label) {
+      const legend = document.createElement('legend');
+      legend.className = 'slice-form__group-label';
+      legend.textContent = config.label;
+      wrap.appendChild(legend);
+    }
+    if (config.description) {
+      const desc = document.createElement('p');
+      desc.className = 'slice-form__group-desc';
+      desc.textContent = config.description;
+      wrap.appendChild(desc);
+    }
+
+    const list = document.createElement('div');
+    list.className = 'slice-form__group-items';
+    wrap.appendChild(list);
+
+    // entries[i] = { box, owned }. `owned` is this item's OWN nodes, so
+    // removing one item takes exactly its controls with it and never orphans
+    // its neighbours'.
+    const entries = [];
+    const itemLabel = config.itemLabel || 'item';
+
+    const addEntry = async (index) => {
+      const box = document.createElement('div');
+      box.className = 'slice-form__group-item';
+      box.dataset.index = String(index);
+      const owned = [];
+
+      // Header row: the item tag on the left, its Remove on the right.
+      // Leaving the remove button under the last input made it read as a stray
+      // link belonging to the form rather than the control that drops THIS item.
+      const head = document.createElement('div');
+      head.className = 'slice-form__group-item-head';
+
+      if (itemSchema.length > 1) {
+        const tag = document.createElement('span');
+        tag.className = 'slice-form__group-item-tag';
+        tag.textContent = `${itemLabel} ${index + 1}`;
+        head.appendChild(tag);
+        owned.push(tag);
+      }
+
+      for (const fieldConfig of itemSchema) {
+        await this._renderField(
+          {
+            ...fieldConfig,
+            // Namespaced so two items cannot collide in _fields, and so the
+            // flat name round-trips through getValues().
+            name: `${groupName}[${index}].${fieldConfig.name}`,
+            // The group's seed feeds the first item only.
+            value: index === 0 ? seeded[0]?.[fieldConfig.name] : undefined,
+          },
+          box,
+          stepIndex,
+          { name: groupName, index, itemName: fieldConfig.name }
+        );
+      }
+
+      if (max > 1) {
+        const remove = await slice.build('Button', {
+          value: 'Remove',
+          // Button's `icon` is an OBJECT ({ name, size, color }), not a string. Passing
+          // a bare name leaves Icon with name: undefined and it renders an EMPTY
+          // <svg> with no warning - a 20x20 gap where the icon should be.
+          icon: { name: 'trash-bin' },
+          variant: 'ghost',
+          onClick: () => removeEntry(index),
+        });
+        if (remove) {
+          remove.classList.add('slice-form__group-remove');
+          remove.setAttribute('aria-label', `Remove ${itemLabel} ${index + 1}`);
+          head.appendChild(remove);
+          owned.push(remove);
+        }
+      }
+
+      // prepended, not appended: the fields were already appended above, so
+      // append() would strand the header underneath them.
+      if (head.childElementCount) box.prepend(head);
+
+      entries.splice(index, 0, { box, owned });
+      this._groups.push(...owned);
+      list.appendChild(box);
+      return box;
+    };
+
+    const removeEntry = async (index) => {
+      if (entries.length <= min) return;
+      const entry = entries[index];
+      if (!entry) return;
+
+      slice.controller.destroyByContainer(entry.box);
+      for (const node of entry.owned) {
+        this._groups = this._groups.filter((n) => n !== node);
+      }
+      this._fields = this._fields.filter(
+        (f) => !(f.group && f.group.name === groupName && f.group.index === index)
+      );
+
+      entry.box.remove();
+      entries.splice(index, 1);
+
+      // The keys are POSITIONAL, so everything after the removed item has to
+      // be renumbered or the second item would still report itself as
+      // phones[1] while sitting at index 0.
+      for (const [i, other] of this._fields.entries()) {
+        if (other.group && other.group.name === groupName && other.group.index > index) {
+          other.group.index -= 1;
+          other.name = `${groupName}[${other.group.index}].${other.group.itemName}`;
+        }
+      }
+      for (const [i, other] of entries.entries()) {
+        other.box.dataset.index = String(i);
+        const removeBtn = other.box.querySelector('.slice-form__group-remove');
+        if (removeBtn) removeBtn.setAttribute('aria-label', `Remove ${itemLabel} ${i + 1}`);
+      }
+
+      const value = this.getValues()[groupName];
+      if (Array.isArray(value)) {
+        while (value.length && value[value.length - 1] === undefined) value.pop();
+      }
+
+      syncAdd();
+    };
+
+    for (let i = 0; i < count; i++) await addEntry(i);
+
+    const add = await slice.build('Button', {
+      value: `Add ${itemLabel.toLowerCase()}`,
+      variant: 'outlined',
+      onClick: async () => {
+        if (entries.length >= max) return;
+        await addEntry(entries.length);
+        syncAdd();
+      },
+    });
+    if (add) {
+      const slot = document.createElement('div');
+      slot.className = 'slice-form__group-actions';
+      slot.appendChild(add);
+      wrap.appendChild(slot);
+    }
+
+    // Declared before first use: addEntry's click handler calls it.
+    function syncAdd() {
+      if (!add) return;
+      add.hidden = entries.length >= max;
+    }
+    syncAdd();
+
+    host.appendChild(wrap);
+  }
+
   _renderSection(item) {
     const section = document.createElement('div');
     section.className = 'slice-form__section';
@@ -541,7 +759,7 @@ export default class Form extends HTMLElement {
     return hr;
   }
 
-  async _renderField(config, target, stepIndex = 0) {
+  async _renderField(config, target, stepIndex = 0, group = null) {
     // Which container this field lands in. A stepped form passes its own step
     // box; everything else appends to the shared field list.
     const host = target || this.$fields;
@@ -586,7 +804,14 @@ export default class Form extends HTMLElement {
 
     if (instance) {
       this._built.push(instance);
-      wrap.appendChild(instance);
+      // The control gets its own box so CSS can tint it when the field is
+      // invalid. The message alone is not enough: red text under an input that
+      // still looks perfectly normal is easy to miss, and on a long form it is
+      // invisible at a glance.
+      const slot = document.createElement('div');
+      slot.className = 'slice-form__control';
+      slot.appendChild(instance);
+      wrap.appendChild(slot);
     } else {
       // slice.build returns null for an unregistered name, and a schema item
       // may simply omit `component`. Either way this used to fall through the
@@ -632,6 +857,9 @@ export default class Form extends HTMLElement {
       $field: wrap,
       // Which step this field belongs to, so validate([n]) can scope itself.
       step: stepIndex,
+      // Set only for a group item: { name, index, itemName }. getValues() uses
+      // it to rebuild the nested shape.
+      group,
     });
   }
 
@@ -645,6 +873,20 @@ export default class Form extends HTMLElement {
       slice.controller.destroyComponent(this._built);
       this._built = [];
     }
+  }
+
+  /**
+   * One field's value out of the shape `getValues()` returns.
+   *
+   * A group item is stored flat as `phones[0].number` but hands back as
+   * `{ phones: [{ number }] }`, so a flat lookup finds only the non-group
+   * ones. Validation has to ask the same question getValues() answers, or
+   * every group item reads as empty and fails `required` whatever the user
+   * typed into it.
+   */
+  _valueFor(field, values) {
+    if (!field.group) return values[field.name];
+    return values[field.group.name]?.[field.group.index]?.[field.group.itemName];
   }
 
   _isEmpty(value) {

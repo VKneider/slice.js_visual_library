@@ -159,6 +159,19 @@ slice-form .slice-form__field--error .slice-form__error {
   display: block;
 }
 
+/* The invalid state has to be visible on the CONTROL, not only in the message
+   under it. The ring sits outside the control's own 1px border so the tint
+   reads as a second edge rather than a recolour the user might mistake for
+   focus - and it never reflows the field, which a border change would. */
+slice-form .slice-form__control {
+  min-width: 0;
+  border-radius: var(--border-radius-slice);
+}
+
+slice-form .slice-form__field--error .slice-form__control {
+  box-shadow: 0 0 0 1px var(--danger-color);
+}
+
 /* A field whose schema item named no component, or one that is not registered.
    It renders in the control's slot so the form does not read as if a control
    had simply failed to paint. `data-broken` is set by _renderField. */
@@ -254,6 +267,85 @@ slice-form .slice-form__progress-step[data-state='todo'] slice-button {
 slice-form .slice-form__progress-step[data-state='current'] slice-button {
   font-weight: 600;
   border-bottom: 2px solid var(--primary-color);
+}
+
+/* ── repeatable groups ─────────────────────────────────────────────────── */
+
+/* A fieldset, so the legend is semantically the group's label and the browser
+   groups it for assistive tech without any ARIA of our own. */
+slice-form .slice-form__group {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+slice-form .slice-form__group-label {
+  padding: 0;
+  font-size: var(--form-label);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--font-primary-color);
+}
+
+slice-form .slice-form__group-desc {
+  margin: 0.125rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--font-secondary-color);
+}
+
+slice-form .slice-form__group-items {
+  display: grid;
+  grid-template-columns: repeat(var(--form-columns, 1), minmax(0, 1fr));
+  gap: var(--form-gap);
+  align-items: start;
+  margin-top: 0.75rem;
+}
+
+/* The dashed edge says "this whole block is one of several", which is what
+   distinguishes it from the sections above. */
+slice-form .slice-form__group-item {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: span 1 / -1;
+  gap: 0.75rem var(--form-gap);
+  align-items: start;
+  padding: 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--font-primary-color) 22%, transparent);
+  border-radius: var(--form-radius);
+}
+
+slice-form .slice-form__group-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  /* Reserves the row even when the item has no tag, so items without one do
+     not start higher than their tagged neighbours and the stack stays even. */
+  min-height: 1.9rem;
+}
+
+slice-form .slice-form__group-item-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--font-secondary-color);
+}
+
+slice-form .slice-form__group-remove {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+slice-form .slice-form__group-actions {
+  margin-top: 0.75rem;
+}
+
+slice-form .slice-form__group-actions slice-button[hidden] {
+  display: none;
 }
 
 /* ── announcements ─────────────────────────────────────────────────────── */

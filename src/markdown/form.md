@@ -26,6 +26,7 @@ Each item is discriminated by `kind`:
 | --- | --- | --- |
 | `'section'` | `title`, `description` | a section header |
 | `'separator'` | — | a divider |
+| `'group'` | see below | a repeatable set of items |
 | `'field'` (default) | see below | a labelled field wrapping a built component |
 
 **Field item:**
@@ -69,6 +70,67 @@ are public. `nextText` sets the label of the advance button.
 :::tip
 Use a Modal for two or three short steps, and a route per step for anything longer. A Modal
 has no URL, so there is nothing to link to and nothing for the back button to go back to.
+:::
+
+## Groups
+
+A `group` is a set of fields the user can add as many of as they need — phone
+numbers, addresses, team members. Without it, no flat schema can express "however
+many of these do you have?".
+
+```javascript
+schema: [{
+  kind: 'group',
+  name: 'phones',
+  label: 'Phone numbers',
+  itemLabel: 'Phone',       // singular, used in the item tag and buttons
+  min: 1,
+  max: 3,
+  fields: [                  // the repeated sub-schema
+    { name: 'number', label: 'Number', component: 'Input', required: true },
+    { name: 'note',   label: 'Note',   component: 'Input' },
+  ],
+}]
+```
+
+- `name` is required — without it the items could not be keyed at all.
+- `min` and `max` bound the item count; the Remove buttons disappear at `min`
+  and the Add button hides at `max`. Omit `min` and a group starts with one item.
+- `value` seeds the first item, and `reset()` restores it.
+- Each item's fields are stored internally as `phones[0].number`, so
+  `setValue('phones[1].number', x)` and `setError(...)` work on them with no
+  special cases.
+- **`getValues()` hands the array back nested** — `{ phones: [{ number, note }] }`
+  — which is the shape you declared. Flattening is an implementation detail you
+  never see.
+- Items are added and removed **in place**; the form is not re-rendered, so
+  nothing typed elsewhere in it moves or is lost.
+- `required` applies to every item, so an empty second phone blocks submit.
+
+:::script
+// Live: add and remove phone numbers.
+const form = await slice.build('Form', {
+  maxWidth: '460px',
+  nextText: 'Save',
+  schema: [
+    { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true },
+    {
+      kind: 'group',
+      name: 'phones',
+      label: 'Phone numbers',
+      itemLabel: 'Phone',
+      min: 1,
+      max: 4,
+      description: 'At least one. We only use these for delivery.',
+      fields: [
+        { name: 'number', label: 'Number', component: 'Input', required: true },
+        { name: 'note', label: 'Note', component: 'Input' },
+      ],
+    },
+  ],
+});
+
+return form;
 :::
 
 ## Layout

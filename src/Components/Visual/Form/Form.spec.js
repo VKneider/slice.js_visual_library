@@ -698,3 +698,243 @@ test.describe('Form - steps', () => {
       expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
    });
 });
+// ── Repeatable groups: { kind: 'group' } ──
+
+test.describe('Form - repeatable groups', () => {
+   const GROUP = {
+      kind: 'group',
+      name: 'phones',
+      label: 'Phone numbers',
+      itemLabel: 'Phone',
+      min: 1,
+      max: 3,
+      fields: [
+         { name: 'number', label: 'Number', component: 'Input', required: true },
+         { name: 'note', label: 'Note', component: 'Input' },
+      ],
+   };
+
+   test('renders min items to start, never below min', async ({ mount }) => {
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const state = await c.component.evaluate((el) => ({
+         items: el.querySelectorAll('.slice-form__group-item').length,
+         addButtons: el.querySelectorAll('.slice-form__group-actions slice-button').length,
+         removeButtons: el.querySelectorAll('.slice-form__group-remove').length,
+      }));
+
+      expect(state.items).toBe(1);
+      expect(state.addButtons).toBe(1);
+      // With one item and max > 1, each item gets a Remove.
+      expect(state.removeButtons).toBe(1);
+   });
+
+   test('Add appends an item without disturbing what is already typed', async ({ mount }) => {
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const values = await c.component.evaluate(async (el) => {
+         el.setValue('phones[0].number', '600 000 000');
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         return el.getValues();
+      });
+
+      expect(values.phones).toEqual([
+         { number: '600 000 000', note: '' },
+         { number: '', note: '' },
+      ]);
+   });
+
+   test('getValues nests the array the way the schema declared it', async ({ mount }) => {
+      // Internally flat ("phones[0].number"); on the way out it is an array of
+      // objects, which is what the caller wrote in the schema.
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const values = await c.component.evaluate(async (el) => {
+         el.setValue('phones[0].number', '111');
+         el.setValue('phones[0].note', 'home');
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         el.setValue('phones[1].number', '222');
+         return el.getValues();
+      });
+
+      expect(Array.isArray(values.phones)).toBe(true);
+      expect(values.phones).toHaveLength(2);
+      expect(values.phones[0]).toEqual({ number: '111', note: 'home' });
+      expect(values.phones[1]).toEqual({ number: '222', note: '' });
+   });
+
+   test('a group and a plain field coexist without colliding', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [
+            { kind: 'field', name: 'email', label: 'Email', component: 'Input' },
+            GROUP,
+         ],
+      });
+
+      const values = await c.component.evaluate(async (el) => {
+         el.setValue('email', 'a@b.co');
+         el.setValue('phones[0].number', '999');
+         return el.getValues();
+      });
+
+      expect(values.email).toBe('a@b.co');
+      expect(values.phones[0].number).toBe('999');
+   });
+
+   test('Remove drops the item and renumbers the rest', async ({ mount }) => {
+      // The keys are positional, so a removal has to renumber or the second
+      // item would keep reporting itself as phones[1] while sitting at index 0.
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const values = await c.component.evaluate(async (el) => {
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+
+         el.setValue('phones[0].number', 'AAA');
+         el.setValue('phones[1].number', 'BBB');
+         el.setValue('phones[2].number', 'CCC');
+
+         // Remove the middle one.
+         el.querySelectorAll('.slice-form__group-remove .slice_button_container')[1].click();
+         await new Promise((r) => setTimeout(r, 300));
+         return el.getValues();
+      });
+
+      expect(values.phones).toHaveLength(2);
+      expect(values.phones[0].number).toBe('AAA');
+      // CCC survived the renumbering and is now second.
+      expect(values.phones[1].number).toBe('CCC');
+   });
+
+   test('Remove never goes below min', async ({ mount }) => {
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const count = await c.component.evaluate(async (el) => {
+         el.querySelector('.slice-form__group-remove .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         return el.querySelectorAll('.slice-form__group-item').length;
+      });
+
+      expect(count).toBe(1);
+   });
+
+   test('Add is hidden once max is reached', async ({ mount }) => {
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const state = await c.component.evaluate(async (el) => {
+         const add = el.querySelector('.slice-form__group-actions slice-button');
+         const before = { items: el.querySelectorAll('.slice-form__group-item').length, hidden: add.hidden };
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         return {
+            before,
+            after: { items: el.querySelectorAll('.slice-form__group-item').length, hidden: add.hidden },
+         };
+      });
+
+      expect(state.before).toEqual({ items: 1, hidden: false });
+      // Capped at max: 3 items, and no fourth button to get there.
+      expect(state.after.items).toBe(3);
+      expect(state.after.hidden).toBe(true);
+   });
+
+   test('required applies to every item, so an empty one blocks submit', async ({ mount }) => {
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const state = await c.component.evaluate(async (el) => {
+         el.setValue('phones[0].number', '111');
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         const submitted = el.submit();
+         return {
+            submitted,
+            errors: [...el.querySelectorAll('.slice-form__group-item .slice-form__error')]
+               .map((e) => e.textContent)
+               .filter(Boolean),
+         };
+      });
+
+      expect(state.submitted).toBe(false);
+      // Only the empty second item is flagged.
+      expect(state.errors).toHaveLength(1);
+      expect(state.errors[0]).toBe('This field is required');
+   });
+
+   test('removing an item destroys its controls rather than orphaning them', async ({ mount }) => {
+      const c = await mount('Form', { schema: [GROUP] });
+
+      const state = await c.component.evaluate(async (el) => {
+         const before = slice.controller.activeComponents.size;
+         el.querySelector('.slice-form__group-actions .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 250));
+         const afterAdd = slice.controller.activeComponents.size;
+         el.querySelector('.slice-form__group-remove .slice_button_container').click();
+         await new Promise((r) => setTimeout(r, 300));
+         return {
+            before,
+            afterAdd,
+            after: slice.controller.activeComponents.size,
+            items: el.querySelectorAll('.slice-form__group-item').length,
+         };
+      });
+
+      expect(state.items).toBe(1);
+      // Adding an item builds its controls; removing it has to take exactly
+      // them back down, so the count returns to the baseline rather than
+      // climbing. Left orphaned, it would stay at afterAdd.
+      expect(state.afterAdd).toBeGreaterThan(state.before);
+      expect(state.after).toBe(state.before);
+   });
+
+   test('a seeded group starts with its value and reset restores it', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [{ ...GROUP, value: [{ number: '555', note: 'office' }] }],
+      });
+
+      const state = await c.component.evaluate(async (el) => {
+         const seeded = el.getValues();
+         el.setValue('phones[0].number', 'changed');
+         el.reset();
+         return { seeded, afterReset: el.getValues() };
+      });
+
+      expect(state.seeded.phones[0]).toEqual({ number: '555', note: 'office' });
+      // Reset has to restore the ITEM, not just the top-level fields.
+      expect(state.afterReset.phones[0]).toEqual({ number: '555', note: 'office' });
+   });
+
+   test('a group inside a step keeps its items when stepping away and back', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [
+            { kind: 'step', label: 'One', schema: [{ kind: 'field', name: 'a', label: 'A', component: 'Input' }] },
+            { kind: 'step', label: 'Contact', schema: [GROUP] },
+         ],
+      });
+
+      const values = await c.component.evaluate(async (el) => {
+         el.setValue('a', 'first');
+         el.nextStep();
+         el.setValue('phones[0].number', '777');
+         el.prevStep();
+         el.nextStep();
+         return el.getValues();
+      });
+
+      expect(values.a).toBe('first');
+      expect(values.phones[0].number).toBe('777');
+   });
+
+   test('a group without a name is skipped rather than rendering unkeyable', async ({ mount }) => {
+      const c = await mount('Form', {
+         schema: [{ kind: 'group', label: 'No name', fields: [{ name: 'x', label: 'X', component: 'Input' }] }],
+      });
+
+      expect(await c.component.evaluate((el) => el.querySelectorAll('.slice-form__group').length)).toBe(0);
+   });
+});
