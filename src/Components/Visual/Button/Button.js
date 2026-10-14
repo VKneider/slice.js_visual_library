@@ -114,15 +114,23 @@ export default class Button extends HTMLElement {
    }
 
    set icon(value) {
-      this._icon = value;
-      if (!this.$icon || !value) return;   // appear/disappear handled in update()
-      this.$icon.name = value.name;
-      this.$icon.iconStyle = value.iconStyle;
+      // Accept a bare string as shorthand for { name }. Without this, the
+      // obvious `icon: 'trash-bin'` left Icon with name: undefined and it
+      // rendered an EMPTY <svg> with no warning at all - which reads as a
+      // styling bug, not as a wrong argument.
+      const icon = typeof value === 'string' ? { name: value } : value;
+      this._icon = icon;
+      if (!this.$icon || !icon) return;   // appear/disappear handled in update()
+      // Read from `icon`, never from `value`: on the shorthand path `value` is
+      // still the raw string and `value.name` is undefined, which would blank
+      // the icon this very setter is meant to apply.
+      this.$icon.name = icon.name;
+      this.$icon.iconStyle = icon.iconStyle;
       // Per-instance icon sizing/colour. Omitting them keeps the previous
       // behaviour (20px, `currentColor`); set them to make one Button's icon
       // differ from another's without a stylesheet override.
-      if (value.size) this.$icon.size = value.size;
-      if (value.color) this.$icon.color = value.color;
+      if (icon.size) this.$icon.size = icon.size;
+      if (icon.color) this.$icon.color = icon.color;
    }
 
    get variant() {

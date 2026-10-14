@@ -135,4 +135,85 @@ test.describe('Button', () => {
       const c = await mount('Button', { value: 'Guardar', variant: 'filled' });
       await expect(c.component).toHaveScreenshot('button-filled.png');
    });
+
+
+});
+
+test.describe('Button - icon shorthand', () => {
+   test('a bare string is accepted as { name } and actually renders paths', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const counts = await h.page.evaluate(async () => {
+         // Poll rather than sleep a fixed 350ms: the icon module is fetched on
+         // demand, so "the svg has children" is the only honest readiness signal.
+         const read = async (props) => {
+            const btn = await slice.build('Button', props);
+            document.body.appendChild(btn);
+            const svg = () => btn.querySelector('svg');
+            for (let i = 0; i < 60; i++) {
+               await new Promise((r) => setTimeout(r, 100));
+               if ((svg()?.childElementCount ?? 0) > 0) break;
+            }
+            return svg()?.childElementCount ?? -1;
+         };
+         const shorthand = await read({ value: 'S', icon: 'trash-bin' });
+         const object = await read({ value: 'O', icon: { name: 'trash-bin' } });
+         return { shorthand, object };
+      });
+
+      console.log('BTNCOUNTS ' + JSON.stringify(counts));
+
+      // The whole point: before the shorthand, the string form produced an EMPTY
+      // <svg> - zero children, no warning - while the object form drew 5 paths.
+      expect(counts.shorthand).toBe(counts.object);
+      expect(counts.shorthand).toBeGreaterThan(0);
+   });
+
+   test('a string updates an icon already built', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const result = await h.page.evaluate(async () => {
+         const settle = async (btn) => {
+            const svg = () => btn.querySelector('svg');
+            for (let i = 0; i < 60; i++) {
+               await new Promise((r) => setTimeout(r, 100));
+               if ((svg()?.childElementCount ?? 0) > 0) break;
+            }
+            return svg()?.childElementCount ?? -1;
+         };
+
+         const btn = await slice.build('Button', { value: 'X', icon: { name: 'check' } });
+         document.body.appendChild(btn);
+         const before = await settle(btn);
+
+         // The setter runs on an already-built icon, so it has to translate the
+         // shorthand on this path too - not only when init() builds the child.
+         btn.icon = 'trash-bin';
+         const after = await settle(btn);
+         return { before, after };
+      });
+
+      expect(result.before).toBeGreaterThan(0);
+      expect(result.after).toBeGreaterThan(0);
+   });
+
+   test('null still clears the icon rather than becoming { name: null }', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const cleared = await h.page.evaluate(async () => {
+         const btn = await slice.build('Button', { value: 'X', icon: 'trash-bin' });
+         document.body.appendChild(btn);
+         for (let i = 0; i < 60; i++) {
+            await new Promise((r) => setTimeout(r, 100));
+            if ((btn.querySelector('svg')?.childElementCount ?? 0) > 0) break;
+         }
+
+         btn.icon = null;
+         await btn.update();
+         await new Promise((r) => setTimeout(r, 250));
+         return btn.querySelector('svg') === null;
+      });
+
+      expect(cleared).toBe(true);
+   });
 });
