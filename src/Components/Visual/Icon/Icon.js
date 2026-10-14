@@ -5,7 +5,7 @@
 // Only the default export: the bundler treats a component module as
 // single-export, and a named re-export here fails the production build with
 // "Export statement may only appear at the top level".
-import { ICON_NODES, LEGACY_NODES, LEGACY_VIEWBOX } from './icons.generated.js';
+import { ICON_NODES, LEGACY_NODES, LEGACY_VIEWBOX, ALIASES } from './icons.generated.js';
 
 // Warns once per deprecated prop name (kept module-scoped so each component
 // reports a given alias only once per session).
@@ -14,6 +14,79 @@ function deprecate(oldName, newName) {
    if (_sliceDeprecated.has(oldName)) return;
    _sliceDeprecated.add(oldName);
    console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
+}
+
+// ── "did you mean" for unknown names ───────────────────────────────────────
+// An unknown name renders an empty <svg>. Telling the author only THAT it is
+// invalid makes them go read a 291-row table; the realistic mistake is not a
+// typo but a name that exists somewhere else — the Lucide name the icon was
+// migrated FROM ('circle-check' vs the public 'check-circle'), or a near miss
+// ('chek' vs 'check'). So name the replacement.
+//
+// Keyed on the same "warn once per session" basis as deprecate(): _render() runs
+// from the name setter (in the constructor) AND from init(), so an unguarded
+// warn fires twice for every instance of every bad name.
+const _warnedNames = new Set();
+
+// Reverse of ALIASES: lucide name -> the public name that replaced it.
+//
+// This is the single most likely mistake, and edit distance cannot see it:
+// 'circle-check' and 'check-circle' are the same two words in the other order,
+// so distance ranks them far apart and happily proposes 'file-check' instead.
+// Reverse-indexing the alias table answers it exactly.
+const _lucideToPublic = new Map();
+for (const [publicName, lucideName] of Object.entries(ALIASES)) {
+   if (!_lucideToPublic.has(lucideName)) _lucideToPublic.set(lucideName, publicName);
+}
+
+/** Damerau-free Levenshtein; both strings are short so the row buffer is tiny. */
+function _editDistance(a, b) {
+   if (a === b) return 0;
+   const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+   for (let i = 1; i <= a.length; i++) {
+      let prev = row[0];
+      row[0] = i;
+      for (let j = 1; j <= b.length; j++) {
+         const next = row[j];
+         row[j] = Math.min(
+            row[j] + 1,
+            row[j - 1] + 1,
+            prev + (a[i - 1] === b[j - 1] ? 0 : 1)
+         );
+         prev = next;
+      }
+   }
+   return row[b.length];
+}
+
+/**
+ * Closest public icon name, or null when nothing is close enough to guess.
+ *
+ * The threshold scales with length because a fixed one is wrong at both ends:
+ * at 1 it would turn every typo into a confident wrong suggestion, and at 3 a
+ * short name like "x" could match anything.
+ */
+function _suggest(name) {
+   const needle = String(name).toLowerCase();
+
+   // An exact Lucide name is the highest-confidence guess available, so it is
+   // checked BEFORE any distance work.
+   const renamed = _lucideToPublic.get(needle);
+   if (renamed) return renamed;
+
+   const pool = [...Object.keys(ICON_NODES), ...Object.keys(LEGACY_NODES)];
+
+   let best = null;
+   let bestDistance = Infinity;
+   for (const candidate of pool) {
+      const d = _editDistance(needle, candidate.toLowerCase());
+      if (d < bestDistance) {
+         bestDistance = d;
+         best = candidate;
+      }
+   }
+
+   return bestDistance <= Math.max(1, Math.floor(needle.length / 3)) ? best : null;
 }
 
 // Stroke geometry for the Lucide-backed icons (Lucide's own defaults). The
@@ -84,11 +157,16 @@ export default class Icon extends HTMLElement {
       const legacy = LEGACY_NODES[this._name];
 
       if (!nodes && !legacy) {
-         // Warn on every path, not just init(): the old version only checked at
+         // Warn on every PATH, not just init(): the old version only checked at
          // build time, so renaming `name` to a typo rendered a silent blank box.
-         if (this._name) {
+         // Guarded per name, because _render() runs from the name setter AND
+         // from init(), so each bad instance would otherwise warn twice.
+         if (this._name && !_warnedNames.has(this._name)) {
+            _warnedNames.add(this._name);
+            const hint = _suggest(this._name);
             console.warn(
                `[Icon] "${this._name}" is not a valid icon name. ` +
+               (hint ? `Did you mean "${hint}"? ` : '') +
                `Check the Icon reference for valid names.`
             );
          }

@@ -271,4 +271,99 @@ test.describe('Icon — geometry fits its viewBox', () => {
       }
    });
 });
-});
+
+// ── unknown names ──────────────────────────────────────────────────────────
+// An unknown name is the one Icon failure that cannot be caught by a test that
+// builds it: `slice.build` succeeds, the svg paints, and the glyph is simply
+// absent. So the warning is the actual contract, and these tests assert it.
+
+const _warned = (h) => {
+   const warns = [];
+   h.page.on('console', (m) => {
+      if (m.type() === 'warning') warns.push(m.text());
+   });
+   return warns;
+};
+
+test.describe('Icon - unknown names', () => {
+   const buildOne = (h, name) =>
+      h.page.evaluate(async (n) => {
+         const icon = await slice.build('Icon', { name: n });
+         document.body.appendChild(icon);
+         await new Promise((r) => setTimeout(r, 250));
+         return icon.querySelector('svg')?.childElementCount ?? -1;
+      }, name);
+
+   test('an unknown name renders empty rather than throwing', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      // Blank, but the build succeeded and nothing blew up on the way out.
+      expect(await buildOne(h, 'definitely-not-an-icon')).toBe(0);
+   });
+
+   test('a Lucide name is answered with the public name it became', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+      const warns = _warned(h);
+
+      await buildOne(h, 'circle-check');
+      await h.page.waitForTimeout(400);
+
+      // 'circle-check' and 'check-circle' are the same two words in the other
+      // order, so edit distance ranks them FAR apart and proposes 'file-check'.
+      // Reverse-indexing the alias table is what makes this come out right.
+      expect(warns.some((w) => w.includes('Did you mean "check-circle"?'))).toBe(true);
+      expect(warns.some((w) => w.includes('file-check'))).toBe(false);
+   });
+
+   test('the renamed direction works the same way', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+      const warns = _warned(h);
+
+      await buildOne(h, 'trash');
+      await h.page.waitForTimeout(400);
+
+      expect(warns.some((w) => w.includes('Did you mean "trash-bin"?'))).toBe(true);
+   });
+
+   test('a typo falls back to the closest public name', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+      const warns = _warned(h);
+
+      await buildOne(h, 'chek');
+      await h.page.waitForTimeout(400);
+
+      expect(warns.some((w) => w.includes('Did you mean "check"?'))).toBe(true);
+   });
+
+   test('no close match means no guess at all', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+      const warns = _warned(h);
+
+      // The library publishes no 'zap' and nothing resembling it. A confident
+      // wrong suggestion is worse than silence, so the hint stays out.
+      await buildOne(h, 'zap');
+      await h.page.waitForTimeout(400);
+
+      const iconWarns = warns.filter((w) => w.includes('not a valid icon name'));
+      expect(iconWarns).toHaveLength(1);
+      expect(iconWarns[0]).not.toContain('Did you mean');
+   });
+
+   test('a bad name warns once, not once per render path', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+      const warns = _warned(h);
+
+      // _render() runs from the name setter AND from init(), so an unguarded
+      // warn fired twice for every instance of every bad name.
+      await h.page.evaluate(async () => {
+         for (const n of ['qqqq', 'wwww']) {
+            const icon = await slice.build('Icon', { name: n });
+            document.body.appendChild(icon);
+         }
+      });
+      await h.page.waitForTimeout(500);
+
+      expect(warns.filter((w) => w.includes('"qqqq"'))).toHaveLength(1);
+      expect(warns.filter((w) => w.includes('"wwww"'))).toHaveLength(1);
+   });
+});});

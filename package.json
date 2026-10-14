@@ -13,7 +13,7 @@
     "test:e2e:visual": "playwright test --project=visual",
     "test:e2e:visual:update": "playwright test --project=visual --update-snapshots",
     "check:teardown": "node scripts/check-teardown-hook.mjs",
-    "test:gate": "pnpm run check:teardown && pnpm test && pnpm test:e2e && pnpm run build",
+    "test:gate": "pnpm run check:teardown && pnpm test && pnpm run icons:lint && pnpm test:e2e && pnpm run build",
     "test:e2e:report": "playwright show-report",
     "slice:create": "node ./node_modules/slicejs-cli/client.js component create",
     "slice:list": "node ./node_modules/slicejs-cli/client.js component list",
@@ -35,7 +35,8 @@
     "slice:start": "slice start",
     "slice:types": "slice types generate",
     "slice:doctor": "node ./node_modules/slicejs-cli/client.js doctor",
-    "slice:help": "node ./node_modules/slicejs-cli/client.js --help"
+    "slice:help": "node ./node_modules/slicejs-cli/client.js --help",
+    "icons:lint": "node scripts/lint-icon-names.mjs"
   },
   "author": "vkneider",
   "license": "MIT",
