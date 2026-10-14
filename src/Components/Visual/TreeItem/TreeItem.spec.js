@@ -172,4 +172,119 @@ test.describe('TreeItem', () => {
       });
       await expect(c.component).toHaveScreenshot('treeitem-branch.png');
    });
-});
+
+// ── the caret must stand on its own ────────────────────────────────────────
+//
+// The shape of the caret came from a bare `.caret` rule in the app's global
+// stylesheet. The component does not ship that file, so anyone who installed
+// TreeItem got a 0x0 div: no triangle, and — because a branch carrying a `path`
+// only toggles from its caret — no way to open it at all.
+
+test.describe('TreeItem - caret', () => {
+   /**
+    * Neutralises every global `.caret` rule on the page, reproducing what a
+    * consumer who did NOT get the app stylesheet sees, then reads the caret back.
+    */
+   async function caretWithoutGlobalStylesheet(h, items) {
+      return h.page.evaluate(async (data) => {
+         for (const sheet of document.styleSheets) {
+            let rules;
+            try {
+               rules = [...sheet.cssRules];
+            } catch {
+               continue;
+            }
+            for (const rule of rules) {
+               if (rule.selectorText === '.caret') {
+                  // Keep it matching, strip its geometry.
+                  rule.style.cssText = 'width:0;height:0;border:0';
+               }
+            }
+         }
+
+         const stage = document.createElement('div');
+         stage.style.cssText = 'padding:24px;background:#fff;width:420px';
+         document.body.appendChild(stage);
+
+         const nav = await slice.build('TreeView', { items: data });
+         stage.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+
+         const caret = nav.querySelector('.caret');
+         const r = caret.getBoundingClientRect();
+         const cs = getComputedStyle(caret);
+         return {
+            w: r.width,
+            h: r.height,
+            borderTop: parseFloat(cs.borderTopWidth) || 0,
+            cursor: cs.cursor,
+            transform: cs.transform,
+         };
+      }, items);
+   }
+
+   const TREE = [{ value: 'Docs', items: [{ value: 'A.pdf', path: '/a' }] }];
+
+   test('has a visible size with no global stylesheet present', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const caret = await caretWithoutGlobalStylesheet(h, TREE);
+
+      // Before the fix: 0 x 0, so nothing was drawn and nothing could be clicked.
+      expect(caret.w).toBeGreaterThan(0);
+      expect(caret.h).toBeGreaterThan(0);
+      // Drawn with borders rather than content, which is what the triangle is.
+      expect(caret.borderTop).toBeGreaterThan(0);
+      expect(caret.cursor).toBe('pointer');
+   });
+
+   test('is identical with and without the global rule', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const withGlobal = await h.page.evaluate(async (data) => {
+         const stage = document.createElement('div');
+         stage.style.cssText = 'padding:24px;width:420px';
+         document.body.appendChild(stage);
+         const nav = await slice.build('TreeView', { items: data });
+         stage.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+         const r = nav.querySelector('.caret').getBoundingClientRect();
+         return { w: r.width, h: r.height };
+      }, TREE);
+
+      const without = await caretWithoutGlobalStylesheet(h, TREE);
+
+      // The component's own rule outranks the global one, so owning the shape
+      // changed nothing for existing consumers of the app stylesheet.
+      expect(without.w).toBeCloseTo(withGlobal.w, 1);
+      expect(without.h).toBeCloseTo(withGlobal.h, 1);
+   });
+
+   test('a closed caret points sideways and an open one points down', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div></div>`);
+
+      const angles = await h.page.evaluate(async (data) => {
+         const stage = document.createElement('div');
+         stage.style.cssText = 'padding:24px;width:420px';
+         document.body.appendChild(stage);
+         const nav = await slice.build('TreeView', { items: data });
+         stage.appendChild(nav);
+         await new Promise((r) => setTimeout(r, 900));
+
+         const caret = nav.querySelector('.caret');
+         const closed = getComputedStyle(caret).transform;
+
+         caret.click();
+         await new Promise((r) => setTimeout(r, 500));
+         const open = getComputedStyle(caret).transform;
+
+         return { closed, open };
+      }, TREE);
+
+      // rotate(-90deg) and rotate(0deg) respectively. If these ever compare
+      // equal the caret no longer signals which way it will move.
+      expect(angles.closed).not.toBe(angles.open);
+      expect(angles.closed).toBe('matrix(0, -1, 1, 0, 0, 0)');
+      expect(angles.open).toBe('matrix(1, 0, 0, 1, 0, 0)');
+   });
+});});

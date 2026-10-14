@@ -28,9 +28,28 @@ slice-treeitem.is-branch > .slice_tree_item {
    font-weight: 600;
 }
 
+/* The caret's own shape.
+   It used to come from a bare `.caret` rule in the app's global stylesheet
+   (src/public/Styles/sliceStyles.css), which this component does not ship. For
+   anyone who ran `slice get TreeItem` the div had no size at all: measured 0x0,
+   so the collapse affordance was neither visible nor clickable, and a branch
+   carrying a `path` could only be opened by knowing its label toggles it. The
+   component has to carry its own.
+
+   Closed rotates -90deg to point right and open 0deg to point down; the two
+   rules are same-specificity and in this order, so the open state always wins.
+   The global `.caret_open { rotate(180deg) }` is outranked by the rule below. */
 slice-treeitem > .slice_tree_item .caret {
+   flex: 0 0 auto;
+   width: 0;
+   height: 0;
+   cursor: pointer;
+   border-left: 5px solid transparent;
+   border-right: 5px solid transparent;
+   border-top: 6px solid;
    color: var(--primary-color);
    margin-right: 0;
+   transition: transform 0.3s ease;
    transform: rotate(-90deg);
 }
 slice-treeitem > .slice_tree_item .caret_open {
