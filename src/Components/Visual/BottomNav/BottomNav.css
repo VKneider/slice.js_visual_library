@@ -24,13 +24,19 @@ slice-bottom-nav .slice_bottomnav[data-position="static"] {
 
 /* ------------------------------------------------------------- the capsule */
 
+/* 94%, not 86%.
+   The capsule is white-on-purple text over a TRANSLUCENT bar, so its effective
+   lightness is set by how much page shows through. At 86% the bar composited to
+   rgb(161,78,236) and even pure white measured 4.35:1 — already under the 4.5:1
+   AA threshold — because a light backdrop lifts the purple. Nearly opaque keeps
+   the glass look while getting white to ~5:1. */
 slice-bottom-nav .slice_bottomnav_bar {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   padding: 4px;
   justify-content: center;
-  background: color-mix(in srgb, var(--primary-color) 86%, transparent);
+  background: color-mix(in srgb, var(--primary-color) 94%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
   border: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
@@ -54,7 +60,13 @@ slice-bottom-nav .slice_bottomnav_logo {
 }
 
 slice-bottom-nav .slice_bottomnav_logo img {
-  max-height: 22px;
+  /* A DEFINITE height, not just max-height.
+     With only a max-height the used width resolves against a content box whose
+     width is itself determined by the image, and the pair collapses: the same
+     img with this same CSS renders 22x22 outside the component and 0x0 inside
+     it, which is why the logo reserved its padding but drew nothing. */
+  height: 22px;
+  width: auto;
   max-width: 100px;
   pointer-events: none;
   user-select: none;
@@ -112,9 +124,14 @@ slice-bottom-nav .slice_bottomnav_tab {
   padding: 6px 10px;
   border-radius: 999px;
   cursor: pointer;
-  color: color-mix(in srgb, var(--primary-color-contrast) 50%, transparent);
+  /* 90%, and the state is carried by the pill rather than by text brightness:
+   at 50% the inactive labels measured 2.18:1, which is why "Home" and "Saved"
+   read as washed out in the capture. The active tab is marked by the sliding
+   indicator, so dimming its label as well only cost contrast without adding
+   information. */
+color: color-mix(in srgb, var(--primary-color-contrast) 90%, transparent);
   font-weight: 500;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   line-height: 1;
   white-space: nowrap;
   user-select: none;
@@ -135,9 +152,12 @@ slice-bottom-nav .slice_bottomnav_tab:hover {
   background: color-mix(in srgb, var(--primary-color-contrast) 8%, transparent);
 }
 
+/* The sliding indicator already paints the active pill at 16%, so the tab does
+   NOT paint a background of its own. Two translucent whites stacked reach ~28%,
+   and worse, during the slide the static one stays behind the moving one, so
+   the highlight reads as two overlapping pills instead of one that moved. */
 slice-bottom-nav .slice_bottomnav_tab.is-active {
   color: var(--primary-color-contrast);
-  background: color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
 }
 
 slice-bottom-nav .slice_bottomnav_tab:active {
@@ -172,6 +192,35 @@ slice-bottom-nav .slice_bottomnav_actions {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Button gives `.slice_button_container` 10px of its own padding on top of the
+   10px on the inner button — it is the click target, so that ring widens the
+   tap area. Inside a coloured capsule it is not free: the bar shows through as
+   a 10px halo around the button, and the component measured 59px tall around a
+   39px button, which grew the bar from 55.4px to 69px.
+   The tap area is the tab's job here, not the button's, so the ring goes. */
+slice-bottom-nav .slice_bottomnav_actions slice-button,
+slice-bottom-nav .slice_bottomnav_actions .slice_button_container {
+  display: flex;
+}
+
+slice-bottom-nav .slice_bottomnav_actions .slice_button_container {
+  padding: 0;
+}
+
+/* _balanceTabs pads the tab list to keep the tabs optically centred, and that
+   padding eats into the action button: measured, it wrapped "Sign in" onto two
+   lines, taking the button from 39px to 56px and the bar from 55.4px to 66px.
+   `flex: 0 0 auto` makes the button refuse the squeeze — the tabs are what
+   should absorb the centring, since they are the part the eye reads as
+   centred — and nowrap makes the second line impossible even if it is. */
+slice-bottom-nav .slice_bottomnav_actions slice-button {
+  flex: 0 0 auto;
+}
+
+slice-bottom-nav .slice_bottomnav_actions .slice_button_value {
+  white-space: nowrap;
 }
 
 slice-bottom-nav .slice_bottomnav_actions:empty {
