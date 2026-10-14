@@ -46,7 +46,18 @@ slice-input .input_area {
 slice-input .slice_input {
   display: flex;
   align-items: center;
-  padding: 10px;
+  /* The same scale Button reads. The literal 10px was the reason the two
+     controls could not agree on a height. The fallback keeps Input
+     unchanged for anyone not loading scale.css. */
+  box-sizing: border-box;
+  padding: var(--control-space-y, 10px) var(--control-space-x, 10px);
+  /* height, not min-height: the scale has to be able to PREDICT the box.
+     With min-height, `lg` measured 47px on a Button and 45px on an
+     Input — a gap that grows with size, because it is line-box height.
+     `auto` is the fallback, so nothing changes without the scale. */
+  height: var(--control-height, auto);
+  white-space: nowrap;
+  font-size: var(--control-font-size, inherit);
   max-width: 100%;
   border-radius: var(--border-radius-slice);
   font-family: var(--font-family);

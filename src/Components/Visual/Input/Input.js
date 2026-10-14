@@ -1,3 +1,5 @@
+import { applySize, applyClassName, SIZE_VALUES } from '../../spike/recipes.js';
+
 export default class Input extends HTMLElement {
 
    static props = {
@@ -14,6 +16,19 @@ export default class Input extends HTMLElement {
       type: { 
          type: 'string', 
          default: 'text' 
+      },
+      // The same list Button is validated against. Declared here by hand it
+      // would be a fourth version of the same idea.
+      size: {
+         type: 'string',
+         default: 'md',
+         required: false,
+         allowedValues: SIZE_VALUES
+      },
+      className: {
+         type: 'string',
+         default: '',
+         required: false
       },
       required: { 
          type: 'boolean', 
@@ -230,6 +245,25 @@ export default class Input extends HTMLElement {
    }
 
    // Getters and setters for dynamic prop updates
+   get size() {
+      return this._size;
+   }
+
+   set size(value) {
+      // data-size on the host; scale.css decides what that means.
+      this._size = applySize(this, value, 'md');
+   }
+
+   get className() {
+      return this._className;
+   }
+
+   /** Marked, never substituted: see Button.className. */
+   set className(value) {
+      applyClassName(this, value);
+      this._className = typeof value === 'string' ? value : '';
+   }
+
    get value() {
       return this.$input.value;
    }

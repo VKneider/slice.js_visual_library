@@ -1,0 +1,77 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   SPIKE — density scale (layer 1)
+
+   A size token is a BUNDLE, not a height. That is the whole point: `sm` means
+   "small" the same way on a Button and on an Input, because both read these
+   five values from the same declaration.
+
+   Naming continues the convention the elevation scale already established in
+   Themes/*.css (`--slice-shadow-sm|md|lg`), extended from elevation to space
+   and type. `--slice-` prefix, lowercase, no component names.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+   /* ── Density. One declaration per size, five values each. ── */
+   --slice-size-sm: 28px; /* height */
+   --slice-space-sm-x: 8px; /* padding inline */
+   --slice-space-sm-y: 4px; /* padding block */
+   --slice-type-sm: 12px;
+   --slice-radius-sm: 6px;
+
+   --slice-size-md: 36px;
+   --slice-space-md-x: 12px;
+   --slice-space-md-y: 8px;
+   --slice-type-md: 14px;
+   --slice-radius-md: 8px;
+
+   --slice-size-lg: 44px;
+   --slice-space-lg-x: 16px;
+   --slice-space-lg-y: 12px;
+   --slice-type-lg: 16px;
+   --slice-radius-lg: 10px;
+
+   /* ── Space. Spacing between things, so layout is not invented per
+      component either. Form's --form-gap becomes a reference to this. ── */
+   --slice-space-1: 4px;
+   --slice-space-2: 8px;
+   --slice-space-3: 12px;
+   --slice-space-4: 16px;
+   --slice-space-5: 24px;
+   --slice-space-6: 32px;
+   --slice-space-7: 48px;
+
+   /* ── One alias so a component reads ONE thing, not five.
+      Controls consume these; the bundle above is the source. ── */
+   --control-height: var(--slice-size-md);
+   --control-space-x: var(--slice-space-md-x);
+   --control-space-y: var(--slice-space-md-y);
+   --control-font-size: var(--slice-type-md);
+   --control-radius: var(--slice-radius-md);
+}
+
+/* Each size is a single declaration block applied on the host, so a component
+   implements "size" ONCE instead of writing three near-identical rule sets.
+   That is the difference between a scale and three copies of it. */
+[data-size='sm'] {
+   --control-height: var(--slice-size-sm);
+   --control-space-x: var(--slice-space-sm-x);
+   --control-space-y: var(--slice-space-sm-y);
+   --control-font-size: var(--slice-type-sm);
+   --control-radius: var(--slice-radius-sm);
+}
+
+[data-size='md'] {
+   --control-height: var(--slice-size-md);
+   --control-space-x: var(--slice-space-md-x);
+   --control-space-y: var(--slice-space-md-y);
+   --control-font-size: var(--slice-type-md);
+   --control-radius: var(--slice-radius-md);
+}
+
+[data-size='lg'] {
+   --control-height: var(--slice-size-lg);
+   --control-space-x: var(--slice-space-lg-x);
+   --control-space-y: var(--slice-space-lg-y);
+   --control-font-size: var(--slice-type-lg);
+   --control-radius: var(--slice-radius-lg);
+}

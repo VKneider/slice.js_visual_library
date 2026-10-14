@@ -29,7 +29,17 @@ slice-button .slice_button {
   border: var(--slice-border) solid var(--primary-color);
   font-weight: 800;
   min-width: 100%;
-  padding: 10px;
+  /* The scale, with today's values as the fallback. --control-* is set by [data-size] in scale.css; without that stylesheet nothing changes, so the component never depends on the scale existing. */
+  box-sizing: border-box;
+  padding: var(--control-space-y, 10px) var(--control-space-x, 10px);
+  /* height, not min-height: the scale has to be able to PREDICT the box.
+     With min-height, `lg` measured 47px on a Button and 45px on an
+     Input — a gap that grows with size, because it is line-box height.
+     `auto` is the fallback, so nothing changes without the scale. */
+  height: var(--control-height, auto);
+  white-space: nowrap;
+  border-radius: var(--control-radius, var(--border-radius-slice));
+  font-size: var(--control-font-size, inherit);
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
 }

@@ -7,6 +7,8 @@ function deprecate(oldName, newName) {
    console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
 }
 
+import { applySize, applyClassName, SIZE_VALUES } from '../../spike/recipes.js';
+
 export default class Button extends HTMLElement {
 
    static props = {
@@ -28,7 +30,14 @@ export default class Button extends HTMLElement {
          type: 'string',
          default: 'md',
          required: false,
-         allowedValues: ['md', 'sm']
+         // Generated from SIZE_VALUES so the runtime validation the framework
+         // already performs checks against the recipe, not against a literal.
+         allowedValues: SIZE_VALUES
+      },
+      className: {
+         type: 'string',
+         default: '',
+         required: false
       },
       // Canonical click handler. `onClickCallback` is kept as a deprecated alias.
       onClick: {
@@ -152,13 +161,32 @@ export default class Button extends HTMLElement {
    }
 
    set size(value) {
-      const allowed = ['md', 'sm'];
-      const next = allowed.includes(value) ? value : 'md';
+      // One list, from the recipe table — not a literal in this file. An
+      // unknown value falls back rather than rendering at whatever the next
+      // rule in the stylesheet happens to say.
+      const next = applySize(this, value, 'md');
+
       if (this._size) {
          this.$button.classList.remove('slice_button--' + this._size);
       }
       this._size = next;
       this.$button.classList.add('slice_button--' + next);
+   }
+
+   get className() {
+      return this._className;
+   }
+
+   /**
+    * The escape hatch: mark this instance so YOUR css can find it.
+    *
+    * Added to the component's own classes, never substituted for them — a
+    * className that replaced them would strip the control of its structural
+    * classes and break it in silence.
+    */
+   set className(value) {
+      applyClassName(this, value);
+      this._className = typeof value === 'string' ? value : '';
    }
 
    get value() {
