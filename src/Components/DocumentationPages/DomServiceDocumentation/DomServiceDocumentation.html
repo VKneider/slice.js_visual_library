@@ -20,10 +20,23 @@
 <p>which runs <code>beforeDestroy()</code>. This happens <strong>before</strong> reordering so a dead node is never a    reorder target.</p>
 <ol><li><strong>Enforce order.</strong> The DOM is moved to match <code>items</code>. <code>insertBefore</code> <strong>moves</strong> a node, it does not</li></ol>
 <p>clone it, so no constructor re-runs — and only nodes that are actually out of place move.</p>
+<h2 id="concurrency-renders-queue-per-container">Concurrency: renders queue per container</h2>
+<p><code>reconcile</code> keeps one promise per container in a <code>WeakMap</code>. A render that arrives while another is still running waits for it instead of interleaving — otherwise the second could prune a node the first had just ordered, or both could decide to build the same id.</p>
+<p>Two details worth knowing, because both were bugs first:</p>
+<ul><li>The chain continues on <strong>failure</strong>. <code>then(run, run)</code> rather than <code>then(run)</code>, so one bad render</li></ul>
+<p>cannot freeze every later render on that container.</p>
+<ul><li>The chain is <strong>dropped when it drains</strong>. A long-lived list does not accumulate one promise per</li></ul>
+<p>update.</p>
+<p>The promise <code>reconcile</code> returns resolves after *this* render is applied <strong>and</strong> after any render already queued on the same container. So <code>await dom.reconcile(...)</code> really does mean "the DOM matches", which is what makes the pattern below correct.</p>
+<h2 id="adoption-and-a-build-that-returns-nothing">Adoption, and a build that returns nothing</h2>
+<p>Before paying for a build, <code>reconcile</code> looks for <code>[slice-id="&lt;key&gt;"]</code> inside the container and adopts it. The registry can lose track of a node — a build that failed part-way, a child the consumer pre-rendered and appended by hand — while the DOM still holds it, and building it again would throw <code>already registered</code>.</p>
+<p>For the same reason the final ordered list is assembled from the nodes that actually exist rather than from the slots that were requested: <code>slice.build</code> legitimately returns nothing for an unregistered component name, and that must not shift every sibling by one.</p>
+<h2 id="cost-of-a-cold-list">Cost of a cold list</h2>
+<p>The <strong>first</strong> build is awaited on its own, because it warms the template cache; the rest then run in parallel. A cold list of *n* rows therefore costs <strong>one</strong> fetch per component type, not *n*.</p>
 <h2 id="api">API</h2>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <ul><li><code>keyOf(item)</code> — <strong>the identity used across renders.</strong> Derive it from a stable id, never from the</li></ul>
-<p>array index: an index key makes item 1 keep its component (and its state) when it becomes item 2.</p>
+<p>array index: an index key makes item 1 keep its component (and its state) when it becomes item 2.   It is also used to <strong>adopt</strong> an existing node, so it must be unique across the whole page, not just   within this list — two lists using <code>row-1</code> will fight over the same key.</p>
 <ul><li><code>props(item)</code> — the props for one item.</li><li><code>refresh(node, props)</code> — replaces the default <code>slice.setComponentProps(node, props)</code>. Use it when</li></ul>
 <p>props are interdependent, or when the child builds sub-components asynchronously and needs its own   <code>update()</code> in a specific order.</p>
 <p><code>dom.destroyChildren(container)</code> tears down every registered child at once.</p>
@@ -31,10 +44,23 @@
 <div class="script-block" data-block-id="doc-block-2"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Call <code>reconcile</code> after every change to the data — a push, a filter, a re-sort — and nowhere else.
-If two places reconcile the same container, they will fight over the order.</div>
+Concurrent calls on the same container are queued rather than fought over, but two *different*
+data sources reconciling one container is still a design error: each will prune what the other
+just built.</div>
+<div class="callout callout-tip"><code>await</code> the call. The promise resolves after this render <strong>and</strong> any render already queued on the
+container, so a mutation that triggers two <code>reconcile</code> calls can still <code>await</code> once and know the DOM
+matches.</div>
+<div class="callout callout-tip">Reuse an item <strong>object</strong> across renders rather than rebuilding it, if the child keys off identity
+the object carries. <code>TreeView</code> keeps a <code>WeakMap</code> from item to a generated id for items with no
+<code>path</code> or <code>id</code> of their own, because an index key would hand item 0's component — and its
+open/closed state — to whatever took its place after a splice.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Do not use the array index as <code>keyOf</code>. With an index key, inserting at the front makes item 1 inherit
 item 0's component — and its scroll position, its open/closed state, and its focus.</div>
 <div class="callout callout-warning"><code>reconcile</code> only manages <strong>direct</strong> children that carry a <code>slice-id</code>. Anything you append by hand
 inside the container is left alone; wrap it if it should be reconciled with the data.</div>
+<div class="callout callout-warning">Never spread an item straight into <code>props</code>. <code>props(item)</code> is assigned by name onto the element, and
+several common field names are getter-only DOM properties — <code>children</code> most of all — so
+<code>props: (item) =&gt; item</code> throws <code>Cannot set property children</code> and the row is silently never
+created. Forward only the keys the child declares.</div>
 </div>

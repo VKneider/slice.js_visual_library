@@ -37,6 +37,39 @@ So `reconcile` does three things, in this order:
 3. **Enforce order.** The DOM is moved to match `items`. `insertBefore` **moves** a node, it does not
    clone it, so no constructor re-runs — and only nodes that are actually out of place move.
 
+## Concurrency: renders queue per container
+
+`reconcile` keeps one promise per container in a `WeakMap`. A render that arrives while another is
+still running waits for it instead of interleaving — otherwise the second could prune a node the first
+had just ordered, or both could decide to build the same id.
+
+Two details worth knowing, because both were bugs first:
+
+- The chain continues on **failure**. `then(run, run)` rather than `then(run)`, so one bad render
+  cannot freeze every later render on that container.
+- The chain is **dropped when it drains**. A long-lived list does not accumulate one promise per
+  update.
+
+The promise `reconcile` returns resolves after *this* render is applied **and** after any render
+already queued on the same container. So `await dom.reconcile(...)` really does mean "the DOM
+matches", which is what makes the pattern below correct.
+
+## Adoption, and a build that returns nothing
+
+Before paying for a build, `reconcile` looks for `[slice-id="<key>"]` inside the container and adopts
+it. The registry can lose track of a node — a build that failed part-way, a child the consumer
+pre-rendered and appended by hand — while the DOM still holds it, and building it again would throw
+`already registered`.
+
+For the same reason the final ordered list is assembled from the nodes that actually exist rather
+than from the slots that were requested: `slice.build` legitimately returns nothing for an
+unregistered component name, and that must not shift every sibling by one.
+
+## Cost of a cold list
+
+The **first** build is awaited on its own, because it warms the template cache; the rest then run in
+parallel. A cold list of *n* rows therefore costs **one** fetch per component type, not *n*.
+
 ## API
 
 ```js
@@ -50,6 +83,8 @@ await dom.reconcile(container, items, {
 
 - `keyOf(item)` — **the identity used across renders.** Derive it from a stable id, never from the
   array index: an index key makes item 1 keep its component (and its state) when it becomes item 2.
+  It is also used to **adopt** an existing node, so it must be unique across the whole page, not just
+  within this list — two lists using `row-1` will fight over the same key.
 - `props(item)` — the props for one item.
 - `refresh(node, props)` — replaces the default `slice.setComponentProps(node, props)`. Use it when
   props are interdependent, or when the child builds sub-components asynchronously and needs its own
@@ -129,7 +164,22 @@ mount(wrap);
 
 :::tip
 Call `reconcile` after every change to the data — a push, a filter, a re-sort — and nowhere else.
-If two places reconcile the same container, they will fight over the order.
+Concurrent calls on the same container are queued rather than fought over, but two *different*
+data sources reconciling one container is still a design error: each will prune what the other
+just built.
+:::
+
+:::tip
+`await` the call. The promise resolves after this render **and** any render already queued on the
+container, so a mutation that triggers two `reconcile` calls can still `await` once and know the DOM
+matches.
+:::
+
+:::tip
+Reuse an item **object** across renders rather than rebuilding it, if the child keys off identity
+the object carries. `TreeView` keeps a `WeakMap` from item to a generated id for items with no
+`path` or `id` of their own, because an index key would hand item 0's component — and its
+open/closed state — to whatever took its place after a splice.
 :::
 
 ## Pitfalls
@@ -142,4 +192,11 @@ item 0's component — and its scroll position, its open/closed state, and its f
 :::warning
 `reconcile` only manages **direct** children that carry a `slice-id`. Anything you append by hand
 inside the container is left alone; wrap it if it should be reconciled with the data.
+:::
+
+:::warning
+Never spread an item straight into `props`. `props(item)` is assigned by name onto the element, and
+several common field names are getter-only DOM properties — `children` most of all — so
+`props: (item) => item` throws `Cannot set property children` and the row is silently never
+created. Forward only the keys the child declares.
 :::
