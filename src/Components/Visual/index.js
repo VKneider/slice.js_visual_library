@@ -6,6 +6,7 @@ export { default as Breadcrumbs } from './Breadcrumbs/Breadcrumbs.js';
 export { default as Card } from './Card/Card.js';
 export { default as Checkbox } from './Checkbox/Checkbox.js';
 export { default as CodeVisualizer } from './CodeVisualizer/CodeVisualizer.js';
+export { default as ColorPicker } from './ColorPicker/ColorPicker.js';
 export { default as Details } from './Details/Details.js';
 export { default as DropDown } from './DropDown/DropDown.js';
 export { default as ElementCarrousel } from './ElementCarrousel/ElementCarrousel.js';

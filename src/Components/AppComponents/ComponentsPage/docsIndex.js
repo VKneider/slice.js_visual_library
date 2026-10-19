@@ -242,6 +242,17 @@ const docsIndex = [
     tags: ['theme', 'switcher', 'toggle', 'dark-mode', 'settings']
   },
   {
+    title: 'ColorPicker',
+    route: '/docs/input/color-picker',
+    description: 'A labelled colour swatch with a hex readout that normalizes any CSS colour before the browser can silently black it out.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 17,
+    navLabel: 'ColorPicker',
+    component: 'ColorPickerDocumentation',
+    tags: ['color', 'colour', 'picker', 'swatch', 'theme', 'hex', 'form']
+  },
+  {
     title: 'Markdown Parser Rules',
     route: '/docs/internal/markdown-parser-rules',
     description: 'Contract, template, and generation rules for Slice.js documentation pages.',

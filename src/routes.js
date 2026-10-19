@@ -4,6 +4,7 @@ const routes = [
   { path: '/__test', component: 'TestHarness' },
   { path: '/playground', component: 'Playground' },
   { path: '/game', component: 'GamePage' },
+  { path: '/theme-creator', component: 'ThemeCreator' },
   { path: '/docs', component: 'App' },
   { path: '/docs/${section}', component: 'App' },
   { path: '/docs/${section}/${page}', component: 'App' },

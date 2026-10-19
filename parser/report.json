@@ -37,6 +37,10 @@
       "component": "CodeVisualizerDocumentation"
     },
     {
+      "filePath": "src/markdown/color-picker.md",
+      "component": "ColorPickerDocumentation"
+    },
+    {
       "filePath": "src/markdown/confirm-action-modal.md",
       "component": "ConfirmActionModalDocumentation"
     },

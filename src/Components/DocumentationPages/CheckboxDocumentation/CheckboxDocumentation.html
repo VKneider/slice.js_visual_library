@@ -9,7 +9,7 @@
 <h2 id="overview">Overview</h2>
 <p><code>Checkbox</code> handles boolean selection with optional label, placement, and disabled state.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>checked</code> controls current selection state.</li><li><code>onChange</code> fires with the new checked state (<code>true</code>/<code>false</code>) whenever the user toggles it, whether they click the box or the label. Assign <code>null</code> to clear the handler.</li><li><code>label</code> and <code>labelPlacement</code> define readable form semantics.</li><li><code>disabled</code> prevents interaction while keeping current value visible.</li><li>The real <code>&lt;input&gt;</code> is visually hidden behind the styled <code>.checkmark</code> but stays focusable, and the focus ring is drawn on the checkmark so keyboard users can see where they are.</li></ul>
+<ul><li><code>checked</code> controls current selection state.</li><li><code>onChange</code> fires with the new checked state (<code>true</code>/<code>false</code>) whenever the user toggles it, whether they click the box or the label. Assign <code>null</code> to clear the handler.</li><li><code>label</code> and <code>labelPlacement</code> define readable form semantics.</li><li><code>variant</code> sets the visual style: <code>default</code> (success accent), <code>outlined</code> (transparent surface, primary accent), <code>soft</code> (tinted surface, muted accent), <code>danger</code> (destructive confirmations) or <code>plain</code> (no container chip — just the bare box and label). Unknown values fall back to <code>default</code>.</li><li>Per-instance border tuning: set <code>--slice-checkbox-box-border-width</code> on the host to retune or remove the box border without touching the component (pair it with <code>--slice-checkbox-box-surface</code> so an unchecked box stays visible).</li><li><code>size</code> (<code>sm</code> | <code>md</code> | <code>lg</code>) scales the box and its label together; <code>md</code> is the default.</li><li><code>disabled</code> prevents interaction while keeping current value visible.</li><li>The real <code>&lt;input&gt;</code> is visually hidden behind the styled <code>.checkmark</code> but stays focusable, and the focus ring is drawn on the checkmark so keyboard users can see where they are.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
@@ -19,5 +19,10 @@
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <div class="script-block" data-block-id="doc-block-7"></div>
-<div class="component-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
+<div class="component-block" data-block-id="doc-block-13"></div>
 </div>

@@ -11,6 +11,7 @@ const docRoutes = [
   { path: '/docs/input/checkbox', component: 'CheckboxDocumentation' },
   { path: '/docs/display/chip', component: 'ChipDocumentation' },
   { path: '/docs/display/code-visualizer', component: 'CodeVisualizerDocumentation' },
+  { path: '/docs/input/color-picker', component: 'ColorPickerDocumentation' },
   { path: '/docs/display/confirm-action-modal', component: 'ConfirmActionModalDocumentation' },
   { path: '/docs/internal/css-conventions', component: 'CssConventionsDocumentation' },
   { path: '/docs/layout/details', component: 'DetailsDocumentation' },

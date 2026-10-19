@@ -18,6 +18,9 @@ const generateMainRoutesFile = () => {
   lines.push("  { path: '/playground', component: 'Playground' },");
   // Game route — standalone 3D aim trainer
   lines.push("  { path: '/game', component: 'GamePage' },");
+  // Theme Creator — standalone theme-token editor. Top-level like /playground and
+  // /game, so it renders outside the AppShell and builds its own navbar.
+  lines.push("  { path: '/theme-creator', component: 'ThemeCreator' },");
   docsShellRoutes.forEach((route) => {
     lines.push(`  { path: '${route.replace(/'/g, "\\'")}', component: 'App' },`);
   });

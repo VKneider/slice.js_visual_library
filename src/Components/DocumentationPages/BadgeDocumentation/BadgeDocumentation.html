@@ -8,19 +8,43 @@
 </div>
 <h2 id="overview">Overview</h2>
 <p>A <code>Badge</code> is a small status pill: a count, a label, or a bare dot. It answers "what state is this thing in" at a glance, next to a list item, a tab, an avatar or a button.</p>
-<p>Variants are <strong>semantic</strong> (<code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>accent</code>), not decorative, and each derives from theme tokens — so a badge means the same thing in light and dark without you picking a colour.</p>
+<p>Variants are <strong>semantic</strong> (<code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>accent</code>), not decorative, and each derives from its own theme token — <code>--success-color</code>, <code>--danger-color</code>, <code>--warning-color</code>, <code>--info-color</code>, <code>--primary-color</code> — so a badge means the same thing in light and dark without you picking a colour.</p>
+<p>The five coloured variants were separated by measurement, not by eye: all ten pairs clear a CIE ΔE of 36 or more, so none of them reads as another. The hues sit in distinct bands — danger 0°, warning 32°, success 161°, info 213°, brand 271°.</p>
+<p>Variants are <strong>tinted</strong>, not solid: a soft wash of the status colour, a hairline border, and text in a readable shade of that same colour. A solid fill was measured at 3.19–3.77:1 for white text on the lighter status colours, under the 4.5:1 AA bar for 12px text, and five saturated fills in a row read as a traffic light rather than as badges.</p>
 <h2 id="api">API</h2>
-<div class="table-block" data-block-id="doc-block-1"></div>
-<ul><li><code>label</code> (string) — the text. Doubles as the accessible name when <code>dot</code> is set.</li><li><code>value</code> (number | null) — a count. Wins over <code>label</code>, and is capped by <code>max</code> (<code>99</code> → <code>99+</code>).</li><li><code>max</code> (number, default <code>99</code>) — the cap for <code>value</code>.</li><li><code>dot</code> (boolean) — render a bare dot instead of text.</li><li><code>size</code> (<code>sm</code> | <code>md</code>, default <code>md</code>)</li></ul>
+<ul><li><code>variant</code> (<code>neutral</code> | <code>accent</code> | <code>success</code> | <code>warning</code> | <code>danger</code> | <code>info</code>, default <code>neutral</code>)</li><li><code>label</code> (string) — the text. Doubles as the accessible name when <code>dot</code> is set.</li><li><code>value</code> (number | null) — a count. Wins over <code>label</code>, and is capped by <code>max</code> (<code>99</code> → <code>99+</code>).</li><li><code>max</code> (number, default <code>99</code>) — the cap for <code>value</code>.</li><li><code>dot</code> (boolean) — render a bare dot instead of text.</li><li><code>size</code> (<code>sm</code> | <code>md</code>, default <code>md</code>)</li></ul>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="theming">Theming</h2>
+<p><code>Badge</code> needs one token per status colour beyond the standard palette: a <strong>readable shade</strong>, the version of that colour that clears 4.5:1 against its own tint on the current theme's surface.</p>
+<p>The shade has to move in opposite directions per theme. Light darkens the status colour toward black; dark <strong>lightens it toward white</strong>, because a dark theme's status colours are already light and darkening them produces a mid-tone with no contrast on a dark surface. Getting this wrong is not subtle — measured on the wrong direction, five of six variants land between 3.00:1 and 4.05:1 in dark mode.</p>
+<p>Declare the shades on <code>:root</code>, derived from the status colours you already have:</p>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<div class="callout callout-tip">The <code>-readable</code> tokens are <strong>optional for a light theme</strong>. Each <code>color</code> in <code>Badge.css</code> carries the
+light-tuned value as a fallback, so a theme with only the standard tokens still renders between
+4.89:1 and 5.38:1. They are <strong>effectively required for a dark theme</strong>: without them, dark badges fall
+to 3.00–4.05:1.
+
+That fallback is not belt-and-braces. <code>slice init</code> copies the <strong>framework's</strong> <code>src/</code>, themes included,
+so a new app's theme is <code>slicejs-web-framework</code>'s <code>Light.css</code> — 21 tokens, and its only shade is
+<code>--primary-color-shade</code>, a *border* tone. None of the five above are in it.</div>
+<div class="callout callout-warning"><strong><code>--primary-color-shade</code> is a different token.</strong> It is a border/surface tone of the brand, used in
+~40 declarations across 15 components and Required by the component standards.
+<code>--primary-color-readable</code> is the *text* tone, for text sitting on a tint. The <code>-readable</code> suffix
+exists to keep the two apart.
+
+<strong>There is no <code>--accent-color</code>.</strong> It measured at 3° of hue and 1.52:1 from <code>--secondary-color</code> — a
+duplicate rather than a third colour — and in the wild "accent" already means *the brand*, which is
+<code>--primary-color</code> here. The <code>accent</code> <strong>variant</strong> survives and is purple; only the redundant token is
+gone.</div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Overlaid on a button or an avatar, keep the badge <code>absolute</code> in your own layout — <code>Badge</code> only
 styles itself, not its position relative to a sibling.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Colour alone is not enough of a signal. A <code>danger</code> badge next to a <code>success</code> one reads differently to
 everyone, but only the text tells a colourblind user which is which — keep <code>label</code> or <code>value</code> set.</div>
-<div class="component-block" data-block-id="doc-block-5"></div>
+<div class="component-block" data-block-id="doc-block-6"></div>
 </div>

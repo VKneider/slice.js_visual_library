@@ -153,6 +153,11 @@ const documentationRoutes = {
         path: '/docs/input/theme-switcher',
         component: 'ThemeSwitcherDocumentation'
       },
+      {
+        title: 'ColorPicker',
+        path: '/docs/input/color-picker',
+        component: 'ColorPickerDocumentation'
+      },
     ]
   },
   Layout: {

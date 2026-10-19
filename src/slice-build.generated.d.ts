@@ -4,12 +4,59 @@ export interface AppProps {
   [key: string]: unknown;
 }
 
+export interface BadgeProps {
+  [key: string]: unknown;
+  dot?: boolean;
+  label?: string;
+  max?: number;
+  size?: string;
+  value?: number;
+  variant?: string;
+}
+
+export interface BadgeDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface BottomNavProps {
+  [key: string]: unknown;
+  buttons?: unknown[];
+  direction?: string;
+  items?: unknown[];
+  logo?: Record<string, unknown>;
+  position?: string;
+}
+
+export interface BottomNavDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface BreadcrumbsProps {
+  [key: string]: unknown;
+  children?: { children?: unknown[]; path: string; text?: string; title?: string; }[];
+  currentPath?: string;
+  includeCurrent?: boolean;
+  items?: { path?: string; text: string; }[];
+  maxItems?: number;
+  onClick?: (...args: unknown[]) => unknown;
+  onClickCallback?: (...args: unknown[]) => unknown;
+  separator?: string;
+}
+
+export interface BreadcrumbsDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface ButtonProps {
   [key: string]: unknown;
+  className?: string;
   customColor?: Record<string, unknown>;
   icon?: Record<string, unknown>;
+  onClick?: (...args: unknown[]) => unknown;
   onClickCallback?: (...args: unknown[]) => unknown;
+  size?: string;
   value?: string;
+  variant?: 'filled' | 'outlined' | 'ghost' | 'soft' | 'danger';
 }
 
 export interface ButtonDocumentationProps {
@@ -23,12 +70,13 @@ export interface CardProps {
   customColor?: Record<string, unknown>;
   details?: string;
   disabled?: boolean;
-  icon?: Record<string, unknown>;
+  headerIcon?: unknown;
+  icon?: unknown;
   image?: string;
   interactive?: boolean;
   isOpen?: boolean;
-  loading?: boolean;
   onClick?: (...args: unknown[]) => unknown;
+  open?: boolean;
   text?: string;
   title?: string;
   variant?: 'default' | 'elevated' | 'outlined' | 'minimal';
@@ -41,13 +89,32 @@ export interface CardDocumentationProps {
 export interface CheckboxProps {
   [key: string]: unknown;
   checked?: boolean;
-  customColor?: string;
+  customColor?: Record<string, unknown>;
   disabled?: boolean;
   label?: string;
   labelPlacement?: string;
+  onChange?: (...args: unknown[]) => unknown;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'outlined' | 'soft' | 'danger' | 'plain';
 }
 
 export interface CheckboxDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ChipProps {
+  [key: string]: unknown;
+  disabled?: boolean;
+  icon?: string;
+  label?: string;
+  onRemove?: (...args: unknown[]) => unknown;
+  removable?: boolean;
+  removeLabel?: string;
+  size?: string;
+  variant?: string;
+}
+
+export interface ChipDocumentationProps {
   [key: string]: unknown;
 }
 
@@ -56,6 +123,22 @@ export interface CodeVisualizerProps {
 }
 
 export interface CodeVisualizerDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ColorPickerProps {
+  [key: string]: unknown;
+  className?: string;
+  customColor?: Record<string, unknown>;
+  disabled?: boolean;
+  hint?: string;
+  label?: string;
+  onChange?: (...args: unknown[]) => unknown;
+  size?: string;
+  value?: string;
+}
+
+export interface ColorPickerDocumentationProps {
   [key: string]: unknown;
 }
 
@@ -70,6 +153,18 @@ export interface ComponentsPageProps {
   [key: string]: unknown;
 }
 
+export interface ConfirmActionModalProps {
+  [key: string]: unknown;
+  cancelLabel?: string;
+  confirmLabel?: string;
+  confirmVariant?: string;
+  eventName?: string;
+}
+
+export interface ConfirmActionModalDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface CopyMarkdownMenuProps {
   [key: string]: unknown;
   label?: string;
@@ -77,10 +172,32 @@ export interface CopyMarkdownMenuProps {
   markdownPath?: string;
 }
 
+export interface CssConventionsDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface DataGridEngineProps {
+  [key: string]: unknown;
+}
+
 export interface DemoBoxProps {
   [key: string]: unknown;
   expected?: string;
   label?: string;
+}
+
+export interface DemoButtonProps {
+  [key: string]: unknown;
+  clicks?: number;
+  disabled?: boolean;
+  label?: string;
+}
+
+export interface DemoCounterProps {
+  [key: string]: unknown;
+  label?: string;
+  step?: number;
+  value?: number;
 }
 
 export interface DemoRouteDetailsProps {
@@ -95,6 +212,13 @@ export interface DemoRouteStateProps {
   [key: string]: unknown;
 }
 
+export interface DemoToggleProps {
+  [key: string]: unknown;
+  offText?: string;
+  on?: boolean;
+  onText?: string;
+}
+
 export interface DetailsProps {
   [key: string]: unknown;
   text?: string;
@@ -106,6 +230,22 @@ export interface DetailsDocumentationProps {
 }
 
 export interface DocumentationLibraryHomeProps {
+  [key: string]: unknown;
+}
+
+export interface DomServiceProps {
+  [key: string]: unknown;
+}
+
+export interface DomServiceDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface DragDropServiceProps {
+  [key: string]: unknown;
+}
+
+export interface DragDropServiceDocumentationProps {
   [key: string]: unknown;
 }
 
@@ -128,7 +268,76 @@ export interface ElementCarrouselDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface EmptyStateProps {
+  [key: string]: unknown;
+  buttonLabel?: string;
+  buttonOnClick?: (...args: unknown[]) => unknown;
+  buttonRoute?: string;
+  description?: string;
+  icon?: string;
+  iconSize?: string;
+  title?: string;
+}
+
+export interface EmptyStateDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ExternalDepsProbeProps {
+  [key: string]: unknown;
+  date?: string;
+  markdown?: string;
+}
+
 export interface FetchManagerProps {
+  [key: string]: unknown;
+}
+
+export interface FetchManagerDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface FileDownloadServiceProps {
+  [key: string]: unknown;
+}
+
+export interface FileDownloadServiceDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface FileUploadProps {
+  [key: string]: unknown;
+  accept?: string;
+  disabled?: boolean;
+  hint?: string;
+  icon?: string;
+  list?: boolean;
+  multiple?: boolean;
+  onFiles?: (...args: unknown[]) => unknown;
+  prompt?: string;
+}
+
+export interface FileUploadDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface FormProps {
+  [key: string]: unknown;
+  columns?: number;
+  maxWidth?: string;
+  nextText?: string;
+  onSubmit?: (...args: unknown[]) => unknown;
+  resetText?: string;
+  schema?: unknown[];
+  submitText?: string;
+  variant?: string;
+}
+
+export interface FormDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface GamePageProps {
   [key: string]: unknown;
 }
 
@@ -146,10 +355,29 @@ export interface GridDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface GsapDemoProps {
+  [key: string]: unknown;
+  bars?: number;
+  duration?: number;
+}
+
+export interface GsapShowcaseProps {
+  [key: string]: unknown;
+}
+
+export interface HtmlServiceProps {
+  [key: string]: unknown;
+}
+
+export interface HtmlServiceDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface IconProps {
   [key: string]: unknown;
   color?: string;
   iconStyle?: string;
+  label?: string;
   name?: string;
   size?: string;
 }
@@ -162,13 +390,20 @@ export interface IndexedDbManagerProps {
   [key: string]: unknown;
 }
 
+export interface IndexedDbManagerDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface InputProps {
   [key: string]: unknown;
+  className?: string;
   conditions?: Record<string, unknown>;
   disabled?: boolean;
+  onChange?: (...args: unknown[]) => unknown;
   placeholder?: string;
   required?: boolean;
   secret?: boolean;
+  size?: string;
   type?: string;
   value?: string;
 }
@@ -191,10 +426,16 @@ export interface LinkProps {
   [key: string]: unknown;
 }
 
+export interface LinkDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface LoadingProps {
   [key: string]: unknown;
+  active?: boolean;
   container?: Record<string, unknown>;
   isActive?: boolean;
+  minVisibleMs?: number;
 }
 
 export interface LoadingDocumentationProps {
@@ -205,11 +446,42 @@ export interface LocalStorageManagerProps {
   [key: string]: unknown;
 }
 
+export interface LocalStorageManagerDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface MainMenuProps {
   [key: string]: unknown;
 }
 
 export interface MarkdownParserRulesDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface MiniInspectorProps {
+  [key: string]: unknown;
+  target?: Record<string, unknown>;
+  title?: string;
+}
+
+export interface MiniInspectorDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ModalProps {
+  [key: string]: unknown;
+  customColor?: Record<string, unknown>;
+  dismissable?: boolean;
+  draggable?: boolean;
+  maxWidth?: string;
+  onClose?: (...args: unknown[]) => unknown;
+  open?: boolean;
+  resizable?: boolean;
+  title?: string;
+  width?: string;
+}
+
+export interface ModalDocumentationProps {
   [key: string]: unknown;
 }
 
@@ -246,6 +518,25 @@ export interface NotFoundDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface PaginationProps {
+  [key: string]: unknown;
+  boundaryCount?: number;
+  currentPage?: number;
+  disabled?: boolean;
+  onPageChange?: (...args: unknown[]) => unknown;
+  showFirstLast?: boolean;
+  siblingCount?: number;
+  totalPages?: number;
+}
+
+export interface PaginationDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface PlaygroundProps {
+  [key: string]: unknown;
+}
+
 export interface PropsTableProps {
   [key: string]: unknown;
   props?: unknown[];
@@ -261,11 +552,15 @@ export interface RouteDocumentationProps {
 
 export interface SelectProps {
   [key: string]: unknown;
+  clearable?: boolean;
   disabled?: boolean;
   label?: string;
   multiple?: boolean;
+  onChange?: (...args: unknown[]) => unknown;
   onOptionSelect?: (...args: unknown[]) => unknown;
   options?: unknown[];
+  placeholder?: string;
+  searchable?: boolean;
   visibleProp?: string;
 }
 
@@ -273,13 +568,22 @@ export interface SelectDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface StoreServiceProps {
+  [key: string]: unknown;
+}
+
+export interface StoreServiceDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface SwitchProps {
   [key: string]: unknown;
   checked?: boolean;
-  customColor?: string;
+  customColor?: Record<string, unknown>;
   disabled?: boolean;
   label?: string;
   labelPlacement?: string;
+  onChange?: (...args: unknown[]) => unknown;
   toggle?: (...args: unknown[]) => unknown;
 }
 
@@ -289,8 +593,19 @@ export interface SwitchDocumentationProps {
 
 export interface TableProps {
   [key: string]: unknown;
+  columns?: unknown[];
+  dataSource?: string;
+  defaultSort?: Record<string, unknown>;
+  emptyMessage?: string;
   headers?: unknown[];
+  headerVariant?: 'tinted' | 'solid' | 'none';
+  loading?: boolean;
+  onPageChange?: (...args: unknown[]) => unknown;
+  onSortChange?: (...args: unknown[]) => unknown;
+  pagination?: Record<string, unknown>;
   rows?: unknown[];
+  sortable?: boolean;
+  totalItems?: number;
 }
 
 export interface TableDocumentationProps {
@@ -301,19 +616,111 @@ export interface TabsProps {
   [key: string]: unknown;
   activeTab?: string;
   items?: { id: string; label: string; }[];
+  onChange?: (...args: unknown[]) => unknown;
   onTabChange?: (...args: unknown[]) => unknown;
+  variant?: 'primary' | 'secondary';
 }
 
 export interface TabsDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface TestHarnessProps {
+  [key: string]: unknown;
+}
+
+export interface TextareaProps {
+  [key: string]: unknown;
+  autoGrow?: boolean;
+  conditions?: Record<string, unknown>;
+  disabled?: boolean;
+  maxlength?: number;
+  onChange?: (...args: unknown[]) => unknown;
+  placeholder?: string;
+  readonly?: boolean;
+  required?: boolean;
+  rows?: number;
+  value?: string;
+}
+
+export interface TextareaDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ThemeCreatorProps {
+  [key: string]: unknown;
+  autoPreview?: boolean;
+  navItems?: unknown[];
+  onChange?: (...args: unknown[]) => unknown;
+  onExport?: (...args: unknown[]) => unknown;
+  paletteMode?: string;
+  preview?: boolean;
+  showNavbar?: boolean;
+  themeName?: string;
+}
+
 export interface ThemeSelectorProps {
+  [key: string]: unknown;
+}
+
+export interface ThemeSelectorDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ThemeSwitcherProps {
+  [key: string]: unknown;
+  display?: Record<string, unknown>;
+  label?: string;
+  onChange?: (...args: unknown[]) => unknown;
+  themes?: unknown[];
+  variant?: 'button' | 'menu-item';
+}
+
+export interface ThemeSwitcherDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ThreeAimTrainerProps {
+  [key: string]: unknown;
+}
+
+export interface ThreeGalaxyProps {
+  [key: string]: unknown;
+}
+
+export interface ThreeShowcaseProps {
+  [key: string]: unknown;
+}
+
+export interface ToastProps {
+  [key: string]: unknown;
+  customColor?: Record<string, unknown>;
+  dismissable?: boolean;
+  duration?: number;
+  message?: string;
+  type?: string;
+}
+
+export interface ToastDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface ToastProviderProps {
+  [key: string]: unknown;
+}
+
+export interface ToastProviderDocumentationProps {
   [key: string]: unknown;
 }
 
 export interface ToolTipProps {
   [key: string]: unknown;
+  customColor?: Record<string, unknown>;
+  hideDelay?: number;
+  maxWidth?: number;
+  offset?: number;
+  placement?: string;
+  showDelay?: number;
   text?: string;
 }
 
@@ -321,9 +728,18 @@ export interface ToolTipDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface ToolTipProviderProps {
+  [key: string]: unknown;
+}
+
+export interface ToolTipProviderDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface TreeItemProps {
   [key: string]: unknown;
   items?: unknown[];
+  onClick?: (...args: unknown[]) => unknown;
   onClickCallback?: (...args: unknown[]) => unknown;
   path?: string;
   value?: string;
@@ -331,12 +747,29 @@ export interface TreeItemProps {
 
 export interface TreeViewProps {
   [key: string]: unknown;
+  activePath?: string;
+  expanded?: string;
   items?: unknown[];
+  onClick?: (...args: unknown[]) => unknown;
   onClickCallback?: (...args: unknown[]) => unknown;
 }
 
 export interface TreeViewDocumentationProps {
   [key: string]: unknown;
+}
+
+export interface UnsavedChangesGuardProps {
+  [key: string]: unknown;
+}
+
+export interface UnsavedChangesGuardDocumentationProps {
+  [key: string]: unknown;
+}
+
+export interface UpdateProbeProps {
+  [key: string]: unknown;
+  label?: string;
+  tag?: string;
 }
 
 export interface VisualLibraryHomeProps {
@@ -345,44 +778,87 @@ export interface VisualLibraryHomeProps {
 
 export interface SliceComponentPropsMap {
   App: AppProps;
+  Badge: BadgeProps;
+  BadgeDocumentation: BadgeDocumentationProps;
+  BottomNav: BottomNavProps;
+  BottomNavDocumentation: BottomNavDocumentationProps;
+  Breadcrumbs: BreadcrumbsProps;
+  BreadcrumbsDocumentation: BreadcrumbsDocumentationProps;
   Button: ButtonProps;
   ButtonDocumentation: ButtonDocumentationProps;
   Card: CardProps;
   CardDocumentation: CardDocumentationProps;
   Checkbox: CheckboxProps;
   CheckboxDocumentation: CheckboxDocumentationProps;
+  Chip: ChipProps;
+  ChipDocumentation: ChipDocumentationProps;
   CodeVisualizer: CodeVisualizerProps;
   CodeVisualizerDocumentation: CodeVisualizerDocumentationProps;
+  ColorPicker: ColorPickerProps;
+  ColorPickerDocumentation: ColorPickerDocumentationProps;
   ComponentShowcase: ComponentShowcaseProps;
   ComponentsPage: ComponentsPageProps;
+  ConfirmActionModal: ConfirmActionModalProps;
+  ConfirmActionModalDocumentation: ConfirmActionModalDocumentationProps;
   CopyMarkdownMenu: CopyMarkdownMenuProps;
+  CssConventionsDocumentation: CssConventionsDocumentationProps;
+  DataGridEngine: DataGridEngineProps;
   DemoBox: DemoBoxProps;
+  DemoButton: DemoButtonProps;
+  DemoCounter: DemoCounterProps;
   DemoRouteDetails: DemoRouteDetailsProps;
   DemoRouteHome: DemoRouteHomeProps;
   DemoRouteState: DemoRouteStateProps;
+  DemoToggle: DemoToggleProps;
   Details: DetailsProps;
   DetailsDocumentation: DetailsDocumentationProps;
   DocumentationLibraryHome: DocumentationLibraryHomeProps;
+  DomService: DomServiceProps;
+  DomServiceDocumentation: DomServiceDocumentationProps;
+  DragDropService: DragDropServiceProps;
+  DragDropServiceDocumentation: DragDropServiceDocumentationProps;
   DropDown: DropDownProps;
   DropDownDocumentation: DropDownDocumentationProps;
   ElementCarrousel: ElementCarrouselProps;
   ElementCarrouselDocumentation: ElementCarrouselDocumentationProps;
+  EmptyState: EmptyStateProps;
+  EmptyStateDocumentation: EmptyStateDocumentationProps;
+  ExternalDepsProbe: ExternalDepsProbeProps;
   FetchManager: FetchManagerProps;
+  FetchManagerDocumentation: FetchManagerDocumentationProps;
+  FileDownloadService: FileDownloadServiceProps;
+  FileDownloadServiceDocumentation: FileDownloadServiceDocumentationProps;
+  FileUpload: FileUploadProps;
+  FileUploadDocumentation: FileUploadDocumentationProps;
+  Form: FormProps;
+  FormDocumentation: FormDocumentationProps;
+  GamePage: GamePageProps;
   Grid: GridProps;
   GridDocumentation: GridDocumentationProps;
+  GsapDemo: GsapDemoProps;
+  GsapShowcase: GsapShowcaseProps;
+  HtmlService: HtmlServiceProps;
+  HtmlServiceDocumentation: HtmlServiceDocumentationProps;
   Icon: IconProps;
   IconDocumentation: IconDocumentationProps;
   IndexedDbManager: IndexedDbManagerProps;
+  IndexedDbManagerDocumentation: IndexedDbManagerDocumentationProps;
   Input: InputProps;
   InputDocumentation: InputDocumentationProps;
   Layout: LayoutProps;
   LayoutDocumentation: LayoutDocumentationProps;
   Link: LinkProps;
+  LinkDocumentation: LinkDocumentationProps;
   Loading: LoadingProps;
   LoadingDocumentation: LoadingDocumentationProps;
   LocalStorageManager: LocalStorageManagerProps;
+  LocalStorageManagerDocumentation: LocalStorageManagerDocumentationProps;
   MainMenu: MainMenuProps;
   MarkdownParserRulesDocumentation: MarkdownParserRulesDocumentationProps;
+  MiniInspector: MiniInspectorProps;
+  MiniInspectorDocumentation: MiniInspectorDocumentationProps;
+  Modal: ModalProps;
+  ModalDocumentation: ModalDocumentationProps;
   MultiRoute: MultiRouteProps;
   MultiRouteDocumentation: MultiRouteDocumentationProps;
   MyNavigation: MyNavigationProps;
@@ -390,23 +866,47 @@ export interface SliceComponentPropsMap {
   NavbarDocumentation: NavbarDocumentationProps;
   NotFound: NotFoundProps;
   NotFoundDocumentation: NotFoundDocumentationProps;
+  Pagination: PaginationProps;
+  PaginationDocumentation: PaginationDocumentationProps;
+  Playground: PlaygroundProps;
   PropsTable: PropsTableProps;
   Route: RouteProps;
   RouteDocumentation: RouteDocumentationProps;
   Select: SelectProps;
   SelectDocumentation: SelectDocumentationProps;
+  StoreService: StoreServiceProps;
+  StoreServiceDocumentation: StoreServiceDocumentationProps;
   Switch: SwitchProps;
   SwitchDocumentation: SwitchDocumentationProps;
   Table: TableProps;
   TableDocumentation: TableDocumentationProps;
   Tabs: TabsProps;
   TabsDocumentation: TabsDocumentationProps;
+  TestHarness: TestHarnessProps;
+  Textarea: TextareaProps;
+  TextareaDocumentation: TextareaDocumentationProps;
+  ThemeCreator: ThemeCreatorProps;
   ThemeSelector: ThemeSelectorProps;
+  ThemeSelectorDocumentation: ThemeSelectorDocumentationProps;
+  ThemeSwitcher: ThemeSwitcherProps;
+  ThemeSwitcherDocumentation: ThemeSwitcherDocumentationProps;
+  ThreeAimTrainer: ThreeAimTrainerProps;
+  ThreeGalaxy: ThreeGalaxyProps;
+  ThreeShowcase: ThreeShowcaseProps;
+  Toast: ToastProps;
+  ToastDocumentation: ToastDocumentationProps;
+  ToastProvider: ToastProviderProps;
+  ToastProviderDocumentation: ToastProviderDocumentationProps;
   ToolTip: ToolTipProps;
   ToolTipDocumentation: ToolTipDocumentationProps;
+  ToolTipProvider: ToolTipProviderProps;
+  ToolTipProviderDocumentation: ToolTipProviderDocumentationProps;
   TreeItem: TreeItemProps;
   TreeView: TreeViewProps;
   TreeViewDocumentation: TreeViewDocumentationProps;
+  UnsavedChangesGuard: UnsavedChangesGuardProps;
+  UnsavedChangesGuardDocumentation: UnsavedChangesGuardDocumentationProps;
+  UpdateProbe: UpdateProbeProps;
   VisualLibraryHome: VisualLibraryHomeProps;
 }
 
@@ -451,6 +951,9 @@ declare module 'slicejs-web-framework' {
       name: K,
       props?: SliceComponentPropsMap[K]
     ): Promise<SliceDynamicElement | null>;
+    getComponent<K extends SliceComponentName>(
+      componentSliceId: K | `${K}-${string}`
+    ): SliceDynamicElement | undefined;
     getComponent<T extends SliceDynamicElement = SliceDynamicElement>(
       componentSliceId: string
     ): T | undefined;
