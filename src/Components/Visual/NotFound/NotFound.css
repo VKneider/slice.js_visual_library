@@ -15,7 +15,9 @@ slice-notfound .container {
 }
 slice-notfound .error-code {
     font-size: clamp(5rem, 15vw, 10rem);
-    font-weight: 800;
+    /* 700, not 800: the shipped font stops at 700, so 800 is synthesised. See
+       Button.css for the measurement. */
+    font-weight: 700;
     color: var(--primary-color-contrast);
     margin: 0;
     line-height: 1;

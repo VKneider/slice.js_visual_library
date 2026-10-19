@@ -12,6 +12,10 @@ slice-textarea {
 slice-textarea .slice_textarea {
   display: flex;
   padding: var(--slice-textarea-pad-y) var(--slice-textarea-pad-x);
+  /* Room for the label once it floats. At rest the label sits inside on the
+     first line box; on focus or a value it rises to just above this edge, and
+     without this it would overlap whatever is above the field. */
+  margin-top: 22px;
   max-width: 100%;
   border-radius: var(--border-radius-slice);
   font-family: var(--font-family);
@@ -21,7 +25,7 @@ slice-textarea .slice_textarea {
      used to be hardcoded to 25px, which silently doubled every layout that
      already spaced its own fields (the Form grid added its own gap on top).
      Set --control-margin-block on the host to restore standalone spacing. */
-  margin: var(--control-margin-block, 0);
+  margin: var(--control-margin-block, 20px);
   position: relative;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -48,17 +52,36 @@ slice-textarea .textarea_area {
 slice-textarea .slice_textarea_placeholder {
   color: var(--primary-color);
   position: absolute;
-  /* A textarea has no vertical centre to hang the label from (unlike Input),
-     so at rest it sits centred on the FIRST line box: pad-y + 4px. */
+  /* At rest this IS the placeholder, so it has to sit inside the field. It used
+     to sit at `bottom: 100%` — always above — which meant the placeholder never
+     appeared and every Textarea opened already looking like it had a label.
+
+     A textarea has no vertical centre to hang a label from, so it rests on the
+     first line box: pad-y + 4px. On focus or a value it floats to just above
+     the top edge (see the rule below), where the border and the focus ring run
+     underneath unbroken instead of through the text. */
   top: calc(var(--slice-textarea-pad-y) + 4px);
+  transform: none;
+  /* Inset by the control's own inline padding, matching Input. */
   left: var(--slice-textarea-pad-x);
-  transition: top 0.2s ease, transform 0.2s ease;
+  right: var(--slice-textarea-pad-x);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85em;
+  line-height: 1.3;
   user-select: none;
-  cursor: text;
   pointer-events: none;
+  /* Colour only: the error and disabled states still have to reach it. */
+  /* Colour rides along so error and disabled still reach the label; top and
+     transform carry the float. Input transitions the same three, and
+     Textarea.spec.js holds both fields to one mechanism. */
+  transition: top 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    color 0.15s ease;
 }
 
-/* Floated label — sits above the field edge once it has focus or a value.
+/* Floated label — rises to just above the field top once focused or filled.
 
    Deliberately NO background patch. Painting the label in the page background to
    "notch" the top border only works when the field sits directly on the page:
@@ -68,10 +91,19 @@ slice-textarea .slice_textarea_placeholder {
    and the label simply sits above it. */
 slice-textarea .slice_textarea_value,
 slice-textarea .slice_textarea_focus {
-  top: -0.5rem;
-  transform: scale(0.8);
-  transform-origin: left center;
-  transition: top 0.2s ease, transform 0.2s ease;
+  /* Above the top edge with a 3px gap, the same destination Input uses.
+     -100% is the label own height, so it lands with its bottom edge just
+     clear of the field rather than on it.
+
+     A label that came to rest ON the border was cut by the 1px border and
+     the 2px focus ring, and the only ways to open a gap were painting a
+     colour (wrong on any surface but one) or splitting the border. Ending
+     the move above the edge means there is no line to cross. */
+  top: 0;
+  transform: translateY(calc(-100% - 3px));
+  transition: top 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    color 0.15s ease;
 }
 
 slice-textarea .required,
@@ -87,6 +119,18 @@ slice-textarea .disabled label {
   cursor: not-allowed;
   pointer-events: none;
   color: var(--disabled-color);
+}
+
+/* Read-only: selectable and focusable, but visibly not an editing surface.
+   Deliberately NOT folded into `.disabled` above — a disabled field is greyed
+   out AND unselectable, and read-only output has to stay copyable. */
+slice-textarea .readonly,
+slice-textarea .readonly label {
+  cursor: default;
+}
+
+slice-textarea .readonly textarea {
+  background: var(--tertiary-background-color);
 }
 
 @keyframes slice_textarea_shake {

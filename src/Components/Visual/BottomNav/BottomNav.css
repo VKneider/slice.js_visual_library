@@ -194,12 +194,14 @@ slice-bottom-nav .slice_bottomnav_actions {
   gap: 6px;
 }
 
-/* Button gives `.slice_button_container` 10px of its own padding on top of the
-   10px on the inner button — it is the click target, so that ring widens the
-   tap area. Inside a coloured capsule it is not free: the bar shows through as
-   a 10px halo around the button, and the component measured 59px tall around a
-   39px button, which grew the bar from 55.4px to 69px.
-   The tap area is the tab's job here, not the button's, so the ring goes. */
+/* `Button` used to give `.slice_button_container` 10px of its own padding on top
+   of the inner button's — a tap-area ring that made the bar show a 10px halo
+   around the button, growing it from 55.4px to 69px.
+
+   Button.css now zeroes that ring at the source, so the rule below is
+   belt-and-braces rather than load-bearing: it survives a consumer who has
+   overridden the component's own padding back. The tap area is the tab's job
+   here, not the button's. */
 slice-bottom-nav .slice_bottomnav_actions slice-button,
 slice-bottom-nav .slice_bottomnav_actions .slice_button_container {
   display: flex;

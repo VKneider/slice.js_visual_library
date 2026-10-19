@@ -48,6 +48,11 @@ slice-copymarkdownmenu .copy-md-menu-item:hover {
   background: var(--secondary-background-color);
 }
 
+/* The padding: 0 below used to fight a tap-area ring that Button.css has since
+   removed at the source, so it is now belt-and-braces rather than load-bearing.
+   The width and display beside it are the real work here.
+   NOTE: this file is the SOURCE — index.js copies it over the component, so an
+   edit made in src/Components/AppComponents/CopyMarkdownMenu is overwritten. */
 slice-copymarkdownmenu .copy-md-button-slot .slice_button_container {
   padding: 0;
   width: auto;

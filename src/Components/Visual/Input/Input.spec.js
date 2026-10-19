@@ -134,4 +134,173 @@ test.describe('Input', () => {
       const c = await mount('Input', { placeholder: 'Email' });
       await expect(c.component).toHaveScreenshot('input-default.png');
    });
+
+   // ── interface polish, from the make-interfaces-feel-better pass ─────────
+   //
+   // Each of these was found by measuring, and each had a plausible-looking
+   // verification that passed for the wrong reason. The comments say which.
+
+   test.describe('interface polish', () => {
+      test('secret toggle clears the 40px floor, and the extra area really clicks', async ({
+         mountHtml,
+      }) => {
+         const h = await mountHtml(`<div></div>`);
+
+         const geom = await h.page.evaluate(async () => {
+            document.body.innerHTML = '';
+            const stage = document.createElement('div');
+            stage.style.cssText = 'padding:40px';
+            document.body.appendChild(stage);
+
+            const input = await slice.build('Input', {
+               placeholder: 'Password',
+               type: 'password',
+               secret: true,
+            });
+            stage.appendChild(input);
+            await new Promise((r) => setTimeout(r, 350));
+
+            const eye = input.querySelector('.slice_eye_icon');
+            const field = input.querySelector('.input_area');
+            field.value = 'hunter2';
+            const cs = getComputedStyle(eye, '::after');
+            const er = eye.getBoundingClientRect();
+
+            return {
+               // Read the pseudo's OWN box. Deriving it from the insets is how the
+               // first verifier got 18px for a 40px target.
+               hit: { w: parseFloat(cs.width), h: parseFloat(cs.height) },
+               // Inside the target, outside the glyph.
+               probeX: Math.round(er.left + er.width / 2),
+               probeY: Math.round(er.top + er.height / 2 - 16),
+               type: field.type,
+            };
+         });
+
+         expect(geom.hit.w, 'hit area width').toBeGreaterThanOrEqual(40);
+         expect(geom.hit.h, 'hit area height').toBeGreaterThanOrEqual(40);
+
+         await h.page.mouse.click(geom.probeX, geom.probeY);
+         await h.page.waitForTimeout(250);
+
+         const after = await h.page.evaluate(() => {
+            const field = document.querySelector('.input_area');
+            return { type: field.type, value: field.value };
+         });
+
+         expect(after.type, 'clicking outside the glyph must still toggle').not.toBe(geom.type);
+         expect(after.value, 'toggling must not destroy the value').toBe('hunter2');
+      });
+
+      test('a long placeholder is clipped instead of escaping the field', async ({ mountHtml }) => {
+         const h = await mountHtml(`<div></div>`);
+
+         const got = await h.page.evaluate(async () => {
+            document.body.innerHTML = '';
+            const stage = document.createElement('div');
+            stage.style.cssText = 'padding:40px';
+            document.body.appendChild(stage);
+
+            // A NARROW field. At 1200px this label measured 372px and looked fine,
+            // which is exactly why the first check passed without the fix.
+            const narrow = document.createElement('div');
+            narrow.style.cssText = 'width:220px';
+            const input = await slice.build('Input', {
+               placeholder: 'Una etiqueta de ejemplo deliberadamente muy larga',
+            });
+            narrow.appendChild(input);
+            stage.appendChild(narrow);
+            await new Promise((r) => setTimeout(r, 350));
+
+            const box = input.querySelector('.slice_input');
+            const ph = input.querySelector('.slice_input_placeholder');
+            const br = box.getBoundingClientRect();
+            const pr = ph.getBoundingClientRect();
+
+            return {
+               overflows: pr.width > br.width,
+               pastRight: pr.right - br.right,
+               ellipsis: getComputedStyle(ph).textOverflow === 'ellipsis',
+            };
+         });
+
+         expect(got.overflows, 'label must not exceed the field').toBe(false);
+         expect(got.pastRight, 'label must stay inside the field').toBeLessThanOrEqual(0);
+         expect(got.ellipsis, 'a clipped label should show an ellipsis').toBe(true);
+      });
+
+      test('the label sits above the field and never crosses its border', async ({ mountHtml }) => {
+         const h = await mountHtml(`<div></div>`);
+
+         const states = await h.page.evaluate(async () => {
+            document.body.innerHTML = '';
+            const stage = document.createElement('div');
+            stage.style.cssText = 'padding:30px;width:320px';
+            document.body.appendChild(stage);
+
+            const mk = async (opts, after) => {
+               const input = await slice.build('Input', opts);
+               stage.appendChild(input);
+               await new Promise((r) => setTimeout(r, 300));
+               if (after) after(input);
+               await new Promise((r) => setTimeout(r, 700));
+               const box = input.querySelector('.slice_input');
+               const ph = input.querySelector('.slice_input_placeholder');
+               const br = box.getBoundingClientRect();
+               const pr = ph.getBoundingClientRect();
+               return {
+                  // Positive means the label's bottom is BELOW the field's top edge,
+                  // i.e. it is sitting on or inside the box.
+                  overlaps: +(pr.bottom - br.top).toFixed(2),
+                  crossesBorder: pr.top < br.top && pr.bottom > br.top,
+                  labelVisible: pr.height > 0,
+               };
+            };
+
+            return {
+               resting: await mk({ placeholder: 'Email address' }),
+               focused: await mk({ placeholder: 'Email address' }, (i) =>
+                  i.querySelector('.input_area').focus()
+               ),
+               filled: await mk({ placeholder: 'Email address' }, (i) => {
+                  const f = i.querySelector('.input_area');
+                  f.value = 'victor@ejemplo.com';
+                  f.dispatchEvent(new Event('input', { bubbles: true }));
+                  f.blur();
+               }),
+               error: await mk({ placeholder: 'Email address', type: 'email' }, (i) => {
+                  const f = i.querySelector('.input_area');
+                  f.value = 'nope';
+                  f.dispatchEvent(new Event('input', { bubbles: true }));
+               }),
+            };
+         });
+
+         for (const [name, s] of Object.entries(states)) {
+            // The bug this replaces: a label resting on the border was cut by it,
+            // and the only available fixes were painting a colour (wrong on any
+            // surface but one) or splitting the border. Above the field there is
+            // nothing to cross.
+            // At rest the label belongs INSIDE the field: that is the placeholder
+            // position. Once floated it must be entirely clear above the edge.
+            if (name === 'resting') {
+               expect(s.overlaps, 'resting: the label belongs inside the field').toBeGreaterThan(0);
+            } else {
+               expect(s.overlaps, `${name}: the floated label must clear the top edge`).toBeLessThan(0);
+            }
+
+            // The bug this replaces: a label resting ON the border was cut by it,
+            // and the only available fixes were painting a colour (wrong on any
+            // surface but one) or splitting the border. The destination is now above
+            // the edge, so nothing crosses it — asserted for every state.
+            expect(s.crossesBorder, `${name}: nothing may cross the border`).toBe(false);
+            // It also no longer disappears when the field has a value.
+            expect(s.labelVisible, `${name}: label must stay visible`).toBe(true);
+         }
+
+         // And it must actually move: the float is the point, not a side effect.
+         const offsets = Object.values(states).map((s) => s.overlaps);
+         expect(new Set(offsets).size, 'the float must change the label position').toBeGreaterThan(1);
+      });
+   });
 });

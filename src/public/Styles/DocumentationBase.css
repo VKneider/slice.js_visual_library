@@ -144,7 +144,19 @@
   letter-spacing: 0.03em;
 }
 
-/* --- Prop scenarios --- */
+/* --- Prop scenarios ---
+   Scenarios render into the author's own :::script position, so the spacing the
+   section used to provide belongs here. The .doc-script-scenarios rules below
+   stay because the generator keeps that path as a fallback for a count mismatch. */
+.script-block {
+  margin-top: 14px;
+}
+
+.script-block > :first-child {
+  margin-top: 0;
+}
+
+
 .doc-script-scenarios {
   margin-top: 1.5em;
   padding: 0;

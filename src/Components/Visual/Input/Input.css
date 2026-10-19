@@ -11,7 +11,22 @@ slice-input .slice_eye_icon {
   position: absolute;
   user-select: none;
   cursor: pointer;
-  right: 10px;
+  right: var(--control-space-x, 10px);
+}
+
+/* 40x40 hit area around an 18px glyph. Measured: the toggle was a
+   keyboard-focusable role="button" with an 18x18 target, well under the floor for
+   a dense control. A pseudo-element rather than padding, because padding on an
+   absolutely-positioned span would move the glyph itself.
+
+   The vertical inset buys 11px a side (18 + 22 = 40). Horizontally the glyph
+   already sits one inline-padding from the field edge, so the pseudo reaches
+   exactly to that edge and buys its remaining width to the left — 49px total —
+   rather than spilling past the field and over a neighbouring control. */
+slice-input .slice_eye_icon::after {
+  content: '';
+  position: absolute;
+  inset: -11px calc(-1 * var(--control-space-x, 10px)) -11px -21px;
 }
 
 /* Both glyphs are always in the template; `aria-pressed` picks which one shows.
@@ -67,7 +82,7 @@ slice-input .slice_input {
      used to be hardcoded to 25px, which silently doubled every layout that
      already spaced its own fields (the Form grid added its own gap on top).
      Set --control-margin-block on the host to restore standalone spacing. */
-  margin: var(--control-margin-block, 0);
+  margin: var(--control-margin-block, 20px);
   position: relative;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -77,25 +92,82 @@ slice-input .slice_input:focus-within {
   box-shadow: 0 0 0 2px var(--primary-color);
 }
 
+/* ------------------------------------------------------------------- sizes
+   `size` was a declared-but-inert prop: Input set `data-size` on its host and
+   nothing read it. The scale that would have read it (scale.css) is a prototype
+   no application code loads, and unlike Button this component had no `--sm`
+   rule of its own — so `sm` and `md` both measured 19px.
+
+   These are the same values Button already ships for its `--sm` (padding 6px
+   12px, type 12px, radius x0.7), so a compact Input beside a compact Button
+   reads as one density instead of two. They are keyed off the host's
+   `data-size` because that is what `applySize` sets.
+
+   So this IS a second copy of Button's numbers. That duplication is deliberate
+   and parked: the scale meant to own them (`scale.css`, `[data-size]`) is a
+   prototype nobody loads, and the spike that introduced it is shelved rather
+   than being carried further. Duplication of four numbers beats a declared
+   public API that silently does nothing. Unifying them is the first thing to
+   pick up if the scale is ever reopened — see BACKLOG.md. */
+slice-input[data-size='sm'] .slice_input {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: calc(var(--border-radius-slice) * 0.7);
+}
+
+/* The reveal toggle is positioned from the right edge, so it has to follow the
+   tighter inline padding or it sits on top of the text at `sm`. */
+slice-input[data-size='sm'] .slice_eye_icon {
+  right: 12px;
+  transform: scale(0.85);
+}
+
 slice-input .slice_input_placeholder {
   color: var(--primary-color);
   position: absolute;
+  /* Rises to sit ENTIRELY above the field, not on its border. Coming to rest on
+     the border is what got the label cut: the 1px border and the 2px focus ring
+     both ran through it, and the only ways to open a gap were painting a colour
+     (wrong on any surface but one) or splitting the border. Ending the move
+     above the edge means there is no line to cross, so neither is needed.
+
+     Both endpoints are percentages OF THE FIELD, not pixels: the height is
+     auto unless the scale is present, so a px travel would be a guess that
+     breaks at the other size. */
   top: 50%;
   transform: translateY(-50%);
-  transition: top 0.2s ease, transform 0.2s ease;
+  /* Inset by the control's own inline padding, so the label aligns with the text
+     it stands for and tracks the density scale. These were 0 for a while: the
+     label sat flush against the border while the text was inset. */
+  left: var(--control-space-x, 10px);
+  right: var(--control-space-x, 10px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85em;
+  line-height: 1.3;
   user-select: none;
-  cursor: text;
   pointer-events: none;
+  /* top is a layout property and it animates — the honest cost, and what the
+     previous version did too. Colour rides along so error and disabled still
+     reach the label. */
+  transition: top 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    color 0.15s ease;
 }
+
 
 /* Floated label — same values as Textarea's, so the two fields float
    identically. No background patch: the border runs continuously underneath. */
 slice-input .slice_input_value,
 slice-input .slice_input_focus {
-  top: -0.5rem;
-  transform: scale(0.8);
-  transform-origin: left center;
-  transition: top 0.2s ease, transform 0.2s ease;
+  /* Above the top edge with a 3px gap. -100% is the label's own height, so it
+     lands with its bottom edge just clear of the field rather than on it. */
+  top: 0;
+  transform: translateY(calc(-100% - 3px));
+  transition: top 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
+    color 0.15s ease;
 }
 
 slice-input .required,

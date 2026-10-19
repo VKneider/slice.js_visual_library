@@ -1,11 +1,22 @@
-/* Encapsulated under the custom element so the button styles never leak. */
+﻿/* Encapsulated under the custom element so the button styles never leak. */
 
 slice-button {
   display: inline-block;
 }
 
 slice-button .slice_button_container {
-  padding: 10px;
+  /* No padding. This box is the click target and it used to add 10px on top of
+     the button's own padding, so a Button occupied 63px where an Input occupied
+     41px — the same control, sized by a ring nothing owned. Two components had
+     already zeroed it locally with a comment (BottomNav.css, whose bar grew
+     55.4px -> 69px because of the halo; CopyMarkdownMenu.css), which is the tell
+     that the fix belongs here rather than in two consumers.
+
+     The box stays — it must remain clickable, so this is not `display:
+     contents`, which would leave ~20 specs unable to click .slice_button_container
+     at all. Widening a tap area is the consumer's job; supply it with
+     padding on their own layout. */
+  padding: 0;
 }
 
 slice-button .slice_button_value {
@@ -27,7 +38,14 @@ slice-button .slice_button {
   color: var(--primary-color-contrast);
   border-radius: var(--border-radius-slice);
   border: var(--slice-border) solid var(--primary-color);
-  font-weight: 800;
+  /* 700, not 800. 800 sits above the heaviest weight most font stacks ship, so
+     font matching takes the nearest face and emboldens it SYNTHETICALLY — the
+     renderer paints every glyph twice with an offset. Measured on the same
+     string at the same size: 700 = 37.22px wide, 800 = 38.41px, which is 1.19px
+     of weight that does not exist, visible as a misregistered edge on the label.
+     A registry component cannot ask for a weight its consumer's stack may not
+     have, and 700 is already the house weight for Badge, Table and Toast. */
+  font-weight: 700;
   min-width: 100%;
   /* The scale, with today's values as the fallback. --control-* is set by [data-size] in scale.css; without that stylesheet nothing changes, so the component never depends on the scale existing. */
   box-sizing: border-box;
