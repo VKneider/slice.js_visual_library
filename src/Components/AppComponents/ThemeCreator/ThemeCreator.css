@@ -1,0 +1,325 @@
+/* ThemeCreator — every rule is scoped under the host tag (§8). The original
+   shipped `.btn`, `.modal`, `.close`, `.color-input`, `.notification` and
+   friends unscoped, which meant visiting /theme-creator restyled every button
+   and opened a competing `.modal` rule for the whole app. */
+
+slice-theme-creator {
+  /* §8.1: without an explicit display the host falls back to `inline`, which
+     drops vertical margin and sits the page on the text baseline. */
+  display: block;
+  min-height: 100vh;
+
+  /* This route is top-level, so it never renders inside the AppShell's
+     `.app-content` — which is what reserves the 72px for the fixed navbar
+     everywhere else. Nothing else does it here, so the host has to, or the
+     fixed navbar sits directly on top of the header. Exposed as a variable so
+     the offset and the navbar height stay one fact instead of two. */
+  --theme-creator-navbar-height: 72px;
+  padding: calc(var(--theme-creator-navbar-height) + 16px) 20px 48px;
+
+  background: var(--primary-background-color);
+  color: var(--font-primary-color);
+  font-family: var(--font-family, inherit);
+  box-sizing: border-box;
+}
+
+slice-theme-creator *,
+slice-theme-creator *::before,
+slice-theme-creator *::after {
+  box-sizing: border-box;
+}
+
+/* ── Navbar ───────────────────────────────────────────────────────────────── */
+/* This route is top-level (no AppShell), so the page supplies its own fixed
+   navbar and has to reserve the same 72px the shell does. */
+
+slice-theme-creator .theme-creator__navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--primary-background-color);
+  border-bottom: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  box-shadow: var(--slice-shadow-sm);
+}
+
+slice-theme-creator .theme-creator__navbar slice-nav-bar {
+  display: block;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+
+slice-theme-creator .theme-creator__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  max-width: 1180px;
+  margin: 0 auto 20px;
+  padding: 20px 22px;
+  border: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  border-radius: 14px;
+  background: var(--primary-background-color);
+  box-shadow: var(--slice-shadow-sm);
+}
+
+slice-theme-creator .theme-creator__badge {
+  flex: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+slice-theme-creator .theme-creator__headings {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+slice-theme-creator .theme-creator__title {
+  margin: 0 0 6px;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+slice-theme-creator .theme-creator__subtitle {
+  margin: 0;
+  max-width: 68ch;
+  color: var(--font-secondary-color);
+  font-size: 0.92rem;
+}
+
+/* ── Action bar ───────────────────────────────────────────────────────────── */
+
+slice-theme-creator .theme-creator__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 1180px;
+  margin: 0 auto 20px;
+}
+
+/* ── Palette mode bar ────────────────────────────────────────────────────── */
+
+slice-theme-creator .theme-creator__palette-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  max-width: 1180px;
+  margin: -8px auto 20px;
+}
+
+slice-theme-creator .theme-creator__palette-mode slice-select {
+  width: 220px;
+}
+
+slice-theme-creator .theme-creator__palette-hint {
+  margin: 0;
+  color: var(--font-secondary-color);
+  font-size: 0.8rem;
+}
+
+/* ── Two-column body ──────────────────────────────────────────────────────── */
+
+slice-theme-creator .theme-creator__body {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+  gap: 20px;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+slice-theme-creator .theme-creator__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  border-radius: 14px;
+  background: var(--secondary-background-color);
+  box-shadow: var(--slice-shadow-sm);
+}
+
+/* §8.2: `.theme-creator__panel` sets `display`, which beats the user-agent
+   `[hidden] { display: none }` at ANY specificity. Without this companion the
+   `preview: false` prop would silently do nothing. */
+slice-theme-creator .theme-creator__panel[hidden] {
+  display: none;
+}
+
+slice-theme-creator .theme-creator__panel-title {
+  margin: 0;
+  color: var(--primary-color);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+/* ── Theme name field ─────────────────────────────────────────────────────── */
+
+slice-theme-creator .theme-creator__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+slice-theme-creator .theme-creator__field-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}
+
+slice-theme-creator .theme-creator__field-control slice-input {
+  display: block;
+  width: 100%;
+}
+
+slice-theme-creator .theme-creator__field-hint {
+  margin: 0;
+  color: var(--font-secondary-color);
+  font-size: 0.78rem;
+}
+
+/* ── Token groups ─────────────────────────────────────────────────────────── */
+
+slice-theme-creator .theme-creator__group {
+  padding-top: 14px;
+  border-top: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+}
+
+slice-theme-creator .theme-creator__group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  color: var(--font-primary-color);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+slice-theme-creator .theme-creator__group-title slice-icon {
+  color: var(--primary-color);
+}
+
+/* ── Preview ──────────────────────────────────────────────────────────────── */
+
+/* The preview root is where every token is written. Everything inside inherits
+   them, and nothing outside it does. */
+slice-theme-creator .theme-creator__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  border-radius: 12px;
+  background: var(--primary-background-color);
+  color: var(--font-primary-color);
+}
+
+slice-theme-creator .theme-creator__preview-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+slice-theme-creator .theme-creator__preview-title {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--font-secondary-color);
+}
+
+/* ── Export dialog content ────────────────────────────────────────────────── */
+/* Rendered into a Modal on <body>, so these selectors are scoped by class only
+   (the host tag is not an ancestor) — hence the globally-unique prefix. */
+
+.theme-creator__export-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.theme-creator__export-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.theme-creator__export-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.theme-creator__export-desc {
+  margin: 0;
+  color: var(--font-secondary-color);
+  font-size: 0.85rem;
+}
+
+.theme-creator__export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.theme-creator__export-code {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  border-radius: 8px;
+  background: var(--tertiary-background-color);
+  color: var(--font-primary-color);
+  font-family: var(--font-family-code, monospace);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.theme-creator__export-code:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 1080px) {
+  slice-theme-creator .theme-creator__body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  slice-theme-creator {
+    /* Keep the navbar offset — the navbar is still fixed here, it just gets
+       narrower. Dropping it is what put the header behind the navbar. */
+    padding: calc(var(--theme-creator-navbar-height) + 12px) 12px 40px;
+  }
+
+  slice-theme-creator .theme-creator__header {
+    padding: 16px;
+  }
+
+  slice-theme-creator .theme-creator__title {
+    font-size: 1.5rem;
+  }
+
+  slice-theme-creator .theme-creator__actions > slice-button {
+    flex: 1 1 100%;
+  }
+}

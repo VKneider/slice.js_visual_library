@@ -1,0 +1,62 @@
+<div class="theme-creator">
+   <!-- Standalone top-level route: there is no AppShell here, so the page owns
+        its navigation (same shape the docs app used to build). -->
+   <div class="theme-creator__navbar" data-el="navbar"></div>
+
+   <header class="theme-creator__header">
+      <span class="theme-creator__badge" data-el="badge"></span>
+      <div class="theme-creator__headings">
+         <h1 class="theme-creator__title">Theme Creator</h1>
+         <p class="theme-creator__subtitle">
+            Tune every Slice.js theme token and watch the components react. Nothing here touches the
+            global theme &mdash; the preview is scoped, and what you export is yours to ship.
+         </p>
+      </div>
+   </header>
+
+   <div class="theme-creator__actions" data-el="actions"></div>
+
+   <div class="theme-creator__palette-bar">
+      <div class="theme-creator__palette-mode" data-el="palette-mode"></div>
+      <p class="theme-creator__palette-hint" data-el="palette-hint"></p>
+   </div>
+
+   <div class="theme-creator__body">
+      <section class="theme-creator__panel" aria-labelledby="theme-creator-tokens-title">
+         <h2 class="theme-creator__panel-title" id="theme-creator-tokens-title">Theme tokens</h2>
+
+         <div class="theme-creator__field">
+            <label class="theme-creator__field-label" for="theme-creator-name">Theme name</label>
+            <div class="theme-creator__field-control" data-el="name-input"></div>
+            <p class="theme-creator__field-hint">Used as the exported file name and the class name in the config.</p>
+         </div>
+
+         <!-- The 15 required tokens are rendered from the TOKEN_GROUPS table in
+              ThemeCreator.js, so the controls, the preview and the exported CSS
+              can never drift apart. -->
+         <div data-el="groups"></div>
+      </section>
+
+      <section class="theme-creator__panel" aria-labelledby="theme-creator-preview-title" data-el="preview-panel" hidden>
+         <h2 class="theme-creator__panel-title" id="theme-creator-preview-title">Live preview</h2>
+         <div class="theme-creator__preview" data-el="preview">
+            <div class="theme-creator__preview-group">
+               <h3 class="theme-creator__preview-title">Buttons</h3>
+               <div data-el="preview-buttons"></div>
+            </div>
+            <div class="theme-creator__preview-group">
+               <h3 class="theme-creator__preview-title">Text fields</h3>
+               <div data-el="preview-inputs"></div>
+            </div>
+            <div class="theme-creator__preview-group">
+               <h3 class="theme-creator__preview-title">Toggles</h3>
+               <div data-el="preview-switches"></div>
+            </div>
+            <div class="theme-creator__preview-group">
+               <h3 class="theme-creator__preview-title">Status surfaces</h3>
+               <div data-el="preview-status"></div>
+            </div>
+         </div>
+      </section>
+   </div>
+</div>

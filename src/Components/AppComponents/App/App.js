@@ -1,4 +1,5 @@
 import docsIndex from '../ComponentsPage/docsIndex.js';
+import ThemeOverride from '../ThemeCreator/ThemeOverride.js';
 
 export default class App extends HTMLElement {
    constructor() {
@@ -35,6 +36,13 @@ export default class App extends HTMLElement {
 
       document.title = this._resolveDocumentTitle(window.location.pathname || '/');
 
+      // Re-apply a custom theme saved by a previous visit to the Theme Creator.
+      // It has to happen HERE rather than only inside ThemeCreator: this is the
+      // shell for `/` and every `/docs*` route, so without it a saved theme
+      // would silently vanish on reload everywhere except the editor itself.
+      // Runs before the Navbar is built, so the navbar is themed too.
+      ThemeOverride.shared().restore();
+
       // Crear el Navbar persistente (fuera del router)
       const navbar = await slice.build('Navbar', {
          position: 'fixed',
@@ -44,7 +52,11 @@ export default class App extends HTMLElement {
          },
           items: [
              { text: 'Home', path: '/' },
-             { text: 'Components', path: '/docs' }
+             { text: 'Components', path: '/docs' },
+             // Top-level route (parser/lib/routesSync.js): it renders outside
+             // this shell, so without an entry here nothing on the site links
+             // to it and it is effectively unreachable.
+             { text: 'Theme Creator', path: '/theme-creator' }
          ],
           buttons: [],
       });
