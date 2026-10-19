@@ -22,8 +22,11 @@ dividers instead of solid `--primary-color-shade`, row hover, a border-drawn sor
 fixed-width slot (no more glyph-width jitter or permanent `⇅`), class-based alignment instead of inline
 `text-align`, numeric columns auto-right-aligned with `tabular-nums` (header included), a primary-tinted
 mobile card instead of the light-blue `--secondary-background-color`, and a `currentColor` focus ring
-that is visible on the tinted header. `table-basic` was regenerated deliberately and `table-sorted` was
-added as a second baseline. `align` in `_resolvedColumns` is no longer filled in with `'left'` — a
+that is visible on the tinted header. `table-basic` was regenerated deliberately (the six tracked
+baselines are not in CI, so deleting and re-running is the update path). A second baseline for the sort
+affordance was written and then dropped: `.gitignore:17` ignores `*-visual-win32.png`, so a NEW baseline
+cannot be committed — see the Tests entry in `BACKLOG.md`. The chevron and the unsorted-hint states are
+covered behaviourally in `Table.spec.js` instead. `align` in `_resolvedColumns` is no longer filled in with `'left'` — a
 filled default made every column "explicitly aligned" and silently disabled the numeric rule.
 
 Verified for both parts: `Table.spec.js` 54 tests green, the full `components` e2e suite 934/934 green,
@@ -196,7 +199,7 @@ markdown edit, and `pnpm run test:gate` green.
   toggled (§8.2).
 - **Teardown in `beforeDestroy()`**, and destroy anything the component builds or wipes.
 - **Docs are generated**: `src/markdown/table.md` is the source, the `TableDocumentation` page is output.
-- **The snapshot changes on purpose.** `table-basic.png` is one of 6 committed baselines; deleting and
+- **The snapshot changes on purpose.** `table-basic.png` is one of 8 committed baselines; deleting and
   re-running is the intended update path.
 
 ---

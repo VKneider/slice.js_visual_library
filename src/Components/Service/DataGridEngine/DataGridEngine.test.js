@@ -104,6 +104,45 @@ test.describe('DataGridEngine instance state', () => {
     e.setSort({ key: 'id', direction: 'desc' });
     assert.equal(e.pageRows()[0].id, 25, 'descending: page 1 starts at the highest id');
   });
+
+  test('toggleSort keeps the per-column accessor through the whole cycle', () => {
+    const nested = [{ u: { n: 'b' } }, { u: { n: 'a' } }];
+    const accessor = (row) => row.u.n;
+    const e = new DataGridEngine({ data: nested });
+
+    e.toggleSort('n', { accessor });
+    assert.equal(e.sort.accessor, accessor, 'accessor survives the toggle');
+    assert.equal(e.pageRows()[0].u.n, 'a', 'and is the one actually used to sort');
+
+    e.toggleSort('n', { accessor }); // desc
+    assert.equal(e.pageRows()[0].u.n, 'b');
+    assert.equal(e.sort.accessor, accessor);
+
+    e.toggleSort('n', { accessor }); // unsorted
+    assert.equal(e.sort, null);
+  });
+
+  test('setSort keeps a custom comparator', () => {
+    const data = [{ s: 'bbb' }, { s: 'a' }, { s: 'cc' }];
+    const e = new DataGridEngine({ data });
+    e.setSort({ key: 's', direction: 'asc', comparator: (a, b) => a.length - b.length });
+    assert.deepEqual(e.pageRows().map((r) => r.s), ['a', 'cc', 'bbb']);
+    assert.equal(typeof e.sort.comparator, 'function');
+  });
+
+  test('a sort key of 0 — the index a legacy column uses — is a real key', () => {
+    const e = new DataGridEngine({ data: [['b'], ['a']], pageSize: 10 });
+    e.setSort({ key: 0, direction: 'asc' });
+    assert.equal(e.sort.key, 0);
+    assert.equal(e.pageRows()[0][0], 'a');
+  });
+
+  test('toggleSort compares keys loosely, so 0 and "0" are the same column', () => {
+    const e = new DataGridEngine({ data: [['b'], ['a']] });
+    e.setSort({ key: 0, direction: 'asc' });
+    e.toggleSort('0');
+    assert.deepEqual(e.sort, { key: '0', direction: 'desc' });
+  });
 });
 
 test.describe('DataGridEngine manual mode', () => {

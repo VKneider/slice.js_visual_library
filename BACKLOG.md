@@ -114,15 +114,22 @@ declares its enums, so it belongs somewhere discoverable.)*
 
 ## Tests
 
-- [ ] **Visual coverage: 9 baselines across 69 spec files.** *(verified
+- [ ] **Visual coverage: 8 baselines across 69 spec files.** *(verified
   2026-10-18)* An earlier count of "2 of ~40", and then of 6, was stale: the
   committed baselines are `badge-accent`, `checkbox-default`, `checkbox-variants`,
-  `chip-removable`, `emptystate-default`, `fileupload-default`, `props-table`,
-  `table-basic` and `table-sorted` (the last added with the Table visual pass — see
-  `TABLE_IMPROVEMENTS.md`). Deliberately not
-  tracked in CI — Playwright writes one baseline per platform
+  `chip-removable`, `emptystate-default`, `fileupload-default`, `props-table` and
+  `table-basic` (regenerated with the Table visual pass — see `TABLE_IMPROVEMENTS.md`).
+  Deliberately not tracked in CI — Playwright writes one baseline per platform
   (`name-win32.png`), so committing them breaks other platforms. Worth doing
   behind a Linux-only project so the opt-in job owns them.
+
+  Note for whoever picks this up: `.gitignore:17` already ignores
+  `*-visual-win32.png`, so a **new** baseline cannot be committed at all — the
+  existing eight are tracked only because they predate that rule. Adding visual
+  coverage for a new state therefore means either forcing the file in (`git add -f`)
+  or moving the whole thing into the Linux-only project described above. The Table
+  work wanted a second baseline for the sort affordance and dropped it for this
+  reason; those states are covered behaviourally in `Table.spec.js` instead.
 
 - [ ] **Asserts that are load-sensitive, not component-sensitive.**
   *(verified 2026-10-15)* `ThreeAimTrainer.spec.js` (a WebGL demo: timed out at 30s once under

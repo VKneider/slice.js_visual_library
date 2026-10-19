@@ -45,7 +45,7 @@ export default class DataGridEngine {
   }
 
   setSort(sort) {
-    this._sort = sort && sort.key ? { key: sort.key, direction: sort.direction === 'desc' ? 'desc' : 'asc' } : null;
+    this._sort = this._normalizeSort(sort);
     this._page = 1;
     return this;
   }
@@ -58,11 +58,20 @@ export default class DataGridEngine {
   }
 
   // Cycles a column through asc → desc → unsorted.
-  toggleSort(key) {
-    if (!this._sort || this._sort.key !== key) {
-      this._sort = { key, direction: 'asc' };
+  //
+  // `options` may carry the column's own `accessor` / `comparator` (a nested key
+  // path, a custom compare). They are part of the sort STATE, so they have to
+  // survive every toggle: rebuilding `{ key, direction }` and dropping them is why
+  // per-column sorting used to silently fall back to `row[key]`.
+  //
+  // The key is compared loosely (as a string) because DOM-derived keys arrive as
+  // strings while a consumer's `defaultSort` may pass the numeric index a legacy
+  // column uses.
+  toggleSort(key, options = {}) {
+    if (!this._sort || String(this._sort.key) !== String(key)) {
+      this._sort = this._normalizeSort({ key, direction: 'asc' }, options);
     } else if (this._sort.direction === 'asc') {
-      this._sort = { key, direction: 'desc' };
+      this._sort = this._normalizeSort({ key, direction: 'desc' }, options);
     } else {
       this._sort = null;
     }
@@ -95,6 +104,19 @@ export default class DataGridEngine {
   }
 
   // --- internals ---
+  // A sort is `{ key, direction }` plus, optionally, the per-column accessor and
+  // comparator. `key === 0` is a legitimate column (the index a legacy
+  // `headers`-only table uses), so the guard is `undefined`, not falsiness.
+  _normalizeSort(sort, options = {}) {
+    if (!sort || sort.key === undefined || sort.key === null) return null;
+    const next = { key: sort.key, direction: sort.direction === 'desc' ? 'desc' : 'asc' };
+    const accessor = sort.accessor !== undefined ? sort.accessor : options.accessor;
+    const comparator = sort.comparator !== undefined ? sort.comparator : options.comparator;
+    if (typeof accessor === 'function') next.accessor = accessor;
+    if (typeof comparator === 'function') next.comparator = comparator;
+    return next;
+  }
+
   _clamp(page) {
     const p = Number.isFinite(page) ? Math.trunc(page) : 1;
     return Math.min(Math.max(1, p), this.totalPages);

@@ -103,9 +103,11 @@ export default class Table extends HTMLElement {
   }
 
   set defaultSort(value) {
-    this._defaultSort = value && value.key ? value : null;
+    // `key: 0` is the index of the first column in a legacy `headers` table, so the
+    // guard cannot be truthiness.
+    this._defaultSort = value && value.key !== undefined && value.key !== null ? value : null;
     if (this._engine && this._defaultSort) {
-      this._engine.setSort(this._defaultSort);
+      this._engine.setSort({ ...this._defaultSort, ...this._sortOptionsFor(this._defaultSort.key) });
       this._afterStateChange();
     }
   }
@@ -228,6 +230,14 @@ export default class Table extends HTMLElement {
         // the automatic right-alignment of numeric cells. Cells default to left
         // through plain CSS.
         align: col.align || null,
+        // Sorting by something other than `row[key]`: a function or a nested path
+        // ('user.name'), plus an optional custom comparison.
+        sortValue: col.sortValue !== undefined ? col.sortValue : null,
+        compare: typeof col.compare === 'function' ? col.compare : null,
+        // Column sizing (#9). `width` is a CSS length; `minWidth` floors the column
+        // when the layout is `auto` and the content would squeeze it further.
+        width: col.width !== undefined && col.width !== null ? col.width : null,
+        minWidth: col.minWidth !== undefined && col.minWidth !== null ? col.minWidth : null,
         render: typeof col.render === 'function' ? col.render : null
       }));
     }
@@ -237,6 +247,10 @@ export default class Table extends HTMLElement {
       label: header,
       sortable: this._sortable,
       align: null,
+      sortValue: null,
+      compare: null,
+      width: null,
+      minWidth: null,
       render: null
     }));
   }
@@ -250,6 +264,38 @@ export default class Table extends HTMLElement {
     if (Array.isArray(row)) return row[column.key];
     if (row && typeof row === 'object') return row[column.key];
     return row;
+  }
+
+  // A column can sort by something other than `row[key]`: `sortValue` is a function
+  // or a nested key path ('user.name'), and `compare(a, b)` replaces the default
+  // comparison. Both are handed to the engine as part of the sort state, which is
+  // what threads them through the asc → desc → unsorted cycle.
+  _sortAccessor(column) {
+    if (!column) return null;
+    if (typeof column.sortValue === 'function') return column.sortValue;
+    if (typeof column.sortValue === 'string') {
+      const path = column.sortValue.split('.');
+      return (row) => path.reduce((value, part) => (value == null ? undefined : value[part]), row);
+    }
+    return null;
+  }
+
+  _sortOptions(column) {
+    return {
+      accessor: this._sortAccessor(column),
+      comparator: column && typeof column.compare === 'function' ? column.compare : null
+    };
+  }
+
+  _sortOptionsFor(key) {
+    return this._sortOptions(this._resolvedColumns.find((entry) => String(entry.key) === String(key)));
+  }
+
+  // The engine's sort state carries the column's functions; the PUBLIC payload must
+  // not, or every click would hand the consumer a pile of closures. Keep the shape
+  // consumers already rely on: `{ key, direction }` or null.
+  _publicSort(sort) {
+    return sort ? { key: sort.key, direction: sort.direction } : null;
   }
 
   _handleHeaderClick(event) {
@@ -267,8 +313,9 @@ export default class Table extends HTMLElement {
 
   _sortByCell(cell) {
     if (!this._engine) return;
-    this._engine.toggleSort(cell.dataset.sortKey);
-    if (this._onSortChange) this._onSortChange(this._engine.sort);
+    const column = this._resolvedColumns[Number(cell.dataset.sortIndex)];
+    this._engine.toggleSort(cell.dataset.sortKey, this._sortOptions(column));
+    if (this._onSortChange) this._onSortChange(this._publicSort(this._engine.sort));
     this._afterStateChange();
   }
 
@@ -349,6 +396,7 @@ export default class Table extends HTMLElement {
         if (column.sortable) {
           th.classList.add('table_head_cell--sortable');
           th.dataset.sortKey = String(column.key);
+          th.dataset.sortIndex = String(columnIndex);
           th.setAttribute('tabindex', '0'); // focusable; keyboard handled via keydown delegation
           const active = sort && String(sort.key) === String(column.key);
           const direction = active ? (sort.direction === 'asc' ? 'asc' : 'desc') : null;

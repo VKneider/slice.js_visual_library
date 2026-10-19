@@ -229,8 +229,3 @@ export default class ThemeOverride {
    }
 }
 
-if (typeof window !== 'undefined') {
-   // Same escape hatch ToastProvider uses, so a spec (and a console) can reach
-   // the class without importing the module into the page.
-   window.ThemeOverride = ThemeOverride;
-}
