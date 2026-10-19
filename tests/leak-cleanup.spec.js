@@ -6,14 +6,30 @@ import { test, expect } from '@playwright/test';
 // signal. Without destroyByContainer, the old buttons would survive in activeComponents.
 
 test.describe('leak cleanup: rebuilding children destroys the old instances', () => {
-   // Card.setupActions is fire-and-forget async; under heavy parallel load the build
-   // can be slow to settle. The leak assertions are deterministic, so allow retries.
-   test.describe.configure({ retries: 2 });
+   // No retries, deliberately.
+   //
+   // This file used to carry `retries: 2` with the note "the leak assertions
+   // are deterministic" — which is exactly right, and is why the flake survived
+   // so long as "known flaky under parallel load". It was never the assertions:
+   // the readiness gate below waited on `slice.controller`, which exists from
+   // the Slice CONSTRUCTOR, while `slice.logger` is only assigned later in the
+   // async init (after it awaits the Logger module over the network). The test
+   // could therefore build a Card while `slice.logger` was still undefined, and
+   // the first thing that logged threw "Cannot read properties of undefined
+   // (reading 'logError')" — a failure that looks nothing like a leak.
+   //
+   // Under parallel load that fetch simply takes longer, which is why it only
+   // showed up sometimes. The fix is the gate, not a retry: if this file goes
+   // flaky again, something in startup regressed and should be loud.
 
    test.beforeEach(async ({ page }) => {
       await page.goto('/');
+      // `slice.router` is the LAST thing init() assigns — the same readiness
+      // signal the shared harness uses — so it also implies `slice.logger` and
+      // the theme/styles managers are in place.
+      await page.waitForFunction(() => !!window.slice?.router, null, { timeout: 30_000 });
       await page.waitForFunction(
-         () => !!(window.slice && window.slice.controller && typeof window.slice.controller.findOrphans === 'function'),
+         () => !!window.slice?.logger && typeof window.slice.logger.logError === 'function',
          null,
          { timeout: 30_000 }
       );
