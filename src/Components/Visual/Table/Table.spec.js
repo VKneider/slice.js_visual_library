@@ -251,6 +251,257 @@ test.describe('Table — keyboard a11y & loading', () => {
    });
 });
 
+// A re-render replaces `$head`/`$body` wholesale, so the table has to own what
+// those containers held. A `render(row)` callback (or a fresh node in `rows`)
+// builds a component per render; without `_releaseChildren` every sort, page
+// change or `rows` update orphaned the previous one in `activeComponents`.
+// A node the NEXT render re-appends is kept, because re-passing the same node is
+// a legitimate pattern (the `viewBtn` example in markdown/table.md).
+test.describe('Table — cell component ownership', () => {
+   const MOUNT_PROPS = { headers: ['Name', 'Action'], rows: [['a', '']] };
+
+   test('a component evicted by the next render is destroyed (no leak)', async ({ mount, page }) => {
+      await mount('Table', MOUNT_PROPS);
+
+      const result = await page.evaluate(async () => {
+         const controller = window.slice.controller;
+         const table = window.__sliceMounted;
+
+         const first = await window.slice.build('Button', { value: 'Open' });
+         table.rows = [['a', first]];
+         const firstId = first.sliceId;
+
+         const second = await window.slice.build('Button', { value: 'Rename' });
+         table.rows = [['b', second]];
+
+         return {
+            firstAlive: controller.activeComponents.has(firstId),
+            secondAlive: controller.activeComponents.has(second.sliceId),
+            rendered: table.querySelectorAll('.table_body slice-button').length,
+         };
+      });
+
+      expect(result.firstAlive).toBe(false);
+      expect(result.secondAlive).toBe(true);
+      expect(result.rendered).toBe(1);
+   });
+
+   test('a node re-appended by the next render survives (consumer keeps it)', async ({ mount, page }) => {
+      await mount('Table', MOUNT_PROPS);
+
+      const result = await page.evaluate(async () => {
+         const controller = window.slice.controller;
+         const table = window.__sliceMounted;
+
+         const button = await window.slice.build('Button', { value: 'Keep' });
+         table.rows = [['a', button]];
+         const id = button.sliceId;
+
+         table.rows = [['a', button]]; // the very same node again
+
+         return {
+            alive: controller.activeComponents.has(id),
+            rendered: table.querySelectorAll('.table_body slice-button').length,
+         };
+      });
+
+      expect(result.alive).toBe(true);
+      expect(result.rendered).toBe(1);
+   });
+
+   test('destroying the table also destroys the components held in its cells', async ({ mount, page }) => {
+      await mount('Table', MOUNT_PROPS);
+
+      const result = await page.evaluate(async () => {
+         const controller = window.slice.controller;
+         const table = window.__sliceMounted;
+
+         // Appended after init(), so it is NOT in the table's childrenIndex and
+         // the destroy cascade cannot reach it.
+         const button = await window.slice.build('Button', { value: 'Gone' });
+         table.rows = [['a', button]];
+         const id = button.sliceId;
+
+         controller.destroyComponent(table);
+         return { alive: controller.activeComponents.has(id) };
+      });
+
+      expect(result.alive).toBe(false);
+   });
+});
+
+test.describe('Table — headerVariant', () => {
+   const ONE = { headers: ['A'], rows: [['1']] };
+
+   /** The theme's --primary-color resolved to a concrete rgb() by the engine. */
+   const resolvedPrimary = (locator) =>
+      locator.evaluate((el) => {
+         const probe = document.createElement('span');
+         probe.style.color = getComputedStyle(el).getPropertyValue('--primary-color').trim();
+         el.appendChild(probe);
+         const color = getComputedStyle(probe).color;
+         probe.remove();
+         return color;
+      });
+
+   test('defaults to the tinted header (a tint, not the primary fill)', async ({ mount }) => {
+      const c = await mount('Table', ONE);
+      await expect(c.component).toHaveClass(/table--header-tinted/);
+
+      const th = c.locator('.table_head th').first();
+      expect(await th.evaluate((el) => getComputedStyle(el).backgroundColor)).not.toBe(
+         await resolvedPrimary(th)
+      );
+      expect(await th.evaluate((el) => getComputedStyle(el).textTransform)).toBe('uppercase');
+   });
+
+   test('solid reproduces the legacy look exactly (the escape hatch)', async ({ mount }) => {
+      const c = await mount('Table', { ...ONE, headerVariant: 'solid' });
+      await expect(c.component).toHaveClass(/table--header-solid/);
+      await expect(c.component).not.toHaveClass(/table--header-tinted/);
+
+      const th = c.locator('.table_head th').first();
+      expect(await th.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe(await resolvedPrimary(th));
+      // Sentence case and the inherited size were part of the look.
+      expect(await th.evaluate((el) => getComputedStyle(el).textTransform)).toBe('none');
+   });
+
+   test('none drops the fill but keeps the label treatment', async ({ mount }) => {
+      const c = await mount('Table', { ...ONE, headerVariant: 'none' });
+      await expect(c.component).toHaveClass(/table--header-none/);
+      const th = c.locator('.table_head th').first();
+      expect(await th.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+      expect(await th.evaluate((el) => getComputedStyle(el).textTransform)).toBe('uppercase');
+   });
+
+   test('an unknown variant falls back to the declared default', async ({ mount }) => {
+      const c = await mount('Table', { ...ONE, headerVariant: 'neon' });
+      await expect(c.component).toHaveClass(/table--header-tinted/);
+      await expect(c.component).not.toHaveClass(/table--header-neon/);
+   });
+
+   test('variant is reactive and the class swap is idempotent', async ({ mount, page }) => {
+      await mount('Table', ONE);
+      await page.evaluate(() => { window.__sliceMounted.headerVariant = 'solid'; });
+      await expect(page.locator('slice-table')).toHaveClass(/table--header-solid/);
+      await page.evaluate(() => { window.__sliceMounted.headerVariant = 'solid'; });
+      expect(await page.locator('slice-table').getAttribute('class')).toBe('table--header-solid');
+   });
+});
+
+test.describe('Table — cell alignment', () => {
+   test('column align becomes a class, never an inline style', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name', align: 'right' }],
+         rows: [{ name: 'x' }],
+      });
+      const td = c.locator('.table_body td').first();
+      await expect(td).toHaveClass(/table_cell--right/);
+      expect(await td.getAttribute('style')).toBeNull();
+      await expect(c.locator('.table_head th').first()).toHaveClass(/table_cell--right/);
+   });
+
+   test('an unrecognised align value is ignored', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name', align: 'justify' }],
+         rows: [{ name: 'x' }],
+      });
+      await expect(c.locator('.table_body td').first()).not.toHaveClass(/table_cell--/);
+   });
+
+   test('numeric cells right-align with tabular figures', async ({ mount }) => {
+      const c = await mount('Table', { columns: [{ key: 'n', label: 'N' }], rows: [{ n: 42 }] });
+      const td = c.locator('.table_body td').first();
+      await expect(td).toHaveClass(/table_cell--num/);
+      const css = await td.evaluate((el) => {
+         const s = getComputedStyle(el);
+         return { align: s.textAlign, numeric: s.fontVariantNumeric };
+      });
+      expect(css.align).toBe('right');
+      expect(css.numeric).toContain('tabular-nums');
+   });
+
+   test('only real numbers auto-align, not strings that look like them', async ({ mount }) => {
+      const c = await mount('Table', { columns: [{ key: 'n', label: 'N' }], rows: [{ n: '42' }] });
+      await expect(c.locator('.table_body td').first()).not.toHaveClass(/table_cell--num/);
+   });
+
+   test('a numeric column right-aligns its header too', async ({ mount }) => {
+      const c = await mount('Table', { columns: [{ key: 'n', label: 'N' }], rows: [{ n: 1 }, { n: 2 }] });
+      await expect(c.locator('.table_head th').first()).toHaveClass(/table_cell--num/);
+   });
+
+   test('a mixed column is left alone rather than aligned cell by cell', async ({ mount }) => {
+      const c = await mount('Table', { columns: [{ key: 'n', label: 'N' }], rows: [{ n: 1 }, { n: 'n/a' }] });
+      await expect(c.locator('.table_body td').nth(0)).not.toHaveClass(/table_cell--num/);
+      await expect(c.locator('.table_body td').nth(1)).not.toHaveClass(/table_cell--num/);
+   });
+
+   test('a column that declares its own align is not overridden by the numeric rule', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'n', label: 'N', align: 'center' }],
+         rows: [{ n: 42 }],
+      });
+      const td = c.locator('.table_body td').first();
+      await expect(td).toHaveClass(/table_cell--center/);
+      await expect(td).not.toHaveClass(/table_cell--num/);
+   });
+
+   test('mobile cards drop the column alignment', async ({ mount, page }) => {
+      await page.setViewportSize({ width: 480, height: 800 });
+      await mount('Table', {
+         columns: [{ key: 'n', label: 'N', align: 'right' }],
+         rows: [{ n: 1 }],
+      });
+      await expect(page.locator('.table_body td').first()).toHaveClass(/table_cell--right/);
+      expect(
+         await page.locator('.table_body td').first().evaluate((el) => getComputedStyle(el).textAlign)
+      ).toBe('left');
+   });
+});
+
+test.describe('Table — sort affordance', () => {
+   test('the indicator is an empty slot whose width never changes', async ({ mount }) => {
+      const c = await mount('Table', { columns: COLS, rows: PEOPLE });
+      const header = c.locator('.table_head th[data-sort-key="name"]');
+      const indicator = header.locator('.table_sort_indicator');
+
+      // No glyph text: the chevron is drawn in CSS.
+      await expect(indicator).toHaveText('');
+
+      const widths = [await indicator.evaluate((el) => el.getBoundingClientRect().width)];
+      await header.click(); // asc
+      widths.push(await indicator.evaluate((el) => el.getBoundingClientRect().width));
+      await header.click(); // desc
+      widths.push(await indicator.evaluate((el) => el.getBoundingClientRect().width));
+      expect(new Set(widths).size).toBe(1);
+
+      // The label itself must not move either.
+      const labelLefts = [await header.evaluate((el) => el.getBoundingClientRect().left)];
+      await header.click(); // back to unsorted
+      labelLefts.push(await header.evaluate((el) => el.getBoundingClientRect().left));
+      expect(new Set(labelLefts).size).toBe(1);
+   });
+
+   test('only the active column shows a chevron; the others stay quiet', async ({ mount }) => {
+      const c = await mount('Table', { columns: COLS, rows: PEOPLE });
+      const nameHeader = c.locator('.table_head th[data-sort-key="name"]');
+      const nameIndicator = nameHeader.locator('.table_sort_indicator');
+      const ageIndicator = c.locator('.table_head th[data-sort-key="age"] .table_sort_indicator');
+
+      expect(await ageIndicator.evaluate((el) => getComputedStyle(el).opacity)).toBe('0');
+
+      await nameHeader.click(); // asc
+      await expect(nameIndicator).toHaveClass(/table_sort_indicator--asc/);
+      expect(await nameIndicator.evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
+      await expect(ageIndicator).not.toHaveClass(/table_sort_indicator--asc/);
+
+      await nameHeader.click(); // desc
+      await expect(nameIndicator).toHaveClass(/table_sort_indicator--desc/);
+      await expect(nameIndicator).not.toHaveClass(/table_sort_indicator--asc/);
+   });
+});
+
 test.describe('Table — reactive pagination', () => {
    test('pagination can be turned on, resized, and turned off without a rebuild', async ({ mount, page }) => {
       const c = await mount('Table', { columns: COLS, rows: many(25) });

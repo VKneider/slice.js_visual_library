@@ -1,8 +1,49 @@
-/* Table component styles */
+/* Table component styles. Encapsulated under the custom element so nothing leaks. */
 
+/* ----------------------------------------------------------------- theme knobs
+   Declared on the HOST, never on an inner element: a custom property declared on
+   an element beats the inherited one, so an inner-level default would shadow the
+   consumer's override instead of letting it through (same reasoning as Checkbox).
+
+   Every token used here is one of the 15 REQUIRED ones from
+   COMPONENT_API_STANDARDS §11, so these resolve on any installed theme — unlike
+   the `--*-readable` tones, which live in this repo's themes only and therefore
+   need the inlined load-bearing fallback Badge.css documents. */
 slice-table {
   display: block;
   width: 100%;
+
+  --slice-table-header-bg: color-mix(in srgb, var(--primary-color) 8%, var(--primary-background-color));
+  --slice-table-header-fg: var(--font-secondary-color);
+  --slice-table-header-size: 0.75rem;
+  --slice-table-header-transform: uppercase;
+  --slice-table-header-tracking: 0.06em;
+  --slice-table-row-divider: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  --slice-table-row-hover: color-mix(in srgb, var(--primary-color) 4%, transparent);
+  --slice-table-card-bg: color-mix(in srgb, var(--primary-color) 4%, var(--primary-background-color));
+  --slice-table-cell-padding: 10px 12px;
+}
+
+/* ----------------------------------------------------------------- headerVariant
+   Tinted, not solid — the same call Badge.css already made. A saturated
+   --primary-color fill is the loudest plane on a data-dense page: it competes with
+   the page's own primary actions, leaves nothing for the hover state, and every
+   sortable column had to darken it to 80% black. Quieting the header is what makes
+   the rest of the table readable.
+
+   `solid` reproduces the previous look EXACTLY (fill, contrast text, sentence case,
+   inherited size) so an existing page can opt out without a redesign. `none` keeps
+   the label typography with no fill at all. */
+slice-table.table--header-solid {
+  --slice-table-header-bg: var(--primary-color);
+  --slice-table-header-fg: var(--primary-color-contrast);
+  --slice-table-header-size: inherit;
+  --slice-table-header-transform: none;
+  --slice-table-header-tracking: normal;
+}
+
+slice-table.table--header-none {
+  --slice-table-header-bg: transparent;
 }
 
 slice-table .table_wrapper {
@@ -21,25 +62,65 @@ slice-table .table {
 
 slice-table .table th,
 slice-table .table td {
-  padding: 10px 12px;
+  padding: var(--slice-table-cell-padding);
   text-align: left;
-  border-bottom: 1px solid var(--primary-color-shade);
+  border-bottom: 1px solid var(--slice-table-row-divider);
 }
 
 slice-table .table th {
-  color: var(--primary-color-contrast);
+  background: var(--slice-table-header-bg);
+  color: var(--slice-table-header-fg);
   font-weight: 600;
-  background: var(--primary-color);
+  font-size: var(--slice-table-header-size);
+  text-transform: var(--slice-table-header-transform);
+  letter-spacing: var(--slice-table-header-tracking);
 }
 
 slice-table .table td code {
-  background: var(--secondary-background-color);
+  background: color-mix(in srgb, var(--primary-color) 8%, transparent);
   padding: 2px 6px;
   border-radius: 4px;
 }
 
+/* Alignment is a CLASS, never an inline style: an inline `text-align` can only be
+   overridden with `!important`, which is the specificity fight the design system
+   exists to avoid (COMPONENT_API_STANDARDS, CSS conventions). */
+slice-table .table th.table_cell--left,
+slice-table .table td.table_cell--left {
+  text-align: left;
+}
+
+slice-table .table th.table_cell--center,
+slice-table .table td.table_cell--center {
+  text-align: center;
+}
+
+slice-table .table th.table_cell--right,
+slice-table .table td.table_cell--right {
+  text-align: right;
+}
+
+/* Numbers: right-aligned and tabular so a column of figures lines up on the digit
+   and does not reflow when a value changes width. Applies to the header too, or the
+   label would sit at the opposite end of its own column. */
+slice-table .table th.table_cell--num,
+slice-table .table td.table_cell--num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 slice-table .table_component {
   position: relative;
+}
+
+/* Eye-tracking aid for wide tables: the highest value per line in this stylesheet.
+   The property is named explicitly — `transition: all` is banned. */
+slice-table .table tbody tr {
+  transition: background-color 120ms ease-out;
+}
+
+slice-table .table tbody tr:hover {
+  background: var(--slice-table-row-hover);
 }
 
 slice-table .table th.table_head_cell--sortable {
@@ -48,13 +129,62 @@ slice-table .table th.table_head_cell--sortable {
   white-space: nowrap;
 }
 
+/* Derived from the header's own colours, so it darkens the tinted variant and the
+   `solid` one alike — and keeps following any host-level knob override. */
 slice-table .table th.table_head_cell--sortable:hover {
-  background: color-mix(in srgb, var(--primary-color) 80%, black);
+  background: color-mix(in srgb, var(--slice-table-header-fg) 8%, var(--slice-table-header-bg));
 }
 
+/* currentColor, not --primary-color-contrast: a white outline is invisible on the
+   tinted header. */
 slice-table .table th.table_head_cell--sortable:focus-visible {
-  outline: 2px solid var(--primary-color-contrast);
+  outline: 2px solid currentColor;
   outline-offset: -2px;
+}
+
+/* Sort affordance in a FIXED-WIDTH slot. The old version appended literal glyphs
+   ('▲' '▼' '⇅') whose advance widths differ per font, so toggling a sort nudged the
+   label sideways. Drawn with borders instead so it inherits `currentColor` — and
+   therefore follows --slice-table-header-fg, including in the `solid` variant —
+   with no hardcoded colour. */
+slice-table .table_sort_indicator {
+  position: relative;
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+  margin-left: 0.35em;
+  vertical-align: -0.1em;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+
+slice-table .table_sort_indicator::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.34em;
+  height: 0.34em;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translate(-50%, -65%) rotate(45deg);
+}
+
+slice-table .table_sort_indicator--asc::before {
+  transform: translate(-50%, -35%) rotate(-135deg);
+}
+
+/* The unsorted hint shows on hover/focus only: a '⇅' on every sortable column was
+   permanent noise. Scoped to [aria-sort="none"] so it cannot dim the ACTIVE
+   indicator — this selector would otherwise out-specify the rules below. */
+slice-table .table th.table_head_cell--sortable[aria-sort='none']:hover .table_sort_indicator,
+slice-table .table th.table_head_cell--sortable[aria-sort='none']:focus-visible .table_sort_indicator {
+  opacity: 0.45;
+}
+
+slice-table .table_sort_indicator--asc,
+slice-table .table_sort_indicator--desc {
+  opacity: 1;
 }
 
 /* Self-contained busy overlay — no dependency on the Loading component. */
@@ -65,7 +195,7 @@ slice-table .table_loading {
   align-items: center;
   justify-content: center;
   background: color-mix(in srgb, var(--primary-background-color) 60%, transparent);
-  border-radius: var(--border-radius-slice);
+  border-radius: var(--border-radius-slice, 8px);
   z-index: 1;
 }
 
@@ -88,11 +218,6 @@ slice-table .table_spinner {
 
 @media (prefers-reduced-motion: reduce) {
   slice-table .table_spinner { animation-duration: 1.6s; }
-}
-
-slice-table .table_sort_indicator {
-  font-size: 0.8em;
-  opacity: 0.8;
 }
 
 slice-table .table_empty {
@@ -137,12 +262,15 @@ slice-table .table_footer {
     display: none;
   }
 
+  /* A primary tint, not --secondary-background-color: that token is light blue
+     (#f0f9ff) in a purple theme, which is how DropDown ended up light-blue
+     (LIGHT.css documents the lesson). */
   slice-table .table tr {
-    border: 1px solid var(--primary-color-shade);
-    border-radius: var(--border-radius-slice);
+    border: 1px solid var(--slice-table-row-divider);
+    border-radius: var(--border-radius-slice, 8px);
     padding: 10px 12px;
     margin-bottom: 12px;
-    background: var(--secondary-background-color);
+    background: var(--slice-table-card-bg);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 10px 16px;
@@ -156,6 +284,14 @@ slice-table .table_footer {
     align-items: baseline;
     column-gap: 8px;
     row-gap: 4px;
+  }
+
+  /* The card stacks label above value, so column alignment does not apply. */
+  slice-table .table td.table_cell--left,
+  slice-table .table td.table_cell--center,
+  slice-table .table td.table_cell--right,
+  slice-table .table td.table_cell--num {
+    text-align: left;
   }
 
   slice-table .table td::before {

@@ -17,6 +17,17 @@ export default class Table extends HTMLElement {
     dataSource: { type: 'string', default: 'local' },
     totalItems: { type: 'number', default: null },
     emptyMessage: { type: 'string', default: 'No data' },
+    // 'tinted' (default) is the quiet header the component now ships; 'solid'
+    // reproduces the pre-tint look exactly (a saturated --primary-color fill) so an
+    // existing page can opt out; 'none' removes the fill entirely. The list is a
+    // LITERAL, inline, on purpose: `slice types generate` reads a literal array and
+    // silently degrades a referenced one to `string` (see Checkbox.js).
+    headerVariant: {
+      type: 'string',
+      default: 'tinted',
+      required: false,
+      allowedValues: ['tinted', 'solid', 'none']
+    },
     // Self-contained busy overlay (no dependency on the Loading component). Drive
     // it yourself in remote mode: set true before fetching, false after.
     loading: { type: 'boolean', default: false },
@@ -50,6 +61,7 @@ export default class Table extends HTMLElement {
     this._totalItems = null;
     this._emptyMessage = 'No data';
     this._loading = false;
+    this._headerVariant = 'tinted';
     this._onSortChange = null;
     this._onPageChange = null;
 
@@ -129,6 +141,19 @@ export default class Table extends HTMLElement {
     if (this._engine) this.renderTable();
   }
 
+  // Unknown values fall back to the declared default (§3.3). Both the list and the
+  // default come from `static props`, so the runtime and the generated union accept
+  // exactly the same set. The class swap is idempotent: remove every variant, then
+  // add the resolved one.
+  set headerVariant(value) {
+    const { allowedValues, default: fallback } = this.constructor.props.headerVariant;
+    const next = allowedValues.includes(value) ? value : fallback;
+    for (const variant of allowedValues) this.classList.remove('table--header-' + variant);
+    this.classList.add('table--header-' + next);
+    this._headerVariant = next;
+  }
+  get headerVariant() { return this._headerVariant; }
+
   set onSortChange(value) {
     this._onSortChange = typeof value === 'function' ? value : null;
   }
@@ -167,6 +192,10 @@ export default class Table extends HTMLElement {
   beforeDestroy() {
     this.$head.removeEventListener('click', this._handleHeaderClick);
     this.$head.removeEventListener('keydown', this._handleHeaderKeydown);
+    // Cells appended after init() are not in childrenIndex, so the destroy
+    // cascade never reaches them (same reason as _releaseChildren).
+    slice.controller.destroyByContainer(this.$head);
+    slice.controller.destroyByContainer(this.$body);
     // Children built via slice.build are NOT auto-cascaded on destroy (the
     // controller's childrenIndex is only populated when registerComponent gets
     // a parent, which slice.build never passes). Destroy both explicitly.
@@ -194,7 +223,11 @@ export default class Table extends HTMLElement {
         key: col.key !== undefined ? col.key : index,
         label: col.label !== undefined ? col.label : String(col.key !== undefined ? col.key : index),
         sortable: col.sortable !== undefined ? col.sortable : this._sortable,
-        align: col.align || 'left',
+        // Only what the author DECLARED, not a filled-in 'left' default: a filled
+        // default would make every column "explicitly aligned" and silently disable
+        // the automatic right-alignment of numeric cells. Cells default to left
+        // through plain CSS.
+        align: col.align || null,
         render: typeof col.render === 'function' ? col.render : null
       }));
     }
@@ -203,7 +236,7 @@ export default class Table extends HTMLElement {
       key: index,
       label: header,
       sortable: this._sortable,
-      align: 'left',
+      align: null,
       render: null
     }));
   }
@@ -278,19 +311,39 @@ export default class Table extends HTMLElement {
   renderTable() {
     if (!this.$head || !this.$body || !this._engine) return;
 
+    const columns = this._resolvedColumns;
+    const sort = this._engine.sort;
+    const pageRows = this._engine.pageRows();
+
+    // Resolve every cell BEFORE touching the DOM. `render()` is a consumer
+    // callback (call it once, never twice), and the resolved nodes are what tells
+    // the wipe below which children this render keeps and which it evicts.
+    const cells = pageRows.map((row) =>
+      columns.map((column) => (column.render ? column.render(row) : this._cellValue(row, column)))
+    );
+
+    this._releaseChildren(this.$head, []);
+    this._releaseChildren(this.$body, cells.flat());
     this.$head.innerHTML = '';
     this.$body.innerHTML = '';
 
-    const columns = this._resolvedColumns;
-    const sort = this._engine.sort;
+    // A column whose rendered values are ALL finite numbers right-aligns as a whole,
+    // header included. Mixed columns are left alone rather than aligned cell by
+    // cell, which reads as broken.
+    const numericColumns = columns.map((column, columnIndex) =>
+      !column.align &&
+      cells.length > 0 &&
+      cells.every((row) => this._isNumeric(row[columnIndex]))
+    );
 
     // Header
     if (columns.length > 0) {
       const headRow = document.createElement('tr');
-      columns.forEach((column) => {
+      columns.forEach((column, columnIndex) => {
         const th = document.createElement('th');
         th.setAttribute('scope', 'col');
-        if (column.align) th.style.textAlign = column.align;
+        const thAlign = this._alignClass(column.align) || (numericColumns[columnIndex] ? 'table_cell--num' : '');
+        if (thAlign) th.classList.add(thAlign);
         th.textContent = column.label != null ? String(column.label) : '';
 
         if (column.sortable) {
@@ -298,10 +351,12 @@ export default class Table extends HTMLElement {
           th.dataset.sortKey = String(column.key);
           th.setAttribute('tabindex', '0'); // focusable; keyboard handled via keydown delegation
           const active = sort && String(sort.key) === String(column.key);
+          const direction = active ? (sort.direction === 'asc' ? 'asc' : 'desc') : null;
           const indicator = document.createElement('span');
-          indicator.className = 'table_sort_indicator';
+          // Empty on purpose: the chevron is drawn in CSS in a fixed-width slot, so
+          // the label cannot shift when the sort state changes.
+          indicator.className = 'table_sort_indicator' + (direction ? ` table_sort_indicator--${direction}` : '');
           indicator.setAttribute('aria-hidden', 'true');
-          indicator.textContent = active ? (sort.direction === 'asc' ? ' ▲' : ' ▼') : ' ⇅';
           th.appendChild(indicator);
           th.setAttribute('aria-sort', active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none');
         }
@@ -311,8 +366,6 @@ export default class Table extends HTMLElement {
     }
 
     // Body (sorted + paginated by the engine)
-    const pageRows = this._engine.pageRows();
-
     if (pageRows.length === 0) {
       // Only show an empty-state row when the table has a column structure;
       // a fully-empty table (no columns) renders nothing (legacy behaviour).
@@ -328,18 +381,68 @@ export default class Table extends HTMLElement {
       return;
     }
 
-    pageRows.forEach((row) => {
+    pageRows.forEach((row, rowIndex) => {
       const tr = document.createElement('tr');
-      columns.forEach((column) => {
+      columns.forEach((column, columnIndex) => {
         const td = document.createElement('td');
-        if (column.align) td.style.textAlign = column.align;
-        const value = column.render ? column.render(row) : this._cellValue(row, column);
+        const value = cells[rowIndex][columnIndex];
+        // Explicit alignment wins; otherwise a numeric column right-aligns itself.
+        const tdAlign = this._alignClass(column.align) || (numericColumns[columnIndex] ? 'table_cell--num' : '');
+        if (tdAlign) td.classList.add(tdAlign);
         this.renderCell(td, value);
         if (column.label != null) td.dataset.label = String(column.label);
         tr.appendChild(td);
       });
       this.$body.appendChild(tr);
     });
+  }
+
+  // Alignment travels as a class, not an inline style: an inline `text-align` can
+  // only be beaten with `!important`.
+  _alignClass(align) {
+    return align === 'left' || align === 'center' || align === 'right' ? `table_cell--${align}` : '';
+  }
+
+  // A column of figures reads badly left-aligned with proportional digits, and
+  // reflows whenever a value changes width.
+  _isNumeric(value) {
+    return typeof value === 'number' && Number.isFinite(value);
+  }
+
+  // A re-render replaces the whole body, so whatever the previous render left in
+  // it has to go. A `render(row)` callback typically builds a component per call,
+  // and without this every sort, page change or `rows` update orphaned one in
+  // `activeComponents` forever — the documented `innerHTML = ''` case in
+  // slice.js/AGENTS.md.
+  //
+  // `incoming` holds the nodes THIS render is about to append; they are kept.
+  // Re-passing the same node on every render is legitimate (see
+  // markdown/table.md), and destroying a node we are about to append again would
+  // leave the table displaying a dead component.
+  _releaseChildren(container, incoming) {
+    if (!container) return;
+    const controller = slice.controller;
+
+    const keep = new Set();
+    for (const node of incoming) {
+      if (!(node instanceof Node)) continue;
+      if (node.sliceId) keep.add(node.sliceId);
+      if (typeof node.querySelectorAll !== 'function') continue;
+      node.querySelectorAll('[slice-id]').forEach((el) => {
+        keep.add(el.getAttribute('slice-id') || el.sliceId);
+      });
+    }
+
+    // Collect first, destroy once: destroying a parent cascades to its children,
+    // and asking for an id twice logs "not found".
+    const evicted = [];
+    container.querySelectorAll('[slice-id]').forEach((el) => {
+      const sliceId = el.getAttribute('slice-id') || el.sliceId;
+      if (sliceId && !keep.has(sliceId) && controller.activeComponents.has(sliceId)) {
+        evicted.push(sliceId);
+      }
+    });
+    if (evicted.length > 0) controller.destroyComponent(evicted);
   }
 
   // Cells are rendered safely by default. A cell can be:

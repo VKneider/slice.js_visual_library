@@ -33,12 +33,17 @@ be **objects** keyed by `key` (positional `headers` + array rows still work as b
   - `key` — property to read from each row object (or column index for array rows).
   - `label` — header text. `align` — `'left' | 'center' | 'right'`.
   - `sortable` — make the column clickable to sort. `render(row)` — return a string / DOM node / `{ html }` for custom cells.
+  - A column whose rendered values are **all numbers** right-aligns itself (header included) with tabular
+    figures, unless you set `align` explicitly.
 - `sortable` (boolean) — default sortability for every column when not set per-column.
 - `defaultSort` — `{ key, direction: 'asc' | 'desc' }` applied on first render.
 - `pagination` — `true` or `{ pageSize }` to page the rows (renders a `Pagination` control). Reactive:
   it can be turned on/off or resized at runtime — the pager is shown/hidden and the page size updated,
   never destroyed and rebuilt.
 - `emptyMessage` — text shown when there are columns but no rows.
+- `headerVariant` — `'tinted'` (default) | `'solid'` | `'none'`. The default header is a quiet tint with
+  small uppercase labels; `'solid'` reproduces the older saturated `--primary-color` fill, and `'none'`
+  drops the fill but keeps the label treatment. Any unknown value falls back to `'tinted'`.
 - `onSortChange({ key, direction } | null)` and `onPageChange(page)` — fire on each change.
 
 Clicking a sortable header cycles **ascending → descending → unsorted**, and sorting returns to page 1.
@@ -134,6 +139,53 @@ const table = await slice.build('Table', {
 return table;
 :::
 
+:::tip
+Cells holding a built component are **owned by the table**. A re-render — sorting, paging, or new `rows`
+— destroys the components it replaces, so they never pile up in memory. The table never destroys a node
+it is about to show again, so re-passing the same node on every render is safe too.
+:::
+
+## Header style
+The header is a quiet tint by default, so it does not compete with the page's primary actions.
+`headerVariant: 'solid'` restores the older saturated fill, `'none'` removes the fill entirely:
+
+:::script label="Header variants" expected="three tables; solid reproduces the legacy look"
+const solid = await slice.build('Table', {
+  headers: ['Name', 'Role'],
+  rows: [['Ada', 'Engineer'], ['Linus', 'Maintainer']],
+  headerVariant: 'solid'
+});
+
+const plain = await slice.build('Table', {
+  headers: ['Name', 'Role'],
+  rows: [['Ada', 'Engineer'], ['Linus', 'Maintainer']],
+  headerVariant: 'none'
+});
+
+const wrapper = document.createElement('div');
+wrapper.append(solid, plain);
+return wrapper;
+:::
+
+## Match the column, not just the cell
+A numeric column right-aligns and uses tabular figures on its own, header included:
+
+:::script label="Numbers align themselves" expected="the Score column is right-aligned with tabular digits"
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Player' },
+    { key: 'score', label: 'Score' }
+  ],
+  rows: [
+    { name: 'Ada', score: 1280 },
+    { name: 'Linus', score: 9953 },
+    { name: 'Grace', score: 340 }
+  ]
+});
+
+return table;
+:::
+
 ## Best Practices
 :::tip
 Keep row data uniform in length. Mismatched columns may produce uneven layout.
@@ -142,4 +194,10 @@ Keep row data uniform in length. Mismatched columns may produce uneven layout.
 ## Pitfalls
 :::warning
 Plain string cells are escaped, so user data is safe by default. Only the explicit `{ html: '...' }` form is injected as raw HTML — never pass unsanitized user input through it.
+:::
+
+:::warning
+Do not keep your own reference to a component you hand to a cell and then expect it to survive a
+re-render: the table destroys what it replaces. Build a fresh node per render instead (that is what a
+`render(row)` callback naturally does).
 :::
