@@ -7,6 +7,11 @@ export default class Textarea extends HTMLElement {
       maxlength: { type: 'number', default: null },
       required: { type: 'boolean', default: false },
       disabled: { type: 'boolean', default: false },
+      // Display-only content the user may select and copy but not edit —
+      // generated code, an ID, a read-only payload. `disabled` looks right but
+      // takes the field out of the tab order AND makes the text unselectable,
+      // which defeats the whole point of showing generated output.
+      readonly: { type: 'boolean', default: false },
       autoGrow: { type: 'boolean', default: false },
       conditions: { type: 'object', default: null },
       onChange: { type: 'function', default: null },
@@ -210,6 +215,15 @@ export default class Textarea extends HTMLElement {
       this._disabled = value;
       if (this.$textarea) this.$textarea.disabled = value;
       if (this.$container) this.$container.classList.toggle('disabled', value);
+   }
+
+   get readonly() {
+      return this._readonly;
+   }
+   set readonly(value) {
+      this._readonly = value === true;
+      if (this.$textarea) this.$textarea.readOnly = this._readonly;
+      if (this.$container) this.$container.classList.toggle('readonly', this._readonly);
    }
 
    get autoGrow() {

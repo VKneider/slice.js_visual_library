@@ -4,7 +4,8 @@ import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 // Derived from Textarea.js / Textarea.html:
 //   - root structure: .slice_textarea > label.slice_textarea_placeholder + textarea.textarea_area
 //   - props: placeholder, value, rows, maxlength, required (.required class), disabled,
-//     autoGrow, conditions (validateValue), onChange (spied handler, fires with new value)
+//     readonly (.readonly class), autoGrow, conditions (validateValue),
+//     onChange (spied handler, fires with new value)
 
 test.describe('Textarea', () => {
    test('smoke: builds and mounts without errors', async ({ mount }) => {
@@ -49,6 +50,38 @@ test.describe('Textarea', () => {
    test('disabled prop disables the native textarea', async ({ mount }) => {
       const c = await mount('Textarea', { disabled: true });
       await expect(c.locator('textarea')).toBeDisabled();
+   });
+
+   test('readonly prop makes the field display-only but still selectable', async ({ mount }) => {
+      const c = await mount('Textarea', { value: 'generated payload', readonly: true });
+      const ta = c.locator('textarea');
+
+      await expect(ta).toHaveAttribute('readonly', '');
+      // The whole point of `readonly` over `disabled`: generated output has to
+      // stay copyable. A disabled field drops out of the tab order AND makes
+      // the text unselectable.
+      await expect(ta).not.toBeDisabled();
+      await expect(c.locator('.slice_textarea')).toHaveClass(/readonly/);
+
+      await ta.selectText();
+      const selected = await ta.evaluate((node) => node.value.slice(node.selectionStart, node.selectionEnd));
+      expect(selected).toBe('generated payload');
+   });
+
+   test('readonly can be toggled after mount', async ({ mount }) => {
+      const c = await mount('Textarea', { value: 'x' });
+      const ta = c.locator('textarea');
+      await expect(ta).not.toHaveAttribute('readonly', '');
+
+      await c.component.evaluate((el) => {
+         el.readonly = true;
+      });
+      await expect(ta).toHaveAttribute('readonly', '');
+
+      await c.component.evaluate((el) => {
+         el.readonly = false;
+      });
+      await expect(ta).not.toHaveAttribute('readonly', '');
    });
 
    test('typing updates value and floats the label', async ({ mount }) => {
