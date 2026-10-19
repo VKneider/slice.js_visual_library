@@ -345,6 +345,24 @@ static props = {
 - Use `allowedValues` for enumerated props (dev-mode validation enforces it).
 - `type` is documentation/inspector metadata — **not** runtime-enforced — so setters must still
   guard their own inputs.
+- **`allowedValues` must be a literal array, never a reference to a shared constant.**
+  `slice types generate` reads the AST of the component file and only understands literal values,
+  so `allowedValues: SIZE_VALUES` silently degrades the generated union to plain `string` — no error,
+  no warning, just a wider type. Keep the list as the **single** source inside `static props` and
+  have the setter read it back:
+
+  ```js
+  size: { type: 'string', default: 'md', allowedValues: ['sm', 'md', 'lg'] },
+
+  set size(value) {
+    const { allowedValues, default: fallback } = this.constructor.props.size;
+    const next = allowedValues.includes(value) ? value : fallback;
+    // ...
+  }
+  ```
+
+  That way the runtime fallback and the emitted union cannot disagree. See `BACKLOG.md` (Tooling) for
+  the generator fix that would make shared vocabularies type again.
 
 ---
 

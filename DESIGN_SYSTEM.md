@@ -1,9 +1,43 @@
 # Design system: scale, recipe table, and the theming surface
 
-Status: **proposed, partially prototyped**. A spike exists and is green; the
-architecture is not decided. This file records the proposal, what the spike
-proved, and — more importantly — what it exposed. Read the "What the spike
-exposed" section before deciding anything.
+Status: **SHELVED — started, partly landed, deliberately not continued.**
+A spike exists and is green; the architecture was never decided and is not being
+pursued right now. This file records the proposal, what the spike proved, and —
+more importantly — what it exposed. Read the "What the spike exposed" section
+before deciding anything.
+
+> **Shelved on purpose (2026-10-15).** Continuing this means carrying `Input`'s
+> and `Button`'s size recipe forward, which touches every control on every page.
+> That was declined. Two consequences are now accepted debt rather than
+> oversights:
+>
+> - `Input.css` hardcodes the four values `Button` already had, so `size` works
+>   on both instead of being inert on `Input` — duplication, chosen over a
+>   declared public API that silently does nothing.
+> - `scale.css` stays unloaded. Nothing reads it, and `applySize` setting
+>   `data-size` on a host that no stylesheet listens to is why that was easy to
+>   miss.
+>
+> Reopening this is the only way to retire either. `BACKLOG.md` carries both as
+> parked entries.
+>
+> One finding below is **not** part of the spike and stands on its own: the
+> `Button` container ring, which predates it and is why two components carry a
+> local override for padding they should never have had to think about.
+
+> **The measurements below are the PRE-SPIKE state.** The spike changed some of
+> them, in ways that make parts of this file wrong if read as present tense.
+> Verified 2026-10-15 against the working tree:
+>
+> | Claim here | Still true? |
+> | --- | --- |
+> | #2 "Zero of 43 components declare `className`" | **No** — `Button` and `Input` now declare it. Both are the spike itself, so it is 2 of 43 and both are undecided. |
+> | #3 "`Input` had no `size` at all" | Partly — it has the prop and applies the class, but **`Input.css` has no rule that reads it**: measured 19px at `md` and at `sm`. A declared prop that does nothing is worse than an absent one, because §7 makes it public API forever. |
+> | #3 "a `Button` at `sm` and an `Input` beside it matched only by coincidence" | **Confirmed, and worse** — they do not match at all. `Button` 43px → 30px; `Input` 19px → 19px. Delta 24px at `md`, 11px at `sm`. |
+>
+> The general lesson is the one `tests/design-scale-gap.spec.js` holds: a `size`
+> prop that is declared, validated and class-swapped but never read by CSS is
+> indistinguishable from working, from the outside, until you measure the box.
 
 ## The problem, measured
 
