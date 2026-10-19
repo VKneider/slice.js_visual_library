@@ -47,8 +47,13 @@ test('generated script scenarios render via DemoBox with code and live demo', ()
   assert.match(generatedJs, /demobox\.appendCode\(code\)/);
   assert.match(generatedJs, /demobox\.appendDemo\(/);
 
-  // The DemoBox is attached to the scenarios section.
-  assert.match(generatedJs, /section\.appendChild\(demobox\)/);
+   // Scenarios render into the author's own .script-block, so a page reads in
+   // the order it was written. The single appended section survives only as a
+   // fallback for a count mismatch between the two — asserted here so it cannot
+   // be dropped without this failing.
+   assert.match(generatedJs, /const inPlace = blocks\.length === this\.scriptScenarios\.length/);
+   assert.match(generatedJs, /\(inPlace \? blocks\[index\] : section\)\.appendChild\(demobox\)/);
+   assert.match(generatedJs, /if \(!inPlace\) host\.appendChild\(section\)/);
 });
 
 test('generated script scenarios pass a safe slice builder to scripts', () => {

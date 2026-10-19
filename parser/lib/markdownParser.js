@@ -124,9 +124,21 @@ const parseBlocks = (body) => {
       continue;
     }
 
-    if (line.includes('|') && i + 1 < lines.length && /^\s*\|?\s*-/.test(lines[i + 1])) {
+   // A table row must START with "|". Matching includes("|") instead turned
+   // any list item containing a union into a table, because the NEXT list
+   // item starts with "-" and so matched the delimiter-row test. An API
+   // list like
+   //
+   //     - `variant` (`neutral` | `accent` | `success`, default `neutral`)
+   //     - `label` (string) -- the text
+   //
+   // became a one-row table, and every item after it vanished behind a
+   // "No data". Every real table row in src/markdown starts with "|"
+   // (173 of 173), so requiring it costs nothing and fixes all four of the
+   // affected pages at once.
+    if (/^\s*\|/.test(line) && i + 1 < lines.length && /^\s*\|?\s*-/.test(lines[i + 1])) {
       const tableLines = [];
-      while (i < lines.length && lines[i].includes('|')) {
+      while (i < lines.length && /^\s*\|/.test(lines[i])) {
         tableLines.push(lines[i]);
         i++;
       }
