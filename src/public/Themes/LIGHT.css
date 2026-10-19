@@ -21,6 +21,9 @@
 
   /** Success - Verde mas intenso **/
   --success-color: #059669;
+
+  /** Info - Azul. Distinct hue band: success sits at ~160deg, this at ~215deg. */
+  --info-color: #60a5fa;
   --success-contrast: #ffffff;
 
   /** Warning - Naranja ambar **/
@@ -38,8 +41,6 @@
   /** Disabled **/
   --disabled-color: #d1d5db;
 
-  /** Accent - Cian electrico **/
-  --accent-color: #06b6d4;
 
   /** Shadow tokens **/
 
@@ -72,4 +73,58 @@
 
   /** Back-compat alias: Card predates the scale. */
   --card-shadow: var(--slice-shadow-sm);
+
+  /**
+   * Readable shade of each status colour — the one that clears 4.5:1 against
+   * that colour's own tint, on THIS theme's surface.
+   *
+   * The direction differs per theme and that is the whole point: Badge darkens
+   * toward black in light mode and lightens toward white in dark, because
+   * DARK.css ships status colours that are already light. Deriving the shade
+   * from the token (rather than hardcoding hexes in the component) means a
+   * palette change carries the badge with it, and the contrast spec runs
+   * against both themes so a regression has nowhere to hide.
+   *
+   /**
+    * Readable tones: the version of each status colour that clears 4.5:1 as TEXT
+    * against that colour's own low-alpha tint, on THIS theme's surface.
+    *
+    * Two roles hang off a status colour, and the suffix is what keeps them apart:
+    *
+    *   --<token>-shade     a BORDER / surface tone. Only --primary-color-shade
+    *                       exists; it is Required by COMPONENT_API_STANDARDS §11 and
+    *                       is used in ~40 declarations across 15 components. It is
+    *                       NOT a text colour, and the two are not interchangeable:
+    *                       --primary-color-shade is #2e2040 in dark, unusable as
+    *                       text on a dark tint.
+    *   --<token>-readable  the TEXT tone. Read by Badge and anything else that tints
+    *                       a background rather than filling it.
+    *
+    * The direction differs per theme, and that is the whole point. A light theme
+    * darkens toward black; a dark theme LIGHTENS toward white, because its status
+    * colours are already light and darkening them produced a mid-tone with no
+    * contrast on a dark surface.
+    *
+    * Percentages are measured minimums with margin, toward black:
+    *   --primary-color-readable   88%  <- --primary-color
+    *   --success-color-readable   72%  <- --success-color
+    *   --warning-color-readable   66%  <- --warning-color
+    *   --danger-color-readable    84%  <- --danger-color
+    *   --info-color-readable      64%  <- --info-color
+    *
+    * info is the one that needed re-sweeping per theme: DARK wants a DARKER blue
+    * than LIGHT, because that palette's statuses are already bright, so the hue has
+    * to separate by lightness as well. Both were swept against the real page
+    * background rather than derived from the raw token.
+    *
+    * There is no --accent-color. It measured at 3deg of hue and 1.52:1 from
+    * --secondary-color — a duplicate rather than a third colour — and in the wild
+    * "accent" already means the brand, which --primary-color is here. Do not
+    * reintroduce it as a second brand tier.
+    */
+  --primary-color-readable: color-mix(in srgb, var(--primary-color) 88%, #000);
+  --success-color-readable: color-mix(in srgb, var(--success-color) 72%, #000);
+  --warning-color-readable: color-mix(in srgb, var(--warning-color) 66%, #000);
+  --danger-color-readable: color-mix(in srgb, var(--danger-color) 84%, #000);
+  --info-color-readable: color-mix(in srgb, var(--info-color) 64%, #000);
 }
