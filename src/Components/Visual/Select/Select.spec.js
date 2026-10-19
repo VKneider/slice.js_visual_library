@@ -11,6 +11,31 @@ import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 const OPTIONS = [{ text: 'Apple' }, { text: 'Banana' }, { text: 'Cherry' }];
 
 test.describe('Select', () => {
+   test('a scalar `value` does not brick the control', async ({ mount }) => {
+      // Regression. `setComponentProps` assigns `_value = null` before invoking
+      // the `value` setter for every prop passed at build, and the setter used to
+      // return early on a non-array WITHOUT restoring it. `_value` was then
+      // permanently null and the first click threw
+      // "Cannot read properties of null (reading 'length')" from _selectOption.
+      const c = await mount('Select', {
+         label: 'Mode',
+         options: [{ text: 'A', value: 'a' }, { text: 'B', value: 'b' }],
+         value: 'a',
+      });
+      const pageErrors = [];
+      c.root.page().on('pageerror', (err) => pageErrors.push(err.message));
+
+      // Reading the getter must not throw either.
+      expect(await c.component.evaluate((el) => Array.isArray(el.value))).toBe(true);
+
+      // And clicking an option must still work (the menu opens from the container).
+      await c.locator('.slice_select_container').click();
+      const opts = c.locator('.slice_select_menu [role="option"]');
+      await opts.nth(1).click();
+      await expect(opts.nth(1)).toHaveAttribute('aria-selected', 'true');
+      expect(pageErrors).toEqual([]);
+   });
+
    test('smoke: builds and mounts without errors', async ({ mount }) => {
       const c = await mount('Select', { options: OPTIONS, label: 'Fruit' });
       await expect(c.component).toBeVisible();

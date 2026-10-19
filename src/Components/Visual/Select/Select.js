@@ -376,16 +376,26 @@ export default class Select extends HTMLElement {
    }
 
    get value() {
-      if (this._value.length === 1) {
-         return this._value[0];
+      // Defensive: the backing field is public-ish state, and every consumer of
+      // this getter used to be one null away from a TypeError.
+      const current = this._value || [];
+      if (current.length === 1) {
+         return current[0];
       }
-      return this._value;
+      return current;
    }
 
    set value(valueParam) {
-      if (!valueParam || !Array.isArray(valueParam)) return;
-
+      // Reset FIRST, not after the input is validated.
+      //
+      // `setComponentProps` assigns `_value = null` before invoking this setter
+      // for every prop passed at build time, so any early return below used to
+      // leave `_value` permanently null — after which `get value()`,
+      // `_selectOption()` and `isObjectInArray()` all threw on `.length`. A
+      // rejected assignment has to leave the control usable, not bricked.
       this._value = [];
+
+      if (!valueParam || !Array.isArray(valueParam)) return;
 
       if (valueParam.length > 1 && !this.multiple) {
          console.error('Select is not multiple, you can only select one option');
