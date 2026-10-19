@@ -1,0 +1,50 @@
+<div class="documentation-content colorpickerdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="colorpicker">
+    <span class="doc-title-text">ColorPicker</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>ColorPicker</code> is a labelled colour control: a native swatch, the current hex value, and an optional hint line underneath.</p>
+<p>It wraps <code>&lt;input type="color"&gt;</code> rather than replacing it. The native control carries the OS colour dialog, touch behaviour and keyboard support that a hand-rolled swatch grid never gets right for free — what it does not carry is a label, a readable value, or any way to report that it could not understand the colour you gave it.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>label</code> names the control through a real <code>&lt;label for&gt;</code> association, so it appears as the</li></ul>
+<p>accessible name. Each instance generates its own input id, so several pickers on one page never   cross-wire.</p>
+<ul><li><code>value</code> is always normalized to lowercase <code>#rrggbb</code>. <code>#rgb</code> is expanded and <code>rgb()</code> / <code>rgba()</code></li></ul>
+<p>(comma or space syntax) are converted.</p>
+<ul><li>The hex readout mirrors the value. A native colour input shows nothing, so a colour table</li></ul>
+<p>cannot tell you what it is actually holding.</p>
+<ul><li><code>hint</code> renders a small monospace line under the control — a CSS variable name, a usage note.</li><li><code>onChange(value)</code> fires on every <code>input</code> event with the normalized hex, so it follows a drag</li></ul>
+<p>rather than waiting for the dialog to close.</p>
+<ul><li><code>size</code> (<code>md</code> | <code>sm</code>) comes from the shared recipe every control validates against.</li><li><code>customColor.accent</code> tints the swatch <strong>border</strong> only. Filling the swatch would fight the</li></ul>
+<p>colour the user actually picked, which is the one thing the control exists to show.</p>
+<ul><li><code>disabled</code> removes the control from interaction.</li></ul>
+<h2 id="why-not-a-bare-input-typecolor">Why not a bare <code>&lt;input type="color"&gt;</code></h2>
+<p>The failure this component exists to absorb is silent. Hand a native colour input <code>rgb(0 128 0)</code>, <code>var(--brand)</code> or <code>rebeccapurple</code> and it renders <strong>black</strong> and reports nothing. The result looks like a rendering bug, not a bad argument — so <code>ColorPicker</code> normalizes on the way in and shows you the fallback it actually landed on.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<h2 id="normalization">Normalization</h2>
+<p><code>value</code> accepts the three spellings that actually reach a UI, and falls back for the rest.</p>
+<div class="table-block" data-block-id="doc-block-6"></div>
+<p>Named colours and <code>oklch()</code> / <code>color-mix()</code> cannot be rendered in a swatch at all, so they fall back rather than going black in silence.</p>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>hint</code> for whatever the label cannot say in a couple of words — a CSS custom property name
+in a theme editor, a token key in a design system. It is rendered in the code font for exactly
+that kind of identifier.</div>
+<div class="callout callout-tip">Pair <code>onChange</code> with <code>value</code> rather than only <code>onChange</code>. <code>onChange</code> fires on every input event
+during a drag, so a consumer that does expensive work per call should debounce it.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>customColor</code> tints the border only. Setting <code>accent</code> to the same colour as <code>value</code> does not fill
+the swatch — the whole point of the control is to show the value the user picked.</div>
+<div class="callout callout-warning">The hex readout is <code>aria-hidden</code>. Screen readers already announce the value through the input
+itself, and <code>&lt;output&gt;</code> has an implicit <code>role="status"</code>, which would otherwise announce every
+intermediate value during a drag.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
+</div>

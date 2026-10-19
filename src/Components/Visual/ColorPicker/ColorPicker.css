@@ -1,0 +1,127 @@
+/* ColorPicker — scoped under the host tag (§8). */
+
+slice-color-picker {
+  /* §8.1: without an explicit display the host falls back to `inline`. */
+  display: block;
+}
+
+slice-color-picker .slice_color_picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+slice-color-picker .slice_color_picker__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}
+
+/* §8.2: the JS toggles `hidden` on the label and the hint, and both carry a
+   `display`, which would beat the user-agent `[hidden]` rule at any
+   specificity. Without these companions they would simply never hide. */
+slice-color-picker .slice_color_picker__label[hidden],
+slice-color-picker .slice_color_picker__hint[hidden] {
+  display: none;
+}
+
+slice-color-picker .slice_color_picker__control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  border-radius: 10px;
+  background: var(--primary-background-color);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+slice-color-picker .slice_color_picker__control:hover,
+slice-color-picker .slice_color_picker__control:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 14%, transparent);
+}
+
+slice-color-picker .slice_color_picker__input {
+  flex: none;
+  width: 44px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--slice-border-raised, var(--primary-color-shade));
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  /* The UA swatch draws its own inner frame; drop it so the colour fills the
+     control instead of sitting inside a double border. */
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+slice-color-picker .slice_color_picker__input::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+slice-color-picker .slice_color_picker__input::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+slice-color-picker .slice_color_picker__input::-moz-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+slice-color-picker .slice_color_picker__input:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+slice-color-picker .slice_color_picker__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+slice-color-picker .slice_color_picker__value {
+  font-family: var(--font-family-code, monospace);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--font-secondary-color);
+}
+
+slice-color-picker .slice_color_picker__hint {
+  margin: 0;
+  font-family: var(--font-family-code, monospace);
+  font-size: 0.7rem;
+  color: var(--font-secondary-color);
+  word-break: break-all;
+}
+
+/* Density. `data-size` is set on the host by the shared recipe (spike/recipes.js)
+   so the values stay in step with Button/Input instead of drifting into a fourth
+   set of numbers. */
+slice-color-picker[data-size='sm'] .slice_color_picker__control {
+  padding: 5px 8px;
+  gap: 8px;
+}
+
+slice-color-picker[data-size='sm'] .slice_color_picker__input {
+  width: 34px;
+  height: 26px;
+}
+
+slice-color-picker[data-size='sm'] .slice_color_picker__label {
+  font-size: 0.78rem;
+}
+
+slice-color-picker[data-size='sm'] .slice_color_picker__value {
+  font-size: 0.74rem;
+}
+
+/* The ring on hover/focus is decorative — never animate it for a reader who
+   asked the system to reduce motion. */
+@media (prefers-reduced-motion: reduce) {
+  slice-color-picker .slice_color_picker__control {
+    transition: none;
+  }
+}
