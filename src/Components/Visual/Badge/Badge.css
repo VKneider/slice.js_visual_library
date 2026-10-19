@@ -2,7 +2,14 @@
 
 slice-badge {
   display: inline-flex;
+  /* `vertical-align: middle` alone put the pill's centre 2.25px BELOW the
+     text's, and the gap grew with the text size — 2.25px at 15px text, 3.25px
+     at 19px — the signature of aligning to the baseline plus half the PARENT's
+     x-height instead of the text's own optical centre. Swept against the
+     measured text box: middle 2.25, baseline 1, middle plus -0.15em 0. */
   vertical-align: middle;
+  position: relative;
+  top: -0.15em;
 }
 
 slice-badge .slice_badge {
@@ -11,6 +18,10 @@ slice-badge .slice_badge {
   justify-content: center;
   min-width: 1.5em;
   height: 1.5em;
+  /* Without this the 1px border is added on top: the box measured 20px for a
+     declared 1.5em (18px), which is the same content-box trap that made every
+     BottomNav row 20px wider than its container. */
+  box-sizing: border-box;
   padding: 0 0.45em;
   border: 1px solid transparent;
   border-radius: 999px;
@@ -35,46 +46,83 @@ slice-badge .slice_badge--sm {
 }
 
 /* ------------------------------------------------------------------ variants
-   Each one derives from theme tokens, so a badge keeps its meaning across
-   themes. Colour is paired with the text, never the only signal. */
+   Tinted, not solid. White-on-solid measured 3.77 (success), 3.68 (info) and
+   3.19 (warning) — all under the 4.5:1 AA bar for 12px text, and five saturated
+   fills in a row read as a traffic light rather than as badges.
+
+   Each darkening percentage is the measured minimum that clears AA, with
+   margin. The numbers exist because amber and cyan are intrinsically light: a
+   single percentage for all would have to be 92, muting the colours that do
+   not need it.
+
+   The readable shade lives in the theme as --<status>-color-shade, beside the
+   colour it derives from, so a palette change carries the badge with it. The
+   inlined value after each comma is a FALLBACK, and it is load-bearing. A consumer
+   gets this stylesheet from the registry but their theme from
+   slicejs-web-framework: init.js copies the framework's whole src/, so a new
+   app's theme is the framework's Themes/Light.css — 21 tokens, and its only
+   shade is --primary-color-shade. None of the five here exist there, because
+   they live in this repo's LIGHT.css/DARK.css, which the framework package has
+   never seen. Without the fallback, color: var(--success-color-readable) computes
+   to unset for a real install: the pill keeps its tint and the text falls back
+   to the inherited colour.
+
+   The fallback is the light-tuned value, picked by measured worst case over both
+   themes rather than by eye:
+
+      darkened    LIGHT 5.18-5.38 AA   DARK 3.00-4.05    worst 3.00
+      raw token   LIGHT 2.62-4.39  -   DARK 4.05-7.64    worst 2.62
+
+   So the token is OPTIONAL for a light theme and effectively REQUIRED for a dark
+   one — without it, dark badges sit at 3.00-4.05:1. badge.md documents that, and
+   Badge.spec.js asserts AA in both themes so it cannot rot unnoticed. */
 
 slice-badge .slice_badge--neutral {
   color: var(--font-primary-color);
-  background: color-mix(in srgb, var(--medium-color) 22%, transparent);
-  border-color: color-mix(in srgb, var(--medium-color) 40%, transparent);
+  background: color-mix(in srgb, var(--medium-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--medium-color) 30%, transparent);
 }
 
 slice-badge .slice_badge--accent {
-  color: var(--primary-color-contrast);
-  background: var(--primary-color);
+  color: var(--primary-color-readable, color-mix(in srgb, var(--primary-color) 88%, #000));
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary-color) 28%, transparent);
 }
 
 slice-badge .slice_badge--success {
-  color: var(--success-contrast);
-  background: var(--success-color);
+  color: var(--success-color-readable, color-mix(in srgb, var(--success-color) 72%, #000));
+  background: color-mix(in srgb, var(--success-color) 13%, transparent);
+  border-color: color-mix(in srgb, var(--success-color) 32%, transparent);
 }
 
 slice-badge .slice_badge--warning {
-  color: var(--warning-contrast);
-  background: var(--warning-color);
+  color: var(--warning-color-readable, color-mix(in srgb, var(--warning-color) 66%, #000));
+  background: color-mix(in srgb, var(--warning-color) 16%, transparent);
+  border-color: color-mix(in srgb, var(--warning-color) 38%, transparent);
 }
 
 slice-badge .slice_badge--danger {
-  color: var(--danger-contrast);
-  background: var(--danger-color);
+  color: var(--danger-color-readable, color-mix(in srgb, var(--danger-color) 84%, #000));
+  background: color-mix(in srgb, var(--danger-color) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger-color) 30%, transparent);
 }
 
 slice-badge .slice_badge--info {
-  color: var(--secondary-color-contrast);
-  background: var(--secondary-color);
+  color: var(--info-color-readable, color-mix(in srgb, var(--info-color) 64%, #000));
+  background: color-mix(in srgb, var(--info-color) 13%, transparent);
+  border-color: color-mix(in srgb, var(--info-color) 32%, transparent);
 }
 
 /* A dot carries no text, so it collapses to a circle and relies on the
    host's aria-label for its name. */
 slice-badge .slice_badge--dot {
-  min-width: 0.6em;
-  width: 0.6em;
-  height: 0.6em;
+  /* 0.6em measured 9.2px including the border, which reads as a speck of dust
+     rather than as a status dot. Fixed px rather than em, so it does not
+     shrink with the badge's own font size — a dot that scales with the label
+     disappears exactly when the badge gets small. */
+  min-width: 10px;
+  width: 10px;
+  height: 10px;
   padding: 0;
   border-radius: 50%;
 }

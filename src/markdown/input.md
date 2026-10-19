@@ -20,7 +20,27 @@ tags: [input, forms]
 - `Input` handles standard text entry, typed inputs, and optional required-state feedback.
 - `onChange` fires with the new value on every `input` event. `value` stays readable for pull-style consumers, and `onChange` can be cleared with `null`.
 - Password flows can expose/hide value with `secret` while preserving form semantics. The reveal toggle swaps two inline SVGs from its `aria-pressed` state, so the glyph inherits the field's colour instead of being a fixed emoji.
+- Density is set with `size` (`md` · `sm`), the same vocabulary `Button` uses, so a compact field beside a compact button reads as one density.
 - Validation behavior is scenario-driven; use script blocks to verify condition checks in realistic forms.
+
+## Sizes
+`size` shares `Button`'s vocabulary and its values: `sm` trims the inline padding to `6px 12px`,
+the type to `12px`, and the radius to 0.7×, which is what `Button` already shipped for its own
+`--sm`. Measured side by side, the two controls land within **2px at `md` and 3px at `sm`** — they
+were 24px and 11px apart before.
+
+The class swap is idempotent: setting `size` back to `md`, or to a value outside the vocabulary,
+removes the modifier rather than stacking a second one. `Input` keys the rule off `data-size` on
+its host, so `host.getAttribute('data-size')` reports what is actually applied.
+
+:::script label="Sizes" expected="a full-size and a compact field side by side"
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:10px;align-items:center;';
+
+row.appendChild(await slice.build('Input', { placeholder: 'Email address', size: 'md' }));
+row.appendChild(await slice.build('Input', { placeholder: 'Email address', size: 'sm' }));
+return row;
+:::
 
 ## Live Preview
 :::component name="Input"

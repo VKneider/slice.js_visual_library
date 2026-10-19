@@ -20,6 +20,7 @@ The `Button` component renders an action trigger and supports text, callback, ic
 - `Button` dispatches action intent through `onClick` while keeping visual state driven by props.
 - The look is set with `variant` (`filled` · `outlined` · `ghost` · `soft` · `danger`), all derived from theme tokens; `customColor` overrides the colors when you need an exact value.
 - Density is set with `size` (`md` · `sm`); `sm` trims padding, type size and radius for toolbars and table rows.
+- `icon` takes either the object form `{ name, iconStyle }` or a bare name string, so `icon: 'trash-bin'` is enough when you do not need `iconStyle`.
 - Use script scenarios below as the living behavior contract; static props are documented in the generated props section.
 
 ## Live Preview
