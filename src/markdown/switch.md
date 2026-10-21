@@ -77,7 +77,7 @@ return sw;
 const sw = await slice.build('Switch', {
   label: 'Deploy protection',
   checked: true,
-  customColor: '#16a34a'
+  customColor: { accent: '#16a34a' }
 });
 
 return sw;
@@ -156,7 +156,7 @@ for (const size of ['sm', 'md', 'lg']) {
 
 return host;
 :::
-º
+
 :::script label="Switch and Checkbox side by side" expected="same variant and size read as one family"
 const host = document.createElement('div');
 host.style.display = 'flex';
