@@ -7,11 +7,11 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Link</code> is a route-aware <code>&lt;a&gt;</code>: it keeps a real <code>href</code> in the DOM (so right-click → open in new tab still works, and the URL is visible on hover) but intercepts the click and hands the path to <code>slice.router.navigate</code>, so navigation goes through the client-side router instead of a full page load.</p>
-<p>It is built with DOM APIs (<code>setAttribute</code> / <code>textContent</code>) rather than an <code>innerHTML</code> template, so a <code>path</code> like <code>javascript:...</code> or text containing markup can never inject into the page.</p>
+<p><code>Link</code> is a route-aware <code>&lt;a&gt;</code>: it keeps a real <code>href</code> in the DOM (so right-click → open in new tab still works, and the URL is visible on hover) but intercepts the click and hands the path to <code>slice.router.navigate</code>, so navigation goes through the client-side router instead of a full page load.</p>
+<p>It is built with DOM APIs (<code>setAttribute</code> / <code>textContent</code>) rather than an <code>innerHTML</code> template, so a <code>path</code> like <code>javascript:...</code> or text containing markup can never inject into the page.</p>
 <h2 id="api-and-behavior">API and Behavior</h2>
 <ul><li><code>path</code> — the route to navigate to. Also the anchor's <code>href</code>. Defaults to <code>'#'</code>.</li><li><code>text</code> — the link label.</li><li><code>classes</code> — extra class names applied to the <code>&lt;a&gt;</code>.</li><li><code>icon</code> — an <code>Icon</code> name rendered before the label, <code>aria-hidden</code> (the label is the accessible name).</li><li><code>iconSize</code> / <code>iconColor</code> — passed through to the <code>Icon</code>.</li><li><code>sub</code> — a secondary line under the label (a count, a description).</li></ul>
-<p>The anchor is an inline flex row with a gap, <code>text-decoration: none</code> and <code>color: inherit</code>, so a link reads as part of its layout instead of fighting the UA's default link styling. Pass <code>classes</code> to add your own hover/underline treatment.</p>
+<p>The anchor is an inline flex row with a gap, <code>text-decoration: none</code> and <code>color: inherit</code>, so a link reads as part of its layout instead of fighting the UA's default link styling. Pass <code>classes</code> to add your own hover/underline treatment.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>

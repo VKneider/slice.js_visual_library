@@ -13,7 +13,7 @@
 <h2 id="props">Props</h2>
 <div class="table-block" data-block-id="doc-block-1"></div>
 <h2 id="scrolling">Scrolling</h2>
-<p>The dialog is capped at <code>min(85vh, 640px)</code> and clips its own overflow, so <code>.slice-modal__body</code> always scrolls and the header and footer stay put. The body also sets <code>overscroll-behavior: contain</code>, so a scroll that reaches its end does not chain into the page behind the dialog on touch.</p>
+<p>The dialog is capped at <code>min(85vh, 640px)</code> and clips its own overflow, so <code>.slice-modal__body</code> always scrolls and the header and footer stay put. The body also sets <code>overscroll-behavior: contain</code>, so a scroll that reaches its end does not chain into the page behind the dialog on touch.</p>
 <p>Override the cap from CSS when you need a taller dialog:</p>
 <div class="code-block" data-block-id="doc-block-2"></div>
 <div class="callout callout-warning"><code>resizable: true</code> clears <code>max-width</code> <strong>and</strong> <code>max-height</code> on the dialog while it is open, so

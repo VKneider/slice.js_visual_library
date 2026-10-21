@@ -7,19 +7,19 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ThemeSwitcher</code> is a single button that <strong>cycles</strong> through the themes you give it, showing the active theme's name as its value. It is the lightweight counterpart to [<code>ThemeSelector</code>](/docs/input/theme-selector): use <code>ThemeSelector</code> for a binary LIGHT/DARK toggle with icons, and <code>ThemeSwitcher</code> when you want a compact text control that walks an arbitrary list of themes (e.g. <code>LIGHT → DARK → SOLARIZED → …</code>).</p>
-<p>It works in two visual variants — a compact <code>button</code> pill for topbars/toolbars, and a full-width <code>menu-item</code> row for dropdowns and user menus.</p>
+<p><code>ThemeSwitcher</code> is a single button that <strong>cycles</strong> through the themes you give it, showing the active theme's name as its value. It is the lightweight counterpart to [<code>ThemeSelector</code>](/docs/input/theme-selector): use <code>ThemeSelector</code> for a binary LIGHT/DARK toggle with icons, and <code>ThemeSwitcher</code> when you want a compact text control that walks an arbitrary list of themes (e.g. <code>LIGHT → DARK → SOLARIZED → …</code>).</p>
+<p>It works in two visual variants — a compact <code>button</code> pill for topbars/toolbars, and a full-width <code>menu-item</code> row for dropdowns and user menus.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>themes</code> is the ordered list to cycle through. Each click advances to the next entry</li></ul>
 <p>and wraps around at the end. Defaults to <code>['LIGHT', 'DARK']</code>.</p>
 <ul><li>On switch it calls <code>slice.setTheme(next)</code>, dispatches a global <code>themeChanged</code></li></ul>
-<p><code>CustomEvent</code> (so every other theme control on the page stays in sync), and invokes   the optional <code>onChange(themeName)</code> handler.</p>
+<p><code>CustomEvent</code> (so every other theme control on the page stays in sync), and invokes   the optional <code>onChange(themeName)</code> handler.</p>
 <ul><li>It also <strong>listens</strong> for <code>themeChanged</code>, so changing the theme anywhere else updates</li></ul>
 <p>the displayed value automatically.</p>
 <ul><li><code>variant</code> switches the layout: <code>'button'</code> (default) hides the caption and renders a</li></ul>
 <p>pill; <code>'menu-item'</code> shows the <code>label</code> caption on the left and the value on the right.</p>
 <ul><li><code>display</code> maps a theme name to its label and icon, e.g. <code>{ LIGHT: { label: 'Light', icon: 'sun' } }</code>.</li></ul>
-<p>It is <strong>opt-in and empty by default</strong>, so without it the raw registered theme name (<code>LIGHT</code>,   <code>SOLARIZED</code>) is what the user sees. A theme with no entry falls back to its raw name and a generic   palette icon, so a custom theme never renders blank.</p>
+<p>It is <strong>opt-in and empty by default</strong>, so without it the raw registered theme name (<code>LIGHT</code>,   <code>SOLARIZED</code>) is what the user sees. A theme with no entry falls back to its raw name and a generic   palette icon, so a custom theme never renders blank.</p>
 <ul><li>The control renders an icon slot that follows the current theme; an unknown icon name is ignored</li></ul>
 <p>rather than breaking the button.</p>
 <ul><li>The document listener is registered in <code>init()</code> and removed in <code>beforeDestroy()</code>.</li></ul>
@@ -33,7 +33,7 @@
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <h2 id="friendly-theme-names">Friendly theme names</h2>
-<p>By default the switcher prints the registered theme name. <code>display</code> maps a name to what the user should actually read, plus an icon — without renaming the theme itself.</p>
+<p>By default the switcher prints the registered theme name. <code>display</code> maps a name to what the user should actually read, plus an icon — without renaming the theme itself.</p>
 <div class="script-block" data-block-id="doc-block-7"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Use the same theme names you registered in <code>sliceConfig.json</code> (<code>themeManager</code>). The value

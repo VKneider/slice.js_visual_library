@@ -5,16 +5,16 @@ navLabel: Table
 section: Data
 group: Tables
 order: 10
-description: Data table with sorting, pagination, search, typed filters, selection, sticky layout and virtual scrolling.
+description: Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling.
 component: TableDocumentation
 generate: true
-tags: [table, data, display, filter, search, selection, virtual]
+tags: [table, data, display, filter, search, selection, virtual, export, totals, menu]
 ---
 
 # Table
 
 ## Overview
-`Table` renders a structured HTML table from `headers` and `rows` arrays. Responsive by default with label-based cell display on narrow viewports.
+`Table` renders a structured HTML table from `headers` and `rows` arrays. Responsive by default: on phones it scrolls sideways with the first column pinned, or turns into cards (`mobileLayout: 'cards'`).
 
 ## API and Behavior
 - `headers` (array of strings) defines the table header row (rendered as `<th scope="col">`).
@@ -230,7 +230,7 @@ return table;
 - `sticky: true` on the leading columns pins them while the table scrolls sideways (the selection column pins with them). Their offsets are measured, so they follow the content.
 - `virtual: true` renders only the rows in view plus a few around them, so 100,000 rows scroll smoothly. Rows get a fixed `rowHeight` (44 by default) and long text is truncated, the viewport is `maxHeight` (480px by default), the header is sticky and `pagination` is ignored. Virtual tables keep the table layout on phones instead of switching to cards.
 
-:::script label="Search + filters + chips" expected="a toolbar with search and Filters; the panel edits each column by type"
+:::script label="Search + filters + chips + export" expected="a toolbar with search, Filters and Export; the panel edits each column by type"
 const rows = [
   { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, active: true, joined: '2024-03-10', role: 'admin' },
   { id: 2, name: 'Ana López', city: 'Caracas', age: 28, active: false, joined: '2023-11-02', role: 'editor' },
@@ -253,6 +253,9 @@ const table = await slice.build('Table', {
   rowKey: 'id',
   searchable: true,
   filterable: true,
+  exportable: true,
+  exportFilename: 'people',
+  selection: 'multiple',
   filters: [{ key: 'age', type: 'number', op: 'gte', value: 30 }]
 });
 
@@ -293,6 +296,7 @@ const table = await slice.build('Table', {
 });
 
 const host = document.createElement('div');
+host.style.width = '100%';
 host.append(table, state);
 return host;
 :::
@@ -317,6 +321,7 @@ const table = await slice.build('Table', {
 });
 
 const host = document.createElement('div');
+host.style.width = '100%';
 host.append(table, out);
 return host;
 :::
@@ -353,9 +358,232 @@ const table = await slice.build('Table', {
 return table;
 :::
 
+## Export
+`exportable: true` adds an **Export** menu: **Download CSV**, **Download JSON** or **Copy to clipboard**.
+
+- It exports the rows that pass the current search and filters, in the current sort order. When rows are selected, the menu also offers **Selected rows**.
+- Values come from the row **data** (`exportValue` → `filterValue` → `row[key]`), never from what `render` draws, so a badge exports its text value and a link its URL field. Give a column `exportValue` (a function or a path) to export something else, or `exportable: false` to leave it out.
+- The CSV follows RFC 4180: quotes, commas and line breaks are quoted correctly, lines end in CRLF and the file starts with a UTF-8 BOM, so Excel shows "José" and not "JosÃ©". Dates become `YYYY-MM-DD` and arrays are joined with commas.
+- A text that starts with `=`, `+`, `-` or `@` gets an apostrophe in front, so a spreadsheet does not run it as a formula ("CSV injection"). Real numbers are left alone.
+- **Copy to clipboard** copies tab-separated text: pasted into Excel or Google Sheets, it lands in cells.
+- From code: `exportData({ format, scope, columns, delimiter, headers })` returns the text, `downloadData({ format, scope, filename })` saves a file and `copyToClipboard({ scope })` copies. `scope` is `'filtered'` (default), `'selected'`, `'all'` or `'page'`. Use `delimiter: ';'` for Excel set to a Spanish locale.
+- `exportFilename` names the file. `onExport({ format, scope, count })` fires after every export.
+- In remote mode only the rows the table holds can be exported; for a full export, use `onFilterChange` state to ask your server for the file.
+
+## Mobile
+Below 640px, `mobileLayout` decides how the table adapts:
+
+- `'scroll'` (default): the real table, scrolling sideways. Cells do not wrap and the first column (with the selection column) is pinned, so a row stays identifiable. Sorting, select-all and every header affordance keep working.
+- `'cards'`: one card per row. The first column is the card's title, next to its checkbox, and every other field is a "label … value" line. Since the header is hidden, a bar above the cards offers **Sort by**, the direction and **Select all**.
+- Virtual tables always keep the table layout (their rows need a fixed height).
+- A table inside a flex row shrinks and scrolls instead of widening the page. If you wrap it in your own flex item, give that wrapper `min-width: 0`.
+
+:::script label="Mobile cards with a sort bar" expected="on a phone: cards with a title line; above them, Sort by and Select all (on desktop, a normal table)"
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'city', label: 'City' },
+    { key: 'age', label: 'Age', sortable: true },
+    { key: 'role', label: 'Role' }
+  ],
+  rows: [
+    { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, role: 'admin' },
+    { id: 2, name: 'Ana López', city: 'Caracas', age: 28, role: 'editor' },
+    { id: 3, name: 'Luis Galué', city: 'Valencia', age: 41, role: 'viewer' }
+  ],
+  rowKey: 'id',
+  selection: 'multiple',
+  mobileLayout: 'cards'
+});
+
+return table;
+:::
+
+## View: columns and density
+`columnToggle: true` and `densityToggle: true` add a **View** menu to the toolbar.
+
+- **Columns**: one checkbox per column. Hiding a column takes it out of the table, the search, the cards and the default export; the detail view still shows it. The last visible column cannot be hidden, and `hideable: false` pins a column.
+- `hidden: true` on a column starts it hidden. `hiddenColumns` (array of keys) sets the whole list and wins over `hidden`. `setColumnVisible(key, visible)` does it from code. `onColumnsChange(hiddenKeys)` fires on every change.
+- **Density**: `density` is `'compact'`, `'comfortable'` (default) or `'spacious'`. It changes padding and, in virtual mode, the row height (36 / 44 / 54px). An explicit `rowHeight` still wins.
+
+## Remember the state (`stateKey`)
+Give the table a `stateKey` and it saves the search, filters, sort, hidden columns and density in `localStorage` (under `slice-table:<stateKey>`). The next time a table with that key starts, the saved state wins over the initial props.
+
+- Nothing is saved until the user changes something, and saving is debounced.
+- A corrupt or older saved state is ignored. Unknown columns are skipped.
+- `clearSavedState()` forgets it. In remote mode, a restored state fires `onFilterChange` / `onSortChange` so you can fetch the right page.
+- Use a different key per table: two tables with one key share their state.
+
+## Totals
+Give a column `aggregate` and the table gets a totals row (`<tfoot>`), with **Total** in the first column.
+
+- `aggregate`: `'sum'`, `'avg'`, `'count'`, `'min'`, `'max'`, or `fn(values, rows)` for anything else.
+- It is computed over **every row that passes the search and filters**, not just the current page.
+- Numbers are formatted with `Intl.NumberFormat`. `aggregateFormat(value, rows)` formats it your way (currency, units).
+- When the body scrolls (`maxHeight`), the totals row stays at the bottom. On mobile cards it is a card of its own.
+
+:::script label="View menu, totals and remembered state" expected="View menu with density and columns; a Total row; reload the page and the choices are kept"
+const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Name', sortable: true, hideable: false, aggregate: 'count', aggregateFormat: (n) => `${n} people` },
+    { key: 'city', label: 'City' },
+    { key: 'age', label: 'Age', sortable: true, aggregate: 'avg' },
+    { key: 'salary', label: 'Salary', sortable: true, aggregate: 'sum', aggregateFormat: (v) => money.format(v), render: (row) => money.format(row.salary), filterValue: 'salary' },
+    { key: 'role', label: 'Role', hidden: true }
+  ],
+  rows: [
+    { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, salary: 1200, role: 'admin' },
+    { id: 2, name: 'Ana López', city: 'Caracas', age: 28, salary: 950, role: 'editor' },
+    { id: 3, name: 'Luis Galué', city: 'Valencia', age: 41, salary: 1800, role: 'viewer' },
+    { id: 4, name: 'María Ruiz', city: 'Mérida', age: 52, salary: 2100, role: 'editor' }
+  ],
+  rowKey: 'id',
+  searchable: true,
+  columnToggle: true,
+  densityToggle: true,
+  stateKey: 'docs-table-view'
+});
+table.style.width = '100%';
+return table;
+:::
+
+## Row detail
+`rowDetail` decides what a click (or **Enter**) on a row does:
+
+- `'modal'`: opens a `Modal` with the row. Its title is the first column (`detailTitle(row)` to change it), and focus returns to the row when it closes.
+- `'expand'`: a chevron column opens the detail right under the row, inside the table. It stays open across sorting and paging. Not available in virtual mode (rows there need one height).
+- The default content is a list of **every** column, hidden ones included, with their rendered values. `renderDetail(row)` replaces it: return a string, a DOM node, a component or a Promise of one.
+- `openDetail(rowOrKey)` opens it from code. `onRowClick` still fires on each click.
+
+## Menus you build
+The table's menus share one item vocabulary, so a menu is just an array:
+
+- `'details'`, `'copy'`, … — a built-in action (see below).
+- `'separator'` — a divider (repeated or edge separators are dropped).
+- `{ label, icon, shortcut, onClick(ctx) }` — your action. Add `danger: true` for destructive ones, `keepOpen: true` to leave the menu open after the click, and `checked` to show a tick.
+- `disabled` / `hidden` — `true` or a function of the row.
+- `{ type: 'label', label }` — a small section title.
+- `{ render(ctx) }` — anything: return a node (a form, a component). Keys typed inside it belong to it: arrows and Tab do not move the menu, Escape still closes it.
+
+Every `ctx` also has `close()`, so your item can close the menu itself (after saving a form, say).
+
+The menus are real menus: arrows, Home/End, Enter, Escape (focus goes back to the button) and a click outside all work.
+
+- **`rowActions`** adds a ⋯ button at the end of each row. `true` gives the default menu (`['details', 'copy', 'select']`), an array builds your own, and a function `row => items` gives each row its own. Built-ins: `'details'` (opens the detail), `'copy'` (copies the row as tab-separated text) and `'select'` (toggles the row's selection; needs `selection`). `onClick` receives `{ row, key, table }`.
+- **`exportMenu`** replaces the Export menu: pick from `'scope'`, `'csv'`, `'json'`, `'copy'` and add your own items. `onClick` receives `{ table, scope, rows }`, the rows the user chose to export. That is how to plug in an Excel export from your server.
+
+:::script label="Row detail and a custom row menu" expected="click a row for the detail modal; the ⋯ menu has Edit, Copy row and a red Delete, disabled for admins"
+const log = document.createElement('p');
+log.textContent = 'Pick an action from a ⋯ menu.';
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'city', label: 'City' },
+    { key: 'role', label: 'Role' },
+    { key: 'email', label: 'Email', hidden: true }
+  ],
+  rows: [
+    { id: 1, name: 'José Pérez', city: 'Maracaibo', role: 'admin', email: 'jose@example.com' },
+    { id: 2, name: 'Ana López', city: 'Caracas', role: 'editor', email: 'ana@example.com' },
+    { id: 3, name: 'Luis Galué', city: 'Valencia', role: 'viewer', email: 'luis@example.com' }
+  ],
+  rowKey: 'id',
+  rowDetail: 'modal',
+  rowActions: [
+    { label: 'Edit', icon: '✎', onClick: ({ row }) => { log.textContent = `Edit ${row.name}`; } },
+    'copy',
+    'separator',
+    {
+      label: 'Delete',
+      danger: true,
+      disabled: (row) => row.role === 'admin',
+      onClick: ({ row }) => { log.textContent = `Delete ${row.name}`; }
+    }
+  ]
+});
+table.style.width = '100%';
+const box = document.createElement('div');
+box.style.width = '100%';
+box.append(table, log);
+return box;
+:::
+
+### Your own menu (`onRowMenu`)
+To draw the menu yourself (your Dropdown, a popover, a modal), give `onRowMenu({ row, key, anchor, table, close })`. The ⋯ button then calls it instead of opening the table's menu.
+
+- `anchor` is the ⋯ button, to position your popup. Call `close()` when your menu closes: the table resets `aria-expanded` and returns focus to the button.
+- Return a cleanup function and the table runs it whenever it closes your menu for you: the ⋯ button pressed again, another row's menu opened, the row filtered or scrolled away, or the table destroyed.
+- `onRowMenu` alone is enough to show the ⋯ column; it wins over `rowActions`.
+
+:::script label="Your own row menu with onRowMenu" expected="the ⋯ button opens a popover drawn by the page, not by the table"
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Name' },
+    { key: 'city', label: 'City' }
+  ],
+  rows: [
+    { id: 1, name: 'José Pérez', city: 'Maracaibo' },
+    { id: 2, name: 'Ana López', city: 'Caracas' }
+  ],
+  rowKey: 'id',
+  onRowMenu: ({ row, anchor, close }) => {
+    const pop = document.createElement('div');
+    pop.style.cssText = 'position:fixed;z-index:1000;padding:12px;border-radius:10px;background:var(--secondary-background-color);box-shadow:0 8px 24px rgb(0 0 0 / .2)';
+    const box = anchor.getBoundingClientRect();
+    pop.style.top = `${box.bottom + 4}px`;
+    pop.style.left = `${Math.max(8, box.right - 200)}px`;
+    pop.style.width = '200px';
+    const title = document.createElement('strong');
+    title.textContent = row.name;
+    const ok = document.createElement('button');
+    ok.textContent = 'Close';
+    ok.style.marginTop = '8px';
+    ok.addEventListener('click', () => close());
+    pop.append(title, document.createElement('br'), ok);
+    document.body.appendChild(pop);
+    ok.focus();
+    return () => pop.remove();
+  }
+});
+table.style.width = '100%';
+return table;
+:::
+
+:::script label="Expand rows with a custom detail" expected="a chevron opens a custom panel under each row"
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'order', label: 'Order' },
+    { key: 'customer', label: 'Customer' },
+    { key: 'total', label: 'Total', aggregate: 'sum' }
+  ],
+  rows: [
+    { order: 'A-101', customer: 'José Pérez', total: 120, items: ['Keyboard', 'Mouse'] },
+    { order: 'A-102', customer: 'Ana López', total: 75, items: ['Headphones'] }
+  ],
+  rowKey: 'order',
+  rowDetail: 'expand',
+  renderDetail: (row) => {
+    const list = document.createElement('ul');
+    for (const item of row.items) {
+      const li = document.createElement('li');
+      li.textContent = item;
+      list.appendChild(li);
+    }
+    return list;
+  }
+});
+table.style.width = '100%';
+return table;
+:::
+
 ## Best Practices
 :::tip
 Keep row data uniform in length. Mismatched columns may produce uneven layout.
+:::
+
+:::tip
+Give `rowKey` whenever rows have an id: selection, expanded rows and the row menu follow the row through sorting and filtering instead of its position.
 :::
 
 ## Pitfalls
@@ -370,7 +598,11 @@ re-render: the table destroys what it replaces. Build a fresh node per render in
 :::
 
 :::warning
-In `virtual` mode every row has the same height (`rowHeight`). Cells that need to wrap, or rich components taller than the row, belong in a paginated table instead.
+In `virtual` mode every row has the same height (`rowHeight`, or the one `density` gives). Cells that need to wrap, or rich components taller than the row, belong in a paginated table instead.
+:::
+
+:::warning
+`stateKey` state lives in the user's browser. Change the key when you rename or remove columns, or the saved state may hide a column under its old meaning.
 :::
 
 :::warning

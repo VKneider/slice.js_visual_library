@@ -2,13 +2,13 @@ const docsIndex = [
   {
     title: 'Table',
     route: '/docs/data/table',
-    description: 'Data table with sorting, pagination, search, typed filters, selection, sticky layout and virtual scrolling.',
+    description: 'Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling.',
     section: 'Data',
     group: 'Tables',
     order: 10,
     navLabel: 'Table',
     component: 'TableDocumentation',
-    tags: ['table', 'data', 'display', 'filter', 'search', 'selection', 'virtual']
+    tags: ['table', 'data', 'display', 'filter', 'search', 'selection', 'virtual', 'export', 'totals', 'menu']
   },
   {
     title: 'Pagination',

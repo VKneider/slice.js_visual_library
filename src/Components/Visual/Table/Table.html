@@ -9,16 +9,29 @@
       <span class="table_filters_toggle_label"></span>
       <span class="table_filters_count" hidden></span>
     </button>
+    <button type="button" class="table_view_toggle" aria-haspopup="menu" aria-expanded="false" hidden>
+      <span class="table_view_icon" aria-hidden="true"></span>
+      <span class="table_view_label"></span>
+    </button>
+    <div class="table_export" hidden>
+      <button type="button" class="table_export_toggle" aria-haspopup="menu" aria-expanded="false">
+        <span class="table_export_icon" aria-hidden="true"></span>
+        <span class="table_export_label"></span>
+      </button>
+    </div>
     <span class="table_status" aria-live="polite"></span>
   </div>
   <div class="table_filter_panel" hidden></div>
   <div class="table_chips" hidden></div>
+  <div class="table_cards_bar" hidden></div>
   <div class="table_wrapper">
     <table class="table">
       <thead class="table_head"></thead>
       <tbody class="table_body"></tbody>
+      <tfoot class="table_foot" hidden></tfoot>
     </table>
   </div>
   <div class="table_footer"></div>
+  <div class="table_menu" role="menu" hidden></div>
   <div class="table_loading" aria-hidden="true"><span class="table_spinner"></span></div>
 </div>

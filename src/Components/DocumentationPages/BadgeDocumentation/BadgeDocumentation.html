@@ -7,10 +7,10 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>A <code>Badge</code> is a small status pill: a count, a label, or a bare dot. It answers "what state is this thing in" at a glance, next to a list item, a tab, an avatar or a button.</p>
-<p>Variants are <strong>semantic</strong> (<code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>accent</code>), not decorative, and each derives from its own theme token — <code>--success-color</code>, <code>--danger-color</code>, <code>--warning-color</code>, <code>--info-color</code>, <code>--primary-color</code> — so a badge means the same thing in light and dark without you picking a colour.</p>
-<p>The five coloured variants were separated by measurement, not by eye: all ten pairs clear a CIE ΔE of 36 or more, so none of them reads as another. The hues sit in distinct bands — danger 0°, warning 32°, success 161°, info 213°, brand 271°.</p>
-<p>Variants are <strong>tinted</strong>, not solid: a soft wash of the status colour, a hairline border, and text in a readable shade of that same colour. A solid fill was measured at 3.19–3.77:1 for white text on the lighter status colours, under the 4.5:1 AA bar for 12px text, and five saturated fills in a row read as a traffic light rather than as badges.</p>
+<p>A <code>Badge</code> is a small status pill: a count, a label, or a bare dot. It answers "what state is this thing in" at a glance, next to a list item, a tab, an avatar or a button.</p>
+<p>Variants are <strong>semantic</strong> (<code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>accent</code>), not decorative, and each derives from its own theme token — <code>--success-color</code>, <code>--danger-color</code>, <code>--warning-color</code>, <code>--info-color</code>, <code>--primary-color</code> — so a badge means the same thing in light and dark without you picking a colour.</p>
+<p>The five coloured variants were separated by measurement, not by eye: all ten pairs clear a CIE ΔE of 36 or more, so none of them reads as another. The hues sit in distinct bands — danger 0°, warning 32°, success 161°, info 213°, brand 271°.</p>
+<p>Variants are <strong>tinted</strong>, not solid: a soft wash of the status colour, a hairline border, and text in a readable shade of that same colour. A solid fill was measured at 3.19–3.77:1 for white text on the lighter status colours, under the 4.5:1 AA bar for 12px text, and five saturated fills in a row read as a traffic light rather than as badges.</p>
 <h2 id="api">API</h2>
 <ul><li><code>variant</code> (<code>neutral</code> | <code>accent</code> | <code>success</code> | <code>warning</code> | <code>danger</code> | <code>info</code>, default <code>neutral</code>)</li><li><code>label</code> (string) — the text. Doubles as the accessible name when <code>dot</code> is set.</li><li><code>value</code> (number | null) — a count. Wins over <code>label</code>, and is capped by <code>max</code> (<code>99</code> → <code>99+</code>).</li><li><code>max</code> (number, default <code>99</code>) — the cap for <code>value</code>.</li><li><code>dot</code> (boolean) — render a bare dot instead of text.</li><li><code>size</code> (<code>sm</code> | <code>md</code>, default <code>md</code>)</li></ul>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
@@ -19,8 +19,8 @@
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <h2 id="theming">Theming</h2>
-<p><code>Badge</code> needs one token per status colour beyond the standard palette: a <strong>readable shade</strong>, the version of that colour that clears 4.5:1 against its own tint on the current theme's surface.</p>
-<p>The shade has to move in opposite directions per theme. Light darkens the status colour toward black; dark <strong>lightens it toward white</strong>, because a dark theme's status colours are already light and darkening them produces a mid-tone with no contrast on a dark surface. Getting this wrong is not subtle — measured on the wrong direction, five of six variants land between 3.00:1 and 4.05:1 in dark mode.</p>
+<p><code>Badge</code> needs one token per status colour beyond the standard palette: a <strong>readable shade</strong>, the version of that colour that clears 4.5:1 against its own tint on the current theme's surface.</p>
+<p>The shade has to move in opposite directions per theme. Light darkens the status colour toward black; dark <strong>lightens it toward white</strong>, because a dark theme's status colours are already light and darkening them produces a mid-tone with no contrast on a dark surface. Getting this wrong is not subtle — measured on the wrong direction, five of six variants land between 3.00:1 and 4.05:1 in dark mode.</p>
 <p>Declare the shades on <code>:root</code>, derived from the status colours you already have:</p>
 <div class="code-block" data-block-id="doc-block-5"></div>
 <div class="callout callout-tip">The <code>-readable</code> tokens are <strong>optional for a light theme</strong>. Each <code>color</code> in <code>Badge.css</code> carries the

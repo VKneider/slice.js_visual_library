@@ -447,16 +447,23 @@ test.describe('Table — cell alignment', () => {
       await expect(td).not.toHaveClass(/table_cell--num/);
    });
 
-   test('mobile cards drop the column alignment', async ({ mount, page }) => {
+   // In the mobile 'cards' layout a field is a "label … value" line, whatever
+   // the column's own alignment says.
+   test('mobile cards lay every field out as label … value', async ({ mount, page }) => {
       await page.setViewportSize({ width: 480, height: 800 });
       await mount('Table', {
-         columns: [{ key: 'n', label: 'N', align: 'right' }],
-         rows: [{ n: 1 }],
+         columns: [{ key: 'name', label: 'Name' }, { key: 'n', label: 'N', align: 'left' }],
+         rows: [{ name: 'A', n: 1 }],
+         mobileLayout: 'cards',
       });
-      await expect(page.locator('.table_body td').first()).toHaveClass(/table_cell--right/);
-      expect(
-         await page.locator('.table_body td').first().evaluate((el) => getComputedStyle(el).textAlign)
-      ).toBe('left');
+      const field = page.locator('.table_body td[data-label="N"]');
+      await expect(field).toHaveClass(/table_cell--left/);
+      const layout = await field.evaluate((el) => ({
+         display: getComputedStyle(el).display,
+         justify: getComputedStyle(el).justifyContent,
+         label: getComputedStyle(el, '::before').content,
+      }));
+      expect(layout).toEqual({ display: 'flex', justify: 'space-between', label: '"N"' });
    });
 });
 
@@ -1045,5 +1052,727 @@ test.describe('Table — virtual', () => {
       });
       expect(out.selectWidth).toBeGreaterThanOrEqual(40);
       expect(out.deviceOnTop).toBe(true);
+   });
+});
+
+test.describe('Table — mobile layouts', () => {
+   const PHONE = { width: 390, height: 800 };
+   const WIDE = [
+      { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, role: 'admin', joined: '2024-03-10' },
+      { id: 2, name: 'Ana López', city: 'Caracas', age: 28, role: 'editor', joined: '2023-11-02' },
+      { id: 3, name: 'Luis Galué', city: 'Valencia', age: 41, role: 'viewer', joined: '2025-01-20' },
+   ];
+   const WIDE_COLS = [
+      { key: 'name', label: 'Name', sortable: true }, { key: 'city', label: 'City' },
+      { key: 'age', label: 'Age', sortable: true }, { key: 'role', label: 'Role' }, { key: 'joined', label: 'Joined' },
+   ];
+
+   test('scroll (default): the real table scrolls sideways with the first column pinned', async ({ mountHtml, page }) => {
+      await page.setViewportSize(PHONE);
+      const h = await mountHtml(`<div id="host" style="width:100%;min-width:0"></div>`);
+      const out = await h.page.evaluate(async ({ rows, columns }) => {
+         const el = await slice.build('Table', { columns, rows, rowKey: 'id', selection: 'multiple' });
+         document.getElementById('host').appendChild(el);
+         await new Promise((r) => setTimeout(r, 100));
+         const wrapper = el.querySelector('.table_wrapper');
+         const name = el.querySelector('tbody tr td[data-label="Name"]');
+         return {
+            theadShown: getComputedStyle(el.querySelector('thead')).display !== 'none',
+            scrolls: wrapper.scrollWidth > wrapper.clientWidth,
+            hostFits: el.getBoundingClientRect().width <= window.innerWidth,
+            pinned: getComputedStyle(name).position,
+            selectPinned: getComputedStyle(el.querySelector('tbody td.table_select_cell')).position,
+         };
+      }, { rows: WIDE, columns: WIDE_COLS });
+      expect(out).toEqual({ theadShown: true, scrolls: true, hostFits: true, pinned: 'sticky', selectPinned: 'sticky' });
+   });
+
+   test('scroll: nothing is pinned on desktop', async ({ mount }) => {
+      const c = await mount('Table', { columns: WIDE_COLS, rows: WIDE });
+      await expect(c.locator('tbody td[data-label="Name"]').first()).toHaveCSS('position', 'static');
+   });
+
+   test('the host shrinks inside a flex parent instead of widening the page', async ({ mountHtml, page }) => {
+      await page.setViewportSize(PHONE);
+      const h = await mountHtml(`<div id="row" style="display:flex;width:300px"></div>`);
+      const width = await h.page.evaluate(async ({ rows, columns }) => {
+         const el = await slice.build('Table', { columns, rows });
+         document.getElementById('row').appendChild(el);
+         return el.getBoundingClientRect().width;
+      }, { rows: WIDE, columns: WIDE_COLS });
+      expect(width).toBeLessThanOrEqual(300);
+   });
+
+   test('cards: one card per row, the first column as its title', async ({ mount, page }) => {
+      await page.setViewportSize(PHONE);
+      const c = await mount('Table', { columns: WIDE_COLS, rows: WIDE, mobileLayout: 'cards', rowKey: 'id', selection: 'multiple' });
+      await expect(c.locator('thead')).toBeHidden();
+      await expect(c.locator('tbody tr').first()).toHaveCSS('display', 'grid');
+      const title = c.locator('tbody tr').first().locator('td.table_primary_cell');
+      await expect(title).toHaveText('José Pérez');
+      expect(await title.evaluate((el) => getComputedStyle(el, '::before').content)).toBe('none');
+   });
+
+   test('cards: the bar sorts and selects, since the header is hidden', async ({ mount, page }) => {
+      await page.setViewportSize(PHONE);
+      const c = await mount('Table', { columns: WIDE_COLS, rows: WIDE, mobileLayout: 'cards', rowKey: 'id', selection: 'multiple' }, { spies: ['onSortChange'] });
+      const bar = c.locator('.table_cards_bar');
+      await expect(bar).toBeVisible();
+      await bar.locator('.table_cards_sort').selectOption('age');
+      await expect.poll(() => c.locator('tbody td.table_primary_cell').allTextContents()).toEqual(['Ana López', 'José Pérez', 'Luis Galué']);
+      await bar.locator('.table_cards_direction').click();
+      await expect.poll(() => c.locator('tbody td.table_primary_cell').allTextContents()).toEqual(['Luis Galué', 'José Pérez', 'Ana López']);
+      expect((await c.eventArgs('onSortChange')).at(-1)).toEqual([{ key: 'age', direction: 'desc' }]);
+      await bar.locator('.table_select_all').check();
+      expect(await c.component.evaluate((el) => el.selected.length)).toBe(3);
+   });
+
+   test('cards: the bar never shows on desktop', async ({ mount }) => {
+      const c = await mount('Table', { columns: WIDE_COLS, rows: WIDE, mobileLayout: 'cards', selection: 'multiple' });
+      await expect(c.locator('.table_cards_bar')).toBeHidden();
+      await expect(c.locator('thead')).toBeVisible();
+   });
+});
+
+test.describe('Table — export', () => {
+   const DATA = [
+      { id: 1, name: 'José "Pepe" Pérez', city: 'Maracaibo, ZU', age: 34, tags: ['a', 'b'], joined: new Date(2024, 2, 10), formula: '=SUM(A1:A9)', secret: 'x' },
+      { id: 2, name: 'Ana López', city: 'Caracas', age: -5, tags: [], joined: null, formula: '-negative text', secret: 'y' },
+   ];
+   const DCOLS = [
+      { key: 'name', label: 'Name' },
+      { key: 'city', label: 'City' },
+      { key: 'age', label: 'Age' },
+      { key: 'tags', label: 'Tags' },
+      { key: 'joined', label: 'Joined' },
+      { key: 'formula', label: 'Formula' },
+      { key: 'secret', label: 'Secret', exportable: false },
+   ];
+   const build = (page, props) => page.evaluate(async (p) => {
+      const el = await slice.build('Table', p);
+      document.getElementById('host').appendChild(el);
+      window.__t = el;
+   }, props);
+
+   test('exportData(csv): headers, RFC 4180 quoting, dates, arrays, CSV-injection guard', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host"></div>`);
+      await h.page.evaluate(async (cols) => {
+         const data = [
+            { id: 1, name: 'José "Pepe" Pérez', city: 'Maracaibo, ZU', age: 34, tags: ['a', 'b'], joined: new Date(2024, 2, 10), formula: '=SUM(A1:A9)', secret: 'x' },
+            { id: 2, name: 'Ana López', city: 'Caracas', age: -5, tags: [], joined: null, formula: '-negative text', secret: 'y' },
+         ];
+         const el = await slice.build('Table', { columns: cols, rows: data });
+         document.getElementById('host').appendChild(el);
+         window.__t = el;
+      }, DCOLS);
+      const csv = await page.evaluate(() => window.__t.exportData());
+      expect(csv.split('\r\n')).toEqual([
+         'Name,City,Age,Tags,Joined,Formula',
+         '"José ""Pepe"" Pérez","Maracaibo, ZU",34,"a, b",2024-03-10,\'=SUM(A1:A9)',
+         'Ana López,Caracas,-5,,,\'-negative text',
+      ]);
+   });
+
+   test('exportData honours scope, columns, delimiter and exportValue', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host"></div>`);
+      await build(page, {
+         columns: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }, { key: 'city', label: 'City', exportValue: 'city' }],
+         rows: CREW, rowKey: 'id', selection: 'multiple', selected: [3, 1],
+         filters: [{ key: 'age', type: 'number', op: 'gt', value: 30 }], sortable: true, defaultSort: { key: 'age', direction: 'desc' },
+      });
+      const out = await page.evaluate(() => ({
+         filtered: window.__t.exportData({ columns: ['name'], headers: false }),
+         selected: window.__t.exportData({ scope: 'selected', columns: ['name', 'age'], delimiter: ';' }),
+         all: window.__t.exportData({ scope: 'all', columns: ['name'], headers: false }).split('\r\n').length,
+      }));
+      expect(out.filtered.split('\r\n')).toEqual(['María Ruiz', 'Luis Galué', 'Carla Soto', 'José Pérez']);
+      expect(out.selected.split('\r\n')).toEqual(['Name;Age', 'Luis Galué;41', 'José Pérez;34']);
+      expect(out.all).toBe(6);
+      expect(h.pageErrors()).toEqual([]);
+   });
+
+   test('exportData(json) and (tsv)', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await build(page, { columns: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }], rows: CREW.slice(0, 2) });
+      const out = await page.evaluate(() => ({
+         json: JSON.parse(window.__t.exportData({ format: 'json' })),
+         tsv: window.__t.exportData({ format: 'tsv' }),
+      }));
+      expect(out.json).toEqual([{ name: 'José Pérez', age: 34 }, { name: 'Ana López', age: 28 }]);
+      expect(out.tsv).toBe('Name\tAge\r\nJosé Pérez\t34\r\nAna López\t28');
+   });
+
+   test('downloadData saves a CSV with a BOM, named after exportFilename', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await build(page, { columns: [{ key: 'name', label: 'Name' }], rows: CREW, exportFilename: 'personas' });
+      const [download] = await Promise.all([
+         page.waitForEvent('download'),
+         page.evaluate(() => window.__t.downloadData()),
+      ]);
+      expect(download.suggestedFilename()).toBe('personas.csv');
+      const body = await (await download.createReadStream()).toArray();
+      const text = Buffer.concat(body).toString('utf8');
+      expect(text.charCodeAt(0)).toBe(0xfeff);
+      expect(text.slice(1).split('\r\n')[1]).toBe('José Pérez');
+   });
+
+   test('copyToClipboard puts tab-separated rows on the clipboard', async ({ mountHtml, page, context }) => {
+      await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+      await mountHtml(`<div id="host"></div>`);
+      await build(page, { columns: [{ key: 'name', label: 'Name' }, { key: 'age', label: 'Age' }], rows: CREW.slice(0, 2), exportable: true });
+      const ok = await page.evaluate(() => window.__t.copyToClipboard());
+      expect(ok).toBe(true);
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('Name\tAge\r\nJosé Pérez\t34\r\nAna López\t28');
+      await expect(page.locator('#host .table_status')).toHaveText('Copied 2 rows');
+   });
+
+   test('the Export menu: keyboard, scope choice, Escape and outside click', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', exportable: true, selection: 'multiple', selected: [2] });
+      const toggle = c.locator('.table_export_toggle');
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      const items = c.locator('.table_menu_item');
+      await expect(items).toHaveText(['All matching rows (6)', 'Selected rows (1)', 'Download CSV', 'Download JSON', 'Copy to clipboard']);
+      await expect(items.first()).toBeFocused();
+      await page.keyboard.press('ArrowDown');
+      await expect(items.nth(1)).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(items.nth(1)).toHaveAttribute('aria-checked', 'true');
+      await page.keyboard.press('Escape');
+      await expect(c.locator('.table_menu')).toBeHidden();
+      await expect(toggle).toBeFocused();
+      await toggle.click();
+      await page.mouse.click(5, 5);
+      await expect(c.locator('.table_menu')).toBeHidden();
+   });
+
+   test('exporting from the menu fires onExport with the chosen scope', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', exportable: true, selection: 'multiple', selected: [2, 3] }, { spies: ['onExport'] });
+      await c.locator('.table_export_toggle').click();
+      await c.component.getByRole('menuitemradio', { name: 'Selected rows (2)' }).click();
+      const [download] = await Promise.all([
+         page.waitForEvent('download'),
+         c.component.getByRole('menuitem', { name: 'Download JSON' }).click(),
+      ]);
+      expect(download.suggestedFilename()).toBe('table.json');
+      await expect.poll(() => c.events('onExport')).toBe(1);
+      expect((await c.eventArgs('onExport')).at(-1)).toEqual([{ format: 'json', scope: 'selected', count: 2 }]);
+   });
+
+   test('the Export button only appears when exportable', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW });
+      await expect(c.locator('.table_export')).toBeHidden();
+   });
+});
+
+
+// ===================================================== view, state, totals, detail, menus
+
+const STAFF = [
+   { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, salary: 1200, role: 'admin' },
+   { id: 2, name: 'Ana López', city: 'Caracas', age: 28, salary: 950, role: 'editor' },
+   { id: 3, name: 'Luis Galué', city: 'Valencia', age: 41, salary: 1800, role: 'viewer' },
+   { id: 4, name: 'María Ruiz', city: 'Mérida', age: 52, salary: 2100, role: 'editor' },
+];
+const STAFF_COLS = [
+   { key: 'name', label: 'Name', sortable: true },
+   { key: 'city', label: 'City' },
+   { key: 'age', label: 'Age', sortable: true },
+   { key: 'salary', label: 'Salary' },
+   { key: 'role', label: 'Role' },
+];
+const heads = (c) => c.locator('thead th[data-column-index]').allTextContents();
+
+test.describe('Table — View menu: columns and density', () => {
+   test('columnToggle lists the columns; unchecking one hides it', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, columnToggle: true }, { spies: ['onColumnsChange'] });
+      await c.locator('.table_view_toggle').click();
+      const items = c.component.getByRole('menuitemcheckbox');
+      await expect(items).toHaveText(['Name', 'City', 'Age', 'Salary', 'Role']);
+      await c.component.getByRole('menuitemcheckbox', { name: 'City' }).click();
+      await expect(c.component.getByRole('menuitemcheckbox', { name: 'City' })).toHaveAttribute('aria-checked', 'false');
+      await expect(c.locator('.table_menu')).toBeVisible(); // a toggle keeps the menu open
+      expect(await heads(c)).toEqual(['Name', 'Age', 'Salary', 'Role']);
+      expect((await c.eventArgs('onColumnsChange')).at(-1)).toEqual([['city']]);
+   });
+
+   test('the last visible column and hideable:false cannot be hidden', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name', hideable: false }, { key: 'city', label: 'City' }],
+         rows: STAFF, columnToggle: true, hiddenColumns: [],
+      });
+      await c.locator('.table_view_toggle').click();
+      await expect(c.component.getByRole('menuitemcheckbox', { name: 'Name' })).toHaveAttribute('aria-disabled', 'true');
+      await c.component.getByRole('menuitemcheckbox', { name: 'City' }).click();
+      expect(await heads(c)).toEqual(['Name']);
+      // `name` is the only one left and not hideable anyway; a programmatic hide is ignored too.
+      await c.component.evaluate((el) => el.setColumnVisible('name', false));
+      expect(await heads(c)).toEqual(['Name']);
+   });
+
+   test('hidden: true starts hidden; hiddenColumns overrides it', async ({ mount }) => {
+      const a = await mount('Table', { columns: [...STAFF_COLS.slice(0, 2), { key: 'age', label: 'Age', hidden: true }], rows: STAFF });
+      expect(await heads(a)).toEqual(['Name', 'City']);
+      const b = await mount('Table', { columns: STAFF_COLS, rows: STAFF, hiddenColumns: ['salary', 'role'] });
+      expect(await heads(b)).toEqual(['Name', 'City', 'Age']);
+   });
+
+   test('the search and the export follow the visible columns', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, searchable: true, hiddenColumns: ['city'] });
+      await c.locator('.table_search_input').fill('caracas');
+      await expect.poll(() => c.locator('td.table_empty').count()).toBe(1);
+      const csv = await c.component.evaluate((el) => el.exportData({ scope: 'all' }).split('\r\n')[0]);
+      expect(csv).toBe('Name,Age,Salary,Role');
+   });
+
+   test('densityToggle switches the density, which changes the row height', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, densityToggle: true });
+      const rowHeight = () => c.locator('tbody tr').first().evaluate((tr) => tr.getBoundingClientRect().height);
+      const comfortable = await rowHeight();
+      await c.locator('.table_view_toggle').click();
+      await c.component.getByRole('menuitemradio', { name: 'Compact' }).click();
+      await expect(c.component).toHaveClass(/table--density-compact/);
+      const compact = await rowHeight();
+      await c.component.getByRole('menuitemradio', { name: 'Spacious' }).click();
+      const spacious = await rowHeight();
+      expect(compact).toBeLessThan(comfortable);
+      expect(spacious).toBeGreaterThan(comfortable);
+   });
+
+   test('the default density adds no class; unknown values fall back', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, density: 'huge' });
+      expect(await c.component.evaluate((el) => el.density)).toBe('comfortable');
+      await expect(c.component).not.toHaveClass(/table--density/);
+   });
+});
+
+test.describe('Table — remembered state (stateKey)', () => {
+   test('search, filters, sort, hidden columns and density come back', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host"></div>`);
+      const build = () => page.evaluate(async ({ rows, columns }) => {
+         document.getElementById('host').replaceChildren();
+         const el = await slice.build('Table', { columns, rows, stateKey: 'spec-staff', searchable: true, filterable: true, columnToggle: true, densityToggle: true });
+         document.getElementById('host').appendChild(el);
+         window.__t = el;
+      }, { rows: STAFF, columns: STAFF_COLS });
+      await page.evaluate(() => localStorage.removeItem('slice-table:spec-staff'));
+      await build();
+      // Nothing is saved just for showing up.
+      expect(await page.evaluate(() => localStorage.getItem('slice-table:spec-staff'))).toBeNull();
+
+      await page.locator('#host .table_search_input').fill('a');
+      await page.locator('#host th[data-sort-key="age"]').click();
+      await page.evaluate(() => {
+         window.__t.setFilter('salary', { type: 'number', op: 'gte', value: 1000 });
+         window.__t.setColumnVisible('city', false);
+         window.__t.density = 'compact';
+      });
+      await page.locator('#host .table_view_toggle').click();
+      await page.locator('#host').getByRole('menuitemradio', { name: 'Compact' }).click();
+      await page.waitForTimeout(400);
+
+      await build();
+      const state = await page.evaluate(() => ({
+         search: window.__t.search,
+         filters: window.__t.filters,
+         hidden: window.__t.hiddenColumns,
+         density: window.__t.density,
+      }));
+      expect(state.search).toBe('a');
+      expect(state.filters).toEqual([{ key: 'salary', type: 'number', op: 'gte', value: 1000 }]);
+      expect(state.hidden).toEqual(['city']);
+      expect(state.density).toBe('compact');
+      // age asc, salary ≥ 1000, has an "a"
+      await expect(page.locator('#host tbody td[data-label="Name"]')).toHaveText(['José Pérez', 'Luis Galué', 'María Ruiz']);
+      await expect(page.locator('#host .table_search_input')).toHaveValue('a');
+
+      await page.evaluate(() => window.__t.clearSavedState());
+      expect(await page.evaluate(() => localStorage.getItem('slice-table:spec-staff'))).toBeNull();
+   });
+
+   test('a corrupt saved state is ignored', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(() => localStorage.setItem('slice-table:spec-bad', '{not json'));
+      await page.evaluate(async ({ rows, columns }) => {
+         const el = await slice.build('Table', { columns, rows, stateKey: 'spec-bad' });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      await expect(page.locator('#host tbody tr')).toHaveCount(4);
+      expect(h.pageErrors()).toEqual([]);
+   });
+});
+
+test.describe('Table — totals', () => {
+   const COLS_T = [
+      { key: 'name', label: 'Name', aggregate: 'count' },
+      { key: 'age', label: 'Age', aggregate: 'avg' },
+      { key: 'salary', label: 'Salary', aggregate: 'sum' },
+      { key: 'role', label: 'Role' },
+   ];
+
+   test('sum / avg / count over every filtered row, not just the page', async ({ mount }) => {
+      const c = await mount('Table', { columns: COLS_T, rows: STAFF, pagination: { pageSize: 2 } });
+      const cells = c.locator('tfoot td');
+      await expect(cells.nth(0)).toHaveText('Total4');
+      await expect(cells.nth(1)).toHaveText('38.75');
+      await expect(cells.nth(2)).toHaveText(/6,?050/);
+      await expect(cells.nth(2)).toHaveClass(/table_cell--num/);
+   });
+
+   test('totals follow the filters', async ({ mount }) => {
+      const c = await mount('Table', { columns: COLS_T, rows: STAFF, searchable: true });
+      await c.locator('.table_search_input').fill('editor');
+      await expect(c.locator('tfoot td').nth(0)).toHaveText('Total2');
+      await expect(c.locator('tfoot td').nth(2)).toHaveText(/3,?050/);
+   });
+
+   test('min / max / a custom function / aggregateFormat', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      const out = await page.evaluate(async (rows) => {
+         const el = await slice.build('Table', {
+            columns: [
+               { key: 'name', label: 'Name' },
+               { key: 'age', label: 'Age', aggregate: 'min' },
+               { key: 'salary', label: 'Salary', aggregate: 'max', aggregateFormat: (v) => `$${v}` },
+               { key: 'role', label: 'Role', aggregate: (values) => new Set(values).size + ' roles' },
+            ],
+            rows,
+         });
+         document.getElementById('host').appendChild(el);
+         return [...el.querySelectorAll('tfoot td')].map((td) => td.textContent);
+      }, STAFF);
+      expect(out).toEqual(['Total', '28', '$2100', '3 roles']);
+   });
+
+   test('no aggregate, no footer', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF });
+      await expect(c.locator('tfoot')).toBeHidden();
+   });
+});
+
+test.describe('Table — row detail', () => {
+   test('modal: a row click opens every column (hidden ones too); Escape returns to the row', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, rowKey: 'id', rowDetail: 'modal', hiddenColumns: ['salary'] });
+      await c.locator('tbody tr').nth(1).locator('td[data-label="City"]').click();
+      const dialog = page.locator('dialog[open]');
+      await expect(dialog).toBeVisible();
+      await expect(dialog.locator('.slice-modal__title')).toHaveText('Ana López');
+      await expect(dialog.locator('.table_detail_list dt')).toHaveText(['Name', 'City', 'Age', 'Salary', 'Role']);
+      await expect(dialog.locator('.table_detail_list dd').nth(3)).toHaveText('950');
+      await page.keyboard.press('Escape');
+      await expect(dialog).toHaveCount(0);
+      await expect(c.locator('tbody tr').nth(1)).toBeFocused();
+   });
+
+   test('modal: Enter on a focused row opens it; renderDetail and detailTitle customise it', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id', rowDetail: 'modal',
+            detailTitle: (row) => `Employee #${row.id}`,
+            renderDetail: async (row) => {
+               await new Promise((r) => setTimeout(r, 50));
+               const p = document.createElement('p');
+               p.className = 'custom-detail';
+               p.textContent = `${row.name} earns ${row.salary}`;
+               return p;
+            },
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      await page.locator('#host tbody tr').nth(2).focus();
+      await page.keyboard.press('Enter');
+      const dialog = page.locator('dialog[open]');
+      await expect(dialog.locator('.slice-modal__title')).toHaveText('Employee #3');
+      await expect(dialog.locator('.custom-detail')).toHaveText('Luis Galué earns 1800');
+   });
+
+   test('expand: the chevron opens the detail under the row and closes it again', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, rowKey: 'id', rowDetail: 'expand' });
+      const toggle = c.locator('tbody tr[data-row-key="2"] .table_expand_toggle');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      const detail = c.locator('tbody tr.table_detail_row');
+      await expect(detail).toHaveCount(1);
+      await expect(detail.locator('dd').first()).toHaveText('Ana López');
+      const order = await c.component.evaluate((el) => [...el.querySelectorAll('tbody tr')].map((tr) => tr.dataset.rowKey || 'detail'));
+      expect(order).toEqual(['1', '2', 'detail', '3', '4']);
+      expect(await detail.locator('td').evaluate((td) => td.colSpan)).toBe(6); // 5 columns + the chevron
+      const controls = await toggle.getAttribute('aria-controls');
+      expect(await detail.locator('td').getAttribute('id')).toBe(controls);
+      await toggle.click();
+      await expect(detail).toHaveCount(0);
+   });
+
+   test('expand: clicking the row toggles too; the detail stays across a sort', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, rowKey: 'id', rowDetail: 'expand' });
+      await c.locator('tbody tr[data-row-key="3"] td[data-label="City"]').click();
+      await expect(c.locator('tbody tr.table_detail_row')).toHaveCount(1);
+      await c.locator('th[data-sort-key="age"]').click();
+      const order = await c.component.evaluate((el) => [...el.querySelectorAll('tbody tr')].map((tr) => tr.dataset.rowKey || 'detail'));
+      expect(order).toEqual(['2', '1', '3', 'detail', '4']);
+   });
+});
+
+test.describe('Table — row menu (rowActions)', () => {
+   test('rowActions: true gives the default menu', async ({ mount }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, rowKey: 'id', selection: 'multiple', rowActions: true });
+      await c.locator('tbody tr').first().locator('.table_row_menu_toggle').click();
+      await expect(c.component.getByRole('menuitem')).toHaveText(['Details', 'Copy row', 'Select']);
+      await c.component.getByRole('menuitem', { name: 'Select' }).click();
+      expect(await c.component.evaluate((el) => el.selected)).toEqual(['1']);
+      await c.locator('tbody tr').first().locator('.table_row_menu_toggle').click();
+      await expect(c.component.getByRole('menuitem', { name: 'Deselect' })).toBeVisible();
+   });
+
+   test('custom items: labels, separators, danger, disabled, hidden and onClick({ row, key, table })', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         window.__calls = [];
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id',
+            rowActions: [
+               { type: 'label', label: 'Manage' },
+               { label: 'Edit', icon: '✎', shortcut: 'E', onClick: ({ row, key, table }) => window.__calls.push(['edit', row.name, key, table === el]) },
+               'separator',
+               { label: 'Promote', hidden: (row) => row.role === 'admin', onClick: () => {} },
+               { label: 'Delete', danger: true, disabled: (row) => row.role === 'admin', onClick: ({ row }) => window.__calls.push(['delete', row.name]) },
+            ],
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      const host = page.locator('#host');
+      const admin = host.locator('tbody tr[data-row-key="1"] .table_row_menu_toggle');
+      await expect(admin).toHaveAttribute('aria-label', 'Row actions: José Pérez');
+      await admin.click();
+      await expect(host.locator('.table_menu_label')).toHaveText('Manage');
+      await expect(host.getByRole('menuitem')).toHaveText(['✎EditE', 'Delete']);
+      await expect(host.getByRole('menuitem', { name: 'Delete' })).toHaveAttribute('aria-disabled', 'true');
+      await expect(host.getByRole('menuitem', { name: 'Delete' })).toHaveClass(/table_menu_item--danger/);
+      await host.getByRole('menuitem', { name: 'Delete' }).click({ force: true });
+      await host.getByRole('menuitem', { name: /Edit/ }).click();
+      await expect(admin).toBeFocused();
+      await host.locator('tbody tr[data-row-key="2"] .table_row_menu_toggle').click();
+      await expect(host.getByRole('menuitem')).toHaveText(['✎EditE', 'Promote', 'Delete']);
+      await host.getByRole('menuitem', { name: 'Delete' }).click();
+      expect(await page.evaluate(() => window.__calls)).toEqual([['edit', 'José Pérez', '1', true], ['delete', 'Ana López']]);
+   });
+
+   test('rowActions as a function builds a menu per row; { render } adds anything', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id',
+            rowActions: (row) => (row.age > 40
+               ? ['details', { render: ({ row }) => { const s = document.createElement('small'); s.className = 'senior'; s.textContent = `Senior: ${row.name}`; return s; } }]
+               : ['details']),
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      await page.locator('#host tbody tr[data-row-key="3"] .table_row_menu_toggle').click();
+      await expect(page.locator('#host .table_menu .senior')).toHaveText('Senior: Luis Galué');
+      await page.keyboard.press('Escape');
+      await page.locator('#host tbody tr[data-row-key="2"] .table_row_menu_toggle').click();
+      await expect(page.locator('#host .table_menu .senior')).toHaveCount(0);
+   });
+
+   test('"Details" from the row menu opens the modal', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, rowKey: 'id', rowActions: ['details'] });
+      await c.locator('tbody tr').nth(3).locator('.table_row_menu_toggle').click();
+      await c.component.getByRole('menuitem', { name: 'Details' }).click();
+      await expect(page.locator('dialog[open] .slice-modal__title')).toHaveText('María Ruiz');
+   });
+
+   test('the menu: arrows move, Escape closes and returns focus, an outside press closes', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: STAFF_COLS, rows: STAFF, rowKey: 'id', rowActions: ['details', 'copy'] });
+      const toggle = c.locator('tbody tr').first().locator('.table_row_menu_toggle');
+      await toggle.click();
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      await expect(c.component.getByRole('menuitem', { name: 'Details' })).toBeFocused();
+      await page.keyboard.press('ArrowDown');
+      await expect(c.component.getByRole('menuitem', { name: 'Copy row' })).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(c.locator('.table_menu')).toBeHidden();
+      await expect(toggle).toBeFocused();
+      await toggle.click();
+      await page.mouse.click(2, 2);
+      await expect(c.locator('.table_menu')).toBeHidden();
+   });
+
+   test('exportMenu: pick built-ins and add your own item', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         window.__exported = null;
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id', exportable: true,
+            exportMenu: ['csv', 'separator', { label: 'Excel (server)', onClick: ({ rows, scope }) => { window.__exported = [scope, rows.length]; } }],
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      await page.locator('#host .table_export_toggle').click();
+      await expect(page.locator('#host').getByRole('menuitem')).toHaveText(['Download CSV', 'Excel (server)']);
+      await page.locator('#host').getByRole('menuitem', { name: 'Excel (server)' }).click();
+      expect(await page.evaluate(() => window.__exported)).toEqual(['filtered', 4]);
+   });
+});
+
+test.describe('Table — your own menus (close, custom content, onRowMenu)', () => {
+   test('ctx.close() lets a form inside the menu close it', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         window.__notes = [];
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id',
+            rowActions: [
+               'details',
+               {
+                  render: ({ row, close }) => {
+                     const form = document.createElement('form');
+                     form.className = 'note-form';
+                     const input = document.createElement('input');
+                     input.setAttribute('aria-label', 'Note');
+                     const save = document.createElement('button');
+                     save.textContent = 'Save';
+                     form.append(input, save);
+                     form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        window.__notes.push([row.name, input.value]);
+                        close();
+                     });
+                     return form;
+                  },
+               },
+            ],
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      const host = page.locator('#host');
+      const toggle = host.locator('tbody tr[data-row-key="2"] .table_row_menu_toggle');
+      await toggle.click();
+      const input = host.getByLabel('Note');
+      await input.click();
+      // Keys typed in custom content belong to it: arrows do not move the menu, Tab does not close it.
+      await page.keyboard.type('hola');
+      await page.keyboard.press('ArrowUp');
+      await expect(input).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(host.locator('.table_menu')).toBeVisible();
+      await host.getByRole('button', { name: 'Save' }).click();
+      await expect(host.locator('.table_menu')).toBeHidden();
+      await expect(toggle).toBeFocused();
+      expect(await page.evaluate(() => window.__notes)).toEqual([['Ana López', 'hola']]);
+   });
+
+   test('Escape inside custom content closes; focus leaving the menu closes it', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div><button id="elsewhere">elsewhere</button>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id',
+            rowActions: [{ render: () => { const i = document.createElement('input'); i.setAttribute('aria-label', 'Note'); return i; } }],
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      const host = page.locator('#host');
+      const toggle = host.locator('tbody tr').first().locator('.table_row_menu_toggle');
+      await toggle.click();
+      await host.getByLabel('Note').focus();
+      await page.keyboard.press('Escape');
+      await expect(host.locator('.table_menu')).toBeHidden();
+      await expect(toggle).toBeFocused();
+      await toggle.click();
+      await host.getByLabel('Note').focus();
+      await page.locator('#elsewhere').focus();
+      await expect(host.locator('.table_menu')).toBeHidden();
+   });
+
+   test('a stale close() from an old menu does nothing', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         window.__closers = [];
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id',
+            rowActions: [{ render: ({ close }) => { window.__closers.push(close); return document.createElement('span'); } }],
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      const host = page.locator('#host');
+      await host.locator('tbody tr').nth(0).locator('.table_row_menu_toggle').click();
+      await host.locator('tbody tr').nth(1).locator('.table_row_menu_toggle').click();
+      await page.evaluate(() => window.__closers[0]());
+      await expect(host.locator('.table_menu')).toBeVisible();
+      await page.evaluate(() => window.__closers[1]());
+      await expect(host.locator('.table_menu')).toBeHidden();
+   });
+
+   test('onRowMenu replaces the table menu: you get the row and the anchor, the table keeps aria-expanded', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         window.__log = [];
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id', searchable: true,
+            onRowMenu: ({ row, key, anchor, table, close }) => {
+               const pop = document.createElement('div');
+               pop.className = 'my-popover';
+               pop.textContent = `Menu for ${row.name}`;
+               const done = document.createElement('button');
+               done.textContent = 'Done';
+               done.addEventListener('click', () => close());
+               pop.appendChild(done);
+               document.body.appendChild(pop);
+               window.__log.push(['open', key, anchor.classList.contains('table_row_menu_toggle'), table === el]);
+               return () => { pop.remove(); window.__log.push(['cleanup', key]); };
+            },
+         });
+         document.getElementById('host').appendChild(el);
+      }, { rows: STAFF, columns: STAFF_COLS });
+      const host = page.locator('#host');
+      const first = host.locator('tbody tr[data-row-key="1"] .table_row_menu_toggle');
+      const second = host.locator('tbody tr[data-row-key="2"] .table_row_menu_toggle');
+
+      await first.click();
+      await expect(page.locator('.my-popover')).toHaveText(/Menu for José Pérez/);
+      await expect(host.locator('.table_menu')).toBeHidden();
+      await expect(first).toHaveAttribute('aria-expanded', 'true');
+
+      // Your close(): cleanup runs, aria-expanded resets, focus returns.
+      await page.getByRole('button', { name: 'Done' }).click();
+      await expect(page.locator('.my-popover')).toHaveCount(0);
+      await expect(first).toHaveAttribute('aria-expanded', 'false');
+      await expect(first).toBeFocused();
+
+      // The toggle closes it; opening another row's menu closes the first.
+      await first.click();
+      await first.click();
+      await second.click();
+      await first.click();
+      expect(await page.evaluate(() => window.__log)).toEqual([
+         ['open', '1', true, true], ['cleanup', '1'],
+         ['open', '1', true, true], ['cleanup', '1'],
+         ['open', '2', true, true], ['cleanup', '2'],
+         ['open', '1', true, true],
+      ]);
+
+      // Its row filtered away: the table closes it.
+      await host.locator('.table_search_input').fill('valencia');
+      await expect(page.locator('.my-popover')).toHaveCount(0);
+      expect((await page.evaluate(() => window.__log)).at(-1)).toEqual(['cleanup', '1']);
+   });
+
+   test('onRowMenu alone adds the ⋯ column; destroying the table runs the cleanup', async ({ mountHtml, page }) => {
+      await mountHtml(`<div id="host"></div>`);
+      await page.evaluate(async ({ rows, columns }) => {
+         window.__cleaned = 0;
+         const el = await slice.build('Table', {
+            columns, rows, rowKey: 'id',
+            onRowMenu: () => () => { window.__cleaned += 1; },
+         });
+         document.getElementById('host').appendChild(el);
+         window.__t = el;
+      }, { rows: STAFF, columns: STAFF_COLS });
+      await expect(page.locator('#host tbody .table_row_menu_toggle')).toHaveCount(4);
+      await page.locator('#host tbody .table_row_menu_toggle').first().click();
+      await page.evaluate(() => slice.controller.destroyComponent(window.__t));
+      expect(await page.evaluate(() => window.__cleaned)).toBe(1);
    });
 });

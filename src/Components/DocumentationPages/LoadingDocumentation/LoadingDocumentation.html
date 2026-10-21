@@ -11,8 +11,8 @@
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>start(container?)</code> mounts the loading overlay.</li><li><code>stop()</code> removes it and restores container styles.</li><li><code>active</code> can be toggled as a reactive state prop.</li></ul>
 <h2 id="layering-and-motion">Layering and motion</h2>
-<p>The overlay sets <code>z-index: 2147483000</code> inline when it starts, so it always covers the other global layers it can share a page with — the toast stack sits at <code>11000</code> and a drag ghost at <code>999999</code>. It is also the only value that beats both from CSS, since the host is positioned from JS.</p>
-<p>The spinner animation is disabled under <code>prefers-reduced-motion: reduce</code>, so a user who has asked the system to calm things down gets a still overlay instead of a perpetual rotation.</p>
+<p>The overlay sets <code>z-index: 2147483000</code> inline when it starts, so it always covers the other global layers it can share a page with — the toast stack sits at <code>11000</code> and a drag ghost at <code>999999</code>. It is also the only value that beats both from CSS, since the host is positioned from JS.</p>
+<p>The spinner animation is disabled under <code>prefers-reduced-motion: reduce</code>, so a user who has asked the system to calm things down gets a still overlay instead of a perpetual rotation.</p>
 <div class="callout callout-warning">A native <code>&lt;dialog&gt;</code> (<code>Modal</code>) lives in the browser's <strong>top layer</strong>, which no <code>z-index</code> can cover. Do
 not use <code>Loading</code> to block a modal — drive the modal's own state instead.</div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>

@@ -12,6 +12,11 @@
 slice-table {
   display: block;
   width: 100%;
+  /* As a flex or grid item the host would otherwise refuse to shrink below
+     its content (min-width: auto), pushing the page sideways instead of
+     letting the table scroll inside its own wrapper. */
+  min-width: 0;
+  max-width: 100%;
 
   --slice-table-header-bg: color-mix(in srgb, var(--primary-color) 8%, var(--primary-background-color));
   --slice-table-header-fg: var(--font-secondary-color);
@@ -238,82 +243,7 @@ slice-table .table_footer {
   padding-top: 0.75rem;
 }
 
-@media (max-width: 640px) {
-  slice-table:not(.table--virtual) .table_wrapper {
-    overflow: visible;
-    display: flex;
-    justify-content: center;
-  }
-
-  slice-table:not(.table--virtual) .table,
-  slice-table:not(.table--virtual) .table thead,
-  slice-table:not(.table--virtual) .table tbody,
-  slice-table:not(.table--virtual) .table tr,
-  slice-table:not(.table--virtual) .table th,
-  slice-table:not(.table--virtual) .table td {
-    display: block;
-    width: 100%;
-  }
-
-  slice-table:not(.table--virtual) .table {
-    width: min(92%, 560px);
-    margin: 0 auto;
-  }
-
-  slice-table:not(.table--virtual) .table thead {
-    display: none;
-  }
-
-  /* A primary tint, not --secondary-background-color: that token is light blue
-     (#f0f9ff) in a purple theme, which is how DropDown ended up light-blue
-     (LIGHT.css documents the lesson). */
-  slice-table:not(.table--virtual) .table tr {
-    border: 1px solid var(--slice-table-row-divider);
-    border-radius: var(--border-radius-slice, 8px);
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    background: var(--slice-table-card-bg);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 10px 16px;
-  }
-
-  slice-table:not(.table--virtual) .table td {
-    border: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: baseline;
-    column-gap: 8px;
-    row-gap: 4px;
-  }
-
-  /* The card stacks label above value, so column alignment does not apply. */
-  slice-table:not(.table--virtual) .table td.table_cell--left,
-  slice-table:not(.table--virtual) .table td.table_cell--center,
-  slice-table:not(.table--virtual) .table td.table_cell--right,
-  slice-table:not(.table--virtual) .table td.table_cell--num {
-    text-align: left;
-  }
-
-  slice-table:not(.table--virtual) .table td::before {
-    content: attr(data-label);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--primary-color);
-    font-weight: 700;
-    white-space: nowrap;
-  }
-
-  slice-table:not(.table--virtual) .table td > * {
-    min-width: 0;
-  }
-
-  slice-table:not(.table--virtual) .table td code {
-    display: inline-block;
-  }
-}
+/* Mobile: see the "Mobile layouts" section at the end of this file. */
 
 /* ======================================================================
    Toolbar: search, filters toggle, status
@@ -740,8 +670,475 @@ slice-table.table--virtual .table {
   table-layout: fixed;
 }
 
+/* ======================================================================
+   Export menu
+   ====================================================================== */
+
+slice-table .table_export[hidden],
+slice-table .table_view_toggle[hidden],
+slice-table .table_menu[hidden],
+slice-table .table_foot[hidden],
+slice-table .table_cards_bar[hidden],
+slice-table .table_cards_direction[hidden] {
+  display: none;
+}
+
+slice-table .table_export {
+  position: relative;
+}
+
+slice-table .table_export_toggle,
+slice-table .table_view_toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--slice-table-control-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+slice-table .table_export_toggle:hover,
+slice-table .table_export_toggle[aria-expanded='true'],
+slice-table .table_view_toggle:hover,
+slice-table .table_view_toggle[aria-expanded='true'] {
+  background: var(--slice-table-chip-bg);
+}
+
+slice-table .table_export_toggle:focus-visible,
+slice-table .table_view_toggle:focus-visible,
+slice-table .table_menu_item:focus-visible,
+slice-table .table_cards_sort:focus-visible,
+slice-table .table_cards_direction:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 1px;
+}
+
+/* A download arrow: a stem and a chevron over a tray, in the text colour. */
+slice-table .table_export_icon {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-bottom: 2px solid currentColor;
+  box-sizing: border-box;
+}
+
+slice-table .table_export_icon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 7px;
+  background: currentColor;
+  transform: translateX(-50%);
+}
+
+slice-table .table_export_icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Three columns of the table, drawn in the text colour. */
+slice-table .table_view_icon {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 11px;
+  background:
+    linear-gradient(currentColor, currentColor) left / 3px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) center / 3px 100% no-repeat,
+    linear-gradient(currentColor, currentColor) right / 3px 100% no-repeat;
+}
+
+/* ONE floating menu (Export, View, every row's ⋯), positioned by Table.js
+   against the component, so it is never clipped by the scroll wrapper. */
+slice-table .table_menu {
+  position: absolute;
+  z-index: 10;
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: min(420px, 70vh);
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--slice-table-control-border);
+  border-radius: 10px;
+  background: var(--slice-surface-raised, var(--secondary-background-color));
+  box-shadow: var(--slice-shadow-md, 0 8px 24px rgb(0 0 0 / 0.16));
+  font-family: var(--font-family);
+}
+
+slice-table .table_menu_item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+slice-table .table_menu_item:hover,
+slice-table .table_menu_item:focus-visible {
+  background: var(--slice-table-chip-bg);
+}
+
+slice-table .table_menu_item--danger {
+  color: var(--danger-color);
+}
+
+slice-table .table_menu_item--danger:hover,
+slice-table .table_menu_item--danger:focus-visible {
+  background: color-mix(in srgb, var(--danger-color) 12%, transparent);
+}
+
+slice-table .table_menu_item[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+slice-table .table_menu_item[aria-disabled='true']:hover {
+  background: transparent;
+}
+
+slice-table .table_menu_text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+slice-table .table_menu_icon {
+  flex: none;
+  width: 1.1em;
+  text-align: center;
+}
+
+slice-table .table_menu_shortcut {
+  flex: none;
+  color: var(--font-secondary-color);
+  font-size: 0.8rem;
+}
+
+/* Radio items: a ring, filled when checked. */
+slice-table .table_menu_item[role='menuitemradio']::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--primary-color);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+slice-table .table_menu_item[role='menuitemradio'][aria-checked='true']::before {
+  background: radial-gradient(circle, var(--primary-color) 45%, transparent 50%);
+}
+
+/* Checkbox items: a box, filled with a tick when checked (the tick is the
+   ::after, drawn with two borders like Checkbox's). */
+slice-table .table_menu_item[role='menuitemcheckbox'] {
+  position: relative;
+}
+
+slice-table .table_menu_item[role='menuitemcheckbox']::before {
+  content: '';
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+slice-table .table_menu_item[role='menuitemcheckbox'][aria-checked='true']::before {
+  background: var(--primary-color);
+}
+
+slice-table .table_menu_item[role='menuitemcheckbox'][aria-checked='true']::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  width: 3px;
+  height: 7px;
+  border: solid var(--primary-color-contrast);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-60%) rotate(45deg);
+}
+
+/* The detail modal has no footer: do not draw its empty band. */
+slice-table .slice-modal__footer:empty {
+  display: none;
+}
+
+slice-table .table_menu_label {
+  padding: 8px 10px 4px;
+  color: var(--font-secondary-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+slice-table .table_menu_separator {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--slice-table-row-divider);
+}
+
+slice-table .table_menu_custom {
+  padding: 6px 10px;
+}
+
+/* ======================================================================
+   Density
+   ====================================================================== */
+
+slice-table.table--density-compact {
+  --slice-table-cell-padding: 6px 10px;
+}
+
+slice-table.table--density-compact .table {
+  font-size: 0.9rem;
+}
+
+slice-table.table--density-spacious {
+  --slice-table-cell-padding: 14px 16px;
+}
+
+/* ======================================================================
+   Totals
+   ====================================================================== */
+
+slice-table .table tfoot td {
+  padding: var(--slice-table-cell-padding);
+  border-top: 2px solid var(--slice-table-row-divider);
+  border-bottom: 0;
+  background: var(--slice-table-header-bg);
+  color: var(--font-primary-color);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+slice-table .table tfoot .table_total_label {
+  margin-right: 10px;
+  color: var(--slice-table-header-fg);
+  font-size: var(--slice-table-header-size);
+  text-transform: var(--slice-table-header-transform);
+  letter-spacing: var(--slice-table-header-tracking);
+}
+
+/* In a bounded scroll area the totals stay in view, like the header. */
+slice-table.table--scroll-y .table tfoot td {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  background:
+    linear-gradient(var(--slice-table-header-bg), var(--slice-table-header-bg)),
+    var(--primary-background-color);
+}
+
+/* ======================================================================
+   Row detail and row menu
+   ====================================================================== */
+
+slice-table .table th.table_expand_cell,
+slice-table .table td.table_expand_cell,
+slice-table .table th.table_actions_cell,
+slice-table .table td.table_actions_cell {
+  box-sizing: border-box;
+  width: 44px;
+  min-width: 44px;
+  padding-left: 6px;
+  padding-right: 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+slice-table .table_expand_toggle,
+slice-table .table_row_menu_toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--font-secondary-color);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+slice-table .table_expand_toggle:hover,
+slice-table .table_row_menu_toggle:hover,
+slice-table .table_row_menu_toggle[aria-expanded='true'] {
+  background: var(--slice-table-chip-bg);
+  color: var(--font-primary-color);
+}
+
+slice-table .table_expand_toggle:focus-visible,
+slice-table .table_row_menu_toggle:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 1px;
+}
+
+/* A chevron that turns down when the row is open. */
+slice-table .table_expand_chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 150ms ease-out;
+}
+
+slice-table .table_expand_toggle[aria-expanded='true'] .table_expand_chevron {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-table .table_expand_chevron {
+    transition: none;
+  }
+}
+
+/* Three dots, drawn: no glyph whose width depends on the font. */
+slice-table .table_row_menu_dots,
+slice-table .table_row_menu_dots::before,
+slice-table .table_row_menu_dots::after {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+slice-table .table_row_menu_dots {
+  position: relative;
+}
+
+slice-table .table_row_menu_dots::before,
+slice-table .table_row_menu_dots::after {
+  content: '';
+  position: absolute;
+  top: 0;
+}
+
+slice-table .table_row_menu_dots::before {
+  left: -7px;
+}
+
+slice-table .table_row_menu_dots::after {
+  left: 7px;
+}
+
+slice-table .table tbody tr.table_row--expanded td {
+  border-bottom-color: transparent;
+}
+
+slice-table .table tr.table_detail_row td.table_detail_cell {
+  padding: 4px 16px 16px 60px;
+  background: var(--slice-table-card-bg);
+  white-space: normal;
+}
+
+slice-table .table_detail_list {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 20px;
+  margin: 0;
+  font-family: var(--font-family);
+}
+
+slice-table .table_detail_list dt {
+  color: var(--font-secondary-color);
+  font-size: 0.85rem;
+}
+
+slice-table .table_detail_list dd {
+  margin: 0;
+  color: var(--font-primary-color);
+  overflow-wrap: anywhere;
+}
+
+slice-table .table_detail_loading {
+  color: var(--font-secondary-color);
+}
+
+/* ======================================================================
+   Cards bar (mobile 'cards' layout only)
+   ====================================================================== */
+
+/* Never on desktop: there the header row does this job. */
+slice-table .table_cards_bar {
+  display: none;
+}
+
+slice-table .table_cards_select {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  color: var(--font-primary-color);
+  cursor: pointer;
+}
+
+slice-table .table_cards_sort {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--slice-table-control-border);
+  border-radius: 8px;
+  background: var(--slice-table-control-bg);
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+slice-table .table_cards_direction {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--slice-table-control-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* ======================================================================
+   Mobile layouts
+   ====================================================================== */
+
 @media (max-width: 640px) {
   slice-table .table_search {
+    flex-basis: 100%;
     max-width: none;
   }
 
@@ -750,9 +1147,234 @@ slice-table.table--virtual .table {
     margin-left: 0;
   }
 
-  /* The card layout stacks cells; nothing to pin there. */
-  slice-table:not(.table--virtual) .table .table_cell--sticky {
+  slice-table .table_export_menu {
+    right: auto;
+    left: 0;
+  }
+
+  /* ---------------------------------------------------- 'scroll' (default)
+     The real table, scrolling sideways. Cells do not wrap, so rows stay one
+     line tall and columns keep their width; the first column (and the
+     selection column) is pinned by Table.js through `--mobile-sticky`. */
+  slice-table:not(.table--cards) .table th,
+  slice-table:not(.table--cards) .table td {
+    white-space: nowrap;
+  }
+
+  slice-table:not(.table--cards) .table .table_cell--mobile-sticky {
+    position: sticky;
+    left: var(--slice-table-sticky-left, 0);
+    z-index: 1;
+  }
+
+  slice-table:not(.table--cards) .table td.table_cell--mobile-sticky {
+    background:
+      linear-gradient(var(--slice-table-row-bg, transparent), var(--slice-table-row-bg, transparent)),
+      var(--primary-background-color);
+  }
+
+  slice-table:not(.table--cards) .table th.table_cell--mobile-sticky {
+    z-index: 3;
+    background:
+      linear-gradient(var(--slice-table-header-bg), var(--slice-table-header-bg)),
+      var(--primary-background-color);
+  }
+
+  slice-table:not(.table--cards) .table .table_cell--mobile-sticky-edge {
+    box-shadow: 6px 0 6px -6px color-mix(in srgb, var(--font-primary-color) 30%, transparent);
+  }
+
+  /* ------------------------------------------------------------- 'cards'
+     One card per row: the first column is the title (next to the checkbox),
+     every other field is a "label … value" line. Not in virtual mode, whose
+     rows need a fixed height. */
+  slice-table.table--cards:not(.table--virtual) .table_cards_bar:not([hidden]) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table_wrapper {
+    overflow: visible;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table,
+  slice-table.table--cards:not(.table--virtual) .table tbody {
+    display: block;
+    width: 100%;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table thead {
+    display: none;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody tr,
+  slice-table.table--cards:not(.table--virtual) .table tfoot tr {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 6px;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--slice-table-row-divider);
+    border-radius: 12px;
+    background:
+      linear-gradient(var(--slice-table-row-bg), var(--slice-table-row-bg)),
+      var(--slice-table-card-bg);
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody tr.table_row--selected {
+    border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td,
+  slice-table.table--cards:not(.table--virtual) .table tfoot td {
+    box-sizing: border-box;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  /* The column label, quiet: the value is what the card is for. */
+  slice-table.table--cards:not(.table--virtual) .table tbody td::before,
+  slice-table.table--cards:not(.table--virtual) .table tfoot td::before {
+    content: attr(data-label);
+    flex: none;
+    max-width: 45%;
+    color: var(--font-secondary-color);
+    font-size: 0.8rem;
+    text-align: left;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_cell--num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Title line: checkbox + first column. */
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_select_cell {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+    min-width: 0;
+    align-self: center;
+  }
+
+  /* Title line: [checkbox] title [chevron] [⋯]. */
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_expand_cell {
+    grid-column: 3;
+    grid-row: 1;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_actions_cell {
+    grid-column: 4;
+    grid-row: 1;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_expand_cell::before,
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_actions_cell::before,
+  slice-table.table--cards:not(.table--virtual) .table tfoot td.table_total_first::before,
+  slice-table.table--cards:not(.table--virtual) .table tfoot td:empty {
+    content: none;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tfoot td:empty {
+    display: none;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tfoot td {
+    position: static;
+    border-top: 0;
+    background: none;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tfoot,
+  slice-table.table--cards:not(.table--virtual) .table tfoot tr {
+    display: block;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tfoot tr {
+    display: grid;
+  }
+
+  /* The detail of a card: a block under it, joined to it. */
+  slice-table.table--cards:not(.table--virtual) .table tbody tr.table_detail_row {
+    display: block;
+    margin-top: -12px;
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody tr.table_detail_row td.table_detail_cell {
+    display: block;
+    padding: 0;
+    background: none;
+    text-align: left;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody tr.table_detail_row td::before {
+    content: none;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_primary_cell {
+    justify-content: flex-start;
+    margin-bottom: 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_primary_cell {
+    grid-row: 1;
+    grid-column: 1 / 3;
+  }
+
+  slice-table.table--cards.table--selectable:not(.table--virtual) .table tbody td.table_primary_cell {
+    grid-column: 2;
+    grid-row: 1;
+    margin-bottom: 0;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_select_cell::before,
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_primary_cell::before,
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_empty::before {
+    content: none;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody tr.table_empty_row {
+    display: block;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table tbody td.table_empty {
+    display: block;
+    text-align: center;
+  }
+
+  slice-table.table--cards:not(.table--virtual) .table td code {
+    display: inline-block;
+  }
+
+  /* Cards stack: nothing to pin. */
+  slice-table.table--cards:not(.table--virtual) .table .table_cell--sticky {
     position: static;
     box-shadow: none;
+    background: none;
   }
 }

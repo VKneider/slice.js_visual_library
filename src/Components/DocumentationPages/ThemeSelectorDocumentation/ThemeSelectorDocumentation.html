@@ -7,8 +7,8 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ThemeSelector</code> is a compact icon-only toggle that switches between <strong>LIGHT</strong> and <strong>DARK</strong> themes. It renders a pill-shaped button with a sun icon for LIGHT and a moon icon for DARK; the active option is highlighted with the <code>--primary-color</code> background.</p>
-<p>It is the visual counterpart to [<code>ThemeSwitcher</code>](/docs/input/theme-switcher): use <code>ThemeSelector</code> when you want an icon-based binary control in a topbar or navbar, and <code>ThemeSwitcher</code> when you need a text-based control that cycles through an arbitrary list of themes.</p>
+<p><code>ThemeSelector</code> is a compact icon-only toggle that switches between <strong>LIGHT</strong> and <strong>DARK</strong> themes. It renders a pill-shaped button with a sun icon for LIGHT and a moon icon for DARK; the active option is highlighted with the <code>--primary-color</code> background.</p>
+<p>It is the visual counterpart to [<code>ThemeSwitcher</code>](/docs/input/theme-switcher): use <code>ThemeSelector</code> when you want an icon-based binary control in a topbar or navbar, and <code>ThemeSwitcher</code> when you need a text-based control that cycles through an arbitrary list of themes.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li>Reads the current theme from <code>slice.stylesManager.themeManager.currentTheme</code> on init and</li></ul>
 <p>marks the matching option as <code>.active</code>.</p>
@@ -23,7 +23,7 @@
 <h2 id="example">Example</h2>
 <div class="code-block" data-block-id="doc-block-2"></div>
 <h2 id="props">Props</h2>
-<p><code>ThemeSelector</code> has no configurable props — it is a self-contained, single-purpose toggle that reads the current theme directly from the framework's <code>themeManager</code>.</p>
+<p><code>ThemeSelector</code> has no configurable props — it is a self-contained, single-purpose toggle that reads the current theme directly from the framework's <code>themeManager</code>.</p>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Place <code>ThemeSelector</code> in a persistent shell element (navbar, topbar, sidebar) so the user
 can switch themes from any page. The component auto-syncs with other theme controls via the

@@ -7,7 +7,7 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>The "are you sure?" modal, and the single-value prompt. Built on [<code>Modal</code>](/docs/display/modal), so scroll-lock, focus, <code>Escape</code> and backdrop dismissal are already handled — this only owns the copy, the header mark, the two buttons and the answer.</p>
+<p>The "are you sure?" modal, and the single-value prompt. Built on [<code>Modal</code>](/docs/display/modal), so scroll-lock, focus, <code>Escape</code> and backdrop dismissal are already handled — this only owns the copy, the header mark, the two buttons and the answer.</p>
 <p>Build it <strong>once</strong>, near your composition root, and recover it anywhere else:</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <div class="callout callout-warning">Build exactly one. Unlike a <code>Service</code>, a Visual component is <strong>not</strong> a
@@ -21,26 +21,26 @@ a warning if you forget.</div>
 <h2 id="the-two-ways-in">The two ways in</h2>
 <h3 id="1-a-promise-when-the-answer-decides-what-happens-next">1. A promise — when the answer decides what happens next</h3>
 <div class="code-block" data-block-id="doc-block-2"></div>
-<p>This is the better default and the one to reach for first. The alternative — a bare event plus callbacks — makes every call site juggle two async channels and a "did this already fire?" flag, and a caller that returns early leaves the event unfired. With a promise the control flow is linear and cannot get wrong.</p>
+<p>This is the better default and the one to reach for first. The alternative — a bare event plus callbacks — makes every call site juggle two async channels and a "did this already fire?" flag, and a caller that returns early leaves the event unfired. With a promise the control flow is linear and cannot get wrong.</p>
 <h3 id="2-the-event-manager-when-the-emitter-cannot-hold-a-reference">2. The event manager — when the emitter cannot hold a reference</h3>
-<p>Some call sites genuinely cannot reach the component: a deep save routine, a store subscriber, a keyboard shortcut, a third-party callback. Emitting is then the sane move, and <code>confirm:request</code> is subscribed for you:</p>
+<p>Some call sites genuinely cannot reach the component: a deep save routine, a store subscriber, a keyboard shortcut, a third-party callback. Emitting is then the sane move, and <code>confirm:request</code> is subscribed for you:</p>
 <div class="code-block" data-block-id="doc-block-3"></div>
-<p>Nobody is waiting on the answer, so this is fire-and-forget: it opens, the user answers, the modal closes.</p>
+<p>Nobody is waiting on the answer, so this is fire-and-forget: it opens, the user answers, the modal closes.</p>
 <p>Add <code>onConfirm</code> / <code>onCancel</code> if the emitter does need the verdict:</p>
 <div class="code-block" data-block-id="doc-block-4"></div>
-<p>An <code>inputLabel</code> in the payload makes it a <strong>prompt</strong>, and <code>onConfirm</code> receives the typed value:</p>
+<p>An <code>inputLabel</code> in the payload makes it a <strong>prompt</strong>, and <code>onConfirm</code> receives the typed value:</p>
 <div class="code-block" data-block-id="doc-block-5"></div>
-<p>If two independently-built modals would collide, give one of them a different channel:</p>
+<p>If two independently-built modals would collide, give one of them a different channel:</p>
 <div class="code-block" data-block-id="doc-block-6"></div>
 <h2 id="api">API</h2>
 <ul><li><code>ask(options) -&gt; Promise&lt;boolean&gt;</code> — <code>true</code> confirmed, <code>false</code> cancelled or dismissed.</li><li><code>prompt(options) -&gt; Promise&lt;string|null&gt;</code> — the value, or <code>null</code> if cancelled.</li><li><code>isOpen</code> (boolean) — whether a question is currently on screen.</li></ul>
 <p>Options for both (all optional):</p>
 <div class="table-block" data-block-id="doc-block-7"></div>
-<p>Props set once on the component and overridden per call: <code>confirmLabel</code>, <code>cancelLabel</code>, <code>confirmVariant</code>, <code>eventName</code>.</p>
+<p>Props set once on the component and overridden per call: <code>confirmLabel</code>, <code>cancelLabel</code>, <code>confirmVariant</code>, <code>eventName</code>.</p>
 <h2 id="the-header-mark">The header mark</h2>
-<p>The icon in the header follows <code>danger</code> so a destructive question never looks like a routine one: <code>exclamation-circle</code> for danger, <code>question-circle</code> otherwise. Override it with any Icon name, or pass <code>icon: false</code> to show no mark at all.</p>
+<p>The icon in the header follows <code>danger</code> so a destructive question never looks like a routine one: <code>exclamation-circle</code> for danger, <code>question-circle</code> otherwise. Override it with any Icon name, or pass <code>icon: false</code> to show no mark at all.</p>
 <h2 id="the-one-invariant">The one invariant</h2>
-<p><strong>Every <code>ask()</code>/<code>prompt()</code> resolves exactly once.</strong> A dialog that could be dismissed without settling would leave the awaiting caller hanging for the life of the page, so <code>Escape</code>, the backdrop, the X button, a second question arriving while one is open, and destroying the component all resolve — as cancellations. There is a spec for each of those.</p>
+<p><strong>Every <code>ask()</code>/<code>prompt()</code> resolves exactly once.</strong> A dialog that could be dismissed without settling would leave the awaiting caller hanging for the life of the page, so <code>Escape</code>, the backdrop, the X button, a second question arriving while one is open, and destroying the component all resolve — as cancellations. There is a spec for each of those.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-8"></div>
 <div class="script-block" data-block-id="doc-block-9"></div>

@@ -51,29 +51,29 @@ browser).</div>
 <h2 id="sortable">Sortable</h2>
 <p>Reorder items inside a container by dragging them.</p>
 <div class="code-block" data-block-id="doc-block-12"></div>
-<p><code>onReorder</code> fires <strong>only when the order actually changed</strong>. A gesture the browser interrupts with <code>pointercancel</code> puts the item back where it started and reports nothing.</p>
+<p><code>onReorder</code> fires <strong>only when the order actually changed</strong>. A gesture the browser interrupts with <code>pointercancel</code> puts the item back where it started and reports nothing.</p>
 <div class="script-block" data-block-id="doc-block-13"></div>
 <h2 id="touch-support">Touch support</h2>
 <p>Drag-and-drop works on touch devices without any extra wiring.</p>
-<p><strong>A finger on a draggable is ambiguous</strong> — scroll or drag? — and the browser settles it at the first move: unless <code>touch-action</code> forbids panning, it starts scrolling and fires <code>pointercancel</code>, after which no <code>pointermove</code>/<code>pointerup</code> ever arrives for that pointer. DragDropService handles this in two ways:</p>
-<p><strong>1. Hold-to-arm.</strong> A touch drag does not begin at <code>pointerdown</code>. The finger has to stay put for <code>touchDelay</code> ms (200 by default) first. Moving more than 8 px during that hold means "scroll", so the service cancels and hands the gesture back to the page. Once armed, a non-passive <code>touchmove</code> listener calls <code>preventDefault()</code> — the only way to stop the browser panning mid-drag — and the long-press context menu and iOS selection callout are suppressed. Mouse and pen are unaffected: they start immediately.</p>
+<p><strong>A finger on a draggable is ambiguous</strong> — scroll or drag? — and the browser settles it at the first move: unless <code>touch-action</code> forbids panning, it starts scrolling and fires <code>pointercancel</code>, after which no <code>pointermove</code>/<code>pointerup</code> ever arrives for that pointer. DragDropService handles this in two ways:</p>
+<p><strong>1. Hold-to-arm.</strong> A touch drag does not begin at <code>pointerdown</code>. The finger has to stay put for <code>touchDelay</code> ms (200 by default) first. Moving more than 8 px during that hold means "scroll", so the service cancels and hands the gesture back to the page. Once armed, a non-passive <code>touchmove</code> listener calls <code>preventDefault()</code> — the only way to stop the browser panning mid-drag — and the long-press context menu and iOS selection callout are suppressed. Mouse and pen are unaffected: they start immediately.</p>
 <div class="code-block" data-block-id="doc-block-14"></div>
-<p><strong>2. <code>pointercancel</code> cleans up.</strong> When the browser takes the gesture anyway (a scroll, an incoming call, a system gesture), the drag ends *cancelled*, not dropped:</p>
+<p><strong>2. <code>pointercancel</code> cleans up.</strong> When the browser takes the gesture anyway (a scroll, an incoming call, a system gesture), the drag ends *cancelled*, not dropped:</p>
 <div class="table-block" data-block-id="doc-block-15"></div>
-<p>Without this the service wedged permanently: <code>_activeDrag</code> stayed set, so every later drag was refused, and a sortable left its item <code>display: none</code> with the ghost stuck on screen.</p>
+<p>Without this the service wedged permanently: <code>_activeDrag</code> stayed set, so every later drag was refused, and a sortable left its item <code>display: none</code> with the ghost stuck on screen.</p>
 <h2 id="auto-scroll-chains-across-scrollers">Auto-scroll chains across scrollers</h2>
-<p>Holding a pointer near an edge scrolls the nearest scrollable ancestor — and when <strong>that</strong> reaches its end, the next ancestor takes over, ending at the page. This matters on a phone, where a drag out of a nested sidebar (a list, a card column) would otherwise only ever scroll that sidebar, leaving every drop target out of reach. The target is re-picked on every animation frame, so a finger held still at the edge still hands over.</p>
+<p>Holding a pointer near an edge scrolls the nearest scrollable ancestor — and when <strong>that</strong> reaches its end, the next ancestor takes over, ending at the page. This matters on a phone, where a drag out of a nested sidebar (a list, a card column) would otherwise only ever scroll that sidebar, leaving every drop target out of reach. The target is re-picked on every animation frame, so a finger held still at the edge still hands over.</p>
 <div class="script-block" data-block-id="doc-block-16"></div>
 <h2 id="cleanup">Cleanup</h2>
 <div class="code-block" data-block-id="doc-block-17"></div>
 <p>As an app-lifetime singleton, its global listeners, ghost, and registrations are cleaned up automatically by the framework (<code>beforeDestroy</code>) when the service is torn down — you don't tear it down by hand.</p>
 <h2 id="best-practices">Best Practices</h2>
 <ul><li>Set <code>touch-action: none</code> on draggable elements (already set on resize handles). **It does not</li></ul>
-<p>disable scrolling by itself** — the hold-to-arm delay is what keeps a tap-scrollable list   scrollable while a deliberate hold starts a drag.</p>
+<p>disable scrolling by itself** — the hold-to-arm delay is what keeps a tap-scrollable list   scrollable while a deliberate hold starts a drag.</p>
 <ul><li>Use <code>handle</code> when elements should be draggable only from a specific child (e.g., a header).</li><li>Always call <code>detach(node)</code> when removing a registered element from the DOM.</li><li>Use <code>accept</code> on droppables to filter which draggables are accepted.</li><li>Auto-scroll is on by default: dragging near an edge scrolls the nearest scrollable ancestor that</li></ul>
-<p>can still move that way, handing over to the next one — and finally the page — as each is   exhausted. Pass <code>autoScroll: false</code> to a draggable or sortable to opt out.</p>
+<p>can still move that way, handing over to the next one — and finally the page — as each is   exhausted. Pass <code>autoScroll: false</code> to a draggable or sortable to opt out.</p>
 <ul><li>Auto-scroll only runs when the drag has somewhere to go (<code>freePosition</code> or at least one</li></ul>
 <p>droppable). A ghost-only drag with no droppables never scrolls the page.</p>
 <ul><li>Sortables ignore presses that land on an interactive descendant (<code>button</code>, <code>input</code>, <code>select</code>,</li></ul>
-<p><code>textarea</code>, <code>a</code>, <code>[contenteditable]</code>, <code>[data-act]</code>, and the Slice form controls), so a button   inside a sortable card still works.</p>
+<p><code>textarea</code>, <code>a</code>, <code>[contenteditable]</code>, <code>[data-act]</code>, and the Slice form controls), so a button   inside a sortable card still works.</p>
 </div>
