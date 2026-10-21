@@ -1,0 +1,354 @@
+/* Encapsulated under the custom element so the radio group styles never leak. */
+
+/* ----------------------------------------------------------------- theme knobs
+   Every part of the look is a custom property declared on the HOST, so a
+   consumer can retune any of them per instance (`el.style.setProperty(...)` or
+   app CSS). Not on the container: a property declared there would shadow every
+   host-level override (same reasoning as Checkbox.css). A `variant` is then a
+   handful of overrides on the container, not a parallel copy of these rules.
+   The defaults match Checkbox's default look, so the two sit together in a form. */
+slice-radio-group {
+  display: block;
+
+  --slice-radio-accent: var(--success-color);
+  --slice-radio-surface: color-mix(in srgb, var(--secondary-background-color) 72%, transparent);
+  --slice-radio-surface-border: color-mix(in srgb, var(--primary-color-shade) 60%, transparent);
+  --slice-radio-surface-border-hover: color-mix(in srgb, var(--primary-color) 55%, transparent);
+  --slice-radio-surface-border-width: 1px;
+  --slice-radio-mark-surface: var(--secondary-background-color);
+  --slice-radio-mark-border: var(--primary-color);
+  /* `--slice-border` is an app-level 1px token, so it needs its own fallback. */
+  --slice-radio-mark-border-width: var(--slice-border, 1px);
+  /* em-based: resolved against the option's font-size, so `data-size` scales the
+     circle and its dot together with the text. */
+  --slice-radio-mark-size: 1.15em;
+  --slice-radio-gap: 6px;
+  /* `card` variant surfaces. */
+  --slice-radio-card-surface: var(--secondary-background-color);
+  --slice-radio-card-border: color-mix(in srgb, var(--primary-color-shade) 80%, transparent);
+}
+
+/* --------------------------------------------------------------- container */
+
+slice-radio-group .slice_radio_group_container {
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: 100%;
+  /* A fieldset defaults to `min-inline-size: min-content`, which lets one long
+     option push it wider than its parent. */
+  min-inline-size: 0;
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--slice-radio-surface);
+  border: var(--slice-radio-surface-border-width) solid var(--slice-radio-surface-border);
+  font-family: var(--font-family);
+  color: var(--font-primary-color);
+}
+
+slice-radio-group .slice_radio_group_container:hover {
+  border-color: var(--slice-radio-surface-border-hover);
+}
+
+/* Floated so the legend sits INSIDE the surface instead of notching the border,
+   which is the fieldset default and reads as a 1998 form. */
+slice-radio-group .slice_radio_group_label {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--font-primary-color);
+}
+
+/* JS toggles `.hidden` on the legend (§8.2). */
+slice-radio-group .slice_radio_group_label[hidden] {
+  display: none;
+}
+
+slice-radio-group .slice_radio_group {
+  clear: both;
+  display: flex;
+  flex-direction: column;
+  gap: var(--slice-radio-gap);
+}
+
+slice-radio-group .slice_radio_group_container.slice_radio_group--horizontal .slice_radio_group {
+  flex-direction: row;
+  flex-wrap: wrap;
+  column-gap: 16px;
+}
+
+/* ------------------------------------------------------------------ option */
+
+slice-radio-group .slice_radio_option {
+  /* `customColor.accent` lands on the HOST as --slice-radio-custom-accent. It is
+     resolved here, below the container, so a variant's own accent (declared on
+     the container) cannot shadow the per-instance colour. */
+  --slice-radio-accent-effective: var(--slice-radio-custom-accent, var(--slice-radio-accent));
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55em;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Visually hidden, NOT `display: none`: a display:none radio is dropped from the
+   accessibility tree and the tab order (§9). Kept focusable, 1px and clipped;
+   the visible state and the focus ring are drawn on `.slice_radio_mark`. */
+slice-radio-group .slice_radio_input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+slice-radio-group .slice_radio_mark {
+  position: relative;
+  box-sizing: border-box;
+  flex: none;
+  width: var(--slice-radio-mark-size);
+  height: var(--slice-radio-mark-size);
+  /* Centres the circle on the first line of text, so a long label or a
+     description wraps below without dragging the circle down with it. */
+  margin-top: calc((1.4em - var(--slice-radio-mark-size)) / 2);
+  border-radius: 50%;
+  border: var(--slice-radio-mark-border-width) solid var(--slice-radio-mark-border);
+  background-color: var(--slice-radio-mark-surface);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+slice-radio-group .slice_radio_mark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background-color: var(--slice-radio-accent-effective);
+  transform: scale(0);
+  transition: transform 0.15s ease-out;
+}
+
+slice-radio-group .slice_radio_input:checked + .slice_radio_mark {
+  border-color: var(--slice-radio-accent-effective);
+}
+
+slice-radio-group .slice_radio_input:checked + .slice_radio_mark::after {
+  transform: scale(1);
+}
+
+slice-radio-group .slice_radio_option:hover .slice_radio_input:not(:disabled) + .slice_radio_mark {
+  border-color: var(--slice-radio-accent-effective);
+}
+
+/* The input is clipped, so the keyboard focus ring goes on the visible circle. */
+slice-radio-group .slice_radio_input:focus-visible + .slice_radio_mark {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+slice-radio-group .slice_radio_text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+slice-radio-group .slice_radio_label {
+  overflow-wrap: anywhere;
+}
+
+slice-radio-group .slice_radio_description {
+  font-size: 0.85em;
+  line-height: 1.35;
+  color: var(--font-secondary-color);
+}
+
+/* Disabled: one option, or the whole group via the native fieldset. */
+slice-radio-group .slice_radio_option--disabled,
+slice-radio-group .slice_radio_group--disabled .slice_radio_option {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* A muted, NOT filled, circle: a solid disabled circle reads as "selected". */
+slice-radio-group .slice_radio_input:disabled + .slice_radio_mark {
+  border-color: var(--disabled-color);
+  background-color: color-mix(in srgb, var(--disabled-color) 14%, var(--secondary-background-color));
+}
+
+slice-radio-group .slice_radio_input:disabled + .slice_radio_mark::after {
+  background-color: var(--disabled-color);
+}
+
+slice-radio-group .slice_radio_group--disabled:hover {
+  border-color: var(--slice-radio-surface-border);
+}
+
+/* --------------------------------------------------------- label placement */
+
+slice-radio-group .slice_radio_group--label-left .slice_radio_option {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
+slice-radio-group .slice_radio_group--label-top .slice_radio_option,
+slice-radio-group .slice_radio_group--label-bottom .slice_radio_option {
+  align-items: center;
+  text-align: center;
+}
+
+slice-radio-group .slice_radio_group--label-top .slice_radio_option {
+  flex-direction: column-reverse;
+}
+
+slice-radio-group .slice_radio_group--label-bottom .slice_radio_option {
+  flex-direction: column;
+}
+
+slice-radio-group .slice_radio_group--label-top .slice_radio_mark,
+slice-radio-group .slice_radio_group--label-bottom .slice_radio_mark {
+  margin-top: 0;
+}
+
+/* -------------------------------------------------------------------- variants
+   All values derive from theme tokens, so every variant follows the theme.
+   `default` is spelled out only to document that it is the base above. */
+
+slice-radio-group .slice_radio_group_container.slice_radio_group--default {
+  --slice-radio-accent: var(--success-color);
+}
+
+/* outlined — no surface, a crisp outline; the accent is the theme primary. */
+slice-radio-group .slice_radio_group_container.slice_radio_group--outlined {
+  --slice-radio-accent: var(--primary-color);
+  --slice-radio-surface: transparent;
+  --slice-radio-surface-border: color-mix(in srgb, var(--primary-color) 45%, transparent);
+  --slice-radio-surface-border-hover: var(--primary-color);
+  --slice-radio-mark-surface: transparent;
+}
+
+/* soft — a tinted, borderless surface with a muted primary circle. */
+slice-radio-group .slice_radio_group_container.slice_radio_group--soft {
+  --slice-radio-accent: var(--primary-color);
+  --slice-radio-surface: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  --slice-radio-surface-border: transparent;
+  --slice-radio-surface-border-hover: transparent;
+  --slice-radio-mark-surface: color-mix(in srgb, var(--primary-color) 6%, var(--secondary-background-color));
+  --slice-radio-mark-border: color-mix(in srgb, var(--primary-color) 45%, transparent);
+}
+
+/* ----------------------------------------------------------------------- sizes
+   `md` is the base. RadioGroup implements the scale itself, like Checkbox: the
+   shared scale.css is a shelved prototype no application loads (DESIGN_SYSTEM.md).
+   Scaling the option's font-size scales the em-based circle, dot and text together. */
+
+slice-radio-group[data-size='sm'] .slice_radio_group_container {
+  padding: 5px 8px;
+  border-radius: 8px;
+  margin: 6px 0;
+}
+
+slice-radio-group[data-size='sm'] .slice_radio_option {
+  font-size: 0.85rem;
+}
+
+slice-radio-group[data-size='sm'] .slice_radio_group_label {
+  font-size: 0.85rem;
+}
+
+slice-radio-group[data-size='sm'] {
+  --slice-radio-gap: 4px;
+}
+
+slice-radio-group[data-size='lg'] .slice_radio_group_container {
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+slice-radio-group[data-size='lg'] .slice_radio_option {
+  font-size: 1.05rem;
+}
+
+slice-radio-group[data-size='lg'] .slice_radio_group_label {
+  font-size: 1.05rem;
+}
+
+slice-radio-group[data-size='lg'] {
+  --slice-radio-gap: 8px;
+}
+
+/* ------------------------------------------------------------- plain & card
+   Declared AFTER the sizes block on purpose: they tie with
+   `[data-size='…'] .slice_radio_group_container` on specificity, so source order
+   is what lets them win the container padding (size still drives the options). */
+
+/* plain — no chip at all, for dense rows and settings panels where the
+   surrounding surface IS the container. */
+slice-radio-group .slice_radio_group_container.slice_radio_group--plain,
+slice-radio-group .slice_radio_group_container.slice_radio_group--card {
+  --slice-radio-surface: transparent;
+  --slice-radio-surface-border: transparent;
+  --slice-radio-surface-border-hover: transparent;
+  --slice-radio-surface-border-width: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+}
+
+/* card — every option is a selectable card (plan / shipping-method picker).
+   Fills its parent instead of shrinking to content. The checked state comes
+   from a class set in JS, not `:has()`, so it works on every engine. */
+slice-radio-group .slice_radio_group_container.slice_radio_group--card {
+  --slice-radio-accent: var(--primary-color);
+  --slice-radio-gap: 10px;
+  width: auto;
+}
+
+slice-radio-group .slice_radio_group--card .slice_radio_option {
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--slice-radio-card-border);
+  background: var(--slice-radio-card-surface);
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+slice-radio-group .slice_radio_group--card .slice_radio_option:hover:not(.slice_radio_option--disabled) {
+  border-color: color-mix(in srgb, var(--slice-radio-accent-effective) 60%, transparent);
+}
+
+slice-radio-group .slice_radio_group--card .slice_radio_option--checked {
+  border-color: var(--slice-radio-accent-effective);
+  background: color-mix(in srgb, var(--slice-radio-accent-effective) 8%, var(--slice-radio-card-surface));
+  box-shadow: 0 0 0 1px var(--slice-radio-accent-effective);
+}
+
+slice-radio-group .slice_radio_group--card .slice_radio_label {
+  font-weight: 600;
+}
+
+slice-radio-group .slice_radio_group_container.slice_radio_group--card.slice_radio_group--horizontal .slice_radio_option {
+  flex: 1 1 180px;
+}
+
+/* ---------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  slice-radio-group .slice_radio_mark,
+  slice-radio-group .slice_radio_mark::after,
+  slice-radio-group .slice_radio_group--card .slice_radio_option {
+    transition: none;
+  }
+}

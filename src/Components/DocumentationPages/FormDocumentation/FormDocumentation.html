@@ -7,7 +7,7 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Form</code> builds a form from a <strong>schema</strong> and composes the library's own components (<code>Input</code>, <code>Select</code>, <code>Checkbox</code>, <code>Switch</code>, …). It renders sections, separators, per-field labels/descriptions and validation errors, reads the values back, and validates on submit. It is a plain Visual — drop it in a view or a <code>Modal</code> body.</p>
+<p><code>Form</code> builds a form from a <strong>schema</strong> and composes the library's own components (<code>Input</code>, <code>Select</code>, <code>Checkbox</code>, <code>Switch</code>, …). It renders sections, separators, per-field labels/descriptions and validation errors, reads the values back, and validates on submit. It is a plain Visual — drop it in a view or a <code>Modal</code> body.</p>
 <h2 id="schema">Schema</h2>
 <p>Each item is discriminated by <code>kind</code>:</p>
 <div class="table-block" data-block-id="doc-block-1"></div>
@@ -23,18 +23,18 @@
 <ul><li><strong>Back never validates.</strong> Leaving a half-filled step is allowed; only moving on is gated.</li><li><strong>The progress indicator cannot skip validation.</strong> Clicking a step ahead is refused</li></ul>
 <p>exactly as Next would be, so the indicator is a shortcut and not a hole.</p>
 <ul><li>The last step's button is the <strong>Submit</strong> button, and says <code>submitText</code>.</li><li>A schema with no <code>step</code> is one implicit step: no progress bar, no Back, no Next.</li></ul>
-<p><code>stepIndex</code>, <code>stepCount</code>, <code>isStepped</code>, <code>nextStep()</code>, <code>prevStep()</code> and <code>gotoStep(i)</code> are public. <code>nextText</code> sets the label of the advance button.</p>
+<p><code>stepIndex</code>, <code>stepCount</code>, <code>isStepped</code>, <code>nextStep()</code>, <code>prevStep()</code> and <code>gotoStep(i)</code> are public. <code>nextText</code> sets the label of the advance button.</p>
 <div class="callout callout-tip">Use a Modal for two or three short steps, and a route per step for anything longer. A Modal
 has no URL, so there is nothing to link to and nothing for the back button to go back to.</div>
 <h2 id="groups">Groups</h2>
-<p>A <code>group</code> is a set of fields the user can add as many of as they need — phone numbers, addresses, team members. Without it, no flat schema can express "however many of these do you have?".</p>
+<p>A <code>group</code> is a set of fields the user can add as many of as they need — phone numbers, addresses, team members. Without it, no flat schema can express "however many of these do you have?".</p>
 <div class="code-block" data-block-id="doc-block-3"></div>
 <ul><li><code>name</code> is required — without it the items could not be keyed at all.</li><li><code>min</code> and <code>max</code> bound the item count; the Remove buttons disappear at <code>min</code></li></ul>
 <p>and the Add button hides at <code>max</code>. Omit <code>min</code> and a group starts with one item.</p>
 <ul><li><code>value</code> seeds the first item, and <code>reset()</code> restores it.</li><li>Each item's fields are stored internally as <code>phones[0].number</code>, so</li></ul>
-<p><code>setValue('phones[1].number', x)</code> and <code>setError(...)</code> work on them with no   special cases.</p>
+<p><code>setValue('phones[1].number', x)</code> and <code>setError(...)</code> work on them with no   special cases.</p>
 <ul><li><strong><code>getValues()</code> hands the array back nested</strong> — <code>{ phones: [{ number, note }] }</code></li></ul>
-<p>— which is the shape you declared. Flattening is an implementation detail you   never see.</p>
+<p>— which is the shape you declared. Flattening is an implementation detail you   never see.</p>
 <ul><li>Items are added and removed <strong>in place</strong>; the form is not re-rendered, so</li></ul>
 <p>nothing typed elsewhere in it moves or is lost.</p>
 <ul><li><code>required</code> applies to every item, so an empty second phone blocks submit.</li></ul>
@@ -43,7 +43,7 @@ has no URL, so there is nothing to link to and nothing for the back button to go
 <p>Three presentation props, and one per-field opt-out.</p>
 <div class="table-block" data-block-id="doc-block-5"></div>
 <div class="code-block" data-block-id="doc-block-6"></div>
-<p><code>full: true</code> on a <strong>field</strong> keeps it out of a shared grid row. Sections and separators always span the full row.</p>
+<p><code>full: true</code> on a <strong>field</strong> keeps it out of a shared grid row. Sections and separators always span the full row.</p>
 <div class="callout callout-tip">The container owns the spacing, not the controls. <code>Input</code>, <code>Select</code> and
 <code>Textarea</code> carry no vertical margin of their own, so a form's rhythm is
 decided in one place. If you need the old standalone spacing, set

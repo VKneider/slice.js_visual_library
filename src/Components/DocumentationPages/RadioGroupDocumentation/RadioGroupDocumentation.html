@@ -1,0 +1,46 @@
+<div class="documentation-content radiogroupdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="radiogroup">
+    <span class="doc-title-text">RadioGroup</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>RadioGroup</code> lets the user pick <strong>exactly one</strong> option from a short list. The group owns the value: <code>value</code> is the selected option's <code>value</code> (or <code>null</code> while nothing is selected), and <code>onChange</code> fires with the new one.</p>
+<p>Use it when every option should be visible at once and there are only a handful of them (2–6). For a long list use <code>Select</code>; for a single on/off setting use <code>Switch</code> or <code>Checkbox</code>.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>options</code> is an array of <code>{ label, value, description?, disabled? }</code>. A bare string or number is shorthand for <code>{ label: String(x), value: x }</code>. An object without <code>value</code> uses its <code>label</code>.</li><li><code>value</code> selects the option whose <code>value</code> matches. The comparison is strict (<code>Object.is</code>), so <code>1</code> and <code>'1'</code> are different values.</li><li><code>value</code> may be passed before or after <code>options</code> — the selection is resolved once both exist. A value that matches no option leaves the group unselected (<code>value</code> becomes <code>null</code>) and logs a warning.</li><li>Replacing <code>options</code> keeps the current value if it is still one of the options, and clears it otherwise.</li><li><code>onChange(value, option)</code> fires only when the <strong>user</strong> selects an option (click or arrow keys). Setting <code>value</code> from code never fires it. <code>option</code> is the original entry you passed. Assign <code>null</code> to clear the handler.</li><li><code>selectedOption</code> returns the original entry of the selected option (or <code>null</code>) — handy when options carry extra data such as a price.</li><li><code>name</code> is shared by every radio. It is generated when omitted, so two groups never interfere; set it when the group sits in a native <code>&lt;form&gt;</code>, which then submits the selected value under that name.</li><li><code>label</code> renders a <code>&lt;legend&gt;</code> that also names the group for screen readers.</li><li><code>disabled</code> disables the whole group; <code>disabled: true</code> on an option disables just that one.</li><li><code>required</code> sets native <code>required</code> on the radios and <code>aria-required</code> on the group.</li><li><code>orientation</code> is <code>vertical</code> (default) or <code>horizontal</code> (options wrap on narrow screens).</li><li><code>labelPlacement</code> (<code>right</code> | <code>left</code> | <code>top</code> | <code>bottom</code>) places each option's text relative to its circle.</li><li><code>variant</code>: <code>default</code> (success accent, matches <code>Checkbox</code>), <code>outlined</code>, <code>soft</code>, <code>plain</code> (no container chip) or <code>card</code> (every option is a selectable card — best with <code>description</code>). Unknown values fall back to <code>default</code>.</li><li><code>size</code> (<code>sm</code> | <code>md</code> | <code>lg</code>) scales circles and text together.</li><li><code>customColor: { accent }</code> recolours the selected circle and card, in every variant.</li></ul>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>The options are real <code>&lt;input type="radio"&gt;</code> elements inside a <code>&lt;fieldset role="radiogroup"&gt;</code>, so the browser provides the standard radio keyboard model:</p>
+<ul><li><strong>Tab</strong> enters the group on the selected option (or the first enabled one) and <strong>Tab</strong> again leaves it — the group is a single tab stop.</li><li><strong>Arrow keys</strong> move to the next/previous option <strong>and select it</strong>, skipping disabled options.</li><li><strong>Space</strong> selects the focused option.</li></ul>
+<p><code>el.focus()</code> focuses the group the same way Tab would. The radios are visually hidden but stay in the accessibility tree; the focus ring is drawn on the visible circle. Option descriptions are linked to their radio with <code>aria-describedby</code>.</p>
+<h2 id="theming">Theming</h2>
+<p>Every visual knob is a custom property on the host, so one instance can be tuned without touching the component: <code>--slice-radio-mark-size</code>, <code>--slice-radio-mark-border</code>, <code>--slice-radio-mark-border-width</code>, <code>--slice-radio-mark-surface</code>, <code>--slice-radio-gap</code>, <code>--slice-radio-surface</code>, <code>--slice-radio-surface-border</code>, <code>--slice-radio-card-surface</code> and <code>--slice-radio-card-border</code>. For the accent colour use <code>customColor</code>.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Order options in a meaningful way (cheapest first, most common first) and pre-select a sensible
+default when one exists — a group with nothing selected forces an extra decision.</div>
+<div class="callout callout-tip">Inside a <code>Form</code>, put the label on the <strong>RadioGroup</strong> (<code>props.label</code>) rather than on the Form field, and
+use <code>variant: 'plain'</code>. The group's legend is what names it for screen readers; a Form field label sits
+next to the group but is not associated with it.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>value</code> is compared strictly. If your options use numbers (<code>value: 1</code>), set <code>value: 1</code>, not <code>'1'</code> —
+otherwise nothing is selected and a warning is logged.</div>
+<div class="callout callout-warning">Do not use a RadioGroup for actions. Selecting an option should only change a value; if picking it
+should immediately trigger an action, use buttons instead.</div>
+<div class="component-block" data-block-id="doc-block-13"></div>
+</div>

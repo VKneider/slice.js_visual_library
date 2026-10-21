@@ -139,9 +139,19 @@ const documentationRoutes = {
         component: 'TextareaDocumentation'
       },
       {
+        title: 'RadioGroup',
+        path: '/docs/input/radio-group',
+        component: 'RadioGroupDocumentation'
+      },
+      {
         title: 'Switch',
         path: '/docs/input/switch',
         component: 'SwitchDocumentation'
+      },
+      {
+        title: 'Slider',
+        path: '/docs/input/slider',
+        component: 'SliderDocumentation'
       },
       {
         title: 'ThemeSelector',

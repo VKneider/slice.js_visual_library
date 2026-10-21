@@ -9,14 +9,14 @@ export default class MarkdownParserRulesDocumentation extends HTMLElement {
 
   async init() {
     this.markdownPath = "parser-rules.md";
-    this.markdownContent = "---\ntitle: Markdown Parser Rules\nroute: /docs/internal/markdown-parser-rules\nnavLabel: Parser Rules\nsection: Internal\ngroup: Documentation\norder: 1\ndescription: Contract, template, and generation rules for Slice.js documentation pages.\ncomponent: MarkdownParserRulesDocumentation\ngenerate: true\ntags: [docs, parser, rules]\n---\n\n# Markdown Parser Rules\n\n## Scope\nDocumentation markdown files live in `src/markdown/` and are converted into Slice.js components in `src/Components/DocumentationPages/`.\n\n## Required Front Matter\nEvery markdown file must include:\n\n| Field | Required | Example |\n| --- | --- | --- |\n| `title` | yes | `Button` |\n| `route` | yes | `/docs/input/button` |\n| `section` | yes | `Input Components` |\n| `group` | yes | `Basic` |\n| `order` | yes | `10` |\n| `component` | yes | `ButtonDocumentation` |\n\nIf any required field is missing, `npm run docs:lint-md` fails.\n\n## Supported Blocks\n- Headings, paragraphs, lists\n- Fenced code blocks -> `CodeVisualizer`\n- Tables -> `Table`\n- `:::tip` / `:::warning`\n- `:::details title=\"...\"`\n- `:::component name=\"Button\"` with JSON props body\n- `:::script ...` for interactive prop scenarios\n\n## Script Scenario Contract\nUse script blocks to validate component props through runnable scenarios:\n\n```text\n:::script label=\"scenario name\" expected=\"expected outcome\"\n// JavaScript body with access to:\n// component (documentation component instance)\n// slice\n// document\n:::\n```\n\nThe parser renders a **Run** button for each script and reports PASS/FAIL in the page.\n\n## Registry and Styles\n- Generated components are added to `src/Components/components.js` with category `DocumentationPages`.\n- `CopyMarkdownMenu` is synced to `src/Components/AppComponents/CopyMarkdownMenu/`.\n- Global docs style is synced to `src/Styles/DocumentationBase.css`.\n\n## Commands\n```bash\nnpm run docs:lint-md\nnpm run docs:generate\nnpm run docs:sync-registry\n```\n";
+    this.markdownContent = "---\r\ntitle: Markdown Parser Rules\r\nroute: /docs/internal/markdown-parser-rules\r\nnavLabel: Parser Rules\r\nsection: Internal\r\ngroup: Documentation\r\norder: 1\r\ndescription: Contract, template, and generation rules for Slice.js documentation pages.\r\ncomponent: MarkdownParserRulesDocumentation\r\ngenerate: true\r\ntags: [docs, parser, rules]\r\n---\r\n\r\n# Markdown Parser Rules\r\n\r\n## Scope\r\nDocumentation markdown files live in `src/markdown/` and are converted into Slice.js components in `src/Components/DocumentationPages/`.\r\n\r\n## Required Front Matter\r\nEvery markdown file must include:\r\n\r\n| Field | Required | Example |\r\n| --- | --- | --- |\r\n| `title` | yes | `Button` |\r\n| `route` | yes | `/docs/input/button` |\r\n| `section` | yes | `Input Components` |\r\n| `group` | yes | `Basic` |\r\n| `order` | yes | `10` |\r\n| `component` | yes | `ButtonDocumentation` |\r\n\r\nIf any required field is missing, `npm run docs:lint-md` fails.\r\n\r\n## Supported Blocks\r\n- Headings, paragraphs, lists\r\n- Fenced code blocks -> `CodeVisualizer`\r\n- Tables -> `Table`\r\n- `:::tip` / `:::warning`\r\n- `:::details title=\"...\"`\r\n- `:::component name=\"Button\"` with JSON props body\r\n- `:::script ...` for interactive prop scenarios\r\n\r\n## Script Scenario Contract\r\nUse script blocks to validate component props through runnable scenarios:\r\n\r\n```text\r\n:::script label=\"scenario name\" expected=\"expected outcome\"\r\n// JavaScript body with access to:\r\n// component (documentation component instance)\r\n// slice\r\n// document\r\n:::\r\n```\r\n\r\nThe parser renders a **Run** button for each script and reports PASS/FAIL in the page.\r\n\r\n## Registry and Styles\r\n- Generated components are added to `src/Components/components.js` with category `DocumentationPages`.\r\n- `CopyMarkdownMenu` is synced to `src/Components/AppComponents/CopyMarkdownMenu/`.\r\n- Global docs style is synced to `src/Styles/DocumentationBase.css`.\r\n\r\n## Commands\r\n```bash\r\nnpm run docs:lint-md\r\nnpm run docs:generate\r\nnpm run docs:sync-registry\r\n```\r\n";
     if (true) {
       await this.setupCopyButton();
     }
       {
          const container = this.querySelector('[data-block-id="doc-block-1"]');
          if (container) {
-            const lines = ["| Field | Required | Example |","| --- | --- | --- |","| `title` | yes | `Button` |","| `route` | yes | `/docs/input/button` |","| `section` | yes | `Input Components` |","| `group` | yes | `Basic` |","| `order` | yes | `10` |","| `component` | yes | `ButtonDocumentation` |"];
+            const lines = ["| Field | Required | Example |\r","| --- | --- | --- |\r","| `title` | yes | `Button` |\r","| `route` | yes | `/docs/input/button` |\r","| `section` | yes | `Input Components` |\r","| `group` | yes | `Basic` |\r","| `order` | yes | `10` |\r","| `component` | yes | `ButtonDocumentation` |\r"];
             const clean = (line) => {
                let value = line.trim();
                if (value.startsWith('|')) {
@@ -79,7 +79,7 @@ export default class MarkdownParserRulesDocumentation extends HTMLElement {
          const container = this.querySelector('[data-block-id="doc-block-2"]');
          if (container) {
             const code = await slice.build('CodeVisualizer', {
-               value: ":::script label=\"scenario name\" expected=\"expected outcome\"\n// JavaScript body with access to:\n// component (documentation component instance)\n// slice\n// document\n:::",
+               value: ":::script label=\"scenario name\" expected=\"expected outcome\"\r\n// JavaScript body with access to:\r\n// component (documentation component instance)\r\n// slice\r\n// document\r\n:::\r",
                language: "text"
             });
             if (null) {
@@ -95,7 +95,7 @@ export default class MarkdownParserRulesDocumentation extends HTMLElement {
          const container = this.querySelector('[data-block-id="doc-block-3"]');
          if (container) {
             const code = await slice.build('CodeVisualizer', {
-               value: "npm run docs:lint-md\nnpm run docs:generate\nnpm run docs:sync-registry",
+               value: "npm run docs:lint-md\r\nnpm run docs:generate\r\nnpm run docs:sync-registry\r",
                language: "bash"
             });
             if (null) {

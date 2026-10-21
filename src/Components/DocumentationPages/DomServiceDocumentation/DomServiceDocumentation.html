@@ -7,7 +7,7 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>DomService.reconcile()</code> is the canonical way to render a variable-length list of child components. Give it your data and a stable key per item; it keeps the DOM, the component registry and the destroy lifecycle in sync.</p>
+<p><code>DomService.reconcile()</code> is the canonical way to render a variable-length list of child components. Give it your data and a stable key per item; it keeps the DOM, the component registry and the destroy lifecycle in sync.</p>
 <h2 id="why-it-exists">Why it exists</h2>
 <p>The two obvious alternatives are both broken, in ways that only show up as a slow memory leak:</p>
 <ul><li><code>container.innerHTML = ''</code> removes nodes <strong>without running <code>beforeDestroy()</code></strong>. Every child's</li></ul>
@@ -17,32 +17,38 @@
 <ol><li><strong>Refresh in place.</strong> For each item, find the existing node by its stable <code>sliceId</code> and update it.</li></ol>
 <p>Only a genuinely new item is built.</p>
 <ol><li><strong>Prune.</strong> Every child whose data is gone is destroyed with <code>slice.controller.destroyComponent</code>,</li></ol>
-<p>which runs <code>beforeDestroy()</code>. This happens <strong>before</strong> reordering so a dead node is never a    reorder target.</p>
-<ol><li><strong>Enforce order.</strong> The DOM is moved to match <code>items</code>. <code>insertBefore</code> <strong>moves</strong> a node, it does not</li></ol>
-<p>clone it, so no constructor re-runs — and only nodes that are actually out of place move.</p>
-<h2 id="concurrency-renders-queue-per-container">Concurrency: renders queue per container</h2>
-<p><code>reconcile</code> keeps one promise per container in a <code>WeakMap</code>. A render that arrives while another is still running waits for it instead of interleaving — otherwise the second could prune a node the first had just ordered, or both could decide to build the same id.</p>
+<p>which runs <code>beforeDestroy()</code>. This happens <strong>before</strong> reordering so a dead node is never a    reorder target.</p>
+<ol><li><strong>Enforce order, with the fewest moves.</strong> The DOM is moved to match <code>items</code>. <code>insertBefore</code> <strong>moves</strong> a node, it does not clone it, so no constructor re-runs. The nodes already in the right relative order (the longest increasing run of their current positions) stay put and only the rest move: moving the first item to the end is one move, not one per item. That matters beyond speed — a moved node loses keyboard focus and restarts its CSS animations.</li></ol>
+<h2 id="concurrency-renders-queue-per-container-and-coalesce">Concurrency: renders queue per container, and coalesce</h2>
+<p><code>reconcile</code> keeps one queue per container in a <code>WeakMap</code>. A render that arrives while another is still running waits for it instead of interleaving — otherwise the second could prune a node the first had just ordered, or both could decide to build the same id.</p>
+<p>Renders that are still <strong>waiting</strong> coalesce: if three calls arrive while one is running, only the newest of the three is applied, and all three callers resolve when it is. A filter box that re-renders a list on every keystroke therefore applies the last keystroke, not every intermediate one.</p>
 <p>Two details worth knowing, because both were bugs first:</p>
 <ul><li>The chain continues on <strong>failure</strong>. <code>then(run, run)</code> rather than <code>then(run)</code>, so one bad render</li></ul>
 <p>cannot freeze every later render on that container.</p>
 <ul><li>The chain is <strong>dropped when it drains</strong>. A long-lived list does not accumulate one promise per</li></ul>
 <p>update.</p>
-<p>The promise <code>reconcile</code> returns resolves after *this* render is applied <strong>and</strong> after any render already queued on the same container. So <code>await dom.reconcile(...)</code> really does mean "the DOM matches", which is what makes the pattern below correct.</p>
+<p>The promise <code>reconcile</code> returns resolves once the DOM reflects *this* call's items or a newer call's. So <code>await dom.reconcile(...)</code> really does mean "the DOM is at least this fresh". A render that was superseded before it started is never applied — its own <code>refresh</code> and <code>props</code> callbacks do not run.</p>
 <h2 id="adoption-and-a-build-that-returns-nothing">Adoption, and a build that returns nothing</h2>
-<p>Before paying for a build, <code>reconcile</code> looks for <code>[slice-id="&lt;key&gt;"]</code> inside the container and adopts it. The registry can lose track of a node — a build that failed part-way, a child the consumer pre-rendered and appended by hand — while the DOM still holds it, and building it again would throw <code>already registered</code>.</p>
-<p>For the same reason the final ordered list is assembled from the nodes that actually exist rather than from the slots that were requested: <code>slice.build</code> legitimately returns nothing for an unregistered component name, and that must not shift every sibling by one.</p>
+<p>Before paying for a build, <code>reconcile</code> looks for a <strong>direct child</strong> with <code>slice-id="&lt;key&gt;"</code> and adopts it (never a node nested deeper, which belongs to an inner list). The registry can lose track of a node — a build that failed part-way, a child the consumer pre-rendered and appended by hand — while the DOM still holds it, and building it again would throw <code>already registered</code>.</p>
+<p>For the same reason the final ordered list is assembled from the nodes that actually exist rather than from the slots that were requested: <code>slice.build</code> legitimately returns nothing for an unregistered component name, and that must not shift every sibling by one.</p>
 <h2 id="cost-of-a-cold-list">Cost of a cold list</h2>
-<p>The <strong>first</strong> build is awaited on its own, because it warms the template cache; the rest then run in parallel. A cold list of *n* rows therefore costs <strong>one</strong> fetch per component type, not *n*.</p>
+<p>The <strong>first</strong> build is awaited on its own, because it warms the template cache; the rest then run in parallel. A cold list of *n* rows therefore costs <strong>one</strong> fetch per component type, not *n*.</p>
 <h2 id="api">API</h2>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <ul><li><code>keyOf(item)</code> — <strong>the identity used across renders.</strong> Derive it from a stable id, never from the</li></ul>
-<p>array index: an index key makes item 1 keep its component (and its state) when it becomes item 2.   It is also used to <strong>adopt</strong> an existing node, so it must be unique across the whole page, not just   within this list — two lists using <code>row-1</code> will fight over the same key.</p>
+<p>array index: an index key makes item 1 keep its component (and its state) when it becomes item 2.   It is also used to <strong>adopt</strong> an existing node, so it must be unique across the whole page, not just   within this list — two lists using <code>row-1</code> will fight over the same key.</p>
 <ul><li><code>props(item)</code> — the props for one item.</li><li><code>refresh(node, props)</code> — replaces the default <code>slice.setComponentProps(node, props)</code>. Use it when</li></ul>
-<p>props are interdependent, or when the child builds sub-components asynchronously and needs its own   <code>update()</code> in a specific order.</p>
+<p>props are interdependent, or when the child builds sub-components asynchronously and needs its own   <code>update()</code> in a specific order.</p>
+<ul><li><code>equals(previous, next)</code> — optional. When it returns <code>true</code> for an item's data from the last render and its data now, that node is <strong>not</strong> refreshed (and <code>props(item)</code> is not called for it). Without it, every surviving node is refreshed on every render. Pass <code>Object.is</code> when you update data immutably (a changed row is a new object): re-rendering 1,000 rows after editing one then refreshes one. Do <strong>not</strong> use <code>Object.is</code> if you mutate item objects in place — the mutated row would look unchanged.</li></ul>
 <p><code>dom.destroyChildren(container)</code> tears down every registered child at once.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">With immutable data, pass <code>equals: Object.is</code>. Re-rendering a long list after one row changes then
+touches one node instead of all of them.</div>
+<div class="callout callout-tip">Keys are page-wide <code>sliceId</code>s, not per-container. That is what lets an item <strong>move between two
+lists</strong> (a kanban column to another) and keep its component and state: reconcile the destination,
+then the source. It is also why two unrelated lists must not share key prefixes.</div>
 <div class="callout callout-tip">Call <code>reconcile</code> after every change to the data — a push, a filter, a re-sort — and nowhere else.
 Concurrent calls on the same container are queued rather than fought over, but two *different*
 data sources reconciling one container is still a design error: each will prune what the other

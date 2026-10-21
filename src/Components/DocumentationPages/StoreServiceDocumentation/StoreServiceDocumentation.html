@@ -7,11 +7,11 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>A small facade over <code>slice.context</code>. It exists so context <strong>persistence is configured in one place</strong> instead of every state-owning service repeating <code>create(name, initial, { persist: true, ... })</code>.</p>
-<p>Build it first in your composition root, then recover it anywhere with <code>slice.getComponent('StoreService')</code>.</p>
+<p>A small facade over <code>slice.context</code>. It exists so context <strong>persistence is configured in one place</strong> instead of every state-owning service repeating <code>create(name, initial, { persist: true, ... })</code>.</p>
+<p>Build it first in your composition root, then recover it anywhere with <code>slice.getComponent('StoreService')</code>.</p>
 <h2 id="api">API</h2>
 <ul><li><code>ensure(name, initialState, storageKey)</code> — create the context only if it does not exist. Idempotent.</li><li><code>has(name)</code> / <code>get(name)</code></li><li><code>set(name, updater)</code> — <code>updater</code> is <code>(prev) =&gt; next</code>, the same contract as <code>slice.context.setState</code>.</li><li><code>watch(name, component, callback, selector)</code> — subscribe a component to a slice of state.</li></ul>
-<p>Watchers registered <strong>with a component</strong> are cleaned up automatically when it is destroyed — do not unwatch by hand. <code>selector</code> narrows the callback, so the watcher only fires when the relevant part changes rather than on every write.</p>
+<p>Watchers registered <strong>with a component</strong> are cleaned up automatically when it is destroyed — do not unwatch by hand. <code>selector</code> narrows the callback, so the watcher only fires when the relevant part changes rather than on every write.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-1"></div>
 <h2 id="best-practices">Best Practices</h2>

@@ -7,10 +7,10 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>A drop zone for files that works with a mouse, a finger and a keyboard. The zone is a <code>&lt;label&gt;</code> wrapping a real <code>&lt;input type="file"&gt;</code>, so the browser gives you click-to-open, focus and Enter/Space for free — none of which a clickable <code>&lt;div&gt;</code> would have.</p>
+<p>A drop zone for files that works with a mouse, a finger and a keyboard. The zone is a <code>&lt;label&gt;</code> wrapping a real <code>&lt;input type="file"&gt;</code>, so the browser gives you click-to-open, focus and Enter/Space for free — none of which a clickable <code>&lt;div&gt;</code> would have.</p>
 <h2 id="api">API</h2>
 <ul><li><code>accept</code> (string) — extensions or MIME types, e.g. <code>'image/*,.png'</code>. Empty means anything.</li><li><code>multiple</code> (boolean) — allow more than one file.</li><li><code>disabled</code> (boolean)</li><li><code>prompt</code> (string, default <code>'Drag files here, or click to choose'</code>)</li><li><code>hint</code> (string) — small print under the prompt, e.g. the size limit.</li><li><code>icon</code> (string, default <code>'upload'</code>) — an <code>Icon</code> name; empty renders no glyph.</li><li><code>list</code> (boolean) — show the picked files under the zone.</li><li><code>onFiles</code> (function) — called as <code>onFiles(filesArray, fileList)</code></li></ul>
-<p>The input is cleared after every pick, so choosing the <strong>same</strong> file twice still fires <code>onFiles</code> instead of silently doing nothing.</p>
+<p>The input is cleared after every pick, so choosing the <strong>same</strong> file twice still fires <code>onFiles</code> instead of silently doing nothing.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>

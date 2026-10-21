@@ -1,0 +1,39 @@
+<div class="documentation-content sliderdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="slider">
+    <span class="doc-title-text">Slider</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>Slider</code> picks a number within a range by dragging, clicking the track or using the keyboard. With <code>range: true</code> it has two thumbs and picks an interval (<code>[low, high]</code>), such as a price filter.</p>
+<p>Use it when an approximate value is fine and seeing it relative to the whole range helps (volume, opacity, a price band). When the exact number matters, prefer <code>Input</code> with a number type — dragging to precisely 1,375 is frustrating.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>min</code>, <code>max</code> and <code>step</code> define the scale (defaults <code>0</code>, <code>100</code>, <code>1</code>). Decimal steps such as <code>0.1</code> work and never leak float noise (<code>0.30000000000000004</code> is stored as <code>0.3</code>).</li><li><code>value</code> is a number, clamped to <code>min</code>/<code>max</code> and snapped to <code>step</code> counted from <code>min</code>. Props can arrive in any order: <code>{ value: 150, max: 200 }</code> keeps 150.</li><li><code>range: true</code> makes <code>value</code> a <code>[low, high]</code> pair. A non-array value becomes <code>[min, max]</code>, a reversed pair is sorted, and a thumb stops at the other one instead of crossing it.</li><li><code>onInput(value)</code> fires continuously while the value moves (dragging, a held arrow key). <code>onChange(value)</code> fires once the user commits it (thumb released, key pressed, mark clicked). Setting <code>value</code>, <code>min</code>, <code>max</code>, <code>step</code> or <code>range</code> from code fires neither. Assign <code>null</code> to clear a handler.</li><li><code>value</code> returns a copy in range mode, so mutating the array you got back does not change the slider.</li><li><code>formatValue(value)</code> formats the visible value <strong>and</strong> the <code>aria-valuetext</code> read by screen readers, for example <code>(v) =&gt; '$' + v</code>. If it throws, the plain number is shown.</li><li><code>showValue: false</code> hides the value next to the label.</li><li><code>marks</code> is an array of numbers or <code>{ value, label }</code>, drawn under the track. Clicking a mark moves the (nearest) thumb there. Marks outside <code>min</code>/<code>max</code> are ignored.</li><li><code>label</code> names the slider; in range mode each thumb is named <code>"&lt;label&gt; (minimum)"</code> / <code>"&lt;label&gt; (maximum)"</code>.</li><li><code>name</code> sets the native input name, so a surrounding <code>&lt;form&gt;</code> submits the value (both ends under the same name in range mode).</li><li><code>disabled</code> blocks dragging, clicking and the keyboard.</li><li><code>variant</code>: <code>default</code>, <code>outlined</code>, <code>soft</code> or <code>plain</code> (no container chip). <code>size</code>: <code>sm</code>, <code>md</code>, <code>lg</code>. <code>customColor: { accent }</code> recolours the fill and thumb, in every variant.</li></ul>
+<h2 id="keyboard-and-accessibility">Keyboard and accessibility</h2>
+<p>Each thumb is a native <code>&lt;input type="range"&gt;</code>, so the browser provides the standard slider behaviour:</p>
+<ul><li><strong>← / ↓</strong> and <strong>→ / ↑</strong> move by one <code>step</code>.</li><li><strong>Page Up / Page Down</strong> move by a larger amount.</li><li><strong>Home / End</strong> jump to <code>min</code> / <code>max</code>.</li></ul>
+<p>Screen readers announce the role, the name, the current value (or the <code>formatValue</code> text) and the bounds. <code>el.focus()</code> focuses the (low) thumb. The focus ring is drawn on the thumb. Marks are a pointer shortcut and are not extra tab stops.</p>
+<h2 id="theming">Theming</h2>
+<p>Per-instance custom properties on the host: <code>--slice-slider-track</code>, <code>--slice-slider-track-height</code>, <code>--slice-slider-thumb</code>, <code>--slice-slider-thumb-size</code>, <code>--slice-slider-thumb-border-width</code>, <code>--slice-slider-surface</code> and <code>--slice-slider-surface-border</code>. Use <code>customColor</code> for the accent.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Always pass <code>formatValue</code> when the number has a unit. It is what a screen reader announces, so "40%" is understood where "0.4" is not.</div>
+<div class="callout callout-tip">Use <code>onInput</code> for cheap live feedback (a preview) and <code>onChange</code> for anything expensive (a request, saving), so dragging does not fire a hundred requests.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">A slider has no intrinsic width. It reserves a minimum of <code>12rem</code> so it never collapses; give it a real width in tight rows.</div>
+<div class="callout callout-warning">In range mode, when both thumbs sit on the same value, dragging grabs the top one, which can only move away from the other in one direction. Use the keyboard (Tab to the other thumb) or click the track on the side you want.</div>
+<div class="component-block" data-block-id="doc-block-11"></div>
+</div>

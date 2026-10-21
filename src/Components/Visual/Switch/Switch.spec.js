@@ -141,4 +141,135 @@ test.describe('Switch', () => {
       // A shared id would make one switch's text label toggle the other.
       expect(ids.a).not.toBe(ids.b);
    });
+
+   // ------------------------------------------------ parity with Checkbox
+
+   test('the input is exposed as role="switch"', async ({ mount, page }) => {
+      await mount('Switch', { label: 'Wi-Fi', checked: true });
+      const sw = page.getByRole('switch', { name: 'Wi-Fi' });
+      await expect(sw).toBeVisible();
+      await expect(sw).toBeChecked();
+   });
+
+   test('variant applies the matching modifier idempotently', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X', variant: 'danger' });
+      const container = c.locator('.slice_switch_container');
+      await expect(container).toHaveClass(/slice_switch--danger/);
+      await expect(container).not.toHaveClass(/slice_switch--default/);
+      await c.component.evaluate((el) => { el.variant = 'soft'; });
+      await expect(container).toHaveClass(/slice_switch--soft/);
+      await expect(container).not.toHaveClass(/slice_switch--danger/);
+   });
+
+   test('invalid variant falls back to "default"', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X', variant: 'neon' });
+      await expect(c.locator('.slice_switch_container')).toHaveClass(/slice_switch--default/);
+   });
+
+   test('default variant still looks like the original switch', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X', checked: true });
+      const colors = await c.component.evaluate((el) => ({
+         track: getComputedStyle(el.querySelector('.slider')).backgroundColor,
+         success: (() => {
+            const probe = document.createElement('span');
+            probe.style.color = 'var(--success-color)';
+            el.appendChild(probe);
+            const v = getComputedStyle(probe).color;
+            probe.remove();
+            return v;
+         })(),
+         thumb: getComputedStyle(el.querySelector('.slider'), '::after').backgroundColor,
+      }));
+      expect(colors.track).toBe(colors.success);
+      expect(colors.thumb).toBe('rgb(255, 255, 255)');
+   });
+
+   test('checked track uses the variant accent (danger)', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X', checked: true, variant: 'danger' });
+      const out = await c.component.evaluate((el) => {
+         const probe = document.createElement('span');
+         probe.style.color = 'var(--danger-color)';
+         el.appendChild(probe);
+         const danger = getComputedStyle(probe).color;
+         probe.remove();
+         return { track: getComputedStyle(el.querySelector('.slider')).backgroundColor, danger };
+      });
+      expect(out.track).toBe(out.danger);
+   });
+
+   test('customColor.accent wins over a variant accent', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X', checked: true, variant: 'outlined', customColor: { accent: 'rgb(255, 0, 0)' } });
+      await expect(c.locator('.slider')).toHaveCSS('background-color', 'rgb(255, 0, 0)');
+   });
+
+   test('variant=plain drops the container chip, even at size=lg', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X', variant: 'plain', size: 'lg' });
+      const container = c.locator('.slice_switch_container');
+      await expect(container).toHaveCSS('padding-top', '0px');
+      await expect(container).toHaveCSS('border-top-width', '0px');
+   });
+
+   test('size sets data-size and scales the track', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="host"></div>`);
+      const out = await h.page.evaluate(async () => {
+         const host = document.getElementById('host');
+         const res = {};
+         for (const size of ['sm', 'md', 'lg']) {
+            const el = await slice.build('Switch', { size });
+            host.appendChild(el);
+            res[size] = { attr: el.dataset.size, w: el.querySelector('.slider').getBoundingClientRect().width };
+         }
+         return res;
+      });
+      expect(out.sm.attr).toBe('sm');
+      expect(out.sm.w).toBeLessThan(out.md.w);
+      expect(out.md.w).toBeLessThan(out.lg.w);
+   });
+
+   test('invalid size falls back to "md"', async ({ mount }) => {
+      const c = await mount('Switch', { size: 'xl' });
+      await expect(c.component).toHaveAttribute('data-size', 'md');
+   });
+
+   test('setters read their accepted set from static props, not a copy', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X' });
+      const out = await c.component.evaluate((el) => {
+         const p = el.constructor.props;
+         p.variant.allowedValues.push('probe');
+         p.size.allowedValues.push('probe-size');
+         window.slice.setComponentProps(el, { variant: 'probe', size: 'probe-size' });
+         p.variant.allowedValues.pop();
+         p.size.allowedValues.pop();
+         return {
+            variant: el.querySelector('.slice_switch_container').classList.contains('slice_switch--probe'),
+            size: el.dataset.size,
+         };
+      });
+      expect(out).toEqual({ variant: true, size: 'probe-size' });
+   });
+
+   test('the thumb colour is a per-instance token', async ({ mount }) => {
+      const c = await mount('Switch', { label: 'X' });
+      await c.component.evaluate((el) => el.style.setProperty('--slice-switch-thumb', 'rgb(0, 0, 0)'));
+      // The knob transitions its colour, so poll until it settles.
+      await expect
+         .poll(() => c.locator('.slider').evaluate((el) => getComputedStyle(el, '::after').backgroundColor))
+         .toBe('rgb(0, 0, 0)');
+   });
+
+   test('onChange can be cleared with null', async ({ mount }) => {
+      const c = await mount('Switch', { checked: false }, { spies: ['onChange'] });
+      await c.component.evaluate((el) => { el.onChange = null; });
+      await c.locator('.slice_switch label').click();
+      await expect(c.locator('input')).toBeChecked();
+      expect(await c.events('onChange')).toBe(0);
+   });
+
+   // The canonical setter now accepts null; the alias must still win when it is
+   // the only handler passed (defaults are applied before provided props).
+   test('toggle alone still installs the handler after the onChange change', async ({ mount }) => {
+      const c = await mount('Switch', {}, { spies: ['toggle'] });
+      await c.locator('.slice_switch label').click();
+      expect(await c.events('toggle')).toBe(1);
+   });
 });

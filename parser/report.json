@@ -149,12 +149,20 @@
       "component": "MarkdownParserRulesDocumentation"
     },
     {
+      "filePath": "src/markdown/radio-group.md",
+      "component": "RadioGroupDocumentation"
+    },
+    {
       "filePath": "src/markdown/route.md",
       "component": "RouteDocumentation"
     },
     {
       "filePath": "src/markdown/select.md",
       "component": "SelectDocumentation"
+    },
+    {
+      "filePath": "src/markdown/slider.md",
+      "component": "SliderDocumentation"
     },
     {
       "filePath": "src/markdown/store-service.md",
@@ -212,7 +220,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\victo\\Desktop\\SPIKE-PWA-SLICE\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "C:\\Users\\vkneider\\Desktop\\aa\\prueba\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

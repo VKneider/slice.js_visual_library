@@ -7,27 +7,27 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>The "you have unsaved changes" guard. Any component can declare pending work with a stable key, and the guard covers the three ways a user can walk away from it.</p>
+<p>The "you have unsaved changes" guard. Any component can declare pending work with a stable key, and the guard covers the three ways a user can walk away from it.</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <div class="code-block" data-block-id="doc-block-2"></div>
 <h2 id="api">API</h2>
 <ul><li><code>arm(key = 'default', { message })</code> — declare pending work.</li><li><code>disarm(key = 'default')</code> — the work is saved or deliberately abandoned.</li><li><code>isArmed</code> / <code>pendingCount</code> — what is currently holding the guard.</li><li><code>confirmLeave(message?) -&gt; Promise&lt;boolean&gt;</code> — ask by hand, for anything the built-in exits miss.</li><li><code>guardFn(to, from, next)</code> — the router guard body, if you want to compose it yourself.</li><li><code>setDialog(fn)</code> — replace the browser <code>confirm</code> with your own dialog.</li><li><code>destroy()</code> — release everything and detach the listeners.</li></ul>
-<p>Arms are <strong>reference-counted by key</strong>: <code>arm('editor')</code> twice is still one holder, and two different keys need two <code>disarm</code> calls. A component that re-arms on every render therefore cannot lock the user out of the page.</p>
+<p>Arms are <strong>reference-counted by key</strong>: <code>arm('editor')</code> twice is still one holder, and two different keys need two <code>disarm</code> calls. A component that re-arms on every render therefore cannot lock the user out of the page.</p>
 <h2 id="the-three-exits-and-why-they-are-not-equally-reliable">The three exits, and why they are not equally reliable</h2>
 <div class="table-block" data-block-id="doc-block-3"></div>
 <h3 id="the-back-button-is-best-effort-and-cannot-be-otherwise">The back button is best effort, and cannot be otherwise</h3>
-<p>The router does <strong>not</strong> run <code>beforeEach</code> on <code>popstate</code> — <code>Router.onRouteChange()</code> goes straight to rendering. By the time the event reaches you, the URL has already changed.</p>
-<p>So this service asks anyway, and if the answer is no it calls <code>history.go(1)</code> to put the history back. Two consequences are worth knowing:</p>
+<p>The router does <strong>not</strong> run <code>beforeEach</code> on <code>popstate</code> — <code>Router.onRouteChange()</code> goes straight to rendering. By the time the event reaches you, the URL has already changed.</p>
+<p>So this service asks anyway, and if the answer is no it calls <code>history.go(1)</code> to put the history back. Two consequences are worth knowing:</p>
 <ul><li>The route you navigated away from can paint for a frame before being restored.</li><li>Only a <strong>single step</strong> back is reliably recoverable. Pressing Back three times in a row can</li></ul>
 <p>outrun the recovery.</p>
-<p>The browser's native <code>confirm</code> is used on this path and <strong>your <code>setDialog</code> dialog is not</strong>, because a <code>popstate</code> handler has to answer synchronously or the browser moves on without it.</p>
+<p>The browser's native <code>confirm</code> is used on this path and <strong>your <code>setDialog</code> dialog is not</strong>, because a <code>popstate</code> handler has to answer synchronously or the browser moves on without it.</p>
 <h3 id="the-browser-owns-the-wording-on-beforeunload">The browser owns the wording on <code>beforeunload</code></h3>
-<p>Every current browser ignores any message you set and shows its own text. That is deliberate: a page that could name the consequence could also use it to trick people into staying. Expect "Changes you made may not be saved."</p>
+<p>Every current browser ignores any message you set and shows its own text. That is deliberate: a page that could name the consequence could also use it to trick people into staying. Expect "Changes you made may not be saved."</p>
 <p>Browsers also only honour the prompt after the user has interacted with the page at least once.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <h2 id="composing-with-your-own-router-guard">Composing with your own router guard</h2>
-<p>The router keeps guards in a <strong>single slot</strong> (<code>router._beforeEachGuard</code>), so registering a second one replaces the first. This service composes with whatever was already there at the moment it was built — but an app that registers a guard *afterwards* replaces this one. If that is you, compose explicitly:</p>
+<p>The router keeps guards in a <strong>single slot</strong> (<code>router._beforeEachGuard</code>), so registering a second one replaces the first. This service composes with whatever was already there at the moment it was built — but an app that registers a guard *afterwards* replaces this one. If that is you, compose explicitly:</p>
 <div class="code-block" data-block-id="doc-block-5"></div>
 <div class="callout callout-warning">In Slice.js 4.x, <strong><code>next(false)</code> does not cancel the navigation.</strong> <code>Router._executeBeforeEachGuard</code>
 ends with <code>return redirectPath ? { path: redirectPath, … } : null</code>, and <code>false</code> is falsy, so the

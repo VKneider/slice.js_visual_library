@@ -209,6 +209,17 @@ const docsIndex = [
     tags: ['textarea', 'input', 'forms', 'multiline']
   },
   {
+    title: 'RadioGroup',
+    route: '/docs/input/radio-group',
+    description: 'Single-choice control that owns its value — keyboard, forms and card pickers included.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 14,
+    navLabel: 'RadioGroup',
+    component: 'RadioGroupDocumentation',
+    tags: ['radio', 'radiogroup', 'input', 'forms', 'choice']
+  },
+  {
     title: 'Switch',
     route: '/docs/input/switch',
     description: 'Switch component documentation with practical interaction scenarios.',
@@ -218,6 +229,17 @@ const docsIndex = [
     navLabel: 'Switch',
     component: 'SwitchDocumentation',
     tags: ['switch', 'input', 'toggle']
+  },
+  {
+    title: 'Slider',
+    route: '/docs/input/slider',
+    description: 'Numeric slider with keyboard support, a two-thumb range mode, marks and formatted values.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 15,
+    navLabel: 'Slider',
+    component: 'SliderDocumentation',
+    tags: ['slider', 'range', 'input', 'forms', 'number']
   },
   {
     title: 'ThemeSelector',

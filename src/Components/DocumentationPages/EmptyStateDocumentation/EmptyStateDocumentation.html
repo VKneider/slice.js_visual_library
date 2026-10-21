@@ -7,11 +7,11 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>The block you show where content *would* be, if there were any. It carries an icon, a title, a sentence explaining what will appear there, and usually one action that fixes the emptiness.</p>
-<p>An empty state is not decoration: it is the first thing a new user sees in that area, so the copy should say what goes here and how to get the first one in.</p>
+<p>The block you show where content *would* be, if there were any. It carries an icon, a title, a sentence explaining what will appear there, and usually one action that fixes the emptiness.</p>
+<p>An empty state is not decoration: it is the first thing a new user sees in that area, so the copy should say what goes here and how to get the first one in.</p>
 <h2 id="api">API</h2>
 <ul><li><code>icon</code> (string, default <code>'inbox-full'</code>) — an <code>Icon</code> name. Empty renders no glyph.</li><li><code>iconSize</code> (string, default <code>'large'</code>)</li><li><code>title</code> (string) — the heading. Hidden when empty.</li><li><code>description</code> (string) — the explanation. Hidden when empty.</li><li><code>buttonLabel</code> (string) — label of the optional action <code>Button</code></li><li><code>buttonRoute</code> (string) — where the action navigates</li><li><code>buttonOnClick</code> (function) — what the action does. <strong>Wins over <code>buttonRoute</code>.</strong></li></ul>
-<p><code>buttonOnClick</code> rather than <code>onClick</code> because the click belongs to the child <code>Button</code>, not to the empty state itself.</p>
+<p><code>buttonOnClick</code> rather than <code>onClick</code> because the click belongs to the child <code>Button</code>, not to the empty state itself.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>

@@ -327,4 +327,164 @@ test.describe('DomService — reconcile', () => {
       expect(out.count).toBe(25);
       expect(out.order).toEqual(Array.from({ length: 25 }, (_, n) => `chip-r${n}`));
    });
+
+   // ----------------------------------------------------- equals (opt-in memo)
+
+   test('without equals, every surviving node is refreshed on every render', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="list"></div>`, { services: ['DomService'] });
+      const refreshes = await h.page.evaluate(async () => {
+         const dom = window.__sliceServices.DomService;
+         const list = document.getElementById('list');
+         const rows = [{ id: 'a' }, { id: 'b' }];
+         let count = 0;
+         const opts = {
+            keyOf: (i) => `eq-${i.id}`,
+            component: 'Badge',
+            props: (i) => ({ label: i.id }),
+            refresh: (node, p) => { count += 1; slice.setComponentProps(node, p); },
+         };
+         await dom.reconcile(list, rows, opts);
+         await dom.reconcile(list, rows, opts);
+         return count;
+      });
+      expect(refreshes).toBe(2);
+   });
+
+   test('equals skips nodes whose data is unchanged and refreshes the rest', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="list"></div>`, { services: ['DomService'] });
+      const out = await h.page.evaluate(async () => {
+         const dom = window.__sliceServices.DomService;
+         const list = document.getElementById('list');
+         const refreshed = [];
+         const opts = {
+            keyOf: (i) => `memo-${i.id}`,
+            component: 'Badge',
+            props: (i) => ({ label: i.label }),
+            equals: Object.is,
+            refresh: (node, p) => { refreshed.push(node.sliceId); slice.setComponentProps(node, p); },
+         };
+         const a = { id: 'a', label: 'A' };
+         const b = { id: 'b', label: 'B' };
+         await dom.reconcile(list, [a, b], opts);
+         // Immutable update: only b gets a new object.
+         await dom.reconcile(list, [a, { ...b, label: 'B2' }], opts);
+         return { refreshed, text: [...list.children].map((el) => el.textContent.trim()) };
+      });
+      expect(out.refreshed).toEqual(['memo-b']);
+      expect(out.text).toEqual(['A', 'B2']);
+   });
+
+   // ------------------------------------------------------------ coalescing
+
+   test('renders queued behind a running one coalesce to the latest', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="list"></div>`, { services: ['DomService'] });
+      const out = await h.page.evaluate(async () => {
+         const dom = window.__sliceServices.DomService;
+         const list = document.getElementById('list');
+         const seen = [];
+         const opts = {
+            keyOf: (i) => `co-${i.id}`,
+            component: 'Badge',
+            props: (i) => {
+               seen.push(i.id);
+               return { label: i.id };
+            },
+         };
+         // First starts immediately; the next two arrive while it runs.
+         const p1 = dom.reconcile(list, [{ id: 'one' }], opts);
+         const p2 = dom.reconcile(list, [{ id: 'two' }], opts);
+         const p3 = dom.reconcile(list, [{ id: 'three' }], opts);
+         const settled = await Promise.allSettled([p1, p2, p3]);
+         return {
+            seen,
+            statuses: settled.map((r) => r.status),
+            ids: [...list.children].map((el) => el.getAttribute('slice-id')),
+         };
+      });
+      // 'two' was superseded before it started, so it never rendered…
+      expect(out.seen).toEqual(['one', 'three']);
+      // …but its caller still resolved, once the newer state was applied.
+      expect(out.statuses).toEqual(['fulfilled', 'fulfilled', 'fulfilled']);
+      expect(out.ids).toEqual(['co-three']);
+      expect(h.pageErrors()).toEqual([]);
+   });
+
+   // -------------------------------------------------------------- adoption
+
+   test('adoption only looks at direct children, never a nested node', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="list"><div id="nested"></div></div>`, { services: ['DomService'] });
+      const out = await h.page.evaluate(async () => {
+         const dom = window.__sliceServices.DomService;
+         const list = document.getElementById('list');
+         const nested = document.getElementById('nested');
+
+         // A node with the same key, one level down, that the registry lost.
+         const deep = await slice.build('Badge', { sliceId: 'adopt-x', label: 'deep' });
+         nested.appendChild(deep);
+         slice.controller.activeComponents.delete('adopt-x');
+
+         await dom.reconcile(list, [{ id: 'x' }], {
+            keyOf: (i) => `adopt-${i.id}`,
+            component: 'Badge',
+            props: () => ({ label: 'top' }),
+         });
+
+         return {
+            deepStillNested: deep.parentElement === nested,
+            topLevel: [...list.children].filter((el) => el.getAttribute('slice-id') === 'adopt-x').length,
+         };
+      });
+      expect(out.deepStillNested).toBe(true);
+      expect(out.topLevel).toBe(1);
+   });
+
+   // --------------------------------------------------------- minimal moves
+
+   test('reordering moves the fewest nodes possible', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="list"></div>`, { services: ['DomService'] });
+      const out = await h.page.evaluate(async () => {
+         const dom = window.__sliceServices.DomService;
+         const list = document.getElementById('list');
+         const opts = { keyOf: (i) => `mv-${i}`, component: 'Badge', props: (i) => ({ label: i }) };
+         const base = ['a', 'b', 'c', 'd', 'e', 'f'];
+         await dom.reconcile(list, base, opts);
+
+         const countMoves = async (items) => {
+            let moves = 0;
+            const mo = new MutationObserver((records) => {
+               for (const r of records) moves += r.removedNodes.length;
+            });
+            mo.observe(list, { childList: true });
+            await dom.reconcile(list, items, opts);
+            await Promise.resolve();
+            mo.takeRecords().forEach((r) => { moves += r.removedNodes.length; });
+            mo.disconnect();
+            return { moves, order: [...list.children].map((el) => el.textContent.trim()).join('') };
+         };
+
+         // Rotating the first item to the end is ONE move, not five.
+         const rotate = await countMoves(['b', 'c', 'd', 'e', 'f', 'a']);
+         // Swapping two neighbours is one move.
+         const swap = await countMoves(['b', 'c', 'e', 'd', 'f', 'a']);
+         return { rotate, swap };
+      });
+      expect(out.rotate).toEqual({ moves: 1, order: 'bcdefa' });
+      expect(out.swap).toEqual({ moves: 1, order: 'bcedfa' });
+   });
+
+   test('a focused node that does not need to move keeps focus', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="list"></div>`, { services: ['DomService'] });
+      const kept = await h.page.evaluate(async () => {
+         const dom = window.__sliceServices.DomService;
+         const list = document.getElementById('list');
+         const opts = { keyOf: (i) => `fx-${i}`, component: 'Button', props: (i) => ({ value: i }) };
+         await dom.reconcile(list, ['a', 'b', 'c'], opts);
+         const button = list.children[1].querySelector('button');
+         button.focus();
+         // Move 'a' to the end; 'b' is part of the stable run and must not move.
+         await dom.reconcile(list, ['b', 'c', 'a'], opts);
+         return document.activeElement === button;
+      });
+      expect(kept).toBe(true);
+   });
 });

@@ -7,12 +7,12 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>FileDownloadService</code> is a <strong>Service</strong> component: a plain logic class (no DOM, no template) that saves content to the user's device as a file.</p>
-<p>It exists because the "save a file from JS" snippet is short, easy to get subtly wrong, and gets copy-pasted into every app. Build it once with a <code>sliceId</code> and call it:</p>
+<p><code>FileDownloadService</code> is a <strong>Service</strong> component: a plain logic class (no DOM, no template) that saves content to the user's device as a file.</p>
+<p>It exists because the "save a file from JS" snippet is short, easy to get subtly wrong, and gets copy-pasted into every app. Build it once with a <code>sliceId</code> and call it:</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <h2 id="api">API</h2>
 <ul><li><code>download(filename, content, mimeType = 'text/plain')</code> — saves <code>content</code> as <code>filename</code>.</li><li><code>open(content, mimeType = 'text/plain')</code> — opens the content in a new tab instead of saving it.</li></ul>
-<p><code>content</code> may be a <code>string</code> or a ready-made <code>Blob</code>. When it is a <code>Blob</code>, the <code>mimeType</code> argument is ignored — a <code>Blob</code> already carries its own type.</p>
+<p><code>content</code> may be a <code>string</code> or a ready-made <code>Blob</code>. When it is a <code>Blob</code>, the <code>mimeType</code> argument is ignored — a <code>Blob</code> already carries its own type.</p>
 <h2 id="usage">Usage</h2>
 <div class="code-block" data-block-id="doc-block-2"></div>
 <div class="code-block" data-block-id="doc-block-3"></div>

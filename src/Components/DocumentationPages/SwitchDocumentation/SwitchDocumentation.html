@@ -9,7 +9,7 @@
 <h2 id="overview">Overview</h2>
 <p><code>Switch</code> provides an on/off control for feature flags and settings toggles.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>checked</code> controls active state.</li><li><code>label</code> and <code>labelPlacement</code> improve context readability.</li><li><code>toggle</code> callback can run side-effects when users interact.</li></ul>
+<ul><li><code>checked</code> controls active state.</li><li><code>onChange</code> fires with the new checked state (<code>true</code>/<code>false</code>) when the user toggles it — by clicking the track, the label, or pressing Space. Setting <code>checked</code> from code does not fire it. Assign <code>null</code> to clear the handler.</li><li><code>toggle</code> is the deprecated name for <code>onChange</code>. It still works and warns once.</li><li><code>label</code> and <code>labelPlacement</code> improve context readability.</li><li><code>variant</code> matches <code>Checkbox</code>: <code>default</code> (success accent), <code>outlined</code>, <code>soft</code>, <code>danger</code> (for a switch that turns on something risky) or <code>plain</code> (no container chip). Unknown values fall back to <code>default</code>.</li><li><code>size</code> (<code>sm</code> | <code>md</code> | <code>lg</code>) scales the track, knob and label together; <code>md</code> is the default.</li><li><code>customColor: { accent }</code> recolours the active track, in every variant.</li><li>The input is a real checkbox exposed with <code>role="switch"</code>, so screen readers announce it as on/off. It is visually hidden but stays focusable, and the focus ring is drawn on the track.</li><li>Per-instance tuning: <code>--slice-switch-thumb</code>, <code>--slice-switch-track-surface</code>, <code>--slice-switch-track-border</code>, <code>--slice-switch-track-border-width</code> and <code>--slice-switch-height</code> can be set on the host.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
@@ -19,5 +19,9 @@
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <div class="script-block" data-block-id="doc-block-7"></div>
-<div class="component-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<p>º</p>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<div class="component-block" data-block-id="doc-block-11"></div>
 </div>

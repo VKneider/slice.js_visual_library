@@ -34,14 +34,17 @@ So `reconcile` does three things, in this order:
 2. **Prune.** Every child whose data is gone is destroyed with `slice.controller.destroyComponent`,
    which runs `beforeDestroy()`. This happens **before** reordering so a dead node is never a
    reorder target.
-3. **Enforce order.** The DOM is moved to match `items`. `insertBefore` **moves** a node, it does not
-   clone it, so no constructor re-runs — and only nodes that are actually out of place move.
+3. **Enforce order, with the fewest moves.** The DOM is moved to match `items`. `insertBefore` **moves** a node, it does not clone it, so no constructor re-runs. The nodes already in the right relative order (the longest increasing run of their current positions) stay put and only the rest move: moving the first item to the end is one move, not one per item. That matters beyond speed — a moved node loses keyboard focus and restarts its CSS animations.
 
-## Concurrency: renders queue per container
+## Concurrency: renders queue per container, and coalesce
 
-`reconcile` keeps one promise per container in a `WeakMap`. A render that arrives while another is
+`reconcile` keeps one queue per container in a `WeakMap`. A render that arrives while another is
 still running waits for it instead of interleaving — otherwise the second could prune a node the first
 had just ordered, or both could decide to build the same id.
+
+Renders that are still **waiting** coalesce: if three calls arrive while one is running, only the
+newest of the three is applied, and all three callers resolve when it is. A filter box that re-renders
+a list on every keystroke therefore applies the last keystroke, not every intermediate one.
 
 Two details worth knowing, because both were bugs first:
 
@@ -50,14 +53,14 @@ Two details worth knowing, because both were bugs first:
 - The chain is **dropped when it drains**. A long-lived list does not accumulate one promise per
   update.
 
-The promise `reconcile` returns resolves after *this* render is applied **and** after any render
-already queued on the same container. So `await dom.reconcile(...)` really does mean "the DOM
-matches", which is what makes the pattern below correct.
+The promise `reconcile` returns resolves once the DOM reflects *this* call's items or a newer call's.
+So `await dom.reconcile(...)` really does mean "the DOM is at least this fresh". A render that was
+superseded before it started is never applied — its own `refresh` and `props` callbacks do not run.
 
 ## Adoption, and a build that returns nothing
 
-Before paying for a build, `reconcile` looks for `[slice-id="<key>"]` inside the container and adopts
-it. The registry can lose track of a node — a build that failed part-way, a child the consumer
+Before paying for a build, `reconcile` looks for a **direct child** with `slice-id="<key>"` and adopts
+it (never a node nested deeper, which belongs to an inner list). The registry can lose track of a node — a build that failed part-way, a child the consumer
 pre-rendered and appended by hand — while the DOM still holds it, and building it again would throw
 `already registered`.
 
@@ -78,6 +81,7 @@ await dom.reconcile(container, items, {
   component: 'Row',                      // required: built for new items
   props:     (item) => ({ label: item.name }),
   refresh:   (node, props) => { /* optional: replaces slice.setComponentProps */ },
+  equals:    Object.is,                    // optional: skip unchanged items
 });
 ```
 
@@ -89,6 +93,7 @@ await dom.reconcile(container, items, {
 - `refresh(node, props)` — replaces the default `slice.setComponentProps(node, props)`. Use it when
   props are interdependent, or when the child builds sub-components asynchronously and needs its own
   `update()` in a specific order.
+- `equals(previous, next)` — optional. When it returns `true` for an item's data from the last render and its data now, that node is **not** refreshed (and `props(item)` is not called for it). Without it, every surviving node is refreshed on every render. Pass `Object.is` when you update data immutably (a changed row is a new object): re-rendering 1,000 rows after editing one then refreshes one. Do **not** use `Object.is` if you mutate item objects in place — the mutated row would look unchanged.
 
 `dom.destroyChildren(container)` tears down every registered child at once.
 
@@ -161,6 +166,17 @@ mount(wrap);
 :::
 
 ## Best Practices
+
+:::tip
+With immutable data, pass `equals: Object.is`. Re-rendering a long list after one row changes then
+touches one node instead of all of them.
+:::
+
+:::tip
+Keys are page-wide `sliceId`s, not per-container. That is what lets an item **move between two
+lists** (a kanban column to another) and keep its component and state: reconcile the destination,
+then the source. It is also why two unrelated lists must not share key prefixes.
+:::
 
 :::tip
 Call `reconcile` after every change to the data — a push, a filter, a re-sort — and nowhere else.

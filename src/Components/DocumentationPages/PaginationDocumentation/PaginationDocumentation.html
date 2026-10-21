@@ -7,10 +7,10 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Pagination</code> is a <strong>controlled</strong> page navigator. It holds no page state of its own: you pass the <code>currentPage</code>, and on a click it calls <code>onPageChange(page)</code> — you then update <code>currentPage</code> to move it. Use it on its own for lists and search results, or let [<code>Table</code>](/docs/data/table) compose it for you.</p>
+<p><code>Pagination</code> is a <strong>controlled</strong> page navigator. It holds no page state of its own: you pass the <code>currentPage</code>, and on a click it calls <code>onPageChange(page)</code> — you then update <code>currentPage</code> to move it. Use it on its own for lists and search results, or let [<code>Table</code>](/docs/data/table) compose it for you.</p>
 <h2 id="api-and-behavior">API and Behavior</h2>
 <ul><li><code>currentPage</code> (number) — the active page (you own this value).</li><li><code>totalPages</code> (number) — total number of pages.</li><li><code>siblingCount</code> (number, default <code>1</code>) — pages shown on each side of the current page.</li><li><code>boundaryCount</code> (number, default <code>1</code>) — pages always shown at the start/end.</li><li><code>showFirstLast</code> (boolean, default <code>false</code>) — render «first / last» controls.</li><li><code>disabled</code> (boolean) — blocks navigation.</li><li><code>onPageChange(page)</code> — called with the requested page (never the current one).</li></ul>
-<p>Large ranges collapse with an ellipsis, e.g. <code>1 … 9 10 11 … 20</code>. Because it is controlled, clicking a page does <strong>not</strong> move it until you set <code>currentPage</code> — this keeps it in sync with whatever owns the data.</p>
+<p>Large ranges collapse with an ellipsis, e.g. <code>1 … 9 10 11 … 20</code>. Because it is controlled, clicking a page does <strong>not</strong> move it until you set <code>currentPage</code> — this keeps it in sync with whatever owns the data.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>

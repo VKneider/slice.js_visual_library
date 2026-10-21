@@ -326,7 +326,9 @@ const renderBlocks = (blocks) => {
 
 const parseMarkdownFile = (filePath, options = {}) => {
   const projectRoot = options.projectRoot;
-  const content = fs.readFileSync(filePath, 'utf8');
+  // Strip a UTF-8 BOM: Windows editors can save one, and it sits before the
+  // opening `---`, so the front matter would not be found at all.
+  const content = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
   const { data, body } = parseFrontMatter(content);
 
   let enrichedBody = body;
