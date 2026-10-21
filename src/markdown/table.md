@@ -5,10 +5,10 @@ navLabel: Table
 section: Data
 group: Tables
 order: 10
-description: Table documentation with header and row rendering scenarios.
+description: Data table with sorting, pagination, search, typed filters, selection, sticky layout and virtual scrolling.
 component: TableDocumentation
 generate: true
-tags: [table, data, display]
+tags: [table, data, display, filter, search, selection, virtual]
 ---
 
 # Table
@@ -22,7 +22,7 @@ tags: [table, data, display]
   - a **string / number** → rendered as text (escaped, safe by default),
   - a **DOM node** (e.g. a built component) → appended as-is,
   - `{ html: '<...>' }` → explicit opt-in for **trusted** raw HTML.
-- Both props are reactive: changes trigger a full re-render.
+- Both props are reactive: setting `rows` again re-renders every cell, so in-place edits to row objects show up. Sorting, filtering, paging and scrolling reuse the rows that did not change instead of rebuilding the body.
 - Empty arrays render no table content.
 
 ## Columns, sorting and pagination
@@ -186,6 +186,173 @@ const table = await slice.build('Table', {
 return table;
 :::
 
+## Search
+`searchable: true` adds a search box above the table.
+
+- It matches every column whose `searchable` is not `false`, ignoring case and accents: "jose" finds "José".
+- Several words must all match, each in any column: "ana caracas" finds Ana in Caracas.
+- The search reads the **data** (`row[key]`), not what `render` draws. Give a column `searchValue` (a function or a path such as `'user.name'`) to search something else.
+- Typing is debounced; **Enter** applies at once and **Escape** clears the box.
+- `search` sets the query from code. That does not fire `onFilterChange`.
+
+## Filters
+`filterable: true` adds a **Filters** button that opens a panel with one editor per column. The editor's type comes from the column's `filter`, or is inferred from the data:
+
+| Type | Operators | Editor |
+| --- | --- | --- |
+| `text` | contains, does not contain, is, is not, starts with, ends with, is empty, is not empty | text box |
+| `number` | =, ≠, >, ≥, <, ≤, between, is empty, is not empty | one or two number boxes |
+| `boolean` | yes / no / any | select |
+| `date` | on, before, after, between, is empty, is not empty | one or two date pickers |
+| `select` | is any of, is none of, is empty, is not empty | a checkbox list of the values |
+
+- Inference: all numbers → `number`, all booleans → `boolean`, all `Date`s or `YYYY-MM-DD` strings → `date`, a few repeated strings → `select`, anything else → `text`.
+- A column sets its own: `filter: 'number'`, or `filter: { type: 'select', options: [{ value, label }], label }`. `filter: false` removes its editor. Without `filterable`, only columns that declare `filter` get one.
+- `filterValue` (function or path) reads a different value than `row[key]`, e.g. a nested field.
+- Every active filter, and the search, combine with AND.
+- Active filters show as **chips** under the toolbar; × removes one and **Clear all** removes everything. The button shows how many filters are active, filtered columns get a dot in their header, and the toolbar reads "12 of 200 rows".
+- When nothing matches, the table says so and offers a button to clear the filters.
+- Dates are compared by local calendar day, so a `Date` at 23:30 and the string `'2024-03-10'` are the same day.
+- A half-typed filter (an empty value, a `between` with no bounds) is ignored instead of emptying the table.
+- `filters` sets them from code (`[{ key, type, op, value }]`). Methods: `setFilter(key, filter | null)`, `clearFilters()`, `getFilteredRows()`. `el.filters` returns the active ones.
+- `onFilterChange({ search, filters })` fires on every user change. With `dataSource: 'remote'` nothing is filtered locally: use it to fetch the matching page.
+- `labels` translates every string, partially: `{ filters: 'Filtros', showing: '{shown} de {total}', operators: { gt: 'mayor que' } }`.
+
+## Selection and row clicks
+- `selection: 'multiple'` adds a checkbox per row and a select-all checkbox (indeterminate when some are selected). Select-all takes every row that passes the filters, across pages (only the current page in remote mode). **Shift+click** selects a range.
+- `selection: 'single'` uses radio buttons.
+- Give `rowKey` (a key, a path or a function) so the selection survives new data. Without it, row objects are identified by reference.
+- `selected` sets the selected keys from code; `el.selected` and `getSelectedRows()` read them. `onSelectionChange(keys, rows)` fires on user changes.
+- `onRowClick(row, event)` fires on a click anywhere in the row, except on links, buttons and inputs inside it. Rows become focusable, and **Enter** activates them.
+
+## Sticky header, sticky columns and virtual scrolling
+- `maxHeight` ('420px', '60vh') bounds the table and scrolls it inside; add `stickyHeader: true` to keep the header visible.
+- `sticky: true` on the leading columns pins them while the table scrolls sideways (the selection column pins with them). Their offsets are measured, so they follow the content.
+- `virtual: true` renders only the rows in view plus a few around them, so 100,000 rows scroll smoothly. Rows get a fixed `rowHeight` (44 by default) and long text is truncated, the viewport is `maxHeight` (480px by default), the header is sticky and `pagination` is ignored. Virtual tables keep the table layout on phones instead of switching to cards.
+
+:::script label="Search + filters + chips" expected="a toolbar with search and Filters; the panel edits each column by type"
+const rows = [
+  { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, active: true, joined: '2024-03-10', role: 'admin' },
+  { id: 2, name: 'Ana López', city: 'Caracas', age: 28, active: false, joined: '2023-11-02', role: 'editor' },
+  { id: 3, name: 'Luis Galué', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer' },
+  { id: 4, name: 'María Ruiz', city: 'Valencia', age: 52, active: true, joined: '2022-06-15', role: 'editor' },
+  { id: 5, name: 'Pedro Díaz', city: 'Mérida', age: 19, active: false, joined: '2024-12-31', role: 'viewer' },
+  { id: 6, name: 'Carla Soto', city: 'Caracas', age: 37, active: true, joined: '2024-07-01', role: 'admin' }
+];
+
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'name', label: 'Name', sortable: true },
+    { key: 'city', label: 'City', filter: 'select' },
+    { key: 'age', label: 'Age', sortable: true },
+    { key: 'active', label: 'Active', render: (row) => (row.active ? 'Yes' : 'No') },
+    { key: 'joined', label: 'Joined', sortable: true },
+    { key: 'role', label: 'Role' }
+  ],
+  rows,
+  rowKey: 'id',
+  searchable: true,
+  filterable: true,
+  filters: [{ key: 'age', type: 'number', op: 'gte', value: 30 }]
+});
+
+return table;
+:::
+
+:::script label="Spanish labels and onFilterChange" expected="the UI is in Spanish and the line below shows the filter state"
+const state = document.createElement('pre');
+
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'producto', label: 'Producto' },
+    { key: 'precio', label: 'Precio' },
+    { key: 'stock', label: 'Stock' }
+  ],
+  rows: [
+    { producto: 'Cuaderno', precio: 4.5, stock: true },
+    { producto: 'Agenda 2027', precio: 12, stock: true },
+    { producto: 'Stickers', precio: 2, stock: false },
+    { producto: 'Libreta kraft', precio: 6, stock: true }
+  ],
+  searchable: true,
+  filterable: true,
+  labels: {
+    searchPlaceholder: 'Buscar…',
+    searchLabel: 'Buscar en la tabla',
+    filters: 'Filtros',
+    clearAll: 'Limpiar todo',
+    clearFilters: 'Limpiar filtros',
+    showing: '{shown} de {total} filas',
+    noResults: 'Ninguna fila coincide con los filtros.',
+    searchChip: 'Búsqueda',
+    removeFilter: 'Quitar filtro',
+    any: 'Cualquiera', yes: 'Sí', no: 'No', from: 'Desde', to: 'Hasta', value: 'Valor', operator: 'Condición',
+    operators: { contains: 'contiene', eq: 'igual a', gt: 'mayor que', lt: 'menor que', between: 'entre', is: 'es' }
+  },
+  onFilterChange: (value) => { state.textContent = JSON.stringify(value); }
+});
+
+const host = document.createElement('div');
+host.append(table, state);
+return host;
+:::
+
+:::script label="Selection and row clicks" expected="checkboxes with select-all; clicking a row shows it below"
+const out = document.createElement('p');
+out.textContent = 'Click a row or select some.';
+
+const table = await slice.build('Table', {
+  columns: [{ key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }],
+  rows: [
+    { id: 'u1', name: 'Ana', role: 'admin' },
+    { id: 'u2', name: 'Luis', role: 'editor' },
+    { id: 'u3', name: 'María', role: 'viewer' },
+    { id: 'u4', name: 'Pedro', role: 'editor' }
+  ],
+  rowKey: 'id',
+  selection: 'multiple',
+  selected: ['u2'],
+  onSelectionChange: (keys, rows) => { out.textContent = `Selected: ${rows.map((r) => r.name).join(', ') || 'none'}`; },
+  onRowClick: (row) => { out.textContent = `Clicked: ${row.name}`; }
+});
+
+const host = document.createElement('div');
+host.append(table, out);
+return host;
+:::
+
+:::script label="20,000 rows, virtual + sticky column" expected="smooth scrolling through 20,000 rows; the Device column stays pinned"
+const sites = ['North plant', 'South plant', 'Datacenter'];
+const rows = Array.from({ length: 20000 }, (_, i) => ({
+  id: i + 1,
+  device: `PLC-${String(i + 1).padStart(5, '0')}`,
+  site: sites[i % 3],
+  temp: 20 + ((i * 13) % 60),
+  load: (i * 7) % 100,
+  online: i % 7 !== 0
+}));
+
+const table = await slice.build('Table', {
+  columns: [
+    { key: 'device', label: 'Device', sticky: true, sortable: true, width: 130 },
+    { key: 'site', label: 'Site', width: 150, filter: 'select' },
+    { key: 'temp', label: 'Temp °C', sortable: true, width: 110 },
+    { key: 'load', label: 'Load %', sortable: true, width: 110 },
+    { key: 'online', label: 'Online', width: 100, render: (row) => (row.online ? 'Yes' : 'No') }
+  ],
+  rows,
+  rowKey: 'id',
+  virtual: true,
+  maxHeight: '420px',
+  rowHeight: 40,
+  searchable: true,
+  filterable: true,
+  selection: 'multiple'
+});
+
+return table;
+:::
+
 ## Best Practices
 :::tip
 Keep row data uniform in length. Mismatched columns may produce uneven layout.
@@ -200,4 +367,12 @@ Plain string cells are escaped, so user data is safe by default. Only the explic
 Do not keep your own reference to a component you hand to a cell and then expect it to survive a
 re-render: the table destroys what it replaces. Build a fresh node per render instead (that is what a
 `render(row)` callback naturally does).
+:::
+
+:::warning
+In `virtual` mode every row has the same height (`rowHeight`). Cells that need to wrap, or rich components taller than the row, belong in a paginated table instead.
+:::
+
+:::warning
+Filters and search read the row DATA. A column whose `render` shows something different from `row[key]` (a formatted date, a label for a code) should give `filterValue` / `searchValue`, or the filter will compare against the raw value.
 :::

@@ -171,3 +171,166 @@ test.describe('DataGridEngine manual mode', () => {
     assert.equal(e.page, 1, 'sorting still resets the tracked page');
   });
 });
+
+// ------------------------------------------------------------------ filtering
+
+const people = [
+  { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, active: true, joined: '2024-03-10', role: 'admin', tags: ['a', 'b'] },
+  { id: 2, name: 'Ana López', city: 'Caracas', age: 28, active: false, joined: '2023-11-02', role: 'editor', tags: ['b'] },
+  { id: 3, name: 'Luis Galué', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer', tags: [] },
+  { id: 4, name: 'María Ruiz', city: 'Valencia', age: null, active: true, joined: null, role: 'editor', tags: ['c'] },
+  { id: 5, name: 'Pedro Díaz', city: '', age: 19, active: 'false', joined: '2024-12-31', role: 'viewer', tags: ['a'] },
+];
+const ids = (rows) => rows.map((r) => r.id);
+const only = (filter) => ids(new DataGridEngine({ data: people, pageSize: 100 }).setFilters([filter]).pageRows());
+
+test.describe('DataGridEngine filters: text', () => {
+  test('contains ignores case and accents', () => {
+    assert.deepEqual(only({ key: 'name', op: 'contains', value: 'JOSE' }), [1]);
+    assert.deepEqual(only({ key: 'name', value: 'galue' }), [3], 'type and op default to text/contains');
+  });
+  test('equals, notEquals, startsWith, endsWith, notContains', () => {
+    assert.deepEqual(only({ key: 'city', op: 'equals', value: 'maracaibo' }), [1, 3]);
+    assert.deepEqual(only({ key: 'city', op: 'notEquals', value: 'Maracaibo' }), [2, 4, 5]);
+    assert.deepEqual(only({ key: 'name', op: 'startsWith', value: 'ma' }), [4]);
+    assert.deepEqual(only({ key: 'name', op: 'endsWith', value: 'ez' }), [1, 2]);
+    assert.deepEqual(only({ key: 'name', op: 'notContains', value: 'lopez' }), [1, 3, 4, 5]);
+  });
+  test('empty and notEmpty need no value', () => {
+    assert.deepEqual(only({ key: 'city', op: 'empty' }), [5]);
+    assert.deepEqual(only({ key: 'city', op: 'notEmpty' }), [1, 2, 3, 4]);
+  });
+  test('an empty text value is inactive and filters nothing', () => {
+    const e = new DataGridEngine({ data: people }).setFilters([{ key: 'name', value: '   ' }]);
+    assert.equal(e.filters.length, 0);
+    assert.equal(e.isFiltered, false);
+    assert.equal(e.totalItems, 5);
+  });
+});
+
+test.describe('DataGridEngine filters: number', () => {
+  test('comparison operators', () => {
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'gt', value: 30 }), [1, 3]);
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'gte', value: 34 }), [1, 3]);
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'lt', value: '28' }), [5], 'a numeric string operand works');
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'lte', value: 28 }), [2, 5]);
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'eq', value: 41 }), [3]);
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'neq', value: 41 }), [1, 2, 5], 'a null age is not "≠ 41"');
+  });
+  test('between is inclusive and open-ended on either side', () => {
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'between', value: [20, 35] }), [1, 2]);
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'between', value: [null, 28] }), [2, 5]);
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'between', value: [40, ''] }), [3]);
+  });
+  test('empty catches null', () => {
+    assert.deepEqual(only({ key: 'age', type: 'number', op: 'empty' }), [4]);
+  });
+  test('a between with no bounds is inactive', () => {
+    assert.equal(DataGridEngine.isActive({ key: 'age', type: 'number', op: 'between', value: ['', null] }), false);
+  });
+});
+
+test.describe('DataGridEngine filters: boolean, date, select', () => {
+  test('boolean matches real booleans and boolean-ish strings', () => {
+    assert.deepEqual(only({ key: 'active', type: 'boolean', value: true }), [1, 3, 4]);
+    assert.deepEqual(only({ key: 'active', type: 'boolean', value: false }), [2, 5]);
+    assert.deepEqual(only({ key: 'active', type: 'boolean', value: 'false' }), [2, 5]);
+  });
+  test('date on / before / after / between, by local calendar day', () => {
+    assert.deepEqual(only({ key: 'joined', type: 'date', op: 'on', value: '2024-03-10' }), [1]);
+    assert.deepEqual(only({ key: 'joined', type: 'date', op: 'before', value: '2024-01-01' }), [2]);
+    assert.deepEqual(only({ key: 'joined', type: 'date', op: 'after', value: '2024-12-31' }), [3]);
+    assert.deepEqual(only({ key: 'joined', type: 'date', op: 'between', value: ['2024-01-01', '2024-12-31'] }), [1, 5]);
+    assert.deepEqual(only({ key: 'joined', type: 'date', op: 'between', value: ['2024-06-01', null] }), [3, 5]);
+  });
+  test('a Date object and an ISO string on the same day match "on"', () => {
+    const e = new DataGridEngine({ data: [{ d: new Date(2024, 2, 10, 23, 30) }, { d: '2024-03-11' }] });
+    e.setFilters([{ key: 'd', type: 'date', op: 'on', value: '2024-03-10' }]);
+    assert.equal(e.totalItems, 1);
+  });
+  test('select in / notIn, loose on type, any value of a multi-valued cell', () => {
+    assert.deepEqual(only({ key: 'role', type: 'select', value: ['admin', 'editor'] }), [1, 2, 4]);
+    assert.deepEqual(only({ key: 'role', type: 'select', op: 'notIn', value: ['viewer'] }), [1, 2, 4]);
+    assert.deepEqual(only({ key: 'id', type: 'select', value: ['2', 3] }), [2, 3]);
+    assert.deepEqual(only({ key: 'tags', type: 'select', value: ['a'] }), [1, 5]);
+    assert.deepEqual(only({ key: 'tags', type: 'select', op: 'empty' }), [3]);
+  });
+  test('an empty selection is inactive', () => {
+    assert.equal(DataGridEngine.isActive({ key: 'role', type: 'select', value: [] }), false);
+  });
+});
+
+test.describe('DataGridEngine search and combinations', () => {
+  test('search matches any column, every term, ignoring accents', () => {
+    const e = new DataGridEngine({ data: people, pageSize: 100 });
+    e.setSearch('maracaibo');
+    assert.deepEqual(ids(e.pageRows()), [1, 3]);
+    e.setSearch('perez maracaibo');
+    assert.deepEqual(ids(e.pageRows()), [1], 'both terms must match');
+    e.setSearch('  ');
+    assert.equal(e.totalItems, 5);
+  });
+  test('search can be limited to some accessors', () => {
+    const e = new DataGridEngine({ data: people, pageSize: 100 });
+    e.setSearch('maracaibo', [(row) => row.name]);
+    assert.equal(e.totalItems, 0);
+  });
+  test('search, several filters and sort combine (AND)', () => {
+    const e = new DataGridEngine({ data: people, pageSize: 100 });
+    e.setSearch('a');
+    e.setFilters([
+      { key: 'active', type: 'boolean', value: true },
+      { key: 'age', type: 'number', op: 'gt', value: 30 },
+    ]);
+    e.setSort({ key: 'age', direction: 'desc' });
+    assert.deepEqual(ids(e.pageRows()), [3, 1]);
+    assert.equal(e.totalUnfiltered, 5);
+    assert.equal(e.isFiltered, true);
+  });
+  test('a custom accessor reads nested values', () => {
+    const data = [{ user: { name: 'Ana' } }, { user: { name: 'Bob' } }];
+    const e = new DataGridEngine({ data });
+    e.setFilters([{ key: 'user', accessor: (row) => row.user.name, value: 'bo' }]);
+    assert.equal(e.totalItems, 1);
+  });
+  test('filtering resets to page 1 and pages over the filtered rows', () => {
+    const e = new DataGridEngine({ data: rows(30), pageSize: 10 });
+    e.setPage(3);
+    e.setFilters([{ key: 'id', type: 'number', op: 'lte', value: 15 }]);
+    assert.equal(e.page, 1);
+    assert.equal(e.totalItems, 15);
+    assert.equal(e.totalPages, 2);
+  });
+  test('filters getter omits accessors and normalizes defaults', () => {
+    const e = new DataGridEngine({ data: people });
+    e.setFilters([{ key: 'name', value: 'ana', accessor: (r) => r.name }]);
+    assert.deepEqual(e.filters, [{ key: 'name', type: 'text', op: 'contains', value: 'ana' }]);
+  });
+  test('derived rows are memoized until something changes', () => {
+    const e = new DataGridEngine({ data: people, pageSize: 2 });
+    e.setFilters([{ key: 'active', type: 'boolean', value: true }]);
+    const a = e.sortedRows();
+    e.setPage(2);
+    assert.equal(e.sortedRows(), a, 'paging does not re-filter');
+    e.setSort({ key: 'age', direction: 'asc' });
+    assert.notEqual(e.sortedRows(), a, 'sorting rebuilds');
+  });
+  test('manual mode tracks filters but never applies them', () => {
+    const e = new DataGridEngine({ data: people.slice(0, 2), manual: true, totalItems: 50, pageSize: 2 });
+    e.setFilters([{ key: 'name', value: 'zzz' }]);
+    assert.equal(e.pageRows().length, 2);
+    assert.equal(e.totalItems, 50);
+    assert.equal(e.filters.length, 1);
+  });
+});
+
+test.describe('DataGridEngine.inferType', () => {
+  test('infers number, boolean, date, select and text', () => {
+    assert.equal(DataGridEngine.inferType(people.map((p) => p.age)), 'number');
+    assert.equal(DataGridEngine.inferType([true, false, null]), 'boolean');
+    assert.equal(DataGridEngine.inferType(people.map((p) => p.joined)), 'date');
+    assert.equal(DataGridEngine.inferType(['a', 'b', 'a', 'b', 'a']), 'select');
+    assert.equal(DataGridEngine.inferType(people.map((p) => p.name)), 'text');
+    assert.equal(DataGridEngine.inferType([]), 'text');
+  });
+});

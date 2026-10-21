@@ -1,4 +1,18 @@
 <div class="table_component">
+  <div class="table_toolbar" hidden>
+    <div class="table_search" hidden>
+      <span class="table_search_icon" aria-hidden="true"></span>
+      <input type="search" class="table_search_input" autocomplete="off" />
+    </div>
+    <button type="button" class="table_filters_toggle" aria-expanded="false" hidden>
+      <span class="table_filters_toggle_icon" aria-hidden="true"></span>
+      <span class="table_filters_toggle_label"></span>
+      <span class="table_filters_count" hidden></span>
+    </button>
+    <span class="table_status" aria-live="polite"></span>
+  </div>
+  <div class="table_filter_panel" hidden></div>
+  <div class="table_chips" hidden></div>
   <div class="table_wrapper">
     <table class="table">
       <thead class="table_head"></thead>

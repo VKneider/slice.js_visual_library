@@ -21,6 +21,14 @@ This repository contains the official visual components library for Slice.js. It
 
 The `slicejs-cli` registry points to this repository to resolve component metadata and documentation.
 
+### Input component highlights
+
+| Component | Use case | Documentation |
+|-----------|----------|---------------|
+| `RadioGroup` | Choose one value from a short set of options, including descriptive or card-style choices. | [RadioGroup guide](src/markdown/radio-group.md) |
+| `Slider` | Select a numeric value or a two-thumb range with keyboard support, marks, and formatted output. | [Slider guide](src/markdown/slider.md) |
+| `Switch` | Toggle an on/off setting; supports variants, sizes, and an accessible native control. | [Switch guide](src/markdown/switch.md) |
+
 ## Prerequisites
 
 - Node.js >= 20

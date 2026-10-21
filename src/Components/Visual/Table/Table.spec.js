@@ -523,3 +523,527 @@ test.describe('Table — reactive pagination', () => {
       await expect(c.locator('.slice-pagination')).toBeHidden();
    });
 });
+
+// ===================================================================== Super Table
+// Search, typed filters, chips, selection, row identity, sticky layout and
+// virtual scrolling. All opt-in: every test above runs without them.
+
+const CREW = [
+   { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, active: true, joined: '2024-03-10', role: 'admin' },
+   { id: 2, name: 'Ana López', city: 'Caracas', age: 28, active: false, joined: '2023-11-02', role: 'editor' },
+   { id: 3, name: 'Luis Galué', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer' },
+   { id: 4, name: 'María Ruiz', city: 'Valencia', age: 52, active: true, joined: '2022-06-15', role: 'editor' },
+   { id: 5, name: 'Pedro Díaz', city: 'Mérida', age: 19, active: false, joined: '2024-12-31', role: 'viewer' },
+   { id: 6, name: 'Carla Soto', city: 'Caracas', age: 37, active: true, joined: '2024-07-01', role: 'admin' },
+];
+const CREW_COLS = [
+   { key: 'name', label: 'Name', sortable: true },
+   { key: 'city', label: 'City' },
+   { key: 'age', label: 'Age', sortable: true },
+   { key: 'active', label: 'Active' },
+   { key: 'joined', label: 'Joined' },
+   { key: 'role', label: 'Role' },
+];
+const names = (c) => c.locator('tbody tr td[data-label="Name"]').allTextContents();
+
+test.describe('Table — search', () => {
+   test('the toolbar only appears when asked for', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW });
+      await expect(c.locator('.table_toolbar')).toBeHidden();
+   });
+
+   test('searching narrows the rows, ignoring case and accents', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, searchable: true }, { spies: ['onFilterChange'] });
+      await c.locator('.table_search_input').fill('maria');
+      await expect.poll(() => names(c)).toEqual(['María Ruiz']);
+      await expect(c.locator('.table_status')).toHaveText('1 of 6 rows');
+      await expect.poll(() => c.events('onFilterChange')).toBeGreaterThan(0);
+      expect((await c.eventArgs('onFilterChange')).at(-1)).toEqual([{ search: 'maria', filters: [] }]);
+   });
+
+   test('several terms must all match, in any column', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, searchable: true });
+      await c.locator('.table_search_input').fill('caracas soto');
+      await expect.poll(() => names(c)).toEqual(['Carla Soto']);
+   });
+
+   test('a search chip appears and removing it restores the rows', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, searchable: true });
+      await c.locator('.table_search_input').fill('perez');
+      await expect(c.locator('.table_chip')).toHaveText(/Search: “perez”/);
+      await c.locator('.table_chip_remove').click();
+      await expect.poll(() => names(c)).toHaveLength(6);
+      await expect(c.locator('.table_search_input')).toHaveValue('');
+      await expect(c.locator('.table_chips')).toBeHidden();
+   });
+
+   test('Escape clears the search box', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, searchable: true });
+      await c.locator('.table_search_input').fill('ana');
+      await expect.poll(() => names(c)).toEqual(['Ana López']);
+      await page.keyboard.press('Escape');
+      await expect.poll(() => names(c)).toHaveLength(6);
+   });
+
+   test('the search reads the data, not what `render` draws', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name' }, { key: 'active', label: 'Active', render: (r) => (r.active ? '✔' : '—') }],
+         rows: CREW,
+         searchable: true,
+      });
+      await c.locator('.table_search_input').fill('valencia');
+      await expect.poll(() => c.locator('tbody tr td.table_empty').count()).toBe(1);
+   });
+
+   test('a column can opt out of the search', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name' }, { key: 'city', label: 'City', searchable: false }],
+         rows: CREW,
+         searchable: true,
+      });
+      await c.locator('.table_search_input').fill('caracas');
+      await expect.poll(() => c.locator('td.table_empty').count()).toBe(1);
+   });
+});
+
+test.describe('Table — filters', () => {
+   const open = async (c) => {
+      await c.locator('.table_filters_toggle').click();
+      await expect(c.locator('.table_filter_panel')).toBeVisible();
+   };
+   const editor = (c, key) => c.locator(`.table_filter[data-filter-key="${key}"]`);
+
+   test('the toggle opens a panel with one editor per column, typed from the data', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      const toggle = c.locator('.table_filters_toggle');
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      await open(c);
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      await expect(editor(c, 'name')).toHaveClass(/table_filter--text/);
+      await expect(editor(c, 'age')).toHaveClass(/table_filter--number/);
+      await expect(editor(c, 'active')).toHaveClass(/table_filter--boolean/);
+      await expect(editor(c, 'joined')).toHaveClass(/table_filter--date/);
+      await expect(editor(c, 'role')).toHaveClass(/table_filter--select/);
+      await expect(editor(c, 'role').locator('.table_filter_option')).toHaveText(['admin', 'editor', 'viewer']);
+   });
+
+   test('number: an operator and a value', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      await open(c);
+      await editor(c, 'age').locator('.table_filter_op').selectOption('gt');
+      await editor(c, 'age').locator('input').first().fill('40');
+      await expect.poll(() => names(c)).toEqual(['Luis Galué', 'María Ruiz']);
+      await expect(c.locator('.table_chip_text')).toHaveText(['Age > 40']);
+      await expect(c.locator('.table_filters_count')).toHaveText('1');
+   });
+
+   test('number: between shows two inputs, open-ended on either side', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      await open(c);
+      const ed = editor(c, 'age');
+      await ed.locator('.table_filter_op').selectOption('between');
+      const inputs = ed.locator('input');
+      await expect(inputs.nth(1)).toBeVisible();
+      await inputs.nth(0).fill('30');
+      await inputs.nth(1).fill('40');
+      await expect.poll(() => names(c)).toEqual(['José Pérez', 'Carla Soto']);
+      await inputs.nth(1).fill('');
+      await expect.poll(() => names(c)).toEqual(['José Pérez', 'Luis Galué', 'María Ruiz', 'Carla Soto']);
+      await expect(c.locator('.table_chip_text')).toHaveText(['Age ≥ 30']);
+   });
+
+   test('boolean: yes / no / any', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      await open(c);
+      await editor(c, 'active').locator('select').selectOption('false');
+      await expect.poll(() => names(c)).toEqual(['Ana López', 'Pedro Díaz']);
+      await expect(c.locator('.table_chip_text')).toHaveText(['Active: No']);
+      await editor(c, 'active').locator('select').selectOption('');
+      await expect.poll(() => names(c)).toHaveLength(6);
+   });
+
+   test('date: between two days', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      await open(c);
+      const ed = editor(c, 'joined');
+      await ed.locator('.table_filter_op').selectOption('between');
+      await ed.locator('input').nth(0).fill('2024-01-01');
+      await ed.locator('input').nth(1).fill('2024-12-31');
+      await expect.poll(() => names(c)).toEqual(['José Pérez', 'Pedro Díaz', 'Carla Soto']);
+   });
+
+   test('select: several values, then "is none of"', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      await open(c);
+      const ed = editor(c, 'role');
+      await ed.getByLabel('admin').check();
+      await ed.getByLabel('viewer').check();
+      await expect.poll(() => names(c)).toEqual(['José Pérez', 'Luis Galué', 'Pedro Díaz', 'Carla Soto']);
+      await ed.locator('.table_filter_op').selectOption('notIn');
+      await expect.poll(() => names(c)).toEqual(['Ana López', 'María Ruiz']);
+      await expect(c.locator('.table_chip_text')).toHaveText(['Role is none of: admin, viewer']);
+   });
+
+   test('filters and search combine; the status counts the result', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true, searchable: true });
+      await open(c);
+      await editor(c, 'role').getByLabel('admin').check();
+      await editor(c, 'active').locator('select').selectOption('true');
+      await c.locator('.table_search_input').fill('soto');
+      await expect.poll(() => names(c)).toEqual(['Carla Soto']);
+      await expect(c.locator('.table_status')).toHaveText('1 of 6 rows');
+      await expect(c.locator('.table_chip')).toHaveCount(3);
+   });
+
+   test('removing one chip removes only that filter and resets its editor', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      await open(c);
+      await editor(c, 'age').locator('.table_filter_op').selectOption('gte');
+      await editor(c, 'age').locator('input').first().fill('30');
+      await editor(c, 'active').locator('select').selectOption('true');
+      await expect.poll(() => names(c)).toHaveLength(4);
+      await c.component.locator('.table_chip', { hasText: 'Age' }).locator('.table_chip_remove').click();
+      await expect.poll(() => names(c)).toHaveLength(4);
+      await expect(c.locator('.table_chip_text')).toHaveText(['Active: Yes']);
+      await expect(editor(c, 'age').locator('input').first()).toHaveValue('');
+   });
+
+   test('"Clear all" removes the search and every filter', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: CREW_COLS,
+         rows: CREW,
+         filterable: true,
+         searchable: true,
+         search: 'a',
+         filters: [{ key: 'age', type: 'number', op: 'lt', value: 30 }],
+      }, { spies: ['onFilterChange'] });
+      // "a" is in both names (López, Díaz); both are under 30.
+      await expect.poll(() => names(c)).toEqual(['Ana López', 'Pedro Díaz']);
+      await c.locator('.table_chips_clear').click();
+      await expect.poll(() => names(c)).toHaveLength(6);
+      await expect(c.locator('.table_chips')).toBeHidden();
+      expect((await c.eventArgs('onFilterChange')).at(-1)).toEqual([{ search: '', filters: [] }]);
+   });
+
+   test('filters/search given as props apply without firing onFilterChange', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: CREW_COLS,
+         rows: CREW,
+         filterable: true,
+         filters: [{ key: 'city', type: 'select', value: ['Caracas'] }],
+      }, { spies: ['onFilterChange'] });
+      await expect.poll(() => names(c)).toEqual(['Ana López', 'Carla Soto']);
+      expect(await c.events('onFilterChange')).toBe(0);
+      const active = await c.component.evaluate((el) => el.filters);
+      expect(active).toEqual([{ key: 'city', type: 'select', op: 'in', value: ['Caracas'] }]);
+   });
+
+   test('a filtered column header carries a marker', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: CREW_COLS,
+         rows: CREW,
+         filterable: true,
+         filters: [{ key: 'age', type: 'number', op: 'gt', value: 1 }],
+      });
+      await expect(c.component.locator('th', { hasText: 'Age' })).toHaveClass(/table_head_cell--filtered/);
+      await expect(c.component.locator('th', { hasText: 'Name' })).not.toHaveClass(/table_head_cell--filtered/);
+   });
+
+   test('no matches: a message and a button that clears the filters', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, searchable: true, search: 'zzz' });
+      await expect(c.locator('td.table_empty')).toContainText('No rows match');
+      await c.locator('.table_empty_clear').click();
+      await expect.poll(() => names(c)).toHaveLength(6);
+   });
+
+   test('setFilter / clearFilters / getFilteredRows from code', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, filterable: true });
+      const out = await c.component.evaluate((el) => {
+         el.setFilter('role', { type: 'select', value: ['admin'] });
+         const after = el.getFilteredRows().map((r) => r.id);
+         el.clearFilters();
+         return { after, cleared: el.getFilteredRows().length };
+      });
+      expect(out).toEqual({ after: [1, 6], cleared: 6 });
+   });
+
+   test('filter: false hides a column\'s editor; without filterable only declared ones show', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name', filter: false }, { key: 'age', label: 'Age', filter: 'number' }, { key: 'city', label: 'City' }],
+         rows: CREW,
+      });
+      await c.locator('.table_filters_toggle').click();
+      await expect(c.locator('.table_filter')).toHaveCount(1);
+      await expect(c.locator('.table_filter')).toHaveAttribute('data-filter-key', 'age');
+   });
+
+   test('declared select options use their labels in the editor and the chip', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name' }, {
+            key: 'role', label: 'Role',
+            filter: { type: 'select', options: [{ value: 'admin', label: 'Administrador' }, { value: 'editor', label: 'Editor' }] },
+         }],
+         rows: CREW,
+      });
+      await c.locator('.table_filters_toggle').click();
+      await c.component.getByLabel('Administrador').check();
+      await expect(c.locator('.table_chip_text')).toHaveText(['Role is any of: Administrador']);
+   });
+
+   test('labels translate the UI', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: CREW_COLS,
+         rows: CREW,
+         searchable: true,
+         filterable: true,
+         labels: { filters: 'Filtros', searchPlaceholder: 'Buscar…', showing: '{shown} de {total}', operators: { gt: 'mayor que' } },
+         filters: [{ key: 'age', type: 'number', op: 'gt', value: 40 }],
+      });
+      await expect(c.locator('.table_filters_toggle_label')).toHaveText('Filtros');
+      await expect(c.locator('.table_search_input')).toHaveAttribute('placeholder', 'Buscar…');
+      await expect(c.locator('.table_status')).toHaveText('2 de 6');
+      await expect(c.locator('.table_chip_text')).toHaveText(['Age mayor que 40']);
+   });
+
+   test('remote mode emits filters without filtering the page locally', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: CREW_COLS,
+         rows: CREW.slice(0, 3),
+         dataSource: 'remote',
+         totalItems: 60,
+         pagination: { pageSize: 3 },
+         searchable: true,
+      }, { spies: ['onFilterChange'] });
+      await c.locator('.table_search_input').fill('zzz');
+      await expect.poll(() => c.events('onFilterChange')).toBe(1);
+      await expect.poll(() => names(c)).toHaveLength(3);
+   });
+});
+
+test.describe('Table — selection and rows', () => {
+   test('multiple: row checkboxes, select-all and onSelectionChange(keys, rows)', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'multiple' }, { spies: ['onSelectionChange'] });
+      await expect(c.locator('tbody .table_select_row')).toHaveCount(6);
+      await c.locator('tbody .table_select_row').nth(1).check();
+      await expect.poll(() => c.events('onSelectionChange')).toBe(1);
+      const [keys, rows] = (await c.eventArgs('onSelectionChange')).at(-1);
+      expect(keys).toEqual(['2']);
+      expect(rows.map((r) => r.name)).toEqual(['Ana López']);
+      await expect(c.locator('tbody tr').nth(1)).toHaveClass(/table_row--selected/);
+      const all = c.locator('.table_select_all');
+      expect(await all.evaluate((el) => el.indeterminate)).toBe(true);
+      await all.check();
+      expect(await c.component.evaluate((el) => el.selected.length)).toBe(6);
+      await expect(c.locator('.table_status')).toHaveText('6 selected');
+   });
+
+   test('select-all takes every FILTERED row, across pages', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'multiple', pagination: { pageSize: 2 },
+         filters: [{ key: 'active', type: 'boolean', value: true }],
+      });
+      await c.locator('.table_select_all').check();
+      expect(await c.component.evaluate((el) => el.selected)).toEqual(['1', '3', '4', '6']);
+   });
+
+   test('Shift+click selects a range', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'multiple' });
+      await c.locator('tbody .table_select_row').nth(0).click();
+      await page.keyboard.down('Shift');
+      await c.locator('tbody .table_select_row').nth(3).click();
+      await page.keyboard.up('Shift');
+      expect(await c.component.evaluate((el) => el.selected)).toEqual(['1', '2', '3', '4']);
+   });
+
+   test('single: radios, one row at a time', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'single' });
+      await expect(c.locator('tbody input[type="radio"]')).toHaveCount(6);
+      await expect(c.locator('.table_select_all')).toHaveCount(0);
+      await c.locator('tbody .table_select_row').nth(0).check();
+      await c.locator('tbody .table_select_row').nth(2).check();
+      expect(await c.component.evaluate((el) => el.selected)).toEqual(['3']);
+   });
+
+   test('selected as a prop, and getSelectedRows', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'multiple', selected: [4, 5] }, { spies: ['onSelectionChange'] });
+      await expect(c.locator('tbody tr.table_row--selected')).toHaveCount(2);
+      const names2 = await c.component.evaluate((el) => el.getSelectedRows().map((r) => r.name));
+      expect(names2).toEqual(['María Ruiz', 'Pedro Díaz']);
+      expect(await c.events('onSelectionChange')).toBe(0);
+   });
+
+   test('sorting keeps the same <tr> elements (rows are keyed, not rebuilt)', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'multiple' });
+      await c.locator('tbody .table_select_row').nth(0).check();
+      const before = await c.component.evaluate((el) => {
+         window.__rowProbe = el.querySelector('tbody tr[data-row-key="1"]');
+         return true;
+      });
+      expect(before).toBe(true);
+      await c.locator('th[data-sort-key="age"]').click();
+      const same = await c.component.evaluate((el) => el.querySelector('tbody tr[data-row-key="1"]') === window.__rowProbe);
+      expect(same).toBe(true);
+      await expect(c.locator('tbody tr[data-row-key="1"] .table_select_row')).toBeChecked();
+   });
+
+   test('setting rows again re-renders the cells (in-place edits show up)', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW.map((p) => ({ ...p })), rowKey: 'id' });
+      await c.component.evaluate((el) => {
+         const rows = el.rows;
+         rows[0].name = 'Renamed';
+         el.rows = rows;
+      });
+      await expect(c.locator('tbody tr').first().locator('td[data-label="Name"]')).toHaveText('Renamed');
+   });
+
+   test('onRowClick fires with the row, but not from the checkbox', async ({ mount, page }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, rowKey: 'id', selection: 'multiple' }, { spies: ['onRowClick'] });
+      await c.locator('tbody tr').nth(2).locator('td[data-label="City"]').click();
+      await expect.poll(() => c.events('onRowClick')).toBe(1);
+      expect((await c.eventArgs('onRowClick')).at(-1)[0].name).toBe('Luis Galué');
+      await c.locator('tbody .table_select_row').nth(0).click();
+      expect(await c.events('onRowClick')).toBe(1);
+      // Keyboard: rows are focusable and Enter activates them.
+      await c.locator('tbody tr').nth(4).focus();
+      await page.keyboard.press('Enter');
+      await expect.poll(() => c.events('onRowClick')).toBe(2);
+   });
+});
+
+test.describe('Table — layout', () => {
+   test('stickyHeader + maxHeight: the header sticks inside a bounded scroll area', async ({ mount }) => {
+      const c = await mount('Table', { columns: CREW_COLS, rows: CREW, stickyHeader: true, maxHeight: '150px' });
+      await expect(c.locator('thead th').first()).toHaveCSS('position', 'sticky');
+      await expect(c.locator('.table_wrapper')).toHaveCSS('max-height', '150px');
+      const pinned = await c.component.evaluate(async (el) => {
+         const wrapper = el.querySelector('.table_wrapper');
+         wrapper.scrollTop = 120;
+         await new Promise((r) => requestAnimationFrame(r));
+         return Math.round(el.querySelector('thead th').getBoundingClientRect().top - wrapper.getBoundingClientRect().top);
+      });
+      expect(Math.abs(pinned)).toBeLessThanOrEqual(1);
+   });
+
+   test('sticky columns pin the leading columns with measured offsets', async ({ mount }) => {
+      const c = await mount('Table', {
+         columns: [{ key: 'name', label: 'Name', sticky: true }, { key: 'city', label: 'City', sticky: true }, { key: 'role', label: 'Role' }],
+         rows: CREW,
+         selection: 'multiple',
+         rowKey: 'id',
+      });
+      const out = await c.component.evaluate((el) => {
+         const cells = el.querySelectorAll('tbody tr:first-child td');
+         const head = el.querySelectorAll('thead th');
+         return {
+            sticky: [...cells].map((td) => td.classList.contains('table_cell--sticky')),
+            nameLeft: parseFloat(getComputedStyle(cells[1]).left),
+            cityLeft: parseFloat(getComputedStyle(cells[2]).left),
+            selectWidth: head[0].getBoundingClientRect().width,
+            nameWidth: head[1].getBoundingClientRect().width,
+         };
+      });
+      expect(out.sticky).toEqual([true, true, true, false]);
+      expect(Math.abs(out.nameLeft - out.selectWidth)).toBeLessThan(1);
+      expect(Math.abs(out.cityLeft - (out.selectWidth + out.nameWidth))).toBeLessThan(1);
+   });
+});
+
+test.describe('Table — virtual', () => {
+   const big = (n) => Array.from({ length: n }, (_, i) => ({ id: i + 1, name: `Row ${i + 1}`, value: i * 3 }));
+
+   test('10,000 rows render only a window, with spacers for the rest', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host" style="width:600px"></div>`);
+      const out = await h.page.evaluate(async (rows) => {
+         const el = await slice.build('Table', {
+            columns: [{ key: 'name', label: 'Name' }, { key: 'value', label: 'Value', sortable: true }],
+            rows, rowKey: 'id', virtual: true, maxHeight: '400px', rowHeight: 40, pagination: { pageSize: 10 },
+         });
+         document.getElementById('host').appendChild(el);
+         await new Promise((r) => setTimeout(r, 50));
+         return {
+            rendered: el.querySelectorAll('tbody tr:not(.table_spacer)').length,
+            rowcount: el.querySelector('table').getAttribute('aria-rowcount'),
+            pagerHidden: !el.querySelector('slice-pagination') || el.querySelector('slice-pagination').style.display === 'none',
+         };
+      }, big(10000));
+      expect(out.rendered).toBeLessThan(40);
+      expect(out.rendered).toBeGreaterThan(5);
+      expect(out.rowcount).toBe('10001');
+      expect(out.pagerHidden).toBe(true);
+
+      await page.locator('#host .table_wrapper').evaluate((w) => { w.scrollTop = w.scrollHeight; });
+      await expect(page.locator('#host tbody tr[data-row-key="10000"]')).toBeVisible();
+      await expect(page.locator('#host tbody tr[data-row-key="1"]')).toHaveCount(0);
+   });
+
+   test('filtering a virtual table resets the scroll and the window', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host" style="width:600px"></div>`);
+      await h.page.evaluate(async (rows) => {
+         const el = await slice.build('Table', {
+            columns: [{ key: 'name', label: 'Name' }, { key: 'value', label: 'Value' }],
+            rows, rowKey: 'id', virtual: true, searchable: true,
+         });
+         document.getElementById('host').appendChild(el);
+      }, big(5000));
+      await page.locator('#host .table_wrapper').evaluate((w) => { w.scrollTop = 50000; });
+      await page.locator('#host .table_search_input').fill('Row 4999');
+      await expect(page.locator('#host tbody tr[data-row-key="4999"]')).toBeVisible();
+      await expect(page.locator('#host .table_status')).toHaveText('1 of 5000 rows');
+      expect(await page.locator('#host .table_wrapper').evaluate((w) => w.scrollTop)).toBe(0);
+   });
+
+   test('components in cells survive scrolling away and back', async ({ mountHtml, page }) => {
+      const h = await mountHtml(`<div id="host" style="width:600px"></div>`);
+      await h.page.evaluate(async (rows) => {
+         const el = await slice.build('Table', {
+            columns: [
+               { key: 'name', label: 'Name' },
+               { key: 'id', label: 'Badge', render: (row) => {
+                  const span = document.createElement('span');
+                  slice.build('Badge', { label: `#${row.id}` }).then((b) => span.appendChild(b));
+                  return span;
+               } },
+            ],
+            rows, rowKey: 'id', virtual: true, maxHeight: '300px',
+         });
+         document.getElementById('host').appendChild(el);
+      }, big(400));
+      await page.waitForTimeout(200);
+      const wrapper = page.locator('#host .table_wrapper');
+      await wrapper.evaluate((w) => { w.scrollTop = 6000; });
+      await page.waitForTimeout(200);
+      await wrapper.evaluate((w) => { w.scrollTop = 0; });
+      await expect(page.locator('#host tbody tr[data-row-key="1"] slice-badge')).toBeVisible();
+      const alive = await page.evaluate(() => {
+         const badge = document.querySelector('#host tbody tr[data-row-key="1"] slice-badge');
+         return slice.controller.activeComponents.has(badge.sliceId);
+      });
+      expect(alive).toBe(true);
+      expect(h.pageErrors()).toEqual([]);
+   });
+
+   // Regression: with `table-layout: fixed` a `1%` selection column collapsed to
+   // 0px, and the sticky-header rule out-specified the pinned header cell's
+   // z-index, so scrolled header cells painted over it.
+   test('virtual + selection + sticky column: pinned cells keep width and stay on top', async ({ mountHtml }) => {
+      const h = await mountHtml(`<div id="host" style="width:500px"></div>`);
+      const out = await h.page.evaluate(async () => {
+         const rows = Array.from({ length: 300 }, (_, i) => ({ id: i + 1, device: `D${i}`, site: 'North', temp: i }));
+         const el = await slice.build('Table', {
+            columns: [{ key: 'device', label: 'Device', sticky: true, width: 120 }, { key: 'site', label: 'Site', width: 300 }, { key: 'temp', label: 'Temp', width: 300 }],
+            rows, rowKey: 'id', virtual: true, maxHeight: '300px', selection: 'multiple',
+         });
+         document.getElementById('host').appendChild(el);
+         await new Promise((r) => setTimeout(r, 100));
+         const wrapper = el.querySelector('.table_wrapper');
+         wrapper.scrollLeft = 150;
+         await new Promise((r) => requestAnimationFrame(r));
+         const [select, device] = el.querySelectorAll('thead th');
+         const r = device.getBoundingClientRect();
+         const top = document.elementFromPoint(r.x + 10, r.y + r.height / 2);
+         return { selectWidth: select.getBoundingClientRect().width, deviceOnTop: device.contains(top) };
+      });
+      expect(out.selectWidth).toBeGreaterThanOrEqual(40);
+      expect(out.deviceOnTop).toBe(true);
+   });
+});
