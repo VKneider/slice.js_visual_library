@@ -332,13 +332,13 @@ const docsIndex = [
   {
     title: 'Details',
     route: '/docs/layout/details',
-    description: 'Details component documentation with collapsible content scenarios.',
+    description: 'Content that folds open. One section, or a group of them as an accordion (one open at a time, or several), with icons, badges, lazy content, keyboard navigation and remembered state. Built on the native details element.',
     section: 'Layout',
     group: 'Containers',
     order: 21,
     navLabel: 'Details',
     component: 'DetailsDocumentation',
-    tags: ['details', 'disclosure', 'layout']
+    tags: ['details', 'accordion', 'disclosure', 'faq', 'collapse', 'layout']
   },
   {
     title: 'Grid',

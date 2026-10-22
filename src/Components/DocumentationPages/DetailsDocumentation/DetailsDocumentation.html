@@ -7,14 +7,44 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Details</code> renders expandable sections for progressive disclosure of content.</p>
+<p><code>Details</code> hides content until someone asks for it. It is one section with a title, or a group of sections (an <strong>accordion</strong>) where opening one closes the others.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>Questions and answers</strong> (a FAQ, a help page), where people look for one answer and skip the rest.</li><li><strong>Optional or advanced settings</strong> that most people never change.</li><li><strong>Long pages split into sections</strong> people open one at a time: a policy, release notes, a product's specs.</li><li><strong>Secondary information inside a [Card](/docs/layout/card) or a form</strong>, such as an order's line items or how a price was worked out.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Content everyone needs</strong> should not be hidden. If people always open it, show it.</li><li><strong>Views at the same level that people switch between</strong> are [Tabs](/docs/navigation/tabs). Tabs show one view and keep the others' place. An accordion stacks them.</li><li><strong>Steps that must be done in order</strong> are a [Form](/docs/input/form) with steps.</li><li><strong>A message that needs an answer</strong> is a [Modal](/docs/feedback/modal).</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>title</code> defines the summary header.</li><li><code>text</code> provides the default expanded description body.</li><li><code>addDetail(node)</code> appends richer custom content into the expanded area.</li></ul>
+<p>Each section is a native <code>&lt;details&gt;</code> with a <code>&lt;summary&gt;</code>, so the browser provides:</p>
+<ul><li>the button role, <code>aria-expanded</code>, and <strong>Enter</strong> / <strong>Space</strong> to toggle;</li><li>find-in-page (Ctrl+F) that opens the section holding the match.</li></ul>
+<p>On top of that, Details animates the height, keeps a group exclusive, adds arrow-key navigation, loads content on first open and remembers what was open.</p>
+<h3 id="one-section">One section</h3>
+<ul><li><code>title</code> and <code>subtitle</code> are the summary. <code>icon</code> puts a mark beside them, and <code>badge</code> adds a [Badge](/docs/display/badge) (text, a number, or <code>{ label, variant }</code>).</li><li><code>text</code> is the body text. <code>content</code> adds nodes or components after it.</li><li><code>open</code> sets the state. <code>onToggle(open, { details })</code> and the <code>details-toggle</code> event report changes.</li><li><code>disabled</code> keeps the section from opening.</li><li><code>name</code>: standalone sections with the same <code>name</code> close each other, like the native attribute. Several Details spread over a page can then act as one group.</li><li><code>addDetail(node)</code>, from the old API, still appends a node to the content.</li></ul>
+<h3 id="an-accordion">An accordion</h3>
+<ul><li><code>items</code> is a list of sections: <code>{ id, title, subtitle, icon, badge, text, content, open, disabled }</code>.</li><li>By default <strong>one section is open at a time</strong>: opening one closes the one that was open. <code>multiple: true</code> lets several stay open.</li><li><code>collapsible: false</code> always keeps one section open, and the open one cannot be closed. It suits steps or a settings menu.</li><li><code>onToggle(id, open, { item, details })</code> reports every change, including the section that closed because another opened. <code>openIds</code> lists the open sections.</li><li><code>show(id)</code>, <code>hide(id)</code> and <code>toggle(id)</code> change a section from code. <code>showAll()</code> and <code>hideAll()</code> work on all of them (<code>showAll</code> only with <code>multiple</code>).</li><li><code>stateKey</code> remembers which sections were open, in the browser (localStorage), so they are still open after a reload.</li></ul>
+<h3 id="keyboard">Keyboard</h3>
+<ul><li><strong>Tab</strong> moves between summaries and into open content.</li><li><strong>Enter</strong> or <strong>Space</strong> opens or closes the focused section.</li><li><strong>↓ ↑</strong> move to the next or previous summary, skipping disabled ones and wrapping at the ends.</li><li><strong>Home</strong> and <strong>End</strong> jump to the first and last summary.</li></ul>
+<h3 id="lazy-content">Lazy content</h3>
+<p><code>content</code> can be a function <code>({ id, item, details }) =&gt; node | string | array</code>, and it can be <code>async</code>. It runs the first time its section opens, and a shimmer shows while it loads. A section nobody opens, holding a Table, a Form or a request, then costs nothing.</p>
+<h3 id="memory">Memory</h3>
+<p>The sections own their content. Destroying the Details destroys the components inside, along with the icons and badges it built. When you set <code>items</code> again:</p>
+<ul><li>a section with the same <code>id</code> and the same <code>content</code> keeps its body exactly as it was, with what was typed in it and whether it was open;</li><li>a section that is gone, or whose <code>content</code> changed, has its body destroyed.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'outlined'</code> (default): one border around the group, with dividers between sections;   - <code>'separated'</code>: each section its own box, and the open one stands out;   - <code>'filled'</code>: a tinted surface;   - <code>'ghost'</code>: dividers only, flush with the text around it.</p>
+<ul><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>marker</code>: <code>'chevron'</code> (default) turns as the section opens. <code>'plus'</code> is a plus that becomes a minus.</li><li>The CSS variables <code>--slice-details-accent</code>, <code>--slice-details-bg</code>, <code>--slice-details-border</code> and <code>--slice-details-radius</code> retint it.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<div class="component-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Write summaries people can scan: the question as they would ask it, or the name of the setting. The answer goes inside. A summary that only says "More" makes people open every section to find anything.</div>
+<div class="callout callout-tip">Make heavy sections functions. A Table, a chart or a request in a section nobody opens then costs nothing, and the page loads faster.</div>
+<div class="callout callout-tip">Use <code>multiple</code> when people compare sections (release notes, specs) and the default one-at-a-time when they look for one thing (a FAQ). One at a time keeps the page short. Several at once let people read side by side.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not hide errors in a closed section. When a form inside a section fails, open it (<code>show(id)</code>) and put a badge on it, so people know where to look.</div>
+<div class="callout callout-warning">Give every item a stable <code>id</code>. Open state, remembered state and kept content all go by it: an id that changes on every render rebuilds the section and closes it.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
 </div>

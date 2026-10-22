@@ -25,11 +25,11 @@ don't double up. Small, focused PRs are easier to review than one big one.
 
 | Component | What | Size | Model after | Notes |
 | --- | --- | --- | --- | --- |
-| **Radio / RadioGroup** | Single-choice control + group | 🟢🟡 | `Checkbox`, `Switch` | `RadioGroup` owns the value; only one option selected. `name`, `options`, `value`, `onChange`, `disabled`. |
-| **Input error/helper text** | Inline validation message + hint under `Input` | 🟢 | `Input` (has `conditions`) | Surface an `error` message and a `helperText`, with `aria-describedby`. Pairs with `Form`. |
-| **Slider / Range** | Numeric drag selector | 🟡 | `Switch` (drag/keyboard) | `min`/`max`/`step`/`value`, keyboard (←/→/Home/End), `aria-valuenow`. Optional dual-handle range. |
+| ~~**Radio / RadioGroup**~~ | Single-choice control + group | ✅ shipped | — | See `/docs/input/radio-group`. |
+| ~~**Input error/helper text**~~ | Inline validation message + hint under `Input` | ✅ shipped | — | See `/docs/input/input`: `help`, `error`, `validate()`; shared with `Textarea`. |
+| ~~**Slider / Range**~~ | Numeric drag selector | ✅ shipped | — | See `/docs/input/slider`. |
 | ~~**FileUpload / Dropzone**~~ | File picker with drag-and-drop | ✅ shipped | — | See `/docs/input/file-upload`. Uses `onFiles(files)` rather than `onChange`, and the drop path is **not** filtered by `accept`. |
-| **DatePicker** | Calendar date selection | 🔴 | `Select`, `DropDown` | Month grid, keyboard nav, `min`/`max`, range mode later. Keep it dependency-free. |
+| ~~**DatePicker**~~ | Calendar date selection | ✅ shipped | — | See `/docs/input/datepicker`. Single and range, typed or picked, values as ISO text. |
 
 ## Feedback & display
 
@@ -47,7 +47,7 @@ don't double up. Small, focused PRs are easier to review than one big one.
 | Component | What | Size | Model after | Notes |
 | --- | --- | --- | --- | --- |
 | **Drawer / Off-canvas** | Side panel that slides in | 🟡 | `Modal` (native `<dialog>`, scroll-lock) | `side` (left/right/top/bottom), `open`, backdrop, focus trap + `Escape`. Reuse `Modal`'s scroll-lock lessons. |
-| **Accordion** | Group of collapsible panels (one/many open) | 🟢🟡 | `Details`, `Tabs` | Wraps multiple `Details`-style panels with single- or multi-expand. |
+| ~~**Accordion**~~ | Group of collapsible panels (one/many open) | ✅ shipped | — | Part of `Details`: pass `items` (`multiple` for several open). See `/docs/layout/details`. |
 | **Stepper / Wizard** | Multi-step progress + content | 🟡 | `Tabs`, `Breadcrumbs` | `steps`, `active`, next/back; pairs nicely with `Form`. |
 | ~~**Chip / Tag**~~ | Compact label, optionally removable | ✅ shipped | — | See `/docs/display/chip`. Not draggable — wire `DragDropService` yourself if you need sorting. |
 

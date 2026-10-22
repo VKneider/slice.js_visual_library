@@ -1,78 +1,293 @@
-/* Encapsulated under the custom element so the details styles never leak. */
+/* Details — one section that folds open, or a group of them. */
 
 slice-details {
-   display: block;
-   font-family: var(--font-family);
-   color: var(--font-primary-color);
+  --slice-details-accent: var(--primary-color);
+  --slice-details-bg: var(--primary-background-color);
+  --slice-details-text: var(--font-primary-color);
+  --slice-details-muted: var(--font-secondary-color);
+  --slice-details-border: var(--slice-border-raised, var(--primary-color-shade));
+  --slice-details-radius: 12px;
+  --slice-details-pad-y: 14px;
+  --slice-details-pad-x: 16px;
+  --slice-details-title-size: 0.98rem;
+  --slice-details-gap: 10px;
+
+  display: block;
+  min-width: 0;
+  color: var(--slice-details-text);
+  font-family: inherit;
 }
 
-slice-details .details_summary {
-   cursor: pointer;
-   display: flex;
-   align-items: center;
-   border-bottom: var(--slice-border) solid var(--primary-color);
-   padding: 10px;
+/* An author display beats the browser's [hidden] rule, so restate it. */
+slice-details[hidden] {
+  display: none;
 }
 
-slice-details .details_summary .caret {
-   transform: rotate(-90deg);
-   margin-right: 10px;
-   color: var(--primary-color);
+slice-details[data-size='sm'] {
+  --slice-details-pad-y: 10px;
+  --slice-details-pad-x: 12px;
+  --slice-details-title-size: 0.9rem;
+  --slice-details-radius: 10px;
 }
 
-slice-details .details_title {
-   width: 100%;
-   font-weight: bold;
+slice-details[data-size='lg'] {
+  --slice-details-pad-y: 18px;
+  --slice-details-pad-x: 20px;
+  --slice-details-title-size: 1.1rem;
+  --slice-details-radius: 14px;
 }
 
-slice-details .details_text {
-   color: var(--font-secondary-color);
+slice-details .slice-details__list {
+  display: flex;
+  flex-direction: column;
 }
 
-slice-details .details_container {
-   padding-left: 5px;
-   padding: 10px;
-   background-color: var(--secondary-background-color);
-   border-radius: var(--border-radius-slice);
-   visibility: hidden;
-   display: block;
-   height: 0; /* Inicia con altura 0 */
-   overflow: hidden;
-   transition:
-      height 0.3s ease,
-      visibility 0.3s ease; /* Agrega transición a height */
+/* ── Variants ───────────────────────────────────────────────────── */
+
+/* outlined: one border around everything, a divider between sections. */
+slice-details.slice-details--outlined .slice-details__list {
+  border: 1px solid var(--slice-details-border);
+  border-radius: var(--slice-details-radius);
+  background: var(--slice-details-bg);
+  overflow: hidden;
 }
 
-slice-details .details_open {
-   height: auto; /* Altura se ajustará automáticamente después de la transición */
-   visibility: visible;
+slice-details.slice-details--outlined .slice-details__item + .slice-details__item,
+slice-details.slice-details--ghost .slice-details__item + .slice-details__item,
+slice-details.slice-details--filled .slice-details__item + .slice-details__item {
+  border-top: 1px solid var(--slice-details-border);
 }
 
-slice-details .symbol {
-   border-radius: 5px;
-   width: 20px;
-   height: 20px;
-   position: relative;
-   transition: transform 0.3s ease;
+/* separated: each section its own bordered box. */
+slice-details.slice-details--separated .slice-details__list {
+  gap: var(--slice-details-gap);
 }
 
-slice-details .symbol::before,
-slice-details .symbol::after {
-   content: '';
-   position: absolute;
-   background-color: var(--primary-color);
-   width: 15px;
-   height: 2px;
-   top: 50%;
-   left: 0;
-   transition: transform 0.5s ease;
+slice-details.slice-details--separated .slice-details__item {
+  border: 1px solid var(--slice-details-border);
+  border-radius: var(--slice-details-radius);
+  background: var(--slice-details-bg);
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-slice-details .symbol.plus::after {
-   transform: rotate(90deg);
+slice-details.slice-details--separated .slice-details__item[open] {
+  border-color: color-mix(in srgb, var(--slice-details-border) 40%, var(--slice-details-accent));
+  box-shadow: var(--slice-shadow-sm);
 }
 
-slice-details .symbol.minus::before,
-slice-details .symbol.minus::after {
-   transform: rotate(360deg);
+/* filled: a tinted surface. */
+slice-details.slice-details--filled .slice-details__list {
+  border-radius: var(--slice-details-radius);
+  background: color-mix(in srgb, var(--slice-details-bg) 93%, var(--slice-details-accent));
+  overflow: hidden;
+}
+
+slice-details.slice-details--filled .slice-details__item + .slice-details__item {
+  border-top-color: color-mix(in srgb, var(--slice-details-border) 60%, transparent);
+}
+
+/* ghost: dividers only, flush with the text around it. */
+slice-details.slice-details--ghost {
+  --slice-details-pad-x: 2px;
+}
+
+slice-details.slice-details--ghost .slice-details__list {
+  border-top: 1px solid var(--slice-details-border);
+  border-bottom: 1px solid var(--slice-details-border);
+}
+
+/* ── Summary ────────────────────────────────────────────────────── */
+
+slice-details .slice-details__summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--slice-details-pad-y) var(--slice-details-pad-x);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  border-radius: inherit;
+  transition: background-color 0.15s ease;
+}
+
+slice-details .slice-details__summary::-webkit-details-marker {
+  display: none;
+}
+
+slice-details .slice-details__summary::marker {
+  content: '';
+}
+
+slice-details .slice-details__summary:hover {
+  background: color-mix(in srgb, transparent 95%, var(--slice-details-accent));
+}
+
+slice-details .slice-details__summary:focus-visible {
+  outline: 2px solid var(--slice-details-accent);
+  outline-offset: -2px;
+}
+
+slice-details .slice-details__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  color: var(--slice-details-accent);
+  background: color-mix(in srgb, var(--slice-details-bg) 88%, var(--slice-details-accent));
+}
+
+slice-details .slice-details__icon[hidden],
+slice-details .slice-details__badge[hidden],
+slice-details .slice-details__subtitle[hidden] {
+  display: none;
+}
+
+slice-details .slice-details__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+slice-details .slice-details__title {
+  font-size: var(--slice-details-title-size);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+}
+
+slice-details .slice-details__subtitle {
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--slice-details-muted);
+}
+
+slice-details .slice-details__badge {
+  display: inline-flex;
+  flex: none;
+}
+
+slice-details .slice-details__marker {
+  display: inline-flex;
+  flex: none;
+  color: var(--slice-details-muted);
+  transition: transform 0.25s cubic-bezier(.2, .7, .2, 1), color 0.15s ease;
+}
+
+slice-details .slice-details__item[open] > .slice-details__summary .slice-details__marker {
+  transform: rotate(180deg);
+  color: var(--slice-details-accent);
+}
+
+/* marker: 'plus' — a plus that turns into a minus. */
+slice-details[data-marker='plus'] .slice-details__marker svg {
+  display: none;
+}
+
+slice-details[data-marker='plus'] .slice-details__marker {
+  position: relative;
+  width: 16px;
+  height: 16px;
+}
+
+slice-details[data-marker='plus'] .slice-details__marker::before,
+slice-details[data-marker='plus'] .slice-details__marker::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 7px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  transition: transform 0.25s cubic-bezier(.2, .7, .2, 1);
+}
+
+slice-details[data-marker='plus'] .slice-details__marker::after {
+  transform: rotate(90deg);
+}
+
+slice-details[data-marker='plus'] .slice-details__item[open] > .slice-details__summary .slice-details__marker {
+  transform: none;
+}
+
+slice-details[data-marker='plus'] .slice-details__item[open] > .slice-details__summary .slice-details__marker::after {
+  transform: rotate(0deg);
+}
+
+/* ── Body ───────────────────────────────────────────────────────── */
+
+slice-details .slice-details__item.is-animating > .slice-details__body {
+  overflow: hidden;
+}
+
+slice-details .slice-details__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 var(--slice-details-pad-x) var(--slice-details-pad-y);
+}
+
+/* Text lines up with the title when there is an icon beside it. */
+slice-details .slice-details__item:has(> .slice-details__summary .slice-details__icon:not([hidden])) .slice-details__inner {
+  padding-left: calc(var(--slice-details-pad-x) + 44px);
+}
+
+slice-details .slice-details__text {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--slice-details-muted);
+}
+
+slice-details .slice-details__shimmer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+slice-details .slice-details__shimmer span {
+  display: block;
+  height: 11px;
+  border-radius: 6px;
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--slice-details-text) 7%, transparent) 0%,
+      color-mix(in srgb, var(--slice-details-text) 13%, transparent) 50%,
+      color-mix(in srgb, var(--slice-details-text) 7%, transparent) 100%);
+  background-size: 200% 100%;
+  animation: slice-details-shimmer 1.3s ease-in-out infinite;
+}
+
+slice-details .slice-details__shimmer span:nth-child(2) { width: 85%; }
+slice-details .slice-details__shimmer span:nth-child(3) { width: 60%; }
+
+@keyframes slice-details-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+/* ── Disabled ───────────────────────────────────────────────────── */
+
+slice-details .slice-details__item.is-disabled > .slice-details__summary {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+slice-details .slice-details__item.is-disabled > .slice-details__summary:hover {
+  background: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-details .slice-details__marker,
+  slice-details .slice-details__marker::before,
+  slice-details .slice-details__marker::after,
+  slice-details .slice-details__shimmer span {
+    transition: none;
+    animation: none;
+  }
 }

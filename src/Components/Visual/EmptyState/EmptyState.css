@@ -5,6 +5,10 @@ slice-emptystate {
   width: 100%;
 }
 
+slice-emptystate[hidden] {
+  display: none;
+}
+
 slice-emptystate .slice_empty_state {
   display: flex;
   flex-direction: column;

@@ -32,6 +32,10 @@ export default class Badge extends HTMLElement {
       slice.attachTemplate(this);
       this.$badge = this.querySelector('.slice_badge');
       this.$text = this.querySelector('.slice_badge__text');
+      // Set before the props arrive: the first setter to run paints both
+      // classes, and an unset one painted "slice_badge--undefined".
+      this._variant = 'neutral';
+      this._size = 'md';
 
       slice.controller.setComponentProps(this, props);
    }

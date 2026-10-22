@@ -30,6 +30,11 @@ slice-card {
   transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
 }
 
+/* An author display beats the browser's [hidden] rule, so restate it. */
+slice-card[hidden] {
+  display: none;
+}
+
 slice-card[data-size='sm'] {
   --slice-card-pad: 12px;
   --slice-card-gap: 8px;
