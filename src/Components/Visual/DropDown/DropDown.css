@@ -1,118 +1,255 @@
 /* All rules are scoped under the custom element so the dropdown styles stay
    encapsulated and never leak into / collide with the rest of the app.
 
-   The trigger inherits its text color from the context (`currentColor`): on a
-   primary-colored surface like the Navbar it shows the contrast color, and
-   standalone on the page it shows the normal font color — so it never renders
-   white-on-white. The options menu is always a readable page surface because it
-   floats over page content, not over the trigger's background. */
+   The trigger inherits its text colour from the context (`currentColor`) in the
+   `outlined` and `plain` variants: on a primary-coloured surface like the
+   Navbar it shows the contrast colour, standalone it shows the normal font
+   colour. The menu panels are always a readable page surface: they float over
+   the page, not over the trigger's background.
+
+   Sizes are implemented here, like Switch, RadioGroup and Slider: the shared
+   scale.css is a shelved prototype no application loads (DESIGN_SYSTEM.md).
+   The values match its sm / md / lg rows, so adopting it later is a no-op. */
 
 slice-dropdown {
-  position: relative; /* anchor for the absolutely-positioned options box */
+  position: relative;
   display: inline-block;
   font-family: var(--font-family);
   color: inherit;
+  vertical-align: middle;
 }
 
+slice-dropdown[hidden] {
+  display: none;
+}
+
+slice-dropdown,
+slice-dropdown[data-size='md'] {
+  --slice-dropdown-height: 36px;
+  --slice-dropdown-space-x: 12px;
+  --slice-dropdown-font-size: 14px;
+  --slice-dropdown-radius: 8px;
+}
+
+slice-dropdown[data-size='sm'] {
+  --slice-dropdown-height: 28px;
+  --slice-dropdown-space-x: 8px;
+  --slice-dropdown-font-size: 12px;
+  --slice-dropdown-radius: 6px;
+}
+
+slice-dropdown[data-size='lg'] {
+  --slice-dropdown-height: 44px;
+  --slice-dropdown-space-x: 16px;
+  --slice-dropdown-font-size: 16px;
+  --slice-dropdown-radius: 10px;
+}
+
+/* ------------------------------------------------------------------ trigger */
+
 slice-dropdown .slice_dropdown {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 6px 12px;
+  min-height: var(--slice-dropdown-height);
+  padding: 0 var(--slice-dropdown-space-x);
+  border: var(--slice-border, 1px) solid transparent;
+  border-radius: var(--slice-dropdown-radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--slice-dropdown-font-size);
+  line-height: 1.2;
+  white-space: nowrap;
   cursor: pointer;
   user-select: none;
-  color: inherit;
-  border-radius: var(--border-radius-slice);
-  border: var(--slice-border) solid var(--primary-color);
-  background-color: transparent;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
 }
 
-slice-dropdown .slice_dropdown:hover {
+slice-dropdown .slice_dropdown:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+slice-dropdown .slice_dropdown[hidden],
+slice-dropdown .slice_dropdown_icon[hidden],
+slice-dropdown .slice_dropdown_label[hidden],
+slice-dropdown .slice_dropdown_caret[hidden] {
+  display: none;
+}
+
+slice-dropdown .slice_dropdown--outlined {
+  border-color: var(--primary-color);
+}
+
+slice-dropdown .slice_dropdown--filled {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color-contrast);
+}
+
+slice-dropdown .slice_dropdown--soft {
+  background-color: color-mix(in srgb, var(--primary-color) 16%, transparent);
+  color: var(--primary-color);
+}
+
+slice-dropdown .slice_dropdown--ghost {
+  color: var(--primary-color);
+}
+
+/* A bare trigger for navigation bars: the bar's own text styles, no box. */
+slice-dropdown .slice_dropdown--plain {
+  min-height: 0;
+  padding: 4px 2px;
+  font-weight: inherit;
+}
+
+slice-dropdown .slice_dropdown--outlined:hover,
+slice-dropdown .slice_dropdown--ghost:hover,
+slice-dropdown.slice_dropdown--open .slice_dropdown--outlined,
+slice-dropdown.slice_dropdown--open .slice_dropdown--ghost {
   background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
 }
 
-slice-dropdown .slice_dropdown_label {
-  cursor: pointer;
-  color: inherit;
-  white-space: nowrap;
+slice-dropdown .slice_dropdown--soft:hover,
+slice-dropdown.slice_dropdown--open .slice_dropdown--soft {
+  background-color: color-mix(in srgb, var(--primary-color) 26%, transparent);
 }
 
-slice-dropdown .caret {
-  margin-left: 2px;
-  border-top-color: currentColor;
+slice-dropdown .slice_dropdown--filled:hover,
+slice-dropdown.slice_dropdown--open .slice_dropdown--filled {
+  background-color: color-mix(in srgb, var(--primary-color) 86%, black);
+  border-color: color-mix(in srgb, var(--primary-color) 86%, black);
 }
+
+slice-dropdown .slice_dropdown--plain:hover,
+slice-dropdown.slice_dropdown--open .slice_dropdown--plain {
+  opacity: 0.85;
+}
+
+slice-dropdown .slice_dropdown:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+slice-dropdown .slice_dropdown:disabled:hover {
+  background-color: transparent;
+}
+
+slice-dropdown .slice_dropdown--filled:disabled:hover {
+  background-color: var(--primary-color);
+}
+
+slice-dropdown .slice_dropdown_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Icon-only trigger: a square button. */
+slice-dropdown.slice_dropdown--has-icon .slice_dropdown:has(.slice_dropdown_label[hidden]) {
+  min-width: var(--slice-dropdown-height);
+  padding: 0;
+}
+
+slice-dropdown .slice_dropdown:has(.slice_dropdown_label[hidden]) .slice_dropdown_caret {
+  display: none;
+}
+
+/* The chevron, drawn: no font or icon dependency. */
+slice-dropdown .slice_dropdown_caret {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin: 0 1px 3px 1px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease, margin 0.2s ease;
+}
+
+slice-dropdown.slice_dropdown--open .slice_dropdown_caret {
+  margin: 3px 1px 0 1px;
+  transform: rotate(225deg);
+}
+
+/* -------------------------------------------------------------------- panels
+   Every level of the menu is one of these. Shown as a popover it lives in the
+   top layer; the browser's popover defaults (centred, bordered, Canvas
+   colours) are reset here. `top` / `left` are set by DropDown.js. */
 
 slice-dropdown .slice_dropbox {
-  position: absolute;
-  top: calc(100% + 6px);
-  /* Right-aligned by default: the common triggers are end-anchored (avatar
-     menus, a button at the right of a toolbar), and a left-anchored box there
-     hangs off the screen. Flipped back on narrow viewports. */
-  right: 0;
-  left: auto;
-  z-index: 50;
-  display: flex;
+  box-sizing: border-box;
+  position: fixed;
+  inset: auto;
+  top: 0;
+  left: 0;
+  z-index: 1000; /* only matters without the Popover API */
+  display: none;
   flex-direction: column;
-  min-width: 100%;
-  width: max-content;
-  max-width: 280px;
-  padding: 4px;
-  list-style: none;
-  color: var(--font-primary-color);
-  /* Same tokens as Select and every other floating surface: one concept, one
-     look. This used to be --secondary-background-color (light BLUE, in a purple
-     theme) with a hand-rolled black shadow. */
-  background-color: var(--slice-surface-raised);
-  border: var(--slice-border) solid var(--slice-border-raised);
-  border-radius: var(--border-radius-slice);
-  box-shadow: var(--slice-shadow-md);
-  /* closed state */
-  visibility: hidden;
-  opacity: 0;
-  transform: translateY(-6px);
-  max-height: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease,
-    visibility 0s linear 0.22s;
-}
-
-slice-dropdown .slice_dropbox_open {
-  visibility: visible;
-  opacity: 1;
-  transform: translateY(0);
-  max-height: 260px;
+  gap: 1px;
+  min-width: max(190px, var(--slice-dropdown-anchor-width, 0px));
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: calc(100vh - 16px);
+  margin: 0;
+  padding: 5px;
+  overflow-x: hidden;
   overflow-y: auto;
-  pointer-events: auto;
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
-}
-
-slice-dropdown .slice_dropbox div {
-  width: 100%;
-}
-
-slice-dropdown .slice_dropbox div a {
-  display: block;
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: calc(var(--border-radius-slice) * 0.8);
+  overscroll-behavior: contain;
   color: var(--font-primary-color);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background-color 0.18s ease, color 0.18s ease;
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  text-align: left;
+  /* Same tokens as Select, Table's menus and every other floating surface. */
+  background-color: var(--slice-surface-raised, var(--primary-background-color));
+  border: var(--slice-border, 1px) solid var(--slice-border-raised, rgba(0, 0, 0, 0.12));
+  border-radius: calc(var(--border-radius-slice, 10px) + 2px);
+  box-shadow: var(--slice-shadow-md, 0 10px 28px rgba(0, 0, 0, 0.18));
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top left;
+  transition: opacity 0.14s ease, transform 0.14s ease;
 }
 
-/* A tinted wash, not a solid fill: a full-saturation block per row is
-   the loudest thing on the page. Matches Select's hover exactly. */
-slice-dropdown .slice_dropbox div a:hover {
-  color: var(--primary-color);
-  background-color: color-mix(in srgb, var(--primary-color) 14%, transparent);
+slice-dropdown .slice_dropbox.is-shown {
+  display: flex;
+}
+
+slice-dropdown .slice_dropbox.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+slice-dropdown .slice_dropbox[data-side='top'] {
+  transform-origin: bottom left;
+  transform: translateY(4px) scale(0.98);
+}
+
+slice-dropdown .slice_dropbox--sub,
+slice-dropdown .slice_dropbox--sub[data-side='right'] {
+  transform: translateX(-4px) scale(0.98);
+}
+
+slice-dropdown .slice_dropbox--sub[data-side='left'] {
+  transform-origin: top right;
+  transform: translateX(4px) scale(0.98);
+}
+
+slice-dropdown .slice_dropbox[data-side='stack'] {
+  transform-origin: top left;
+  transform: translateX(10px);
+}
+
+slice-dropdown .slice_dropbox.is-open[data-side] {
+  transform: none;
+}
+
+slice-dropdown .slice_dropbox:focus {
+  outline: none;
 }
 
 slice-dropdown .slice_dropbox::-webkit-scrollbar {
@@ -124,25 +261,249 @@ slice-dropdown .slice_dropbox::-webkit-scrollbar-thumb {
   border-radius: 999px;
 }
 
-/* Back to left-anchored on narrow screens, where a right-anchored box can run
-   off the opposite edge. */
-@media (max-width: 760px) {
-  slice-dropdown .slice_dropbox {
-    right: auto;
-    left: 0;
+/* ---------------------------------------------------------------------- items */
+
+slice-dropdown .slice_dropdown_item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: calc(var(--border-radius-slice, 10px) * 0.7);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+/* The focused item IS the highlighted one: the pointer moves focus too, so
+   keyboard and mouse never show two highlights at once. */
+slice-dropdown .slice_dropdown_item:focus,
+slice-dropdown .slice_dropdown_item[aria-expanded='true'] {
+  background-color: color-mix(in srgb, var(--primary-color) 13%, transparent);
+  color: var(--primary-color);
+}
+
+slice-dropdown .slice_dropdown_item--danger {
+  color: var(--danger-color-readable, var(--danger-color, #dc2626));
+}
+
+slice-dropdown .slice_dropdown_item--danger:focus {
+  background-color: color-mix(in srgb, var(--danger-color, #dc2626) 13%, transparent);
+  color: var(--danger-color-readable, var(--danger-color, #dc2626));
+}
+
+slice-dropdown .slice_dropdown_item[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+slice-dropdown .slice_dropdown_item[aria-disabled='true']:focus {
+  background: transparent;
+  color: inherit;
+}
+
+/* Icon column: only reserved when some item of the panel has an icon. */
+slice-dropdown .slice_dropdown_item_icon {
+  flex: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--font-secondary-color, currentColor);
+}
+
+slice-dropdown .slice_dropbox--icons .slice_dropdown_item_icon {
+  display: inline-flex;
+}
+
+slice-dropdown .slice_dropdown_item:focus .slice_dropdown_item_icon,
+slice-dropdown .slice_dropdown_item--danger .slice_dropdown_item_icon {
+  color: inherit;
+}
+
+slice-dropdown .slice_dropdown_item_text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+slice-dropdown .slice_dropdown_item_label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+slice-dropdown .slice_dropdown_item_description {
+  margin-top: 1px;
+  color: var(--font-secondary-color, currentColor);
+  font-size: 12px;
+  white-space: normal;
+}
+
+slice-dropdown .slice_dropdown_item_shortcut {
+  flex: none;
+  margin-left: 16px;
+  color: var(--font-secondary-color, currentColor);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+slice-dropdown .slice_dropdown_item_badge {
+  flex: none;
+  min-width: 18px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color) 16%, transparent);
+  color: var(--primary-color);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Submenu chevron, pointing the way the submenu opens. */
+slice-dropdown .slice_dropdown_item_chevron {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  margin-right: 2px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  opacity: 0.7;
+}
+
+/* Stacked submenu (narrow screens): the "‹ Back" row on top. */
+slice-dropdown .slice_dropdown_back {
+  gap: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--slice-border-raised, rgba(0, 0, 0, 0.12));
+  border-radius: calc(var(--border-radius-slice, 10px) * 0.7) calc(var(--border-radius-slice, 10px) * 0.7) 0 0;
+  color: var(--font-secondary-color, currentColor);
+  font-weight: 600;
+}
+
+slice-dropdown .slice_dropdown_back_chevron {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-left: 3px;
+  border-bottom: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+  transform: rotate(45deg);
+}
+
+/* Check column: checkbox ticks and radio dots, drawn. */
+slice-dropdown .slice_dropdown_check {
+  position: relative;
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+slice-dropdown .slice_dropdown_item[aria-checked='true'] .slice_dropdown_check--checkbox::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+  transform: rotate(45deg);
+}
+
+slice-dropdown .slice_dropdown_item[aria-checked='true'] .slice_dropdown_check--radio::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--primary-color);
+}
+
+/* ------------------------------------------------- separators, labels, custom */
+
+slice-dropdown .slice_dropdown_separator {
+  flex: none;
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--slice-border-raised, rgba(0, 0, 0, 0.12));
+}
+
+slice-dropdown .slice_dropdown_group_label {
+  padding: 8px 10px 4px;
+  color: var(--font-secondary-color, currentColor);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+slice-dropdown .slice_dropdown_custom {
+  padding: 6px 10px;
+}
+
+slice-dropdown .slice_dropdown_empty,
+slice-dropdown .slice_dropdown_loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  color: var(--font-secondary-color, currentColor);
+  font-size: 13px;
+}
+
+slice-dropdown .slice_dropdown_loading::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid color-mix(in srgb, var(--primary-color) 30%, transparent);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: slice-dropdown-spin 0.7s linear infinite;
+}
+
+@keyframes slice-dropdown-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* The open/close slide is decorative: never animate it when the user asked the
-   system to reduce motion. */
+/* Touch screens: a finger needs a taller row. */
+@media (pointer: coarse) {
+  slice-dropdown .slice_dropdown_item {
+    min-height: 42px;
+  }
+}
+
+/* The motion is decorative: never animate it when the user asked the system
+   to reduce motion. */
 @media (prefers-reduced-motion: reduce) {
+  slice-dropdown .slice_dropdown,
+  slice-dropdown .slice_dropdown_caret,
   slice-dropdown .slice_dropbox,
-  slice-dropdown .slice_dropbox_open,
-  slice-dropdown .slice_dropbox div a {
+  slice-dropdown .slice_dropdown_item {
     transition: none;
   }
 
-  slice-dropdown .slice_dropbox {
+  slice-dropdown .slice_dropbox,
+  slice-dropdown .slice_dropbox[data-side] {
     transform: none;
+  }
+
+  slice-dropdown .slice_dropdown_loading::before {
+    animation: none;
   }
 }

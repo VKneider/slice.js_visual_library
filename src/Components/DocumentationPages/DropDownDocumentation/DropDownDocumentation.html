@@ -7,16 +7,37 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>DropDown</code> groups related links <strong>or actions</strong> under a compact expandable trigger.</p>
+<p><code>DropDown</code> is a menu button: a trigger and a menu of links, actions, checkboxes, radio options and <strong>submenus nested as deep as you need</strong>. You build the menu from plain objects, and the same vocabulary works at every level.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>label</code> sets the trigger text.</li><li><code>options</code> renders items. Each item is a <strong>link</strong> (<code>text</code> + <code>href</code>/<code>path</code>, <code>path</code> navigates through <code>slice.router</code>) or an <strong>action</strong> (<code>text</code> + <code>callback</code>).</li><li>The menu opens on click and closes when you pick an option, click the trigger again, or click outside it.</li><li>The box is right-anchored so it stays on screen for a trigger at the end of a toolbar, and flips back to left-anchored below 760px.</li></ul>
-<h2 id="actions-not-just-links">Actions, not just links</h2>
-<p>An item with a <code>callback</code> runs the function and closes the menu. It never navigates — <code>callback</code> takes precedence over <code>path</code>/<code>href</code>, so an item carrying both runs the callback and stays put. Before <code>callback</code>, the only way to express a non-navigating item was a placeholder <code>href: '#'</code> that went nowhere.</p>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<ul><li><code>label</code> sets the trigger text and <code>items</code> the menu. <code>options</code> is the old name of <code>items</code> and still works.</li><li>The menu opens on click (or on hover with <code>trigger: 'hover'</code>). It closes when you pick an item, press Escape, click outside or tab away.</li><li>The menu is drawn in the browser's top layer, so a parent with <code>overflow: hidden</code> does not clip it and a transformed parent (a sliding mobile nav) does not move it.</li><li>It opens where <code>placement</code> says (<code>'bottom-end'</code> by default). If there is no room it flips to the other side, and it never leaves the screen.</li><li><code>onSelect(item, ctx)</code> fires for every link, action or toggle picked, at any depth. <code>onOpenChange(open)</code> fires when the menu opens or closes.</li><li><code>open()</code>, <code>close()</code> and <code>toggle()</code> drive it from code. <code>isOpen</code> tells you whether it is open.</li></ul>
+<h2 id="building-the-menu">Building the menu</h2>
+<p>Every entry in <code>items</code> (and in any submenu) is one of these:</p>
+<ul><li><code>{ label, href }</code>: a link. It is a real <code>&lt;a&gt;</code>, so middle-click and "open in new tab" work. Use <code>target: '_blank'</code> for a new tab.</li><li><code>{ label, path }</code>: a route, navigated through <code>slice.router</code>.</li><li><code>{ label, onClick(ctx) }</code>: an action. An item with an action never navigates, even if it also has a <code>path</code>. <code>callback</code> is the old name of <code>onClick</code>.</li><li><code>{ label, items: [...] }</code>: a submenu. Nest as deep as you like. <code>items</code> can also be a function, even an async one, to load the submenu when it opens; a loading row shows meanwhile.</li><li><code>{ label, checked }</code>: a checkbox item. Picking it flips <code>checked</code> and keeps the menu open.</li><li><code>{ type: 'radio', group, label, checked }</code>: a radio item. Only one per <code>group</code> is checked.</li><li><code>'separator'</code>: a divider. Leading, trailing and doubled separators are removed.</li><li><code>{ type: 'label', label }</code>: a small section heading.</li><li><code>{ render(ctx) }</code>: anything you build, such as a search field or a slider. Keys typed in it belong to it, and Escape still closes the menu.</li></ul>
+<p>Any item can also take <code>icon</code> (an <code>Icon</code> name or a node), <code>description</code> (a second, quieter line), <code>shortcut</code>, <code>badge</code>, <code>danger</code> (red, for destructive actions), <code>disabled</code>, <code>hidden</code> (<code>true</code> or a function of the item), <code>keepOpen</code> and <code>value</code>.</p>
+<p><code>ctx</code> is <code>{ item, value, dropdown, event, close() }</code>. <code>close()</code> lets your custom content close the menu.</p>
+<h2 id="the-trigger">The trigger</h2>
+<ul><li><code>variant</code>: <code>'outlined'</code> (default), <code>'filled'</code>, <code>'soft'</code>, <code>'ghost'</code> or <code>'plain'</code>. <code>'plain'</code> is bare text in the colour around it, made for navigation bars.</li><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>icon</code> puts an <code>Icon</code> before the label. With no <code>label</code> the trigger is a square icon button; give it <code>ariaLabel</code> so screen readers can name it.</li><li><code>caret: false</code> hides the chevron. <code>disabled</code> turns the whole dropdown off.</li></ul>
+<h2 id="keyboard">Keyboard</h2>
+<ul><li>On the trigger: <strong>Enter</strong>, <strong>Space</strong> or <strong>↓</strong> open the menu on the first item, <strong>↑</strong> on the last.</li><li>In the menu: <strong>↑ ↓</strong> move (disabled items are skipped), <strong>Home / End</strong> jump, and typing a letter jumps to the next item starting with it.</li><li><strong>→</strong> or <strong>Enter</strong> opens a submenu. <strong>←</strong> or <strong>Escape</strong> closes one level and returns to the item that opened it. Escape on the first level returns to the trigger.</li><li><strong>Tab</strong> closes everything.</li></ul>
+<h2 id="submenus-on-any-screen">Submenus on any screen</h2>
+<p>Submenus open beside their item and flip to the other side at the screen edge. With the mouse, hovering opens them after a short pause, so crossing an item on the way to a submenu does not shut it.</p>
+<p>When a submenu fits on neither side, as on a phone or several levels deep on a laptop, it <strong>stacks</strong>: it opens on top of its parent with a "‹ Back" row, like the drill-down menus of native apps. Hover never opens a stacked submenu; a tap or the keyboard does.</p>
 <h2 id="live-preview">Live Preview</h2>
-<div class="component-block" data-block-id="doc-block-2"></div>
+<div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<div class="component-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="in-a-navbar">In a Navbar</h2>
+<p>Give a <code>Navbar</code> item an <code>items</code> array and it becomes a dropdown: plain text in the bar, opening on hover (click and keyboard work too), with any submenus you nest. <code>type: 'dropdown'</code> with <code>options</code> keeps working. Per item you can override <code>variant</code>, <code>trigger</code>, <code>placement</code> and <code>icon</code>.</p>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Keep menus shallow when you can: two or three levels read well. Go deeper for real hierarchies (a file tree, categories), not to hide options.</div>
+<div class="callout callout-tip">Use <code>danger: true</code> for destructive actions and put them last, after a separator, so they are never the item a quick click lands on.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Checkbox and radio items keep their state on the item objects (<code>checked</code> is flipped in place). Rebuild the array from your own state if you need the menu to reflect changes made elsewhere, or pass <code>checked</code> as a function.</div>
+<div class="callout callout-warning">An icon-only trigger has no visible text, so give it <code>ariaLabel</code>; otherwise screen readers announce an unnamed button.</div>
+<div class="component-block" data-block-id="doc-block-8"></div>
 </div>

@@ -1,70 +1,196 @@
+/* BottomNav. Scoped under the element; every colour from the theme tokens.
+
+   Each variant only sets the --bn-* properties below and the rest of the file
+   reads them, so a variant is one block, not a fork of the stylesheet:
+
+     --bn-bg / --bn-border / --bn-shadow   the capsule (or docked bar)
+     --bn-fg                               the current tab and hovered tabs
+     --bn-muted                            the other tabs
+     --bn-indicator / --bn-indicator-ring  the sliding pill
+     --bn-accent                           the 'line' indicator
+     --bn-hover                            the wash behind a hovered tab
+     --bn-fab-bg / --bn-fab-fg             the raised centre action
+
+   'docked' (set by BottomNav.js from `layout` and `breakpoint`) turns the
+   floating capsule into a full-width bar on the bottom edge. */
+
 slice-bottom-nav {
+  /* Floating (desktop) sizes. The docked bar on a phone keeps its own,
+     tighter values further down: there the screen sets the width. */
+  --bn-label-size: 0.78rem;
+  --bn-tab-pad-y: 9px;
+  --bn-tab-pad-x: 18px;
+  --bn-tab-min: 72px;
+  --bn-gap: 8px;
+  --bn-bar-pad: 6px;
+  --bn-icon-size: 22px;
+  --bn-action-height: 42px;
+  --bn-fab-size: 48px;
+
+  /* 94%, not 86%: the labels are white on a TRANSLUCENT purple, so how much
+     page shows through sets the contrast. At 86% even pure white measured
+     4.35:1 over a light page; nearly opaque keeps the glass and gets ~5:1. */
+  --bn-bg: color-mix(in srgb, var(--primary-color) 94%, transparent);
+  --bn-border: color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  --bn-shadow: var(--slice-shadow-lg), inset 0 1px 0 color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
+  --bn-fg: var(--primary-color-contrast);
+  /* 90%: the current tab is marked by the pill, not by dimming the others
+     (at 50% the inactive labels measured 2.18:1). */
+  --bn-muted: color-mix(in srgb, var(--primary-color-contrast) 90%, transparent);
+  --bn-indicator: color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  --bn-indicator-ring: color-mix(in srgb, var(--primary-color-contrast) 20%, transparent);
+  --bn-accent: var(--primary-color-contrast);
+  --bn-hover: color-mix(in srgb, var(--primary-color-contrast) 8%, transparent);
+  --bn-fab-bg: var(--primary-color-contrast);
+  --bn-fab-fg: var(--primary-color);
+  --bn-action-bg: var(--primary-color-contrast);
+  --bn-action-fg: var(--primary-color);
+
   display: block;
   font-family: var(--font-family);
 }
 
+slice-bottom-nav[hidden] {
+  display: none;
+}
+
+slice-bottom-nav[data-variant='surface'] {
+  --bn-bg: var(--primary-background-color);
+  --bn-border: var(--slice-border-raised, color-mix(in srgb, var(--font-primary-color) 12%, transparent));
+  --bn-shadow: var(--slice-shadow-lg);
+  --bn-fg: var(--primary-color);
+  --bn-muted: var(--font-secondary-color, color-mix(in srgb, var(--font-primary-color) 75%, transparent));
+  --bn-indicator: color-mix(in srgb, var(--primary-color) 13%, transparent);
+  --bn-indicator-ring: transparent;
+  --bn-accent: var(--primary-color);
+  --bn-hover: color-mix(in srgb, var(--primary-color) 7%, transparent);
+  --bn-fab-bg: var(--primary-color);
+  --bn-fab-fg: var(--primary-color-contrast);
+  --bn-action-bg: var(--primary-color);
+  --bn-action-fg: var(--primary-color-contrast);
+}
+
+slice-bottom-nav[data-variant='glass'] {
+  --bn-bg: color-mix(in srgb, var(--primary-background-color) 72%, transparent);
+  --bn-border: color-mix(in srgb, var(--font-primary-color) 12%, transparent);
+  --bn-shadow: var(--slice-shadow-lg);
+  --bn-fg: var(--primary-color);
+  --bn-muted: var(--font-primary-color);
+  --bn-indicator: color-mix(in srgb, var(--primary-color) 14%, transparent);
+  --bn-indicator-ring: transparent;
+  --bn-accent: var(--primary-color);
+  --bn-hover: color-mix(in srgb, var(--primary-color) 8%, transparent);
+  --bn-fab-bg: var(--primary-color);
+  --bn-fab-fg: var(--primary-color-contrast);
+  --bn-action-bg: var(--primary-color);
+  --bn-action-fg: var(--primary-color-contrast);
+}
+
+slice-bottom-nav[data-size='sm'] {
+  --bn-label-size: 0.7rem;
+  --bn-tab-pad-y: 6px;
+  --bn-tab-pad-x: 12px;
+  --bn-tab-min: 56px;
+  --bn-gap: 4px;
+  --bn-bar-pad: 4px;
+  --bn-icon-size: 20px;
+  --bn-action-height: 36px;
+  --bn-fab-size: 40px;
+}
+
+slice-bottom-nav[data-size='lg'] {
+  --bn-label-size: 0.86rem;
+  --bn-tab-pad-y: 11px;
+  --bn-tab-pad-x: 22px;
+  --bn-tab-min: 84px;
+  --bn-gap: 10px;
+  --bn-bar-pad: 7px;
+  --bn-icon-size: 24px;
+  --bn-action-height: 48px;
+  --bn-fab-size: 54px;
+}
+
 /* ----------------------------------------------------------- positioning */
 
-slice-bottom-nav .slice_bottomnav[data-position="fixed"] {
+slice-bottom-nav .slice_bottomnav[data-position='fixed'] {
   position: fixed;
   left: 50%;
   bottom: max(18px, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
   z-index: 200;
   width: max-content;
   max-width: calc(100% - 24px);
+  transform: translateX(-50%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-slice-bottom-nav .slice_bottomnav[data-position="static"] {
+slice-bottom-nav .slice_bottomnav[data-position='static'],
+slice-bottom-nav .slice_bottomnav[data-position='sticky'] {
   position: relative;
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
+slice-bottom-nav .slice_bottomnav[data-position='sticky'] {
+  position: sticky;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 50;
+}
+
+slice-bottom-nav.slice_bottomnav--spacer {
+  height: var(--bottomnav-spacer, 80px);
+}
+
+slice-bottom-nav.slice_bottomnav--hidden .slice_bottomnav[data-position='fixed'] {
+  transform: translate(-50%, calc(100% + 40px));
+}
+
+slice-bottom-nav.slice_bottomnav--hidden .slice_bottomnav[data-position='sticky'] {
+  transform: translateY(calc(100% + 40px));
+}
+
 /* ------------------------------------------------------------- the capsule */
 
-/* 94%, not 86%.
-   The capsule is white-on-purple text over a TRANSLUCENT bar, so its effective
-   lightness is set by how much page shows through. At 86% the bar composited to
-   rgb(161,78,236) and even pure white measured 4.35:1 — already under the 4.5:1
-   AA threshold — because a light backdrop lifts the purple. Nearly opaque keeps
-   the glass look while getting white to ~5:1. */
 slice-bottom-nav .slice_bottomnav_bar {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 4px;
   justify-content: center;
-  background: color-mix(in srgb, var(--primary-color) 94%, transparent);
+  gap: var(--bn-gap);
+  padding: var(--bn-bar-pad);
+  background: var(--bn-bg);
   -webkit-backdrop-filter: blur(16px) saturate(150%);
   backdrop-filter: blur(16px) saturate(150%);
-  border: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  border: 1px solid var(--bn-border);
   border-radius: 999px;
-  box-shadow:
-    var(--slice-shadow-lg),
-    inset 0 1px 0 color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
+  box-shadow: var(--bn-shadow);
   animation: slice_bottomnav_rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-
+slice-bottom-nav .slice_bottomnav_reverse {
+  flex-direction: row-reverse;
+}
 
 /* ----------------------------------------------------------------- brand */
 
 slice-bottom-nav .slice_bottomnav_logo {
   display: none;
   align-items: center;
+  gap: 8px;
   padding: 0 10px 0 4px;
   margin-right: 2px;
-  border-right: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  border-right: 1px solid var(--bn-border);
+  color: var(--bn-fg);
+  text-decoration: none;
+}
+
+slice-bottom-nav .slice_bottomnav_logo.is-visible {
+  display: inline-flex;
 }
 
 slice-bottom-nav .slice_bottomnav_logo img {
-  /* A DEFINITE height, not just max-height.
-     With only a max-height the used width resolves against a content box whose
-     width is itself determined by the image, and the pair collapses: the same
-     img with this same CSS renders 22x22 outside the component and 0x0 inside
-     it, which is why the logo reserved its padding but drew nothing. */
+  /* A DEFINITE height, not just max-height: with only a max-height the image
+     and its box collapse to 0x0 inside the capsule. */
   height: 22px;
   width: auto;
   max-width: 100px;
@@ -72,10 +198,10 @@ slice-bottom-nav .slice_bottomnav_logo img {
   user-select: none;
 }
 
-@media (min-width: 820px) {
-  slice-bottom-nav .slice_bottomnav_logo.is-visible {
-    display: inline-flex;
-  }
+slice-bottom-nav .slice_bottomnav_brand_text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------------- tabs */
@@ -84,7 +210,7 @@ slice-bottom-nav .slice_bottomnav_tabs {
   position: relative;
   display: flex;
   align-items: stretch;
-  gap: 2px;
+  gap: var(--bn-gap);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -94,14 +220,14 @@ slice-bottom-nav .slice_bottomnav_indicator {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
   width: 0;
   height: 100%;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color-contrast) 20%, transparent);
+  background: var(--bn-indicator);
+  box-shadow: inset 0 0 0 1px var(--bn-indicator-ring);
   opacity: 0;
   pointer-events: none;
-  z-index: 0;
   transition:
     transform 0.42s cubic-bezier(0.34, 1.28, 0.5, 1),
     width 0.42s cubic-bezier(0.34, 1.28, 0.5, 1),
@@ -112,26 +238,42 @@ slice-bottom-nav .slice_bottomnav_indicator.is-visible {
   opacity: 1;
 }
 
+/* 'line': a short accent bar under the current tab (on top when docked). */
+slice-bottom-nav[data-indicator='line'] .slice_bottomnav_indicator {
+  top: auto;
+  bottom: 1px;
+  height: 3px;
+  background: none;
+  box-shadow: none;
+}
+
+slice-bottom-nav[data-indicator='line'] .slice_bottomnav_indicator::after {
+  content: '';
+  position: absolute;
+  inset: 0 30%;
+  border-radius: 3px;
+  background: var(--bn-accent);
+}
+
+slice-bottom-nav[data-indicator='line'].slice_bottomnav--docked .slice_bottomnav_indicator {
+  top: -4px;
+  bottom: auto;
+}
+
+slice-bottom-nav[data-indicator='line'] .slice_bottomnav_tab.is-active {
+  color: var(--bn-accent);
+}
+
 slice-bottom-nav .slice_bottomnav_tab {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  min-width: 44px;
-  padding: 6px 10px;
+  min-width: var(--bn-tab-min);
   border-radius: 999px;
-  cursor: pointer;
-  /* 90%, and the state is carried by the pill rather than by text brightness:
-   at 50% the inactive labels measured 2.18:1, which is why "Home" and "Saved"
-   read as washed out in the capture. The active tab is marked by the sliding
-   indicator, so dimming its label as well only cost contrast without adding
-   information. */
-color: color-mix(in srgb, var(--primary-color-contrast) 90%, transparent);
+  /* The pill marks the current tab; the label colour stays legible. */
+  color: var(--bn-muted);
+  font-size: var(--bn-label-size);
   font-weight: 500;
-  font-size: 0.7rem;
   line-height: 1;
   white-space: nowrap;
   user-select: none;
@@ -148,81 +290,176 @@ slice-bottom-nav .slice_bottomnav_tab:nth-of-type(6) { animation-delay: 0.29s; }
 slice-bottom-nav .slice_bottomnav_tab:nth-of-type(7) { animation-delay: 0.34s; }
 
 slice-bottom-nav .slice_bottomnav_tab:hover {
-  color: var(--primary-color-contrast);
-  background: color-mix(in srgb, var(--primary-color-contrast) 8%, transparent);
+  color: var(--bn-fg);
+  background: var(--bn-hover);
 }
 
-/* The sliding indicator already paints the active pill at 16%, so the tab does
-   NOT paint a background of its own. Two translucent whites stacked reach ~28%,
-   and worse, during the slide the static one stays behind the moving one, so
-   the highlight reads as two overlapping pills instead of one that moved. */
+/* The sliding indicator paints the pill; the tab paints NO background of its
+   own, or two translucent layers stack and, mid-slide, read as two pills. */
 slice-bottom-nav .slice_bottomnav_tab.is-active {
-  color: var(--primary-color-contrast);
+  color: var(--bn-fg);
+}
+
+slice-bottom-nav .slice_bottomnav_tab.is-active:hover {
+  background: transparent;
 }
 
 slice-bottom-nav .slice_bottomnav_tab:active {
   transform: scale(0.95);
 }
 
-slice-bottom-nav .slice_bottomnav_icon {
+slice-bottom-nav .slice_bottomnav_link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: var(--bn-tab-pad-y) var(--bn-tab-pad-x);
+  border-radius: inherit;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+slice-bottom-nav .slice_bottomnav_link:focus-visible {
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+
+slice-bottom-nav .slice_bottomnav_icon_wrap {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
+slice-bottom-nav .slice_bottomnav_icon_wrap:empty {
+  display: none;
+}
+
+/* A badge on a tab without an icon sits at the tab's corner. */
+slice-bottom-nav .slice_bottomnav_icon_wrap:not(:has(slice-icon)) {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+}
+
+slice-bottom-nav .slice_bottomnav_icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Icon sets its size inline; the bar's size scale wins here. */
+  font-size: var(--bn-icon-size) !important;
+}
+
 slice-bottom-nav .slice_bottomnav_label {
   display: block;
+  max-height: 2em;
   text-align: center;
-  width: 100%;
+  transition: max-height 0.25s ease, opacity 0.2s ease, margin 0.25s ease;
+}
+
+/* labels: 'active' — only the current tab says its name. */
+slice-bottom-nav[data-labels='active'] .slice_bottomnav_tab:not(.is-active) .slice_bottomnav_label {
+  max-height: 0;
+  margin-top: -3px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  opacity: 0;
 }
 
-slice-bottom-nav .slice_bottomnav_tab.is-dropdown {
-  padding: 4px 8px;
+/* labels: 'none' — icons only; the label still names the link. */
+slice-bottom-nav[data-labels='none'] .slice_bottomnav_link:has(slice-icon) .slice_bottomnav_label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
-slice-bottom-nav .slice_bottomnav_dropdown {
-  --dropdown-on-bar: 1;
+/* --------------------------------------------------------------- badges */
+
+slice-bottom-nav .slice_bottomnav_badge {
+  position: absolute;
+  top: -5px;
+  left: calc(100% - 7px);
+  box-sizing: border-box;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border: 2px solid var(--bn-bg);
+  border-radius: 999px;
+  background: var(--danger-color, #dc2626);
+  color: var(--danger-contrast, #fff);
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  animation: slice_bottomnav_pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* ---------------------------------------------------------------- actions */
+slice-bottom-nav .slice_bottomnav_badge--dot {
+  top: -2px;
+  left: calc(100% - 5px);
+  min-width: 10px;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------------- FAB */
+
+slice-bottom-nav .slice_bottomnav_fab {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  animation: slice_bottomnav_rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+slice-bottom-nav .slice_bottomnav_fab_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--bn-fab-size);
+  height: var(--bn-fab-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--bn-fab-bg);
+  color: var(--bn-fab-fg);
+  font: 600 1.4rem/1 var(--font-family);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--slice-shadow-md, 0 6px 18px rgba(0, 0, 0, 0.2));
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+slice-bottom-nav .slice_bottomnav_fab_button:hover {
+  transform: translateY(-1px) scale(1.04);
+}
+
+slice-bottom-nav .slice_bottomnav_fab_button:active {
+  transform: scale(0.95);
+}
+
+slice-bottom-nav .slice_bottomnav_fab_button:focus-visible {
+  outline: 2px solid var(--bn-fg);
+  outline-offset: 3px;
+}
+
+/* --------------------------------------------------------------- actions */
 
 slice-bottom-nav .slice_bottomnav_actions {
   display: flex;
   align-items: center;
   gap: 6px;
-}
-
-/* `Button` used to give `.slice_button_container` 10px of its own padding on top
-   of the inner button's — a tap-area ring that made the bar show a 10px halo
-   around the button, growing it from 55.4px to 69px.
-
-   Button.css now zeroes that ring at the source, so the rule below is
-   belt-and-braces rather than load-bearing: it survives a consumer who has
-   overridden the component's own padding back. The tap area is the tab's job
-   here, not the button's. */
-slice-bottom-nav .slice_bottomnav_actions slice-button,
-slice-bottom-nav .slice_bottomnav_actions .slice_button_container {
-  display: flex;
-}
-
-slice-bottom-nav .slice_bottomnav_actions .slice_button_container {
-  padding: 0;
-}
-
-/* _balanceTabs pads the tab list to keep the tabs optically centred, and that
-   padding eats into the action button: measured, it wrapped "Sign in" onto two
-   lines, taking the button from 39px to 56px and the bar from 55.4px to 66px.
-   `flex: 0 0 auto` makes the button refuse the squeeze — the tabs are what
-   should absorb the centring, since they are the part the eye reads as
-   centred — and nowrap makes the second line impossible even if it is. */
-slice-bottom-nav .slice_bottomnav_actions slice-button {
-  flex: 0 0 auto;
-}
-
-slice-bottom-nav .slice_bottomnav_actions .slice_button_value {
-  white-space: nowrap;
 }
 
 slice-bottom-nav .slice_bottomnav_actions:empty {
@@ -232,7 +469,7 @@ slice-bottom-nav .slice_bottomnav_actions:empty {
 slice-bottom-nav .slice_bottomnav_actions:not(:empty) {
   margin-left: 4px;
   padding-left: 8px;
-  border-left: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  border-left: 1px solid var(--bn-border);
 }
 
 slice-bottom-nav .slice_bottomnav_reverse .slice_bottomnav_actions:not(:empty) {
@@ -241,10 +478,159 @@ slice-bottom-nav .slice_bottomnav_reverse .slice_bottomnav_actions:not(:empty) {
   padding-left: 0;
   padding-right: 8px;
   border-left: none;
-  border-right: 1px solid color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  border-right: 1px solid var(--bn-border);
 }
 
-/* ------------------------------------------------------------ entrance fx */
+/* `buttons` are the bar's own pills: same height, type and roundness as the
+   tabs, in the capsule's colours. The emphasised one is filled; `ghost` /
+   `outlined` configs get the quiet wash instead. */
+slice-bottom-nav .slice_bottomnav_action {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--bn-action-height);
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bn-action-bg);
+  color: var(--bn-action-fg);
+  font: 600 var(--bn-label-size)/1 var(--font-family);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s ease, transform 0.15s ease, filter 0.2s ease;
+}
+
+slice-bottom-nav .slice_bottomnav_action:hover {
+  filter: brightness(1.06);
+}
+
+slice-bottom-nav .slice_bottomnav_action:active {
+  transform: scale(0.96);
+}
+
+slice-bottom-nav .slice_bottomnav_action:focus-visible {
+  outline: 2px solid var(--bn-fg);
+  outline-offset: 2px;
+}
+
+slice-bottom-nav .slice_bottomnav_action--quiet {
+  background: var(--bn-hover);
+  color: var(--bn-fg);
+}
+
+slice-bottom-nav .slice_bottomnav_action--quiet:hover {
+  background: var(--bn-indicator);
+  filter: none;
+}
+
+slice-bottom-nav .slice_bottomnav_action--icon {
+  width: var(--bn-action-height);
+  padding: 0;
+}
+
+slice-bottom-nav .slice_bottomnav_action_icon {
+  display: inline-flex;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_action {
+  min-height: 34px;
+  padding: 0 12px;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_action--icon {
+  width: 34px;
+  padding: 0;
+}
+
+/* Dropdown tabs: the trigger is the tab. */
+slice-bottom-nav .slice_bottomnav_tab.is-dropdown {
+  align-items: center;
+  padding: 0 4px;
+}
+
+slice-bottom-nav .slice_bottomnav_dropdown .slice_dropdown {
+  color: inherit;
+  font-size: var(--bn-label-size);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ docked */
+
+/* Docked on a phone: compact again, the tabs share the screen width. */
+slice-bottom-nav.slice_bottomnav--docked {
+  --bn-label-size: 0.7rem;
+  --bn-tab-min: 0px;
+  --bn-gap: 0px;
+  --bn-icon-size: 22px;
+  --bn-fab-size: 48px;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav[data-position='fixed'] {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  transform: none;
+}
+
+slice-bottom-nav.slice_bottomnav--docked.slice_bottomnav--hidden .slice_bottomnav[data-position='fixed'] {
+  transform: translateY(100%);
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav[data-position='sticky'] {
+  bottom: 0;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_bar {
+  width: 100%;
+  gap: 0;
+  padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+  border-width: 1px 0 0;
+  border-radius: 22px 22px 0 0;
+  justify-content: space-around;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_logo.is-visible {
+  display: none;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_tabs {
+  flex: 1;
+  justify-content: space-around;
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_tab {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--bn-label-size);
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_link {
+  gap: 2px;
+  padding: 4px;
+}
+
+/* Docked, the centre action rises out of the bar. */
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_fab {
+  align-self: flex-start;
+  margin-top: calc(var(--bn-fab-size) / -2.4);
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_fab_button {
+  box-shadow: 0 0 0 4px var(--primary-background-color), var(--slice-shadow-md, 0 6px 18px rgba(0, 0, 0, 0.2));
+}
+
+slice-bottom-nav.slice_bottomnav--docked .slice_bottomnav_actions:not(:empty) {
+  margin-left: 2px;
+  padding-left: 6px;
+}
+
+/* ------------------------------------------------------------ motion */
 
 @keyframes slice_bottomnav_rise {
   from {
@@ -257,55 +643,29 @@ slice-bottom-nav .slice_bottomnav_reverse .slice_bottomnav_actions:not(:empty) {
   }
 }
 
-/* --------------------------------------------------------------- mobile */
-
-@media (max-width: 600px) {
-  slice-bottom-nav .slice_bottomnav[data-position="fixed"] {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    transform: none;
-    width: 100%;
-    max-width: 100%;
+@keyframes slice_bottomnav_pop {
+  from {
+    transform: scale(0.4);
   }
-
-  slice-bottom-nav .slice_bottomnav_bar {
-    width: 100%;
-    border-radius: 22px 22px 0 0;
-    justify-content: space-around;
-    gap: 0;
-    padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
-  }
-
-  slice-bottom-nav .slice_bottomnav_logo.is-visible {
-    display: none;
-  }
-
-  slice-bottom-nav .slice_bottomnav_tabs {
-    flex: 1;
-    justify-content: space-around;
-  }
-
-  slice-bottom-nav .slice_bottomnav_tab {
-    flex: 1;
-    min-width: 0;
-    padding: 4px 4px;
-    font-size: 0.6rem;
-    gap: 2px;
-  }
-
-  slice-bottom-nav .slice_bottomnav_actions:not(:empty) {
-    margin-left: 2px;
-    padding-left: 6px;
+  to {
+    transform: scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   slice-bottom-nav .slice_bottomnav_bar,
-  slice-bottom-nav .slice_bottomnav_tab {
+  slice-bottom-nav .slice_bottomnav_tab,
+  slice-bottom-nav .slice_bottomnav_fab,
+  slice-bottom-nav .slice_bottomnav_badge {
     animation: none;
   }
+
   slice-bottom-nav .slice_bottomnav_indicator {
     transition: opacity 0.2s ease;
+  }
+
+  slice-bottom-nav .slice_bottomnav[data-position],
+  slice-bottom-nav .slice_bottomnav_label {
+    transition: none;
   }
 }

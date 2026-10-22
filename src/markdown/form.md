@@ -165,11 +165,22 @@ decided in one place. If you need the old standalone spacing, set
 `--control-margin-block` on the host.
 :::
 
+## Text fields
+`Input` and `Textarea` know they are inside a Form and step aside for it:
+
+- **The label is the Form's.** The field is set to `labelPlacement: 'above'` with no label of its own, so the Form's label is the only one. The field takes it as its accessible name, and clicking the label focuses the field.
+- **The error is the Form's.** The field does not show its own messages (`validateOn: 'manual'`); the Form prints one message under it, in the same style for every kind of control. The field still draws its own red border, so there is one red edge in the field's own shape.
+- **Its rules count.** After the schema's `required` and `validate`, the Form asks the field for its own verdict, so `type: 'email'`, `min`, `max`, `minlength` or a field `validator` set in `props` work without repeating them in the schema.
+- **Errors follow the value.** A field with an error on screen is checked again as it is edited, so the message goes away as soon as it is fixed instead of waiting for the next Submit.
+- **A failed Submit takes you there.** Focus moves to the first field with a problem.
+
+Anything you pass in a field's `props` wins over these defaults.
+
 ## Methods
 | Method | Description |
 | --- | --- |
 | `submit()` | Validates; calls `onSubmit(values)` and returns `true` if valid. |
-| `validate()` | Runs validation, shows errors, returns a boolean. |
+| `validate()` | Runs validation, shows errors, focuses the first invalid field, returns a boolean. |
 | `getValues()` | `{ name: value }` read from each field's component. |
 | `setValue(name, value)` / `setError(name, msg)` / `clearErrors()` / `reset()` | Programmatic helpers. |
 
@@ -396,5 +407,6 @@ disappears from the payload. If a field is required, the usual validation is wha
 The Form **builds** its field + button components with `slice.build` and destroys them in
 `beforeDestroy()`. Components built with `slice.build` are not auto-destroyed by a parent — so destroy
 the `Form` itself through `slice.controller.destroyComponent(form)` / `destroyByContainer(node)` when you
-tear down whatever hosts it (a Modal, a view).
+tear down whatever hosts it (a view). A [Modal](/docs/feedback/modal) destroys what is in its body when
+it is destroyed, so a Form in a Modal with `destroyOnClose: true` is taken care of.
 :::

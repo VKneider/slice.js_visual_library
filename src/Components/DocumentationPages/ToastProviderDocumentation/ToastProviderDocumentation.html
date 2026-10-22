@@ -9,9 +9,13 @@
 <p>ToastProvider is a singleton <strong>Service</strong> that manages a stack of notifications.   Unlike manually placing <code>&lt;slice-toast&gt;</code> elements, it handles the container, queue limits, positioning, and cleanup for you.</p>
 <p>&gt; See the [Toast](/docs/visual/toast) component for the visual building block.</p>
 <h2 id="getting-the-instance">Getting the instance</h2>
-<p><code>ToastProvider</code> is registered as a <code>"Service"</code> type component. Build it to access the singleton:</p>
+<p><code>ToastProvider</code> is a <code>"Service"</code> type component. Build it with <code>{ singleton: true }</code>: every call then returns the same instance, so the whole app shares one stack of notifications.</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
-<p>Because it is a singleton, build it once and recover the same instance anywhere with <code>slice.getComponent('ToastProvider')</code>.</p>
+<p>Without <code>{ singleton: true }</code>, each <code>slice.build('ToastProvider')</code> creates a NEW provider, with its own container stacked over the others and its own pool. The provider logs a warning when that happens.</p>
+<h2 id="memory-a-pool-of-toasts">Memory: a pool of toasts</h2>
+<p>The provider does not build a new <code>Toast</code> for every notification. It keeps a small pool and reuses it:</p>
+<ul><li>When a toast finishes hiding (it expired, was closed, or was pushed out by a newer one), it goes back to the pool. The next <code>show()</code> takes it from there and resets it, instead of building another.</li><li>At most 5 toasts are on screen, and at most 5 wait in the pool. A page that shows a thousand notifications still owns about five <code>Toast</code> components.</li><li>One toast is built as soon as the provider is, so the first notification appears already styled.</li><li><code>poolSize</code> tells you how many toasts the provider owns right now.</li><li>Destroying the provider destroys every toast it owns.</li></ul>
+<p><code>Toast</code> has a <code>reuse(props)</code> method that makes a used toast new again. It is what the pool uses, and it works the same way if you manage <code>&lt;slice-toast&gt;</code> elements yourself.</p>
 <h2 id="basic-usage">Basic usage</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <h2 id="toast-types">Toast types</h2>
@@ -41,5 +45,5 @@
 <h2 id="api">API</h2>
 <div class="table-block" data-block-id="doc-block-12"></div>
 <h2 id="best-practices">Best practices</h2>
-<ul><li>Build the provider once with <code>slice.build('ToastProvider')</code> and reuse the instance — it's a singleton.</li><li>Use <code>clear()</code> before changing routes or views to avoid stale notifications.</li><li>Use <code>duration: 0</code> for toasts that require user action to dismiss.</li><li>All six positions work with the stack layout — toasts never overlap.</li></ul>
+<ul><li>Always build the provider with <code>slice.build('ToastProvider', { singleton: true })</code>, so every part of the app shares one instance.</li><li>Use <code>clear()</code> before changing routes or views to avoid stale notifications.</li><li>Use <code>duration: 0</code> for toasts that require user action to dismiss.</li><li>All six positions work with the stack layout — toasts never overlap.</li></ul>
 </div>

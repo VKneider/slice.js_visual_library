@@ -14,6 +14,7 @@ const docRoutes = [
   { path: '/docs/input/color-picker', component: 'ColorPickerDocumentation' },
   { path: '/docs/display/confirm-action-modal', component: 'ConfirmActionModalDocumentation' },
   { path: '/docs/internal/css-conventions', component: 'CssConventionsDocumentation' },
+  { path: '/docs/input/datepicker', component: 'DatePickerDocumentation' },
   { path: '/docs/layout/details', component: 'DetailsDocumentation' },
   { path: '/docs/services/dom-service', component: 'DomServiceDocumentation' },
   { path: '/docs/services/drag-drop', component: 'DragDropServiceDocumentation' },

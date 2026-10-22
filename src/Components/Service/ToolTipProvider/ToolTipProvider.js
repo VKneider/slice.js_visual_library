@@ -22,7 +22,18 @@ export default class ToolTipProvider {
       this._onOutsidePress = this._onOutsidePress.bind(this);
 
       ToolTipProvider._ensureCSS();
+
+      // A second provider means a second bubble and a second set of global
+      // listeners. Almost always a missing { singleton: true }: say so.
+      this._counted = true;
+      ToolTipProvider._live += 1;
+      if (ToolTipProvider._live > 1) {
+         slice.logger?.logWarning?.('ToolTipProvider',
+            `${ToolTipProvider._live} ToolTipProviders are alive. Build it with slice.build('ToolTipProvider', { singleton: true }) so the app shares one.`);
+      }
    }
+
+   static _live = 0;
 
    static _cssPromise = null;
 
@@ -32,7 +43,13 @@ export default class ToolTipProvider {
          if (typeof slice === 'undefined' || !slice.controller) return;
          if (slice.controller.requestedStyles.has('ToolTip')) return;
          try {
-            await slice.build('ToolTip', { text: '' });
+            // Building one ToolTip loads its CSS; the instance is not needed
+            // (the provider draws a single shared bubble), so destroy it.
+            const dummy = await slice.build('ToolTip', { text: '' });
+            if (dummy) {
+               slice.controller.destroyComponent(dummy);
+               dummy.remove();
+            }
          } catch (err) {
             slice.logger?.logWarn?.('ToolTipProvider', 'Could not preload ToolTip CSS', err);
          }
@@ -74,6 +91,10 @@ export default class ToolTipProvider {
    // Framework teardown hook — the controller calls beforeDestroy() (never
    // destroy()), so the provider's cleanup must live here.
    beforeDestroy() {
+      if (this._counted) {
+         this._counted = false;
+         ToolTipProvider._live = Math.max(0, ToolTipProvider._live - 1);
+      }
       for (const el of [...this._registry.keys()]) this.detach(el);
       this._removeBubble();
       clearTimeout(this._showTimer);
@@ -267,8 +288,4 @@ export default class ToolTipProvider {
       if (this._activeTrigger.contains(event.target) || this._bubble?.contains(event.target)) return;
       this._hide();
    }
-}
-
-if (typeof window !== 'undefined') {
-   window.ToolTipProvider = ToolTipProvider;
 }

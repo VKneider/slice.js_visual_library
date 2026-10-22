@@ -22,7 +22,7 @@
  * lighter than the colour it shades, or a button whose label is unreadable.
  */
 
-import { hsvToHex, hexToHsv, readableOn } from '../../spike/colors.js';
+import { hsvToHex, hexToHsv, readableOn } from '../../shared/color.js';
 
 /**
  * Hue relationships in degrees from the base hue. The chosen rule is applied
@@ -56,6 +56,10 @@ const STATUS_JITTER = 24;
  * `surface` and `background` are deliberately tight: they are what body text
  * has to sit on, so their lightness is the one thing the "personality" knobs
  * below are not allowed to touch.
+ *
+ * @typedef {[number, number]} Range  `[min, max]`
+ * @typedef {{ hue?: 'primary' | 'any', sat: Range, v: Range }} Band
+ * @type {Record<'light' | 'dark', Record<string, Band>>}
  */
 const ROLES = {
    light: {
@@ -92,6 +96,7 @@ const TEMPERATURES = [
 /** Roles the lightness "tone" knob may nudge — never the ones text sits on. */
 const TONE_ROLES = new Set(['brand', 'accent', 'status']);
 
+/** @param {Range} range */
 const between = ([min, max]) => min + Math.random() * (max - min);
 const clamp01 = (n) => Math.min(1, Math.max(0, n));
 const pickWeighted = (entries) => {

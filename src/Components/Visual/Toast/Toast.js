@@ -28,6 +28,7 @@ export default class Toast extends HTMLElement {
     this._dismissable = true;
     this._customColor = null;
     this._dismissTimer = null;
+    this._exitTimer = null;
     this._exiting = false;
 
     slice.controller.setComponentProps(this, props || {});
@@ -71,6 +72,12 @@ export default class Toast extends HTMLElement {
 
   set customColor(value) {
     this._customColor = value || null;
+    // Clear the previous colours first: a reused toast must not keep them.
+    if (this.$root) {
+      this.$root.style.removeProperty('--toast-bg');
+      this.$root.style.removeProperty('--toast-text');
+      this.$root.style.removeProperty('--toast-accent');
+    }
     if (!this._customColor) return;
     const cc = this._customColor;
     if (cc.background) this.$root.style.setProperty('--toast-bg', cc.background);
@@ -81,7 +88,9 @@ export default class Toast extends HTMLElement {
   get customColor() { return this._customColor; }
 
   init() {
-    if (this._dismissable && this.$close) {
+    // Always wired: `dismissable` only hides the button, and a toast reused
+    // as dismissable must still close on click.
+    if (this.$close) {
       this.$close.addEventListener('click', this._handleClose);
     }
     if (!this._message && this.$message) {
@@ -106,10 +115,35 @@ export default class Toast extends HTMLElement {
       this.$root.classList.remove('slice-toast--visible');
       this.$root.classList.add('slice-toast--exiting');
     }
-    setTimeout(() => {
+    this._exitTimer = setTimeout(() => {
+      this._exitTimer = null;
       if (this.parentNode) this.parentNode.removeChild(this);
       this.dispatchEvent(new CustomEvent('toast-dismissed', { bubbles: true }));
     }, 260);
+  }
+
+  /**
+   * Make a used toast new again, so a provider can pool instances instead of
+   * building one per notification. Stops its timers, clears the hidden and
+   * exit state, and applies `props` (missing ones go back to their defaults).
+   * Call show() once it is back on the page.
+   * @param {{ message?: string, type?: string, duration?: number, dismissable?: boolean, customColor?: object|null }} [props]
+   */
+  reuse(props = {}) {
+    this._clearTimer();
+    if (this._exitTimer) {
+      clearTimeout(this._exitTimer);
+      this._exitTimer = null;
+    }
+    this._exiting = false;
+    if (this.$root) this.$root.classList.remove('slice-toast--visible', 'slice-toast--exiting');
+    const defaults = Toast.props;
+    this.message = props.message ?? defaults.message.default;
+    this.type = props.type ?? defaults.type.default;
+    this.duration = props.duration ?? defaults.duration.default;
+    this.dismissable = props.dismissable ?? defaults.dismissable.default;
+    this.customColor = props.customColor ?? null;
+    return this;
   }
 
   _handleClose() {
@@ -136,6 +170,11 @@ export default class Toast extends HTMLElement {
 
   beforeDestroy() {
     this._clearTimer();
+    if (this._exitTimer) {
+      clearTimeout(this._exitTimer);
+      this._exitTimer = null;
+    }
+    if (this.$close) this.$close.removeEventListener('click', this._handleClose);
   }
 }
 

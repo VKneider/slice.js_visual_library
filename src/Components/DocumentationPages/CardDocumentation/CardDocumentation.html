@@ -7,32 +7,52 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Card</code> provides a structured content shell with support for media, actions, badges, progress and interactive states.</p>
+<p>A <code>Card</code> sums up <strong>one thing</strong>: a product, a person, a file, a project, a metric. Cards usually come in groups of the same kind, in a grid or a list, so people can scan and compare them. When the thing has more to it than fits, the card leads there: a link, a Modal, a page.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>A collection of items of the same kind: projects, listings, team members, reports.</li><li>A summary that leads to the full record: a click on the card opens it.</li><li>A choice between a few rich options: plans, delivery methods, templates (<code>selectable</code>).</li><li>A dashboard tile: one metric with its context.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>A section of a page</strong> (a settings group, a form) is not one thing among others like it. Use a plain container or a [Form](/docs/input/form) with sections.</li><li><strong>Content that folds open</strong> belongs in [Details](/docs/layout/details).</li><li><strong>A message</strong> that comes and goes is a [Toast](/docs/feedback/toast).</li><li><strong>Rows people sort and filter</strong> are a [Table](/docs/data/table). Cards are for scanning, tables for comparing values.</li><li><strong>One card alone</strong>, with nothing like it next to it, is usually a section in disguise.</li></ul>
+<h2 id="anatomy">Anatomy</h2>
+<p>Every part is optional, and nothing is drawn unless you ask for it:</p>
+<ul><li><strong>Media</strong> at the top: <code>image</code>, or <code>icon</code> as a large mark. When an image fails to load, the icon takes its place, or there is no media.</li><li><strong>Header</strong>:</li></ul>
+<p>- <code>headerIcon</code>, a small mark in a chip beside the title;   - <code>title</code> and <code>subtitle</code>;   - <code>badge</code> in the corner.</p>
+<ul><li><strong>Body</strong>: <code>text</code>, then <code>content</code>, which takes any nodes or components: a chart, a list, a progress bar, a Table.</li><li><strong>Footer</strong>: <code>actions</code>, always visible, so they work on phones and from the keyboard.</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>Card</code> provides a reusable container for structured content with variant-driven presentation.</li><li>Interactive mode supports actionable cards for dashboards, release notes and workflow states.</li><li>Scenario scripts below cover status, metrics, and action-footer compositions used in production screens.</li></ul>
+<h3 id="leading-somewhere">Leading somewhere</h3>
+<ul><li><code>href</code> turns the title into a link. <code>target: '_blank'</code> opens it in a new tab and adds <code>rel="noopener noreferrer"</code>.</li><li><code>onClick({ card, event })</code> turns the title into a button.</li><li>Either way, the title's click area is stretched over the whole card, so a click anywhere opens it.</li><li>For screen readers and the keyboard, the card is <strong>one control</strong> (its title) and each action is its own control. There are no buttons inside a button, and Tab goes title → actions.</li><li>A card with neither <code>href</code> nor <code>onClick</code> is not a control at all: it is not focusable and does not lift on hover.</li><li>With no <code>title</code>, give the card an <code>ariaLabel</code> so the link or button still has a name.</li></ul>
+<h3 id="actions">Actions</h3>
+<ul><li><code>actions</code> is a list of [Button](/docs/input/button) configs: <code>{ value, variant, icon, onClick, disabled }</code>. You can also pass nodes you built yourself.</li><li><code>onClick({ card, action })</code> runs the action. Clicking an action never opens the card.</li><li><code>actionsAlign</code> arranges the buttons: <code>'start'</code> (default), <code>'end'</code>, <code>'between'</code> or <code>'stretch'</code>.</li><li>Buttons default to <code>variant: 'outlined'</code> and a size that follows the card's.</li></ul>
+<h3 id="choosing">Choosing</h3>
+<ul><li><code>selectable: true</code> makes the card a toggle (<code>aria-pressed</code>). A click selects it or clears it.</li><li><code>onSelect(selected, { card })</code> and the <code>card-select</code> event report the change. <code>selected</code> sets it from code.</li><li>To allow only one selected card (a plan, a shipping method), clear the others in <code>onSelect</code>. See the plan example below.</li></ul>
+<h3 id="states">States</h3>
+<ul><li><code>disabled</code> greys the card out and switches off its link or button and its actions.</li><li><code>loading</code> shows a skeleton in place of the content and sets <code>aria-busy</code>. Use it for a card whose data is on the way, so the grid does not jump when it arrives.</li></ul>
+<h3 id="badge">Badge</h3>
+<p><code>badge</code> is a [Badge](/docs/display/badge):</p>
+<ul><li>a text (<code>'New'</code>);</li><li>a number (<code>12</code>, over 99 shows "99+");</li><li>or a full config (<code>{ label: 'Blocked', variant: 'danger' }</code>).</li></ul>
+<p>It shows in the header's corner, with or without media.</p>
+<h3 id="memory">Memory</h3>
+<p>The card owns what it builds (icons, badge, buttons) and what you hand it in <code>content</code>. Replacing <code>content</code> or <code>actions</code> destroys the components that are gone, and destroying the card destroys all of them. Nodes you pass again keep their state.</p>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'outlined'</code> (default): a border;   - <code>'elevated'</code>: a shadow, no border;   - <code>'filled'</code>: a tinted surface;   - <code>'ghost'</code>: neither, for cards inside a surface that already has one.</p>
+<p><code>'default'</code> and <code>'minimal'</code>, the old names, still work as <code>'outlined'</code> and <code>'ghost'</code>.</p>
+<ul><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code> sets the padding, the title size and the icon size.</li><li><code>layout: 'horizontal'</code> puts the media beside the content, which suits lists. On narrow screens it stacks again.</li><li><code>mediaRatio</code> is the image's aspect ratio (<code>'16 / 9'</code> by default).</li><li><code>headingLevel</code> (default 3) sets the title's heading level, to fit the page's outline.</li><li><code>customColor: { accent, background, text, border }</code> retints one card. The CSS variables <code>--slice-card-accent</code>, <code>--slice-card-bg</code>, <code>--slice-card-text</code>, <code>--slice-card-border</code> and <code>--slice-card-radius</code> do the same from a stylesheet.</li></ul>
+<h3 id="icons">Icons</h3>
+<p><code>icon</code> and <code>headerIcon</code> take a name, or <code>{ name, size, color }</code>. The Slice marks (<code>sliceJs</code>, <code>slicePizza</code>, <code>sliceLogo</code>, <code>singleSlice</code>) carry their own viewBox, so they fill the chip instead of overflowing it.</p>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
-<h2 id="icons">Icons</h2>
-<p>Two independent slots, and they are different things:</p>
-<ul><li><code>headerIcon</code> — the small mark <strong>beside the title</strong>, in a rounded chip. This is the</li></ul>
-<p>usual "card with an avatar or a glyph" look. Accepts a name or   <code>{ name, size, color }</code>:</p>
-<p>``<code>javascript   await slice.build('Card', { title: 'Slice.js', headerIcon: 'sliceJs' });   </code>``</p>
-<ul><li><code>icon</code> — the <strong>banner above the content</strong>, for an image or a large mark. Use it for</li></ul>
-<p>artwork, not for a glyph; for a glyph, use <code>headerIcon</code>.</p>
-<p>Neither is shown unless you ask. A Card with neither has no icon row at all.</p>
-<div class="callout callout-tip">The Slice marks (<code>sliceJs</code>, <code>slicePizza</code>, <code>sliceLogo</code>, <code>singleSlice</code>) carry their own
-viewBox from the original sprite — <code>sliceJs</code> is 1061x1320, not 24x24 — so they fill the
-chip correctly instead of overflowing it.</div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
-<div class="script-block" data-block-id="doc-block-7"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use <code>variant</code> and <code>badge</code> together to surface status while keeping card content concise.</div>
+<div class="callout callout-tip">Keep the cards in a group the same shape: the same parts, in the same order, with text of similar length. People compare cards by looking at the same spot on each one.</div>
+<div class="callout callout-tip">Put the action people take most often on the card itself (<code>onClick</code> or <code>href</code>) and the rest in <code>actions</code>. A card with five buttons is a form in disguise.</div>
+<div class="callout callout-tip">Use <code>loading</code> while the data is on the way instead of building the cards afterwards. The grid keeps its shape, and nothing jumps under the pointer.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">If <code>progress</code> is outside <code>0-100</code>, progress visuals are removed by design.</div>
-<div class="component-block" data-block-id="doc-block-8"></div>
+<div class="callout callout-warning">Do not put links or buttons in <code>text</code>. Put controls in <code>content</code> or <code>actions</code>: they sit above the card's click area, so they keep working on their own.</div>
+<div class="callout callout-warning">Give images an <code>imageAlt</code> that says what is in the picture, or leave it empty when the picture only decorates. Repeating the title in it makes screen readers say the name twice.</div>
+<div class="callout callout-warning"><code>details</code>, <code>open</code> and the fold-out chevron are gone. A card that has to unfold something holds a [Details](/docs/layout/details) in <code>content</code>.</div>
 </div>

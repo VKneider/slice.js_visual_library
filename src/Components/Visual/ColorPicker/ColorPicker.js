@@ -16,8 +16,8 @@
 // gets right for free. This only adds the framing, the normalisation and the
 // readout.
 
-import { applySize, applyClassName, SIZE_VALUES } from '../../spike/recipes.js';
-import { normalizeHex } from '../../spike/colors.js';
+import { applySize, applyClassName, SIZE_VALUES } from '../../shared/props.js';
+import { normalizeHex } from '../../shared/color.js';
 
 const DEFAULT_COLOR = '#000000';
 
@@ -36,7 +36,7 @@ export default class ColorPicker extends HTMLElement {
       // Small secondary line under the control — a CSS variable name, a usage
       // note, anything the label alone doesn't say.
       hint: { type: 'string', default: '' },
-      // Density, from the shared recipe every control validates against.
+      // Density, from the size list every control shares (shared/props.js).
       size: { type: 'string', default: 'md', allowedValues: SIZE_VALUES },
       className: { type: 'string', default: '' },
       disabled: { type: 'boolean', default: false },

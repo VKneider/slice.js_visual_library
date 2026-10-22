@@ -22,6 +22,8 @@ The `Toast` component displays brief, auto-dismissible messages at the edge of t
 - `dismissable` toggles the close button. Defaults to `true`.
 - `customColor` overrides the background, text, and accent colors when you need an exact value.
 - The close button has `aria-label="Close"`; the toast has `role="alert"` for screen reader announcements.
+- `hide()` animates it out, takes it off the page and fires `toast-dismissed`. Taking it off the page does not destroy it: destroy it with `slice.controller.destroyComponent(toast)`, or reuse it.
+- `reuse(props)` makes a hidden toast new again: it stops its timers, clears the exit state and the old colours, and applies `props` (anything missing goes back to its default). Put it back on the page and call `show()`. [ToastProvider](/docs/services/toast-provider) pools toasts this way.
 
 > For programmatic control (show / dismiss / queue management) use **[ToastProvider](/docs/services/toast-provider)**.
 

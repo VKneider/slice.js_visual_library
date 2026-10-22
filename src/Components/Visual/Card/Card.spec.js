@@ -1,313 +1,265 @@
 import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
-// Card baseline contract. Derived from Card.js / Card.html.
-//   - tag: slice-card, host gets class `slice-card`
-//   - title/text/details/badge -> textContent of .card-title/.card-text/
-//     .card-details-content/.card-badge
-//   - variant -> `card-<variant>` modifier class on the host (default 'default')
-//   - interactive -> host gets role="button", tabindex="0", class `interactive`
-//   - disabled -> host gets class `disabled`, aria-disabled="true"
-//   - details present -> .card-toggle shown, host aria-expanded reflects open
-//   - onClick fires on host click when interactive (spy)
-//   - §7 alias: isOpen -> open, warns once
+const ICON_SVG = 'slice-icon svg';
 
-test.describe('Card', () => {
-   test('smoke: builds and mounts without errors', async ({ mount }) => {
-      const c = await mount('Card', { title: 'Hello' });
-      await expect(c.component).toBeVisible();
-      await expect(c.component).toHaveClass(/slice-card/);
+test.describe('Card — content', () => {
+   test('smoke: title, subtitle and text, with nothing else drawn', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Build pipeline', subtitle: 'main · 2 min ago', text: 'All checks passed.' });
       expect(c.pageErrors()).toEqual([]);
+      await expect(c.locator('.slice-card__title')).toHaveText('Build pipeline');
+      await expect(c.locator('.slice-card__title')).toHaveAttribute('role', 'heading');
+      await expect(c.locator('.slice-card__title')).toHaveAttribute('aria-level', '3');
+      await expect(c.locator('.slice-card__subtitle')).toHaveText('main · 2 min ago');
+      await expect(c.locator('.slice-card__text')).toHaveText('All checks passed.');
+      await expect(c.locator('.slice-card__media')).toBeHidden();
+      await expect(c.locator('.slice-card__footer')).toBeHidden();
+      await expect(c.locator('.slice-card__badge')).toBeHidden();
    });
 
-   test('title and text reflect to the DOM', async ({ mount }) => {
-      const c = await mount('Card', { title: 'My Title', text: 'My body text' });
-      await expect(c.locator('.card-title')).toHaveText('My Title');
-      await expect(c.locator('.card-text')).toHaveText('My body text');
+   test('a card that leads nowhere is not a button', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Static' });
+      await expect(c.component).not.toHaveAttribute('role', 'button');
+      await expect(c.component).not.toHaveAttribute('tabindex');
+      await expect(c.locator('.slice-card__target')).toHaveCount(0);
    });
 
-   test('badge reflects to the DOM', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', badge: 'NEW' });
-      await expect(c.locator('.card-badge')).toHaveText('NEW');
+   test('headingLevel sets the title level', async ({ mount }) => {
+      const c = await mount('Card', { title: 'T', headingLevel: 2 });
+      await expect(c.locator('.slice-card__title')).toHaveAttribute('aria-level', '2');
    });
 
-   test('default variant applies card-default class', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T' });
-      await expect(c.component).toHaveClass(/card-default/);
+   test('content takes nodes and text, and keeps a node it already holds', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Stats' });
+      await c.component.evaluate((card) => {
+         const stat = document.createElement('div');
+         stat.className = 'stat';
+         stat.textContent = '42 ms';
+         card.content = [stat, 'p95 latency'];
+      });
+      await expect(c.locator('.slice-card__content .stat')).toHaveText('42 ms');
+      await expect(c.locator('.slice-card__content .slice-card__paragraph')).toHaveText('p95 latency');
+      const kept = await c.component.evaluate((card) => {
+         const stat = card.content[0];
+         stat.dataset.mark = 'kept';
+         card.content = [stat];
+         return card.querySelector('.stat').dataset.mark;
+      });
+      expect(kept).toBe('kept');
+      await expect(c.locator('.slice-card__paragraph')).toHaveCount(0);
    });
 
-   test('variant applies matching modifier class (elevated)', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', variant: 'elevated' });
-      await expect(c.component).toHaveClass(/card-elevated/);
+   test('content components are destroyed when replaced', async ({ mount, page }) => {
+      const c = await mount('Card', { title: 'Holder' });
+      const id = await c.component.evaluate(async (card) => {
+         const button = await slice.build('Button', { value: 'Inner' });
+         card.content = button;
+         return button.sliceId;
+      });
+      expect(await page.evaluate((id) => !!slice.controller.getComponent(id), id)).toBe(true);
+      await c.component.evaluate((card) => { card.content = 'Nothing now'; });
+      expect(await page.evaluate((id) => !!slice.controller.getComponent(id), id)).toBe(false);
+   });
+});
+
+test.describe('Card — media, marks and badge', () => {
+   test('icon is the banner, headerIcon the mark beside the title', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Analytics', icon: 'chart-pie', headerIcon: 'user' });
+      await expect(c.locator('.slice-card__media')).toBeVisible();
+      await expect(c.locator(`.slice-card__media ${ICON_SVG}`)).toHaveCount(1);
+      await expect(c.locator('.slice-card__mark')).toBeVisible();
+      await expect(c.locator(`.slice-card__mark ${ICON_SVG}`)).toHaveCount(1);
    });
 
-   test('variant applies matching modifier class (outlined)', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', variant: 'outlined' });
-      await expect(c.component).toHaveClass(/card-outlined/);
+   test('legacy { name, iconStyle } icons still render, without a warning', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Legacy', icon: { name: 'rocket', iconStyle: 'filled' } });
+      await expect(c.locator(`.slice-card__media ${ICON_SVG}`)).toHaveCount(1);
+      expect(c.warnings().filter((w) => w.includes('iconStyle'))).toEqual([]);
    });
 
-   test('interactive (default) sets role, tabindex and interactive class', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T' });
-      await expect(c.component).toHaveAttribute('role', 'button');
-      await expect(c.component).toHaveAttribute('tabindex', '0');
-      await expect(c.component).toHaveClass(/interactive/);
+   test('an image is lazy, takes imageAlt, and falls back to the icon when it fails', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Cabin', image: '/missing-image.jpg', imageAlt: 'A wooden cabin', icon: 'home' });
+      await expect(c.locator(`.slice-card__media ${ICON_SVG}`)).toHaveCount(1);
+      await expect(c.locator('.slice-card__image')).toHaveCount(0);
+      const c2 = await mount('Card', { title: 'Cabin', image: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', imageAlt: 'A wooden cabin' });
+      await expect(c2.locator('.slice-card__image')).toHaveAttribute('alt', 'A wooden cabin');
+      await expect(c2.locator('.slice-card__image')).toHaveAttribute('loading', 'lazy');
    });
 
-   test('interactive=false removes the interactive class', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', interactive: false });
-      await expect(c.component).not.toHaveClass(/interactive/);
+   test('badge: text, a number, or a Badge config — shown with or without media', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Pipeline', badge: 'Healthy' });
+      await expect(c.locator('.slice-card__badge slice-badge')).toHaveText('Healthy');
+      await c.component.evaluate((card) => { card.badge = 120; });
+      await expect(c.locator('.slice-card__badge slice-badge')).toHaveText('99+');
+      await c.component.evaluate((card) => { card.badge = { label: 'Blocked', variant: 'danger' }; });
+      await expect(c.locator('.slice-card__badge slice-badge')).toHaveText('Blocked');
+      expect(await c.locator('.slice-card__badge slice-badge').count()).toBe(1);
+      await c.component.evaluate((card) => { card.badge = null; });
+      await expect(c.locator('.slice-card__badge')).toBeHidden();
    });
+});
 
-   test('disabled adds disabled class and aria-disabled', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', disabled: true });
-      await expect(c.component).toHaveClass(/disabled/);
-      await expect(c.component).toHaveAttribute('aria-disabled', 'true');
-   });
-
-   test('details shows the toggle and renders details content', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', details: 'Extra info' });
-      await expect(c.locator('.card-details-content')).toHaveText('Extra info');
-      await expect(c.locator('.card-toggle')).toBeVisible();
-   });
-
-   test('no details hides the toggle', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T' });
-      await expect(c.locator('.card-toggle')).toBeHidden();
-   });
-
-   test('toggle click expands the card (aria-expanded + is-open)', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', details: 'Extra info' });
-      await expect(c.component).toHaveAttribute('aria-expanded', 'false');
-      await c.locator('.card-toggle').click();
-      await expect(c.component).toHaveAttribute('aria-expanded', 'true');
-      await expect(c.component).toHaveClass(/is-open/);
-   });
-
-   test('onClick fires when the card is clicked (interactive)', async ({ mount }) => {
-      const c = await mount('Card', { title: 'Clickable' }, { spies: ['onClick'] });
-      await c.component.click();
+test.describe('Card — leading somewhere', () => {
+   test('onClick: the title is the button, and a click anywhere on the card fires it', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Open me', text: 'Body text' }, { spies: ['onClick'] });
+      const target = c.locator('button.slice-card__target');
+      await expect(target).toHaveText('Open me');
+      // The title's hit area covers the card, so the click lands on it.
+      await c.locator('.slice-card__text').click({ force: true });
       expect(await c.events('onClick')).toBe(1);
+      await target.focus();
+      await target.press('Enter');
+      expect(await c.events('onClick')).toBe(2);
+      await expect(c.component).toHaveClass(/is-clickable/);
    });
 
-   test('onClick does not fire when disabled', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', disabled: true }, { spies: ['onClick'] });
-      // pointer-events:none is set on disabled; force the click to bypass it and
-      // assert the handler guard (`!this.disabled`) still blocks the callback.
-      await c.component.click({ force: true });
+   test('onClick set after the card is built still works', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Late' });
+      await c.component.evaluate((card) => {
+         card.dataset.clicks = '0';
+         card.onClick = () => { card.dataset.clicks = String(Number(card.dataset.clicks) + 1); };
+      });
+      await c.locator('.slice-card__title').click();
+      await expect(c.component).toHaveAttribute('data-clicks', '1');
+   });
+
+   test('actions sit in the footer and do not fire the card', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Cabin' }, { spies: ['onClick'] });
+      await c.component.evaluate((card) => {
+         card.dataset.booked = '0';
+         card.actions = [{ value: 'Book', variant: 'filled', onClick: ({ card: self }) => { self.dataset.booked = '1'; } }, { value: 'Save' }];
+      });
+      await expect(c.locator('.slice-card__footer slice-button')).toHaveCount(2);
+      await c.locator('.slice-card__footer slice-button').first().click();
+      await expect(c.component).toHaveAttribute('data-booked', '1');
       expect(await c.events('onClick')).toBe(0);
    });
 
-   // §7 deprecation/alias contract: isOpen -> open, still works and warns once.
-   test('deprecated isOpen sets open state and warns once', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', isOpen: true });
-      await expect(c.component).toHaveClass(/is-open/);
-      await expect(c.component).toHaveAttribute('aria-expanded', 'true');
-
-      const deprecations = c.deprecationWarnings();
-      expect(deprecations.some((w) => w.includes('isOpen'))).toBe(true);
-      expect(deprecations.filter((w) => w.includes('isOpen')).length).toBe(1);
+   test('href makes the title a link that covers the card', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Docs', href: '#docs', target: '_blank' });
+      const link = c.locator('a.slice-card__target');
+      await expect(link).toHaveAttribute('href', '#docs');
+      await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
    });
 
-   test('visual: elevated card @visual', async ({ mount }) => {
+   test('with no title, the target still has a name', async ({ mount }) => {
+      const c = await mount('Card', { text: 'Only text', href: '#x', ariaLabel: 'Open the report' });
+      await expect(c.locator('a.slice-card__target')).toHaveAttribute('aria-label', 'Open the report');
+   });
+
+   test('selectable: a toggle with aria-pressed and onSelect', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Pro', subtitle: '$12 / month', selectable: true }, { spies: ['onSelect'] });
+      const target = c.locator('button.slice-card__target');
+      await expect(target).toHaveAttribute('aria-pressed', 'false');
+      await c.locator('.slice-card__subtitle').click({ force: true });
+      await expect(target).toHaveAttribute('aria-pressed', 'true');
+      await expect(c.component).toHaveClass(/is-selected/);
+      expect((await c.eventArgs('onSelect'))[0][0]).toBe(true);
+      await target.press('Space');
+      await expect(target).toHaveAttribute('aria-pressed', 'false');
+   });
+
+   test('disabled: nothing fires, the actions are disabled too', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Off', disabled: true, actions: [{ value: 'Retry' }] }, { spies: ['onClick'] });
+      await c.component.evaluate((card) => { card.onClick = () => { card.dataset.clicked = 'yes'; }; });
+      await expect(c.component).toHaveAttribute('aria-disabled', 'true');
+      await expect(c.locator('button.slice-card__target')).toBeDisabled();
+      await expect(c.locator('.slice-card__footer .slice_button')).toBeDisabled();
+      await c.locator('.slice-card__title').click({ force: true });
+      await expect(c.component).not.toHaveAttribute('data-clicked');
+      await c.component.evaluate((card) => { card.disabled = false; });
+      await expect(c.locator('.slice-card__footer .slice_button')).toBeEnabled();
+   });
+
+   test('loading: a skeleton, busy, and the target is off', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Report', text: 'Ready', loading: true, href: '#r' });
+      await expect(c.component).toHaveAttribute('aria-busy', 'true');
+      await expect(c.locator('.slice-card__skeleton')).toBeVisible();
+      await expect(c.locator('.slice-card__text')).toBeHidden();
+      await expect(c.locator('a.slice-card__target')).not.toHaveAttribute('href');
+      await c.component.evaluate((card) => { card.loading = false; });
+      await expect(c.locator('.slice-card__text')).toBeVisible();
+      await expect(c.locator('a.slice-card__target')).toHaveAttribute('href', '#r');
+   });
+});
+
+test.describe('Card — looks', () => {
+   test('variants, with default and minimal as aliases', async ({ mount }) => {
+      const c = await mount('Card', { title: 'V' });
+      await expect(c.component).toHaveClass(/slice-card--outlined/);
+      for (const [given, expected] of [['elevated', 'elevated'], ['filled', 'filled'], ['ghost', 'ghost'], ['default', 'outlined'], ['minimal', 'ghost'], ['nope', 'outlined']]) {
+         await c.component.evaluate((card, v) => { card.variant = v; }, given);
+         await expect(c.component).toHaveClass(new RegExp(`slice-card--${expected}`));
+         expect(await c.component.evaluate((card) => [...card.classList].filter((k) => k.startsWith('slice-card--') && k !== 'slice-card--horizontal').length)).toBe(1);
+      }
+   });
+
+   test('elevated has a shadow and does not move out of place', async ({ mount }) => {
+      const c = await mount('Card', { title: 'E', variant: 'elevated' });
+      const style = await c.component.evaluate((el) => ({ shadow: getComputedStyle(el).boxShadow, transform: getComputedStyle(el).transform }));
+      expect(style.shadow).not.toBe('none');
+      expect(style.transform).toBe('none');
+   });
+
+   test('size scales the padding', async ({ mount }) => {
+      const pad = async (size) => {
+         const c = await mount('Card', { title: 'S', size });
+         return c.locator('.slice-card__main').evaluate((el) => parseFloat(getComputedStyle(el).paddingTop));
+      };
+      const [sm, md, lg] = [await pad('sm'), await pad('md'), await pad('lg')];
+      expect(sm).toBeLessThan(md);
+      expect(md).toBeLessThan(lg);
+   });
+
+   test('horizontal puts the media beside the content', async ({ mount, page }) => {
+      await page.setViewportSize({ width: 900, height: 700 });
+      const c = await mount('Card', { title: 'Row', text: 'Beside', icon: 'file-lines', layout: 'horizontal' });
+      const [media, main] = await Promise.all([
+         c.locator('.slice-card__media').boundingBox(),
+         c.locator('.slice-card__main').boundingBox(),
+      ]);
+      expect(main.x).toBeGreaterThanOrEqual(media.x + media.width - 1);
+   });
+
+   test('customColor retints one card', async ({ mount }) => {
+      const c = await mount('Card', { title: 'C', customColor: { background: 'rgb(10, 20, 30)', text: 'rgb(250, 250, 250)' } });
+      const style = await c.component.evaluate((el) => ({ bg: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color }));
+      expect(style).toEqual({ bg: 'rgb(10, 20, 30)', color: 'rgb(250, 250, 250)' });
+   });
+
+   test('visual: an elevated card @visual', async ({ mount }) => {
       const c = await mount('Card', { title: 'Card', text: 'Body', variant: 'elevated' });
       await expect(c.component).toHaveScreenshot('card-elevated.png');
    });
+});
 
-// Regression specs for three defects found by probing a real Card in the
-// browser, not by reading the code:
-//
-//  1. Card.css set `--card-shadow: none` on the card itself and then consumed it
-//     two rules later, so NO Card had a shadow — `elevated` included.
-//  2. `icon`'s default was a truthy object, and init() tests
-//     `if (this._icon || this._image)`, so every Card reserved a media strip
-//     and rendered the SliceJS logo whether one was asked for or not.
-//  3. Hiding the strip then became impossible to do from CSS alone, because the
-//     code path that hid it was the same one that decided there was nothing to
-//     show.
-
-test.describe('Card — media strip', () => {
-   test('a card with no icon and no image shows NO media strip', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', text: 'B' });
-
-      // The bug: an empty band across the top, always.
-      await expect(c.locator('.card-media')).toBeHidden();
-      await expect(c.locator('.card-media-content slice-icon')).toHaveCount(0);
-   });
-
-   test('a card never renders an icon nobody asked for', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', text: 'B' });
-      // The default used to be { name: 'sliceJs' }, so every card shipped a
-      // vendor logo.
-      await expect(c.locator('slice-icon[name="sliceJs"]')).toHaveCount(0);
+test.describe('Card — lifecycle', () => {
+   test('details / open / isOpen are gone, with a warning', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Old', details: 'More text', isOpen: true });
       expect(c.pageErrors()).toEqual([]);
+      expect(c.warnings().some((w) => w.includes('"details" was removed'))).toBe(true);
+      expect(c.warnings().some((w) => w.includes('"isOpen" was removed'))).toBe(true);
    });
 
-   test('an explicit icon renders in the strip and reveals it', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', text: 'B', icon: { name: 'star' } });
-
-      await expect(c.locator('.card-media')).toBeVisible();
-      await expect(c.locator('.card-media-content slice-icon')).toHaveCount(1);
-   });
-
-   test('an image reveals the strip too', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', image: '/x.png' });
-      await expect(c.locator('.card-media')).toBeVisible();
-   });
-
-   test('an icon without a name is treated as no icon', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', icon: {} });
-      await expect(c.locator('.card-media')).toBeHidden();
-   });
-
-   test('legacy iconStyle inside the icon object is accepted and ignored', async ({ mount }) => {
-      // Public API: consumers may still pass it. It must not break the card, and
-      // it must not reach Icon as a deprecated prop.
-      const c = await mount('Card', { title: 'T', icon: { name: 'star', iconStyle: 'outlined' } });
-      await expect(c.locator('.card-media-content slice-icon')).toHaveCount(1);
-   });
-});
-
-test.describe('Card — elevation', () => {
-   test('a card actually has a shadow', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T' });
-      const shadow = await c.component.evaluate((el) => getComputedStyle(el).boxShadow);
-      expect(shadow).not.toBe('none');
-   });
-
-   test('the shadow comes from the theme scale, tinted with the palette', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T' });
-
-      const shadow = await c.component.evaluate((el) => getComputedStyle(el).boxShadow);
-      // Not a neutral black: the scale is tinted with --primary-color-rgb, so
-      // this reads as part of the theme instead of sitting on top of it.
-      expect(shadow).not.toMatch(/rgba\(0, 0, 0/);
-
-      const rgb = await c.component.evaluate((el) =>
-         getComputedStyle(document.documentElement).getPropertyValue('--primary-color-rgb').trim()
-      );
-      expect(rgb).toBeTruthy();
-      expect(shadow).toContain(`rgba(${rgb.replace(/\s+/g, ' ')},`);
-   });
-
-   test('elevated is a higher step of the same scale', async ({ mountHtml }) => {
-      // Both cards in ONE page: the `mount` fixture clears the test root on every
-      // call, so a second `mount` detaches the first and leaves both resolving
-      // to the same computed value.
-      const h = await mountHtml(`<div></div>`);
-      const out = await h.page.evaluate(async () => {
-         const plain = await slice.build('Card', { sliceId: 'elev-plain', title: 'T' });
-         const elevated = await slice.build('Card', { sliceId: 'elev-high', title: 'T', variant: 'elevated' });
-         document.body.appendChild(plain);
-         document.body.appendChild(elevated);
-         await new Promise((r) => setTimeout(r, 50));
-         return {
-            a: getComputedStyle(plain).boxShadow,
-            b: getComputedStyle(elevated).boxShadow,
-         };
-      });
-      const { a, b } = out;
-
-      // --slice-shadow-md vs --slice-shadow-sm: different, and neither is none.
-      expect(a).not.toBe('none');
-      expect(b).not.toBe('none');
-      expect(b).not.toBe(a);
-   });
-});
-
-test.describe('Card — toggle', () => {
-   test('the toggle only appears when there are details', async ({ mount }) => {
-      const plain = await mount('Card', { title: 'T' });
-      await expect(plain.locator('.card-toggle')).toBeHidden();
-
-      const withDetails = await mount('Card', { title: 'T', details: 'More' });
-      await expect(withDetails.locator('.card-toggle')).toBeVisible();
-   });
-
-   test('the chevron is a rendered svg, not an empty host', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', details: 'More' });
-
-      // iconStyle used to be set on this icon. It is a no-op since the Lucide
-      // migration, and the attribute never even matched the prop name.
-      await expect(c.locator('.card-toggle slice-icon svg')).toHaveCount(1);
-   });
-
-   test('the toggle carries no deprecated iconStyle attribute', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', details: 'More' });
-
-      const attr = await c.locator('.card-toggle slice-icon').getAttribute('iconstyle');
-      expect(attr).toBeNull();
-   });
-});
-
-   test('headerIcon renders beside the title', async ({ mount }) => {
-      const c = await mount('Card', { title: 'Slice.js', headerIcon: 'sliceJs' });
-
-      const icon = c.locator('.card-header-icon');
-      await expect(icon).toBeVisible();
-      await expect(icon.locator('slice-icon svg')).toHaveCount(1);
-      // In the header, next to the title — not in the media banner.
-      await expect(c.locator('.card-header .card-header-icon slice-icon')).toHaveCount(1);
-      await expect(c.locator('.card-media-content slice-icon')).toHaveCount(0);
-   });
-
-   test('no headerIcon means the slot stays hidden', async ({ mount }) => {
-      const c = await mount('Card', { title: 'Plain' });
-      await expect(c.locator('.card-header-icon')).toBeHidden();
-   });
-
-   test('headerIcon accepts an object with size and color', async ({ mount }) => {
+   test('destroying the card destroys every component it built', async ({ mount, page }) => {
       const c = await mount('Card', {
-         title: 'Custom',
-         headerIcon: { name: 'star', size: '28px', color: 'var(--danger-color)' },
+         title: 'Full', icon: 'home', headerIcon: 'user', badge: 'New', actions: [{ value: 'A' }, { value: 'B' }],
       });
-
-      const icon = c.locator('.card-header-icon slice-icon');
-      await expect(icon).toHaveCount(1);
-      const fontSize = await icon.evaluate((el) => getComputedStyle(el).fontSize);
-      expect(fontSize).toBe('28px');
+      await expect(c.locator('.slice-card__footer slice-button')).toHaveCount(2);
+      const ids = await c.component.evaluate((card) => [...card.querySelectorAll('[slice-id]')].map((n) => n.getAttribute('slice-id')).concat(
+         [...card.querySelectorAll('slice-icon, slice-badge, slice-button')].map((n) => n.sliceId)).filter(Boolean));
+      expect(ids.length).toBeGreaterThanOrEqual(5);
+      await c.component.evaluate((card) => slice.controller.destroyComponent(card));
+      const alive = await page.evaluate((ids) => ids.filter((id) => slice.controller.getComponent(id)), ids);
+      expect(alive).toEqual([]);
    });
 
-   test('headerIcon and the media icon are independent slots', async ({ mount }) => {
-      const both = await mount('Card', { title: 'T', headerIcon: 'star', icon: { name: 'star' } });
-      await expect(both.locator('.card-header-icon slice-icon')).toHaveCount(1);
-      await expect(both.locator('.card-media-content slice-icon')).toHaveCount(1);
-
-      // Header only: no banner strip.
-      const headerOnly = await mount('Card', { title: 'T', headerIcon: 'star' });
-      await expect(headerOnly.locator('.card-header-icon slice-icon')).toHaveCount(1);
-      await expect(headerOnly.locator('.card-media')).toBeHidden();
-   });
-
-   test('destroying the card destroys the header icon', async ({ mount }) => {
-      const c = await mount('Card', { title: 'T', headerIcon: 'star', sliceId: 'card-hdr-die' });
-
-      const out = await c.component.evaluate((el) => {
-         const before = slice.controller.activeComponents.has('card-hdr-die-header-icon');
-         slice.controller.destroyComponent('card-hdr-die');
-         return { before, after: slice.controller.activeComponents.has('card-hdr-die-header-icon') };
+   test('changing actions quickly never doubles the buttons', async ({ mount }) => {
+      const c = await mount('Card', { title: 'Race' });
+      await c.component.evaluate((card) => {
+         card.actions = [{ value: '1' }, { value: '2' }];
+         card.actions = [{ value: 'only' }];
       });
-
-      expect(out.before).toBe(true);
-      expect(out.after).toBe(false);
-   });
-
-   test('a Slice brand mark is legible inside the header chip', async ({ mount }) => {
-      const c = await mount('Card', { title: 'Slice.js', headerIcon: 'sliceJs' });
-
-      // The mark must paint INSIDE its slot: the sprite marks carry a real
-      // ~1000-unit viewBox, and getting that wrong made them cover the page.
-      const fits = await c.component.evaluate((el) => {
-         const svg = el.querySelector('.card-header-icon svg');
-         const slot = el.querySelector('.card-header-icon').getBoundingClientRect();
-         const box = svg.getBBox();
-         const [, , vbW, vbH] = svg.getAttribute('viewBox').split(/\s+/).map(Number);
-         return {
-            viewBox: `${vbW}x${vbH}`,
-            fits: box.x >= -1 && box.y >= -1 && box.x + box.width <= vbW + 1 && box.y + box.height <= vbH + 1,
-            slot: `${Math.round(slot.width)}x${Math.round(slot.height)}`,
-         };
-      });
-
-      expect(fits.fits).toBe(true);
-      expect(fits.viewBox).not.toBe('24x24');
+      await expect(c.locator('.slice-card__footer slice-button')).toHaveCount(1);
+      await expect(c.locator('.slice-card__footer')).toHaveText('only');
    });
 });

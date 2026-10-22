@@ -2,66 +2,277 @@ slice-modal {
   display: contents;
 }
 
-/* A closed native <dialog> is hidden by the UA rule dialog:not([open]){display:none},
-   but the unconditional `display:flex` below is author CSS and would override it —
-   leaving the dialog rendered in flow after .close(). Re-assert the hidden state. */
-slice-modal .slice-modal:not([open]) {
-  display: none;
-}
+/* ── The box ──────────────────────────────────────────────────────────
+   A closed native <dialog> is hidden by the UA rule dialog:not([open]),
+   but the `display: flex` below is author CSS and would override it, so the
+   hidden state is re-asserted. It is ALSO the exit state of the transition:
+   `display` and `overlay` are transitioned with allow-discrete, so the box
+   stays in the top layer until it has faded and slid out. close() is still
+   synchronous; only the picture lingers for 220ms. */
 
 slice-modal .slice-modal {
+  --modal-radius: var(--border-radius-slice, 0.875rem);
+  --modal-gutter: 16px;
+  --modal-size: 520px;
+  --modal-pad-x: 1.5rem;
+  --modal-tone: var(--modal-accent, var(--primary-color, #9333ea));
+  --modal-from: translateY(10px) scale(0.97);
+  --modal-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
   padding: 0;
   border: none;
-  border-top: 4px solid var(--modal-accent, var(--primary-color, #9333ea));
-  border-radius: var(--border-radius-slice, 0.75rem);
+  border-top: 4px solid var(--modal-tone);
+  border-radius: var(--modal-radius);
   background: var(--modal-bg, var(--primary-background-color, #fefbff));
   color: var(--modal-text, var(--font-primary-color, #1a0b2e));
-  box-shadow: var(--slice-shadow-lg);
-  max-width: var(--modal-max-width, 520px);
-  width: var(--modal-width, min(90vw, 520px));
+  box-shadow: var(--slice-shadow-lg, 0 24px 60px rgba(0, 0, 0, 0.25));
+  width: var(--modal-width, min(calc(100vw - 2 * var(--modal-gutter)), var(--modal-size)));
+  max-width: var(--modal-max-width, calc(100vw - 2 * var(--modal-gutter)));
+  /* The dialog itself is the height constraint, and `overflow: hidden` is what
+     makes it one: only then can the body (`flex: 1; min-height: 0`) shrink and
+     scroll, keeping the header and footer in view. */
+  max-height: var(--modal-max-height, min(85dvh, 640px));
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  /* The dialog itself is the height constraint, and `overflow: hidden` is what
-     makes it one. Without both, `flex: 1; min-height: 0; overflow: auto` on the
-     body can never engage (a flex child only shrinks below its content height
-     when the container is constrained), so a tall body grows past the viewport
-     and the footer scrolls away instead of the body scrolling. */
-  max-height: var(--modal-max-height, min(85vh, 640px));
-  overflow: hidden;
-  animation: slice-modal_enter 0.2s ease;
-  position: relative;
+  position: fixed;
+
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.24s var(--modal-ease),
+    overlay 0.24s allow-discrete,
+    display 0.24s allow-discrete;
+}
+
+slice-modal .slice-modal:not([open]) {
+  display: none;
+  opacity: 0;
+  transform: var(--modal-from);
+}
+
+@starting-style {
+  slice-modal .slice-modal[open] {
+    opacity: 0;
+    transform: var(--modal-from);
+  }
 }
 
 slice-modal .slice-modal::backdrop {
-  background: rgba(0, 0, 0, 0.45);
-  animation: slice-modal_backdrop 0.2s ease;
+  background: rgba(10, 6, 20, 0.5);
+  opacity: 1;
+  transition:
+    opacity 0.24s ease,
+    overlay 0.24s allow-discrete,
+    display 0.24s allow-discrete;
 }
 
-@keyframes slice-modal_enter {
-  from {
+slice-modal .slice-modal:not([open])::backdrop {
+  opacity: 0;
+}
+
+@starting-style {
+  slice-modal .slice-modal[open]::backdrop {
     opacity: 0;
-    transform: scale(0.94) translateY(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
   }
 }
 
-@keyframes slice-modal_backdrop {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* The dialog takes focus only so Escape reaches it; it is not a control, so
+   it draws no ring. Tab moves on to the real ones, which do. */
+slice-modal .slice-modal:focus,
+slice-modal .slice-modal:focus-visible {
+  outline: none;
 }
+
+slice-modal .slice-modal--plain {
+  border-top: none;
+}
+
+/* Drag moves the box with an inline transform: it must follow the pointer,
+   not ease after it. */
+slice-modal.is-draggable .slice-modal,
+slice-modal .slice-modal.is-swiping {
+  transition-property: opacity, overlay, display;
+}
+
+/* A backdrop click on a modal that will not close: a small shake says "no". */
+slice-modal .slice-modal.is-refusing {
+  animation: slice-modal_refuse 0.3s ease;
+}
+
+@keyframes slice-modal_refuse {
+  0%, 100% { translate: 0; }
+  25% { translate: -6px 0; }
+  75% { translate: 6px 0; }
+}
+
+/* ── Sizes ────────────────────────────────────────────────────────── */
+
+slice-modal .slice-modal[data-size="sm"] { --modal-size: 400px; }
+slice-modal .slice-modal[data-size="md"] { --modal-size: 520px; }
+slice-modal .slice-modal[data-size="lg"] { --modal-size: 720px; }
+slice-modal .slice-modal[data-size="xl"] { --modal-size: 960px; }
+slice-modal .slice-modal[data-size="full"] {
+  --modal-size: 100vw;
+  height: calc(100dvh - 2 * var(--modal-gutter));
+  --modal-max-height: calc(100dvh - 2 * var(--modal-gutter));
+}
+
+/* ── Tones ────────────────────────────────────────────────────────── */
+
+slice-modal .slice-modal[data-tone="info"] { --modal-tone: var(--info-color, #2563eb); }
+slice-modal .slice-modal[data-tone="success"] { --modal-tone: var(--success-color, #16a34a); }
+slice-modal .slice-modal[data-tone="warning"] { --modal-tone: var(--warning-color, #d97706); }
+slice-modal .slice-modal[data-tone="danger"] { --modal-tone: var(--danger-color, #dc2626); }
+
+/* ── Layouts ──────────────────────────────────────────────────────── */
+
+/* top: near the top of the screen, for command palettes and search. */
+slice-modal .slice-modal[data-layout="top"] {
+  margin-top: min(12vh, 120px);
+  margin-bottom: auto;
+  --modal-from: translateY(-12px) scale(0.98);
+}
+
+/* drawer: a full-height panel from a side. */
+slice-modal .slice-modal[data-layout="drawer"] {
+  --modal-gutter: 0px;
+  border-top: none;
+  border-radius: 0;
+  max-height: 100dvh;
+}
+
+slice-modal .slice-modal[data-layout="drawer"][data-size="sm"] { --modal-size: 320px; }
+slice-modal .slice-modal[data-layout="drawer"][data-size="md"] { --modal-size: 400px; }
+slice-modal .slice-modal[data-layout="drawer"][data-size="lg"] { --modal-size: 560px; }
+slice-modal .slice-modal[data-layout="drawer"][data-size="xl"] { --modal-size: 720px; }
+
+slice-modal .slice-modal[data-layout="drawer"][data-side="right"],
+slice-modal .slice-modal[data-layout="drawer"][data-side="left"] {
+  height: 100dvh;
+}
+
+slice-modal .slice-modal[data-layout="drawer"][data-side="right"] {
+  margin: 0 0 0 auto;
+  border-radius: var(--modal-radius) 0 0 var(--modal-radius);
+  --modal-from: translateX(100%);
+}
+
+slice-modal .slice-modal[data-layout="drawer"][data-side="left"] {
+  margin: 0 auto 0 0;
+  border-radius: 0 var(--modal-radius) var(--modal-radius) 0;
+  --modal-from: translateX(-100%);
+}
+
+slice-modal .slice-modal[data-layout="drawer"][data-side="top"],
+slice-modal .slice-modal[data-layout="drawer"][data-side="bottom"] {
+  width: 100vw;
+  max-width: 100vw;
+  max-height: 85dvh;
+}
+
+slice-modal .slice-modal[data-layout="drawer"][data-side="top"] {
+  margin: 0 0 auto;
+  border-radius: 0 0 var(--modal-radius) var(--modal-radius);
+  --modal-from: translateY(-100%);
+}
+
+slice-modal .slice-modal[data-layout="drawer"][data-side="bottom"] {
+  margin: auto 0 0;
+  border-radius: var(--modal-radius) var(--modal-radius) 0 0;
+  --modal-from: translateY(100%);
+}
+
+/* sheet: rises from the bottom edge, with a grab handle; swipe it down to
+   close. The phone-friendly form of a dialog. */
+slice-modal .slice-modal[data-layout="sheet"] {
+  --modal-gutter: 0px;
+  margin: auto auto 0;
+  border-top: none;
+  border-radius: calc(var(--modal-radius) + 6px) calc(var(--modal-radius) + 6px) 0 0;
+  max-height: 92dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --modal-from: translateY(100%);
+}
+
+slice-modal .slice-modal[data-layout="sheet"][data-size="lg"],
+slice-modal .slice-modal[data-layout="sheet"][data-size="xl"],
+slice-modal .slice-modal[data-layout="sheet"][data-size="full"] {
+  --modal-size: 100vw;
+}
+
+slice-modal .slice-modal[data-layout="sheet"][data-size="full"] {
+  height: 92dvh;
+}
+
+/* fullscreen: the whole viewport. */
+slice-modal .slice-modal[data-layout="fullscreen"] {
+  --modal-gutter: 0px;
+  margin: 0;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border-radius: 0;
+  border-top: none;
+  --modal-from: translateY(16px);
+}
+
+/* ── Grab handle (sheet only) ─────────────────────────────────────── */
+
+slice-modal .slice-modal__handle {
+  display: none;
+}
+
+slice-modal .slice-modal[data-layout="sheet"] .slice-modal__handle {
+  display: block;
+  flex: none;
+  align-self: center;
+  width: 40px;
+  height: 5px;
+  margin: 8px 0 2px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 22%, transparent);
+  cursor: grab;
+  touch-action: none;
+}
+
+slice-modal .slice-modal[data-layout="sheet"] .slice-modal__header {
+  touch-action: none;
+}
+
+/* ── Header ───────────────────────────────────────────────────────── */
 
 slice-modal .slice-modal__header {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1.25rem 1.5rem 0.75rem;
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.15rem var(--modal-pad-x) 0.9rem;
   border-bottom: 1px solid color-mix(in srgb, var(--modal-text, var(--font-primary-color, #1a0b2e)) 10%, transparent);
+}
+
+slice-modal .slice-modal__header[hidden] {
+  display: none;
+}
+
+slice-modal .slice-modal[data-layout="sheet"] .slice-modal__header {
+  padding-top: 0.6rem;
+}
+
+/* Nothing but the ✕: it floats in the corner over the body. */
+slice-modal .slice-modal__header.is-bare {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+  z-index: 1;
+  padding: 0;
+  border: none;
+}
+
+slice-modal .slice-modal__header.is-bare + .slice-modal__body {
+  padding-block: 1.25rem;
+  padding-inline-end: 3.25rem;
 }
 
 slice-modal.is-draggable .slice-modal__header {
@@ -72,57 +283,177 @@ slice-modal.is-draggable .slice-modal__header:active {
   cursor: grabbing;
 }
 
-slice-modal .slice-modal__title {
+slice-modal .slice-modal__icon {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: -0.1rem;
+  border-radius: 999px;
+  color: var(--modal-tone);
+  background: color-mix(in srgb, var(--modal-tone) 14%, transparent);
+}
+
+slice-modal .slice-modal__icon[hidden] {
+  display: none;
+}
+
+slice-modal .slice-modal__heading {
   flex: 1;
   min-width: 0;
-}
-
-slice-modal .slice-modal__body {
-  padding: 1rem 1.5rem;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  /* The app behind the dialog is scroll-locked, but on touch an inner scroll
-     that reaches its end should not chain into the page. */
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-slice-modal .slice-modal__footer {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem 1.25rem;
-  border-top: 1px solid color-mix(in srgb, var(--modal-text, var(--font-primary-color, #1a0b2e)) 10%, transparent);
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.15rem;
+}
+
+slice-modal .slice-modal__title {
+  margin: 0;
+  font: inherit;
+  font-size: 1.12rem;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+}
+
+slice-modal .slice-modal__title:empty {
+  display: none;
+}
+
+slice-modal .slice-modal__description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, currentColor 66%, transparent);
+}
+
+slice-modal .slice-modal__description[hidden] {
+  display: none;
 }
 
 slice-modal .slice-modal__close {
-  flex-shrink: 0;
-  background: none;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.2rem -0.5rem 0 auto;
+  padding: 0;
   border: none;
+  border-radius: 999px;
+  background: transparent;
   color: inherit;
-  opacity: 0.5;
-  font-size: 1.35rem;
-  line-height: 1;
+  opacity: 0.6;
   cursor: pointer;
-  padding: 0.1rem;
-  transition: opacity 0.15s ease;
-  margin-left: auto;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+
+slice-modal .slice-modal__header.is-bare .slice-modal__close {
+  margin: 0;
 }
 
 slice-modal .slice-modal__close:hover {
   opacity: 1;
+  background: color-mix(in srgb, currentColor 9%, transparent);
 }
+
+slice-modal .slice-modal__close:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--modal-tone);
+  outline-offset: 1px;
+}
+
+slice-modal .slice-modal__close[hidden] {
+  display: none;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────── */
+
+slice-modal .slice-modal__body {
+  padding: 1rem var(--modal-pad-x);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  /* The page behind is scroll-locked, but on touch an inner scroll that reaches
+     its end should not chain into it. */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Title and actions only (an alert): no empty band, no double rule. */
+slice-modal .slice-modal__body:empty {
+  display: none;
+}
+
+slice-modal .slice-modal__header:has(+ .slice-modal__body:empty) {
+  border-bottom: none;
+  padding-bottom: 0.4rem;
+}
+
+slice-modal .slice-modal__body:empty + .slice-modal__footer {
+  border-top: none;
+}
+
+slice-modal .slice-modal__text {
+  margin: 0 0 0.75em;
+}
+
+slice-modal .slice-modal__text:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Footer ───────────────────────────────────────────────────────── */
+
+slice-modal .slice-modal__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem var(--modal-pad-x) 1.15rem;
+  border-top: 1px solid color-mix(in srgb, var(--modal-text, var(--font-primary-color, #1a0b2e)) 10%, transparent);
+}
+
+slice-modal .slice-modal__footer:empty {
+  display: none;
+}
+
+slice-modal .slice-modal__footer[data-align="start"] { justify-content: flex-start; }
+slice-modal .slice-modal__footer[data-align="between"] { justify-content: space-between; }
+slice-modal .slice-modal__footer[data-align="stretch"] > * { flex: 1 1 0; }
+slice-modal .slice-modal__footer[data-align="stretch"] .slice_button { width: 100%; }
+
+/* On a sheet the buttons are thumb targets: full width, stacked. */
+slice-modal .slice-modal[data-layout="sheet"] .slice-modal__footer {
+  border-top: none;
+  padding-bottom: 1rem;
+}
+
+slice-modal .slice-modal[data-layout="sheet"] .slice-modal__footer > .slice-modal__action {
+  flex: 1 1 100%;
+}
+
+slice-modal .slice-modal[data-layout="sheet"] .slice-modal__footer > .slice-modal__action .slice_button {
+  width: 100%;
+}
+
+/* ── Motion ───────────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   slice-modal .slice-modal {
-    animation: none;
+    --modal-from: none;
+    transition-duration: 0.01s;
   }
 
   slice-modal .slice-modal::backdrop {
+    transition-duration: 0.01s;
+  }
+
+  slice-modal .slice-modal.is-refusing {
     animation: none;
   }
 }

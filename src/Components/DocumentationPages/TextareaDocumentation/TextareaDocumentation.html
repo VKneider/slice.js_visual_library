@@ -7,40 +7,27 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Textarea</code> is the multi-line counterpart to [<code>Input</code>](/docs/input/input). It shares the floating-label look and <code>conditions</code>-based validation, and adds textarea-specific options: an initial <code>rows</code> height, optional <code>autoGrow</code> that expands the field as the user types, and an <code>onChange(value)</code> handler.</p>
+<p><code>Textarea</code> is the multi-line sibling of [Input](/docs/input/input), and the two are built to be one family. They share:</p>
+<ul><li>the label: floating, or above the field;</li><li>the variants and sizes;</li><li>the help / error line and the counter;</li><li>the validation rules and when errors show;</li><li>the floating-label animation and the error shake, which are the same rules in both stylesheets.</li></ul>
+<p>On top of that, Textarea adds what multi-line text needs: auto-grow with a ceiling, resize control and Ctrl+Enter to submit.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>value</code> / <code>placeholder</code> mirror <code>Input</code>. The label floats above the border on focus or once</li></ul>
-<p>the field has a value.</p>
-<ul><li><code>rows</code> sets the initial visible height; <code>maxlength</code> caps the character count natively.</li><li><code>autoGrow</code> disables manual resize and grows the field to fit its content on every keystroke.</li><li><code>onChange</code> fires with the current string on every input event.</li><li><code>conditions</code> accepts <code>{ regex }</code> or <code>{ minLength, maxLength }</code>; they are checked live while typing</li></ul>
-<p>and can also be run on demand with <code>validateValue()</code>.   the check and surface the error state.</p>
-<ul><li>All listeners live on the component's own nodes, so there is nothing to clean up manually.</li></ul>
+<ul><li><code>value</code> reads and sets the text. <code>onChange(value)</code> fires on every keystroke, or once after a pause with <code>debounce</code>.</li><li><code>rows</code> is the starting height in lines.</li><li><code>autoGrow</code> makes the field grow with its content. <code>maxRows</code> stops it growing at that many lines; past that, it scrolls.</li><li><code>resize</code>: <code>'vertical'</code> (default), <code>'none'</code>, <code>'both'</code> or <code>'horizontal'</code>. Auto-grow turns the handle off.</li><li><code>onSubmit(value, event)</code> fires on Ctrl+Enter (⌘+Enter on a Mac). That is the usual "send" shortcut for a comment or a message, and plain Enter still makes a new line.</li><li><code>name</code> makes it part of a native <code>&lt;form&gt;</code>.</li><li><code>readonly</code> shows text people can select and copy but not edit, such as generated code or an ID. <code>disabled</code> would also take it out of the tab order and stop selection.</li><li><code>focus()</code>, <code>blur()</code>, <code>select()</code> and <code>clear()</code> work as on Input.</li></ul>
+<h2 id="shared-with-input">Shared with Input</h2>
+<p>These work exactly as they do on [Input](/docs/input/input):</p>
+<ul><li><code>label</code>, <code>labelPlacement</code>, <code>placeholder</code>, <code>required</code> and <code>ariaLabel</code>;</li><li><code>variant</code> (<code>outlined</code>, <code>filled</code>, <code>ghost</code>) and <code>size</code> (<code>sm</code>, <code>md</code>, <code>lg</code>);</li><li><code>help</code>, <code>error</code>, <code>invalid</code>, <code>showCount</code>, <code>minlength</code> and <code>maxlength</code>;</li><li><code>validator</code>, <code>conditions</code>, <code>messages</code>, <code>validateOn</code>, <code>validate()</code>, <code>validationMessage</code> and <code>isValid</code>.</li></ul>
+<p>An error shows when the person leaves the field and then follows the value live, so it goes away as soon as the text is fixed. An empty field is never turned red on its own: <code>required</code> and <code>minlength</code> wait for <code>validate()</code> (a submit).</p>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
-<h2 id="example">Example</h2>
-<div class="code-block" data-block-id="doc-block-2"></div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
-<div class="script-block" data-block-id="doc-block-6"></div>
-<div class="script-block" data-block-id="doc-block-7"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Pair <code>autoGrow</code> with <code>maxlength</code> and an external counter (via <code>onChange</code>) for comment and
-message boxes — it keeps the field compact while making the limit visible.</div>
+<div class="callout callout-tip">Use <code>autoGrow</code> with a <code>maxRows</code> for anything people write freely (comments, messages, descriptions). It starts compact, grows as they write, and stops before it pushes the rest of the page away.</div>
+<div class="callout callout-tip">Offer Ctrl+Enter (<code>onSubmit</code>) wherever there is a send button. People who write a lot expect it, and plain Enter still makes a new line.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning"><code>conditions</code> also validates <strong>live while typing</strong> — as soon as the field has a value, <code>conditions</code>
-are checked on every keystroke. Call <code>validateValue()</code> from your <code>Form</code>'s submit handler as well so
-an empty field is caught on submit.</div>
-<h2 id="auto-grow-details">auto-grow details</h2>
-<p><code>autoGrow</code> measures <code>scrollHeight</code>, which is <code>0</code> whenever the field has no layout — while it is still detached, or anywhere up the tree it is <code>display: none</code>. The component handles both:</p>
-<ul><li>the first real measurement happens in <code>connectedCallback</code>, not <code>init</code> (<code>slice.build</code> runs <code>init</code></li></ul>
-<p><strong>before</strong> the parent appends the node, so a naive first measurement collapses the field to <code>0px</code>);</p>
-<ul><li>a hidden field keeps its <strong>last good height</strong> instead of being squashed, and re-measures as soon as</li></ul>
-<p>it becomes visible again;</p>
-<ul><li>a <code>ResizeObserver</code> re-measures when the field's <strong>width</strong> changes, so text that re-wraps on a</li></ul>
-<p>container resize is not clipped. The observer is disconnected in <code>beforeDestroy()</code>.</p>
-<p>Padding is tokenised so a dense consumer can compact the field without desyncing the floating label:</p>
-<div class="code-block" data-block-id="doc-block-8"></div>
-<p>The label's rest position is derived from <code>--slice-textarea-pad-y</code>, so overriding the tokens moves both the field and its label together.</p>
-<div class="component-block" data-block-id="doc-block-9"></div>
+<div class="callout callout-warning">Textareas no longer carry a 20px margin. Spacing belongs to whatever holds them. To get it back on one field, set <code>--control-margin-block: 20px</code> on it.</div>
+<div class="callout callout-warning"><code>autoGrow</code> measures the text, and a field that is not on the page (or is inside something with <code>display: none</code>) has nothing to measure. It keeps its last good height and measures again as soon as it is shown, so you do not need to call <code>grow()</code> yourself.</div>
+<div class="component-block" data-block-id="doc-block-6"></div>
 </div>

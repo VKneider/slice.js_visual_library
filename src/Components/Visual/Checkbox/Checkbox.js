@@ -50,7 +50,7 @@ export default class Checkbox extends HTMLElement {
       },
       // The same density vocabulary Button and Input expose. Named `size` (not
       // `density`) and swapped idempotently (§3.3). A literal, not a reference to
-      // the shared recipe, so the generated union survives — see the note at the
+      // SIZE_VALUES in shared/props.js, so the generated union survives — see the note at the
       // top of this file and the backlog entry about the generator.
       size: {
          type: 'string',
@@ -218,7 +218,7 @@ export default class Checkbox extends HTMLElement {
       // fall back to the declared default on an unknown value (§3.3). The list
       // comes from `static props`, not a second copy here, so the runtime and the
       // generated union accept exactly the same set.
-      const { allowedValues, default: fallback } = this.constructor.props.variant;
+      const { allowedValues, default: fallback } = Checkbox.props.variant;
       const next = allowedValues.includes(value) ? value : fallback;
       if (this.$container) {
          for (const v of allowedValues) this.$container.classList.remove('slice_checkbox--' + v);
@@ -234,7 +234,7 @@ export default class Checkbox extends HTMLElement {
    set size(value) {
       // `data-size` on the host; Checkbox.css decides what the values mean. Read
       // from `static props` for the same reason as `variant` above.
-      const { allowedValues, default: fallback } = this.constructor.props.size;
+      const { allowedValues, default: fallback } = Checkbox.props.size;
       const next = allowedValues.includes(value) ? value : fallback;
       this.dataset.size = next;
       this._size = next;

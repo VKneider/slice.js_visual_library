@@ -28,18 +28,14 @@ Unlike the `<slice-tooltip>` custom element (one bubble + listeners per instance
 Build a `ToolTipProvider` instance and call its methods against trigger elements:
 
 ```javascript
-const tp = await slice.build('ToolTipProvider');
+const tp = await slice.build('ToolTipProvider', { singleton: true });
 tp.attach(document.getElementById('save-btn'), {
   text: 'Save changes',
   placement: 'bottom'
 });
 ```
 
-For a shared singleton across your app, build with a fixed `sliceId`:
-
-```javascript
-const tp = await slice.build('ToolTipProvider', { sliceId: 'app-tooltip' });
-```
+`{ singleton: true }` makes every call return the same provider, so the whole app shares one bubble and one set of listeners. Without it, each call creates a new provider (it logs a warning). Do not use a fixed `sliceId` for this: a second build with the same `sliceId` returns `null`.
 
 ## API
 
@@ -110,7 +106,7 @@ container.innerHTML = `
   </div>
 `;
 
-const tp = await slice.build('ToolTipProvider');
+const tp = await slice.build('ToolTipProvider', { singleton: true });
 tp.scope(container);
 
 const note = document.createElement('p');
@@ -131,7 +127,7 @@ const btn2 = document.createElement('button');
 btn2.textContent = 'Right tooltip';
 Object.assign(btn2.style, { padding: '6px 14px' });
 
-const tp2 = await slice.build('ToolTipProvider');
+const tp2 = await slice.build('ToolTipProvider', { singleton: true });
 tp2.attach(btn1, { text: 'Appears on top', placement: 'top', offset: 8 });
 tp2.attach(btn2, { text: 'Appears on the right side', placement: 'right', hideDelay: 300 });
 
@@ -150,7 +146,7 @@ const btn = document.createElement('button');
 btn.textContent = 'Brand tooltip';
 Object.assign(btn.style, { padding: '6px 14px' });
 
-const tp3 = await slice.build('ToolTipProvider');
+const tp3 = await slice.build('ToolTipProvider', { singleton: true });
 tp3.attach(btn, {
   text: 'Matches brand colors',
   placement: 'bottom',

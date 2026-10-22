@@ -97,7 +97,7 @@ slice-color-picker .slice_color_picker__hint {
   word-break: break-all;
 }
 
-/* Density. `data-size` is set on the host by the shared recipe (spike/recipes.js)
+/* Density. `data-size` is set on the host by applySize (shared/props.js)
    so the values stay in step with Button/Input instead of drifting into a fourth
    set of numbers. */
 slice-color-picker[data-size='sm'] .slice_color_picker__control {

@@ -1,120 +1,717 @@
+/* Navbar. Scoped under the element; every colour comes from the theme tokens.
+
+   Each variant only sets a handful of --nav-* properties, and the rest of the
+   file reads those, so a variant is one block, not a fork of the stylesheet:
+
+     --nav-bg / --nav-fg        the bar
+     --nav-border               its bottom edge (or outline, for 'floating')
+     --nav-muted                links that are not the current page
+     --nav-accent               the current page and the indicator
+     --nav-hover                the wash behind a hovered link
+     --nav-panel-bg / -fg       the mobile panel
+
+   Sizes are implemented here, like DropDown and Switch: the shared scale.css is
+   a shelved prototype no application loads. */
+
 slice-nav-bar {
+  --nav-height: 64px;
+  --nav-space-x: 24px;
+  --nav-font-size: 15px;
+  --nav-radius: 999px;
+
+  --nav-bg: var(--primary-color);
+  --nav-fg: var(--primary-color-contrast);
+  --nav-border: transparent;
+  --nav-muted: color-mix(in srgb, var(--primary-color-contrast) 82%, transparent);
+  --nav-accent: var(--primary-color-contrast);
+  --nav-hover: color-mix(in srgb, var(--primary-color-contrast) 14%, transparent);
+  --nav-panel-bg: var(--primary-color);
+  --nav-panel-fg: var(--primary-color-contrast);
+  --nav-panel-accent: var(--primary-color-contrast);
+  --nav-shadow: var(--slice-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12));
+
   display: block;
+  position: relative;
+  z-index: 100;
+  font-family: var(--font-family);
 }
 
-slice-nav-bar .slice_nav_header {
-  font-family: var(--font-family);
-  width: 100%;
-  z-index: 1;
-  box-shadow: var(--slice-shadow-sm);
-  background-color: var(--primary-color);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+slice-nav-bar[hidden] {
+  display: none;
 }
+
+slice-nav-bar[data-size='sm'] {
+  --nav-height: 52px;
+  --nav-space-x: 16px;
+  --nav-font-size: 14px;
+}
+
+slice-nav-bar[data-size='lg'] {
+  --nav-height: 76px;
+  --nav-space-x: 32px;
+  --nav-font-size: 16px;
+}
+
+/* ------------------------------------------------------------------ variants */
+
+slice-nav-bar[data-variant='surface'],
+slice-nav-bar[data-variant='floating'],
+slice-nav-bar[data-variant='transparent'].nav_bar--scrolled {
+  --nav-bg: var(--primary-background-color);
+  --nav-fg: var(--font-primary-color);
+  --nav-border: var(--slice-border-raised, color-mix(in srgb, var(--font-primary-color) 12%, transparent));
+  --nav-muted: var(--font-secondary-color, color-mix(in srgb, var(--font-primary-color) 72%, transparent));
+  --nav-accent: var(--primary-color);
+  --nav-hover: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  --nav-panel-bg: var(--primary-background-color);
+  --nav-panel-fg: var(--font-primary-color);
+  --nav-panel-accent: var(--primary-color);
+}
+
+slice-nav-bar[data-variant='floating'] {
+  --nav-bg: var(--slice-surface-raised, var(--primary-background-color));
+  --nav-shadow: var(--slice-shadow-md, 0 10px 30px rgba(0, 0, 0, 0.14));
+}
+
+slice-nav-bar[data-variant='glass'] {
+  --nav-bg: color-mix(in srgb, var(--primary-background-color) 70%, transparent);
+  --nav-fg: var(--font-primary-color);
+  --nav-border: color-mix(in srgb, var(--font-primary-color) 10%, transparent);
+  --nav-muted: var(--font-secondary-color, color-mix(in srgb, var(--font-primary-color) 72%, transparent));
+  --nav-accent: var(--primary-color);
+  --nav-hover: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  --nav-panel-bg: var(--primary-background-color);
+  --nav-panel-fg: var(--font-primary-color);
+  --nav-panel-accent: var(--primary-color);
+  --nav-shadow: none;
+}
+
+/* Over a hero: no fill, the hero's text colour; 'surface' once scrolled. */
+slice-nav-bar[data-variant='transparent'] {
+  --nav-bg: transparent;
+  --nav-fg: inherit;
+  --nav-border: transparent;
+  --nav-muted: currentColor;
+  --nav-accent: currentColor;
+  --nav-hover: color-mix(in srgb, currentColor 12%, transparent);
+  --nav-panel-bg: var(--primary-background-color);
+  --nav-panel-fg: var(--font-primary-color);
+  --nav-panel-accent: var(--primary-color);
+  --nav-shadow: none;
+}
+
+slice-nav-bar[data-variant='surface'] {
+  --nav-shadow: none;
+}
+
+/* Lifted once the page scrolls under it. */
+slice-nav-bar[data-variant='surface'].nav_bar--scrolled,
+slice-nav-bar[data-variant='glass'].nav_bar--scrolled,
+slice-nav-bar[data-variant='transparent'].nav_bar--scrolled {
+  --nav-shadow: var(--slice-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12));
+}
+
+/* --------------------------------------------------------------------- bar */
+
+slice-nav-bar .slice_nav_header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: var(--nav-height);
+  padding: 0 var(--nav-space-x);
+  background-color: var(--nav-bg);
+  color: var(--nav-fg);
+  border-bottom: 1px solid var(--nav-border);
+  box-shadow: var(--nav-shadow);
+  font-size: var(--nav-font-size);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.25s ease;
+}
+
+slice-nav-bar[data-variant='glass'] .slice_nav_header {
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+}
+
+slice-nav-bar[data-variant='floating'] .slice_nav_header {
+  width: auto;
+  max-width: min(1200px, calc(100% - 24px));
+  margin: 12px auto;
+  border: 1px solid var(--nav-border);
+  border-radius: var(--nav-radius);
+}
+
 slice-nav-bar .direction-row-reverse {
   flex-direction: row-reverse;
 }
-slice-nav-bar.nav_bar_fixed {
-  z-index: 100;
-  width: 100%;
-  left: 0;
+
+/* -------------------------------------------------------- position, scroll */
+
+slice-nav-bar[data-position='sticky'] {
+  position: sticky;
   top: 0;
-  position: fixed;
-}
-slice-nav-bar .slice_nav_bar {
-  transition: transform 0.3s ease;
-  width: 100%;
-  justify-content: center;
-  display: flex;
-  align-items: center;
-  left: 0;
-  top: 0;
-}
-slice-nav-bar .nav_bar_menu {
-  width: 100%;
-  overflow-y: hidden;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  list-style: none;
-}
-slice-nav-bar .slice_nav_header .item {
-  cursor: pointer;
-  font-weight: bold;
-  text-decoration: none;
-  color: var(--primary-color-contrast);
-  border-radius: var(--border-radius-slice);
-}
-slice-nav-bar .anim-item {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 0%;
-  height: 2.5px;
-  border-radius: 5px;
-  background-color: var(--primary-color-contrast);
-  transition: width 0.3s ease, left 0.3s ease;
-}
-slice-nav-bar .slice_nav_header li {
-  margin: 25px;
-  display: flex;
-  justify-content: center;
-  position: relative;
 }
 
-slice-nav-bar .slice_nav_header li:hover .anim-item {
-  width: 100%;
+/* Fixed: the bar is pinned; the host keeps its height in the page (spacer). */
+slice-nav-bar[data-position='fixed'] .slice_nav_header {
+  position: fixed;
+  top: 0;
   left: 0;
+  right: 0;
+  z-index: 100;
 }
-slice-nav-bar .slice_nav_header .logo_container {
-  padding: 10px;
+
+slice-nav-bar[data-position='fixed'][data-variant='floating'] .slice_nav_header {
+  top: 12px;
+  margin: 0 auto;
 }
+
+slice-nav-bar.nav_bar--spacer {
+  height: var(--nav-spacer, var(--nav-height));
+}
+
+slice-nav-bar[data-variant='floating'][data-position='sticky'] {
+  top: 0;
+}
+
+slice-nav-bar.nav_bar--hidden .slice_nav_header {
+  transform: translateY(calc(-100% - 16px));
+}
+
+/* ------------------------------------------------------------------- brand */
+
+slice-nav-bar .logo_container {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+slice-nav-bar .logo_container[hidden] {
+  display: none;
+}
+
+slice-nav-bar .logo_container:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
 slice-nav-bar .logo_container img {
+  display: block;
+  max-width: 180px;
+  max-height: calc(var(--nav-height) - 20px);
   pointer-events: none;
   user-select: none;
-  max-height: 50px;
-  max-width: 200px;
-}
-slice-nav-bar .nav_bar_buttons {
-  justify-content: flex-end;
-  display: flex;
 }
 
-slice-nav-bar .mobile_menu_button,
-slice-nav-bar .mobile_close_menu {
-  visibility: hidden;
+slice-nav-bar .nav_bar_brand_text {
+  font-size: 1.1em;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ links (desktop) */
+
+slice-nav-bar .slice_nav_bar {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  min-width: 0;
+}
+
+/* On desktop the panel is just a row. */
+slice-nav-bar .nav_bar_panel {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+slice-nav-bar .nav_bar_panel_head {
+  display: none;
+}
+
+slice-nav-bar .nav_bar_menu_wrap {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+slice-nav-bar[data-align='center'] .nav_bar_menu_wrap {
+  justify-content: center;
+}
+
+slice-nav-bar[data-align='end'] .nav_bar_menu_wrap {
+  justify-content: flex-end;
+}
+
+slice-nav-bar .nav_bar_menu {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+slice-nav-bar .nav_bar_menu::-webkit-scrollbar {
+  display: none;
+}
+
+slice-nav-bar .nav_bar_item {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+slice-nav-bar .nav_bar_item .item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--nav-muted);
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Link wraps its <a>: the host is just a box. */
+slice-nav-bar .nav_bar_item slice-link {
+  display: inline-flex;
+}
+
+slice-nav-bar .nav_bar_item slice-link .item {
+  color: var(--nav-muted);
+}
+
+slice-nav-bar .nav_bar_item .item:hover {
+  color: var(--nav-fg);
+  background-color: var(--nav-hover);
+}
+
+slice-nav-bar .nav_bar_item .item:focus-visible,
+slice-nav-bar .nav_bar_item .slice_dropdown:focus-visible {
+  outline: 2px solid var(--nav-accent);
+  outline-offset: 2px;
+}
+
+slice-nav-bar .nav_bar_item.is-active .item,
+slice-nav-bar .nav_bar_item.is-active slice-link .item {
+  color: var(--nav-accent);
+}
+
+/* The dropdown host carries .item for compatibility; its trigger does the work. */
+slice-nav-bar .nav_bar_item--dropdown slice-dropdown.item {
+  padding: 0;
+  background: none;
+}
+
+slice-nav-bar .nav_bar_item--dropdown .slice_dropdown {
+  min-height: 0;
+  font-size: inherit;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--nav-muted);
+  font-weight: 600;
+  opacity: 1;
+}
+
+slice-nav-bar .nav_bar_item--dropdown .slice_dropdown:hover,
+slice-nav-bar .nav_bar_item--dropdown slice-dropdown.slice_dropdown--open .slice_dropdown {
+  color: var(--nav-fg);
+  background-color: var(--nav-hover);
+  opacity: 1;
+}
+
+slice-nav-bar .nav_bar_item--dropdown.is-active .slice_dropdown {
+  color: var(--nav-accent);
+}
+
+/* -------------------------------------------------------------- indicator */
+
+slice-nav-bar .nav_bar_indicator {
   position: absolute;
-  right: 0px;
-  margin-right: 25px;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 0;
+  height: 2.5px;
+  border-radius: 999px;
+  background: var(--nav-accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.3s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.2s ease;
 }
+
+/* Placed by Navbar.js: under the label (underline) or behind it (pill). */
+slice-nav-bar[data-indicator='pill'] .nav_bar_indicator {
+  background: color-mix(in srgb, var(--nav-accent) 16%, transparent);
+}
+
+slice-nav-bar .nav_bar_indicator.is-visible {
+  opacity: 1;
+}
+
+slice-nav-bar[data-indicator='none'] .nav_bar_indicator {
+  display: none;
+}
+
+/* ----------------------------------------------------------------- actions */
+
+slice-nav-bar .nav_bar_buttons {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
+
+slice-nav-bar .nav_bar_buttons:empty {
+  display: none;
+}
+
+slice-nav-bar .nav_bar_buttons slice-button .slice_button_container {
+  padding: 0;
+}
+
+/* A button on the filled bar: the bar's contrast colour, so it never vanishes. */
+slice-nav-bar .nav_bar_button--on-filled .slice_button {
+  background-color: color-mix(in srgb, var(--primary-color-contrast) 16%, transparent);
+  border-color: transparent;
+  color: var(--primary-color-contrast);
+}
+
+slice-nav-bar .nav_bar_button--on-filled .slice_button:hover {
+  background-color: color-mix(in srgb, var(--primary-color-contrast) 26%, transparent);
+}
+
+/* --------------------------------------------------------------- hamburger */
+
+slice-nav-bar .mobile_menu_button {
+  display: none;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+slice-nav-bar .direction-row-reverse .mobile_menu_button {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+slice-nav-bar .mobile_menu_button:hover {
+  background: var(--nav-hover);
+}
+
+slice-nav-bar .mobile_menu_button:focus-visible,
+slice-nav-bar .mobile_close_menu:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+slice-nav-bar .mobile_menu_button[hidden] {
+  display: none !important;
+}
+
+slice-nav-bar .nav_bar_burger {
+  position: relative;
+  display: block;
+  width: 20px;
+  height: 14px;
+}
+
+slice-nav-bar .nav_bar_burger span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.25s ease, opacity 0.2s ease, top 0.25s ease;
+}
+
+slice-nav-bar .nav_bar_burger span:nth-child(1) { top: 0; }
+slice-nav-bar .nav_bar_burger span:nth-child(2) { top: 6px; }
+slice-nav-bar .nav_bar_burger span:nth-child(3) { top: 12px; }
+
+/* Open: the three bars fold into an X. */
+slice-nav-bar.nav_bar--open .nav_bar_burger span:nth-child(1) {
+  top: 6px;
+  transform: rotate(45deg);
+}
+
+slice-nav-bar.nav_bar--open .nav_bar_burger span:nth-child(2) {
+  opacity: 0;
+}
+
+slice-nav-bar.nav_bar--open .nav_bar_burger span:nth-child(3) {
+  top: 6px;
+  transform: rotate(-45deg);
+}
+
 slice-nav-bar .mobile_close_menu {
-  top: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
-@media only screen and (max-width: 1020px) {
-  slice-nav-bar .slice_nav_bar {
-    z-index: 1;
-    list-style: none;
-    width: 100%;
-    height: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: var(--primary-color);
-    transform: translateX(100%);
-  }
-  slice-nav-bar .nav_bar_menu,
-  slice-nav-bar .nav_bar_buttons {
-    flex-direction: column;
-  }
-  slice-nav-bar .mobile_menu_button,
-  slice-nav-bar .mobile_close_menu {
-    visibility: visible;
+
+slice-nav-bar .mobile_close_menu:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+slice-nav-bar .nav_bar_close_icon {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+
+slice-nav-bar .nav_bar_close_icon::before,
+slice-nav-bar .nav_bar_close_icon::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+slice-nav-bar .nav_bar_close_icon::after {
+  transform: rotate(-45deg);
+}
+
+/* -------------------------------------------------------------------- mobile
+   `.nav_bar--mobile` is set by Navbar.js from `breakpoint`. The <nav> becomes
+   the overlay (a popover while open): a dimmed layer holding the panel. */
+
+slice-nav-bar.nav_bar--mobile .mobile_menu_button {
+  display: inline-flex;
+}
+
+slice-nav-bar.nav_bar--mobile .slice_nav_bar {
+  /* Closed: out of the way (and, as a closed popover, display: none). */
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: var(--nav-panel-fg);
+  background: rgba(15, 15, 25, 0);
+  transition: background-color 0.25s ease;
+}
+
+slice-nav-bar.nav_bar--mobile.nav_bar--open .slice_nav_bar {
+  display: block;
+}
+
+slice-nav-bar.nav_bar--mobile .slice_nav_bar.is-open {
+  background: rgba(15, 15, 25, 0.45);
+}
+
+slice-nav-bar.nav_bar--mobile .slice_nav_bar::backdrop {
+  background: transparent;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_panel {
+  box-sizing: border-box;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--nav-panel-bg);
+  color: var(--nav-panel-fg);
+  font-size: 16px;
+  box-shadow: var(--slice-shadow-lg, 0 20px 50px rgba(0, 0, 0, 0.3));
+  transition: transform 0.28s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.2s ease;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_panel_head {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_menu_wrap {
+  flex: none;
+  display: block;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_menu {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  overflow: visible;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_item .item,
+slice-nav-bar.nav_bar--mobile .nav_bar_item slice-link,
+slice-nav-bar.nav_bar--mobile .nav_bar_item slice-dropdown,
+slice-nav-bar.nav_bar--mobile .nav_bar_item--dropdown .slice_dropdown {
+  display: flex;
+  width: 100%;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_item .item,
+slice-nav-bar.nav_bar--mobile .nav_bar_item--dropdown .slice_dropdown {
+  box-sizing: border-box;
+  justify-content: flex-start;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: var(--nav-panel-fg);
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_item--dropdown slice-dropdown.item {
+  min-height: 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_item--dropdown .slice_dropdown_caret {
+  margin-left: auto;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_item .item:hover,
+slice-nav-bar.nav_bar--mobile .nav_bar_item--dropdown .slice_dropdown:hover {
+  color: var(--nav-panel-fg);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_item.is-active > .item,
+slice-nav-bar.nav_bar--mobile .nav_bar_item.is-active slice-link .item,
+slice-nav-bar.nav_bar--mobile .nav_bar_item--dropdown.is-active .slice_dropdown {
+  color: var(--nav-panel-accent);
+  background: color-mix(in srgb, var(--nav-panel-accent) 12%, transparent);
+  box-shadow: inset 3px 0 0 var(--nav-panel-accent);
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_indicator {
+  display: none;
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_buttons {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+
+slice-nav-bar.nav_bar--mobile .nav_bar_buttons slice-button,
+slice-nav-bar.nav_bar--mobile .nav_bar_buttons .slice_button {
+  width: 100%;
+}
+
+/* drawer: a panel from the side the hamburger is on. */
+slice-nav-bar.nav_bar--mobile[data-mobile-menu='drawer'] .nav_bar_panel {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(340px, 86vw);
+  transform: translateX(100%);
+}
+
+slice-nav-bar.nav_bar--mobile[data-mobile-menu='drawer'] .direction-row-reverse .nav_bar_panel {
+  right: auto;
+  left: 0;
+  transform: translateX(-100%);
+}
+
+/* fullscreen: the whole screen. */
+slice-nav-bar.nav_bar--mobile[data-mobile-menu='fullscreen'] .nav_bar_panel {
+  inset: 0;
+  padding: 16px 20px 24px;
+  box-shadow: none;
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+/* sheet: hangs from the bottom edge of the bar, which stays visible. */
+slice-nav-bar.nav_bar--mobile[data-mobile-menu='sheet'] .slice_nav_bar {
+  top: var(--nav-sheet-top, 0px);
+}
+
+slice-nav-bar.nav_bar--mobile[data-mobile-menu='sheet'] .nav_bar_panel {
+  top: 0;
+  left: 0;
+  right: 0;
+  max-height: min(80vh, calc(100% - 40px));
+  border-radius: 0 0 18px 18px;
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+slice-nav-bar.nav_bar--mobile[data-mobile-menu='sheet'] .nav_bar_panel_head {
+  display: none;
+}
+
+slice-nav-bar.nav_bar--mobile .slice_nav_bar.is-open .nav_bar_panel {
+  opacity: 1;
+  transform: none;
+}
+
+/* Motion is decorative: never animate when the user asked to reduce it. */
+@media (prefers-reduced-motion: reduce) {
+  slice-nav-bar .slice_nav_header,
+  slice-nav-bar .nav_bar_indicator,
+  slice-nav-bar .nav_bar_burger span,
+  slice-nav-bar .nav_bar_item .item,
+  slice-nav-bar.nav_bar--mobile .slice_nav_bar,
+  slice-nav-bar.nav_bar--mobile .nav_bar_panel {
+    transition: none;
   }
 }

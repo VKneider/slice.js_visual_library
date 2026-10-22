@@ -1,0 +1,56 @@
+<div class="documentation-content datepickerdocumentation">
+
+<div class="doc-title-bar">
+  <h1 id="datepicker">
+    <span class="doc-title-text">DatePicker</span>
+    <span class="copy-md-slot" data-copy-md></span>
+  </h1>
+</div>
+<h2 id="overview">Overview</h2>
+<p><code>DatePicker</code> is a date field with a calendar. People can do either of two things:</p>
+<ul><li><strong>type the date</strong> in the order their locale writes it (<code>21/10/2026</code> in <code>es-VE</code>, <code>10/21/2026</code> in <code>en-US</code>) or as ISO (<code>2026-10-21</code>);</li><li><strong>pick it</strong> from a calendar that opens under the field.</li></ul>
+<p>It is the same field as [Input](/docs/input/input): the same label (floating or above), variants, sizes, help, errors and ✕ to clear, and the same rule for errors. An empty field is never flagged on its own; <code>required</code> waits for <code>validate()</code> or the Form's submit.</p>
+<p>The value is <strong>ISO text</strong> (<code>'2026-10-21'</code>), never a <code>Date</code>. A picked day is a day on a calendar, not an instant in time, and turning it into one is how pickers end up showing the day before. When you do need a <code>Date</code>, <code>valueAsDate</code> gives you one at local midnight.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>value</code>: <code>'2026-10-21'</code>, a <code>Date</code>, or <code>''</code> for none. In range mode (<code>mode: 'range'</code>), it is <code>{ start, end }</code>. Reading <code>value</code> always gives ISO text back.</li><li><code>onChange(value, { valueAsDate })</code> and the <code>date-change</code> event (<code>detail: { value, valueAsDate }</code>) report every change, including ✕ (which reports <code>''</code>).</li><li><code>name</code> puts a hidden input in the field, so a plain <code>&lt;form&gt;</code> posts it. Its value is the ISO date, or <code>start/end</code> for a range (the ISO 8601 interval).</li><li><code>onOpenChange(open)</code> tells you when the calendar opens and closes.</li></ul>
+<h3 id="typing">Typing</h3>
+<ul><li>Focusing the field turns the readable text (<code>Oct 21, 2026</code>) into the typed form (<code>10/21/2026</code>), and the placeholder shows the order (<code>mm/dd/yyyy</code>).</li><li>Any separator works (<code>/</code>, <code>-</code>, <code>.</code>, a space), and a two-digit year means this century. In a range, type the two dates with a dash between them.</li><li><strong>Enter</strong> or leaving the field sets what was typed. Text that is not a date says "Enter a valid date" and keeps the previous value.</li></ul>
+<h3 id="the-calendar">The calendar</h3>
+<ul><li>The ▾ button, a click on the field or <strong>↓</strong> opens it, with the focus on the selected day (or today).</li><li>The title opens a month view, and the month view's title opens a year view, to jump far without paging.</li><li>The week starts where the locale starts it (Sunday in <code>en-US</code>, Monday in most of Europe and Latin America). <code>weekStartsOn</code> (0 is Sunday) overrides it.</li><li><code>showToday</code> (default <code>true</code>) adds a <strong>Today</strong> button, and <code>clearable</code> a <strong>Clear</strong> one.</li><li>On a phone, the calendar opens as a sheet at the bottom of the screen.</li></ul>
+<h3 id="keyboard">Keyboard</h3>
+<p>The calendar follows the WAI-ARIA date grid pattern:</p>
+<ul><li><strong>← →</strong> move a day, and <strong>↑ ↓</strong> move a week.</li><li><strong>PageUp / PageDown</strong> move a month, or a year with <strong>Shift</strong>.</li><li><strong>Home / End</strong> go to the start and end of the week.</li><li><strong>Enter</strong> or <strong>Space</strong> picks the day, and the focus goes back to the field.</li><li><strong>Escape</strong> closes the calendar without picking.</li></ul>
+<h3 id="days-that-cannot-be-picked">Days that cannot be picked</h3>
+<ul><li><code>min</code> and <code>max</code> are ISO dates, or <code>'today'</code>. Days outside them are greyed out, and the arrows stop paging past them.</li><li><code>disabledDates</code> is a list of ISO dates, or a function <code>(iso, date) =&gt; boolean</code> for rules ("every 25th", "days the shop is closed").</li><li><code>disableWeekends</code> disables Saturdays and Sundays.</li><li>A disabled day stays in the grid, so the arrow keys can move over it, but it cannot be picked. A typed date that falls on one gets a message that says why: "Pick a date on or after Oct 10, 2026" or "That date is not available".</li></ul>
+<h2 id="ranges">Ranges</h2>
+<ul><li><code>mode: 'range'</code> picks a start and an end. The first click sets the start. The second sets the end, and the two are swapped if the end comes first.</li><li>While the end is being picked, the calendar previews the range under the pointer and shows how many days it covers.</li><li><code>months: 2</code> shows two months side by side, which makes a range across a month boundary one look instead of paging.</li><li>A range with a start but no end does not validate ("Pick an end date").</li></ul>
+<h2 id="presets">Presets</h2>
+<p><code>presets</code> puts quick picks beside the calendar: <code>[{ label, value }]</code>.</p>
+<ul><li><code>value</code> is an ISO date (or <code>'today'</code>), a <code>{ start, end }</code> range, or a function <code>({ today }) =&gt; value</code>, which is worked out each time the calendar opens.</li><li>The preset that matches the current value is highlighted.</li></ul>
+<h2 id="inline">Inline</h2>
+<p><code>inline: true</code> shows the calendar on the page with no field, which suits a booking page or a dashboard. It stays open, and <code>onChange</code> fires on every pick.</p>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>: <code>'outlined'</code> (default), <code>'filled'</code> or <code>'ghost'</code>.</li><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>labelPlacement</code>: <code>'floating'</code> (default) or <code>'above'</code>.</li><li><code>format</code> is the <code>Intl.DateTimeFormat</code> options used for the readable text, for example <code>{ dateStyle: 'full' }</code> or <code>{ day: 'numeric', month: 'long' }</code>.</li></ul>
+<h2 id="language">Language</h2>
+<ul><li><code>locale</code> sets the language and the date order. By default it is the page's <code>lang</code>, then the browser's.</li><li><code>messages</code> replaces the error texts: <code>required</code>, <code>invalid</code>, <code>min</code>, <code>max</code>, <code>disabled</code>, <code>incomplete</code> and <code>order</code>.</li><li><code>texts</code> replaces every word the calendar shows or reads out: <code>today</code>, <code>clear</code>, <code>chooseDate</code>, <code>clearDate</code>, <code>calendar</code>, <code>previousMonth</code>, <code>nextMonth</code>, <code>previousYear</code>, <code>nextYear</code>, <code>previousYears</code>, <code>nextYears</code>, <code>chooseMonth</code> (<code>{month}</code>), <code>chooseYear</code> (<code>{year}</code>), <code>pickStart</code>, <code>pickEnd</code>, <code>days</code> (<code>{n}</code>) and <code>quickPicks</code>.</li></ul>
+<h2 id="inside-a-form">Inside a Form</h2>
+<p>In a [Form](/docs/input/form) schema, use <code>component: 'DatePicker'</code>. The Form puts the label above and shows the error under the field. It also sets <code>required</code> and checks the field on submit, as it does for Input. <code>getValues()</code> returns the ISO date, or <code>{ start, end }</code> for a range.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Keep the value as ISO text all the way to the server. <code>'2026-10-21'</code> sorts, compares and stores as it is, and it means the same day in every time zone. Turn it into a <code>Date</code> only to do date arithmetic: <code>new Date(day + 'T00:00')</code> is local midnight, and <code>toLocaleDateString('en-CA')</code> turns it back into ISO text.</div>
+<div class="callout callout-tip">Use <code>months: 2</code> for ranges. Most stays, trips and report periods cross a month boundary, and seeing both months saves paging back and forth.</div>
+<div class="callout callout-tip">Give report filters presets ("Last 7 days", "This month"). They are what people pick most of the time, and a function preset stays right tomorrow.</div>
+<div class="callout callout-tip">For a birth date or another date far in the past, people type faster than they page. Leave the field typeable, set the placeholder order with <code>locale</code>, and let the year view handle the rest.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not build the value with <code>new Date('2026-10-21')</code> and then <code>getDate()</code>. That string is read as UTC midnight, which is still the 20th in the Americas. Use <code>valueAsDate</code> (local midnight) or work with the ISO text.</div>
+<div class="callout callout-warning"><code>disabledDates</code> as a function runs for every day drawn, which is 42 times per month shown. Keep it to a lookup (a <code>Set</code>, a comparison) and fetch what it needs beforehand, not inside it.</div>
+<div class="callout callout-warning">Disabling days does not validate what the server receives. A date can still be typed, sent from code or posted by hand. Check <code>min</code>, <code>max</code> and availability on the server too.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
+</div>

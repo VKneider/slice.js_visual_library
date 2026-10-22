@@ -48,6 +48,10 @@ has no URL, so there is nothing to link to and nothing for the back button to go
 <code>Textarea</code> carry no vertical margin of their own, so a form's rhythm is
 decided in one place. If you need the old standalone spacing, set
 <code>--control-margin-block</code> on the host.</div>
+<h2 id="text-fields">Text fields</h2>
+<p><code>Input</code> and <code>Textarea</code> know they are inside a Form and step aside for it:</p>
+<ul><li><strong>The label is the Form's.</strong> The field is set to <code>labelPlacement: 'above'</code> with no label of its own, so the Form's label is the only one. The field takes it as its accessible name, and clicking the label focuses the field.</li><li><strong>The error is the Form's.</strong> The field does not show its own messages (<code>validateOn: 'manual'</code>); the Form prints one message under it, in the same style for every kind of control. The field still draws its own red border, so there is one red edge in the field's own shape.</li><li><strong>Its rules count.</strong> After the schema's <code>required</code> and <code>validate</code>, the Form asks the field for its own verdict, so <code>type: 'email'</code>, <code>min</code>, <code>max</code>, <code>minlength</code> or a field <code>validator</code> set in <code>props</code> work without repeating them in the schema.</li><li><strong>Errors follow the value.</strong> A field with an error on screen is checked again as it is edited, so the message goes away as soon as it is fixed instead of waiting for the next Submit.</li><li><strong>A failed Submit takes you there.</strong> Focus moves to the first field with a problem.</li></ul>
+<p>Anything you pass in a field's <code>props</code> wins over these defaults.</p>
 <h2 id="methods">Methods</h2>
 <div class="table-block" data-block-id="doc-block-7"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
@@ -75,6 +79,7 @@ disappears from the payload. If a field is required, the usual validation is wha
 <div class="callout callout-warning">The Form <strong>builds</strong> its field + button components with <code>slice.build</code> and destroys them in
 <code>beforeDestroy()</code>. Components built with <code>slice.build</code> are not auto-destroyed by a parent — so destroy
 the <code>Form</code> itself through <code>slice.controller.destroyComponent(form)</code> / <code>destroyByContainer(node)</code> when you
-tear down whatever hosts it (a Modal, a view).</div>
+tear down whatever hosts it (a view). A [Modal](/docs/feedback/modal) destroys what is in its body when
+it is destroyed, so a Form in a Modal with <code>destroyOnClose: true</code> is taken care of.</div>
 <div class="component-block" data-block-id="doc-block-15"></div>
 </div>

@@ -17,7 +17,7 @@
 // (ThemeCreator.html) — headings and sections, which is static page structure
 // rather than an interactive primitive.
 
-import { normalizeHex, hexToRgb, readableOn, hexToHsv } from '../../spike/colors.js';
+import { normalizeHex, hexToRgb, readableOn, hexToHsv } from '../../shared/color.js';
 import ThemeOverride from './ThemeOverride.js';
 import { generatePalette } from './palette.js';
 
@@ -395,20 +395,12 @@ export default class ThemeCreator extends HTMLElement {
       this.$modeSelect = await slice.build('Select', {
          label: 'Palette mode',
          placeholder: 'Follow theme',
-         // `options` MUST be declared before `value`: setComponentProps
-         // iterates the props in insertion order, and Select's value setter
-         // bails with "Cannot set value before options are defined" when
-         // `_options` is still unset.
          options: PALETTE_MODE_OPTIONS,
-         // Select's `value` is an ARRAY of the selected option objects, not a
-         // scalar — passing the bare string left `_value` unusable.
-         value: [PALETTE_MODE_OPTIONS.find((o) => o.value === this._paletteMode)],
-         onChange: () => {
-            // Select fires onChange with NO argument — the payload is read back
-            // from the control (`value` unwraps to the single option object).
-            const selected = this.$modeSelect?.value;
-            const next = selected?.value;
-            this._paletteMode = PALETTE_MODES.includes(next) ? next : 'auto';
+         // The option's value itself; prop order does not matter.
+         selected: this._paletteMode,
+         onChange: (next) => {
+            const mode = String(next ?? '');
+            this._paletteMode = PALETTE_MODES.includes(mode) ? mode : 'auto';
             this._syncPaletteHint();
          },
       });
@@ -558,7 +550,7 @@ export default class ThemeCreator extends HTMLElement {
       for (const button of buttons) {
          buttonsGrid.setItem(await slice.build('Button', { value: button.label, customColor: button.customColor }));
       }
-      for (const variant of ['filled', 'outlined', 'ghost', 'soft', 'danger']) {
+      for (const variant of /** @type {const} */ (['filled', 'outlined', 'ghost', 'soft', 'danger'])) {
          buttonsGrid.setItem(await slice.build('Button', { value: variant, variant }));
       }
 
@@ -633,6 +625,7 @@ export default class ThemeCreator extends HTMLElement {
     * @returns {Record<string, string>} `--token` -> value
     */
    getTokenValues() {
+      /** @type {Record<string, string>} */
       const values = {};
       for (const token of ALL_TOKENS) {
          values[token.cssVar] = this._colors.get(token.key) || token.fallback;

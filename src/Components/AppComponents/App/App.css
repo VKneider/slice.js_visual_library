@@ -12,3 +12,14 @@ slice-app .app-content {
    padding-top: 72px;
    min-height: calc(100vh - 72px);
 }
+/* The docs layout (padding-top here, --docs-navbar-height in ComponentsPage)
+   is built around a 72px bar. */
+slice-app .app-navbar slice-nav-bar {
+   --nav-height: 72px;
+}
+
+/* On phones the docs pages pin their own sidebar button at the top-left
+   corner, over the bar: keep the logo centred, clear of it. */
+slice-app .app-navbar slice-nav-bar.nav_bar--mobile .logo_container {
+   margin: 0 auto;
+}

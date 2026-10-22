@@ -934,7 +934,3 @@ export default class DragDropService {
     this._activeResize = null;
   }
 }
-
-if (typeof window !== 'undefined') {
-  window.DragDropService = DragDropService;
-}

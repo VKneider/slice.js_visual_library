@@ -168,8 +168,14 @@ slice-form .slice-form__control {
   border-radius: var(--border-radius-slice);
 }
 
-slice-form .slice-form__field--error .slice-form__control {
+slice-form .slice-form__field--error .slice-form__control:not([data-owns-invalid]) {
   box-shadow: 0 0 0 1px var(--danger-color);
+}
+
+/* A control that draws its own invalid edge (Input, Textarea) gets no second
+   ring: one red border, in the control's own shape. */
+slice-form .slice-form__label {
+  cursor: default;
 }
 
 /* A field whose schema item named no component, or one that is not registered.
@@ -189,6 +195,11 @@ slice-form .slice-form__broken {
 /* Only the current step is on screen, but every step's controls stay built -
    that is what keeps a value typed on step 1 alive after three Nexts. */
 slice-form .slice-form__step {
+  /* A step is itself the column grid, so it spans the whole outer row.
+     Without this it sat in ONE column of the outer grid and split that column
+     again: at columns: 2 every field got a quarter of the form (134px of a
+     640px form). */
+  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: repeat(var(--form-columns, 1), minmax(0, 1fr));
   gap: var(--form-gap);

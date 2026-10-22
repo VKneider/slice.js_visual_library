@@ -76,30 +76,37 @@ test.describe('Input', () => {
       await expect(c.locator('.slice_input_placeholder')).toHaveClass(/slice_input_value/);
    });
 
-   // Regression: email used to be validated only when a consumer called
-   // validateValue() by hand, so a bad address showed no error while typing.
-   test('an invalid email shows the error state while typing', async ({ mount }) => {
+   // Email used to be validated only when a consumer called validateValue()
+   // by hand. It is now judged when the person leaves the field (not on every
+   // keystroke, which also made the field shake as they typed), and from then
+   // on the error follows the value live.
+   test('an invalid email shows its error on blur, and clears as soon as it is fixed', async ({ mount }) => {
       const c = await mount('Input', { type: 'email', placeholder: 'Email' });
       const input = c.locator('input');
 
       await input.fill('not-an-email');
-      await expect(c.locator('.slice_input')).toHaveClass(/\berror\b/);
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+      await input.blur();
+      await expect(c.locator('.slice_input')).toHaveClass(/is-invalid/);
+      await expect(c.locator('.slice_input_message')).toHaveText('Enter a valid email address');
+      await expect(input).toHaveAttribute('aria-invalid', 'true');
 
       await input.fill('someone@example.com');
-      await expect(c.locator('.slice_input')).not.toHaveClass(/\berror\b/);
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+      await expect(c.locator('.slice_input_footer')).toBeHidden();
    });
 
-   // Regression: emptying a field that had failed left the stale error classes
-   // behind, so the field kept showing as invalid until a manual re-check.
+   // Regression: emptying a field that had failed left the stale error behind.
    test('clearing a filled field drops the stale error state', async ({ mount }) => {
       const c = await mount('Input', { type: 'email', placeholder: 'Email' });
       const input = c.locator('input');
 
       await input.fill('not-an-email');
-      await expect(c.locator('.slice_input')).toHaveClass(/\berror\b/);
+      await input.blur();
+      await expect(c.locator('.slice_input')).toHaveClass(/is-invalid/);
 
       await input.fill('');
-      await expect(c.locator('.slice_input')).not.toHaveClass(/\berror\b/);
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
    });
 
    test('the secret toggle swaps its glyph from aria-pressed, not text', async ({ mount }) => {
@@ -302,5 +309,203 @@ test.describe('Input', () => {
          const offsets = Object.values(states).map((s) => s.overlaps);
          expect(new Set(offsets).size, 'the float must change the label position').toBeGreaterThan(1);
       });
+   });
+});
+
+// ── The field system (label, variants, adornments, help / error, validation) ──
+
+test.describe('Input — field', () => {
+   test('a label is a real <label for>: the field is found by its name', async ({ mount, page }) => {
+      const c = await mount('Input', { label: 'Full name', placeholder: 'Ana López' });
+      await expect(page.getByLabel('Full name')).toHaveCount(1);
+      // With a label, the placeholder is the native hint again.
+      await expect(c.locator('input')).toHaveAttribute('placeholder', 'Ana López');
+   });
+
+   test('placeholder alone is still the floating label (older API)', async ({ mount }) => {
+      const c = await mount('Input', { placeholder: 'Email' });
+      await expect(c.locator('.slice_input_placeholder')).toHaveText('Email');
+      await expect(c.locator('input')).toHaveAttribute('placeholder', '');
+   });
+
+   test("labelPlacement: 'above' puts the label in the flow over the field", async ({ mount }) => {
+      const c = await mount('Input', { label: 'Company', labelPlacement: 'above' });
+      const label = await c.locator('.slice_input_placeholder').boundingBox();
+      const field = await c.locator('.slice_input').boundingBox();
+      expect(label.y + label.height).toBeLessThanOrEqual(field.y);
+      expect(await c.locator('.slice_input_placeholder').evaluate((el) => getComputedStyle(el).position)).toBe('static');
+   });
+
+   test('sizes match Select: 32, 42 and 50px', async ({ mount, page }) => {
+      const c = await mount('Input', { label: 'Size' });
+      const height = () => c.locator('.slice_input').evaluate((el) => Math.round(el.getBoundingClientRect().height));
+      expect(await height()).toBe(42);
+      await page.evaluate(() => { window.__sliceMounted.size = 'sm'; });
+      expect(await height()).toBe(32);
+      await page.evaluate(() => { window.__sliceMounted.size = 'lg'; });
+      expect(await height()).toBe(50);
+   });
+
+   test('variants are reflected on the host', async ({ mount, page }) => {
+      const c = await mount('Input', { variant: 'filled' });
+      await expect(c.component).toHaveAttribute('data-variant', 'filled');
+      await page.evaluate(() => { window.__sliceMounted.variant = 'nope'; });
+      await expect(c.component).toHaveAttribute('data-variant', 'outlined');
+   });
+
+   test('icon, prefix and suffix render around the field; a prefix keeps the label up', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Price', icon: 'search', prefix: '$', suffix: 'USD' });
+      await expect(c.locator('.slice_input_icon slice-icon')).toHaveCount(1);
+      await expect(c.locator('.slice_input_prefix')).toHaveText('$');
+      await expect(c.locator('.slice_input_suffix')).toHaveText('USD');
+      await expect(c.locator('.slice_input_placeholder')).toHaveClass(/slice_input_value/);
+   });
+
+   test('clearable: the ✕ appears with a value, clears it, and Escape clears too', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Search', clearable: true }, { spies: ['onChange'] });
+      const input = c.locator('input');
+      await expect(c.locator('.slice_input_clear')).toBeHidden();
+      await input.fill('modal');
+      await expect(c.locator('.slice_input_clear')).toBeVisible();
+      await c.locator('.slice_input_clear').click();
+      await expect(input).toHaveValue('');
+      await expect(input).toBeFocused();
+      const args = await c.eventArgs('onChange');
+      expect(args.at(-1)).toEqual(['']);
+
+      await input.fill('again');
+      await input.press('Escape');
+      await expect(input).toHaveValue('');
+   });
+
+   test('help shows under the field; an error replaces it and is announced', async ({ mount, page }) => {
+      const c = await mount('Input', { label: 'Username', help: 'Letters and numbers only' });
+      const message = c.locator('.slice_input_message');
+      await expect(message).toHaveText('Letters and numbers only');
+      await expect(c.locator('input')).toHaveAttribute('aria-describedby', await message.getAttribute('id'));
+
+      await page.evaluate(() => { window.__sliceMounted.error = 'That username is taken'; });
+      await expect(message).toHaveText('That username is taken');
+      await expect(message).toHaveClass(/slice_input_message--error/);
+      await expect(c.locator('input')).toHaveAttribute('aria-invalid', 'true');
+
+      await page.evaluate(() => { window.__sliceMounted.error = ''; });
+      await expect(message).toHaveText('Letters and numbers only');
+      await expect(c.locator('input')).toHaveAttribute('aria-invalid', 'false');
+   });
+
+   test('showCount counts against maxlength', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Handle', maxlength: 20, showCount: true });
+      await expect(c.locator('.slice_input_count')).toHaveText('0 / 20');
+      await c.locator('input').fill('ana_lopez');
+      await expect(c.locator('.slice_input_count')).toHaveText('9 / 20');
+   });
+
+   // An empty field is never turned red on its own: not on blur, not when its
+   // text is deleted. "Required" and "too short" wait for validate() (submit).
+   test('an empty required field stays quiet until validate()', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Name', required: true, minlength: 3 });
+      const input = c.locator('input');
+      await input.focus();
+      await input.blur();
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+
+      await input.fill('A');
+      await input.fill('');
+      await input.blur();
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+      await expect(c.locator('.slice_input_footer')).toBeHidden();
+      expect(await input.evaluate((el) => el.required)).toBe(true);
+
+      expect(await c.component.evaluate((el) => el.validate())).toBe(false);
+      await expect(c.locator('.slice_input_message')).toHaveText('This field is required');
+   });
+
+   test('an error on screen goes away when the text is deleted, instead of turning into "required"', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Code', required: true, minlength: 4 });
+      const input = c.locator('input');
+      await input.fill('ab');
+      await input.blur();
+      await expect(c.locator('.slice_input_message')).toHaveText('Use at least 4 characters');
+      await input.fill('');
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+      await expect(c.locator('.slice_input_footer')).toBeHidden();
+   });
+
+   test('validate() shows the error with one shake and returns false', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Name', required: true });
+      const valid = await c.component.evaluate((el) => el.validate());
+      expect(valid).toBe(false);
+      await expect(c.locator('.slice_input')).toHaveClass(/\berror\b/);
+      await expect(c.locator('.slice_input')).not.toHaveClass(/\berror\b/, { timeout: 2000 });
+      await expect(c.locator('.slice_input')).toHaveClass(/is-invalid/);
+   });
+
+   test('validationMessage reports without showing anything', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Age', type: 'number', min: 18, value: '12' });
+      expect(await c.component.evaluate((el) => el.validationMessage)).toBe('Must be 18 or more');
+      await expect(c.locator('.slice_input_footer')).toBeHidden();
+   });
+
+   test('lengths, a custom validator and custom messages', async ({ mount, page }) => {
+      const c = await mount('Input', { label: 'Code', minlength: 4, messages: { minlength: 'Too short: {minlength}+' } });
+      const read = () => c.component.evaluate((el) => el.validationMessage);
+      await c.locator('input').fill('ab');
+      expect(await read()).toBe('Too short: 4+');
+      await page.evaluate(() => {
+         window.__sliceMounted.validator = (v) => (v.startsWith('X') ? null : 'Must start with X');
+      });
+      await c.locator('input').fill('abcd');
+      expect(await read()).toBe('Must start with X');
+      await c.locator('input').fill('Xbcd');
+      expect(await read()).toBe('');
+   });
+
+   test("validateOn: 'input' judges while typing; 'manual' never shows on its own", async ({ mount, page }) => {
+      const c = await mount('Input', { label: 'Email', type: 'email', validateOn: 'input' });
+      await c.locator('input').fill('nope');
+      await expect(c.locator('.slice_input')).toHaveClass(/is-invalid/);
+
+      await page.evaluate(() => {
+         const m = window.__sliceMounted;
+         m.validateOn = 'manual';
+         m.clear();
+      });
+      await c.locator('input').fill('nope');
+      await c.locator('input').blur();
+      await expect(c.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+   });
+
+   test('debounce: onChange fires once after the typing stops', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Search', debounce: 150 }, { spies: ['onChange'] });
+      await c.locator('input').pressSequentially('hello', { delay: 20 });
+      await expect.poll(() => c.events('onChange')).toBe(1);
+      expect((await c.eventArgs('onChange'))[0]).toEqual(['hello']);
+   });
+
+   test('onEnter receives the value', async ({ mount }) => {
+      const c = await mount('Input', { label: 'Search' }, { spies: ['onEnter'] });
+      await c.locator('input').fill('slice');
+      await c.locator('input').press('Enter');
+      await expect.poll(() => c.events('onEnter')).toBe(1);
+      expect((await c.eventArgs('onEnter'))[0][0]).toBe('slice');
+   });
+
+   test('name makes the field part of a native <form>', async ({ mountHtml, page }) => {
+      await mountHtml('<form id="f"></form>');
+      const data = await page.evaluate(async () => {
+         const input = await slice.build('Input', { label: 'Email', name: 'email', value: 'a@b.co' });
+         document.getElementById('f').appendChild(input);
+         return Object.fromEntries(new FormData(document.getElementById('f')));
+      });
+      expect(data).toEqual({ email: 'a@b.co' });
+   });
+
+   test('destroying it destroys its Icon', async ({ mount, page }) => {
+      const c = await mount('Input', { label: 'Find', icon: 'search' });
+      await expect(c.locator('slice-icon')).toHaveCount(1);
+      const iconId = await c.locator('slice-icon').evaluate((el) => el.sliceId);
+      await page.evaluate(() => slice.controller.destroyComponent(window.__sliceMounted));
+      expect(await page.evaluate((id) => slice.controller.activeComponents.has(id), iconId)).toBe(false);
    });
 });

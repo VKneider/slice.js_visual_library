@@ -49,6 +49,10 @@
       "component": "CssConventionsDocumentation"
     },
     {
+      "filePath": "src/markdown/datepicker.md",
+      "component": "DatePickerDocumentation"
+    },
+    {
       "filePath": "src/markdown/details.md",
       "component": "DetailsDocumentation"
     },

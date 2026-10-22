@@ -1,165 +1,258 @@
-/* Encapsulated under the custom element so the textarea styles never leak. */
+/* Textarea. Encapsulated under the element; colours from the theme tokens.
+
+   One field system with Input and Select: the same padding, border, focus
+   ring, variants and help / error line. The floating label and the error
+   shake are SHARED with Input: the rules marked "shared" are Input.css's,
+   value for value, and Textarea.spec.js fails if the two drift. The one
+   difference is where the label RESTS: a textarea has no vertical centre, so
+   it rests on the first line. Once risen, the two are identical. */
 
 slice-textarea {
+  --field-height: 42px;
+  /* The older --slice-textarea-pad-* tokens still work. */
+  --field-pad-x: var(--slice-textarea-pad-x, 12px);
+  --field-pad-y: var(--slice-textarea-pad-y, 10px);
+  --field-font-size: 14px;
+  --field-radius: var(--border-radius-slice, 10px);
+  --field-border: var(--slice-border-raised, color-mix(in srgb, var(--font-primary-color) 18%, transparent));
+  --field-bg: var(--slice-surface-raised, var(--primary-background-color));
+  --field-accent: var(--primary-color);
+  --field-danger: var(--danger-color, #dc2626);
+  --field-muted: var(--font-secondary-color, color-mix(in srgb, var(--font-primary-color) 65%, transparent));
+
   display: block;
-  /* Padding is tokenised because the floating label's rest position is derived
-     from it (see `.slice_textarea_placeholder`). A dense consumer can compact
-     the field by overriding these two instead of desyncing the label. */
-  --slice-textarea-pad-y: 10px;
-  --slice-textarea-pad-x: 10px;
+  font-family: var(--font-family);
+  font-size: var(--field-font-size);
+}
+
+slice-textarea[hidden] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- sizes */
+
+slice-textarea[data-size='sm'] {
+  --field-pad-x: 10px;
+  --field-pad-y: 7px;
+  --field-font-size: 13px;
+  --field-radius: calc(var(--border-radius-slice, 10px) * 0.8);
+}
+
+slice-textarea[data-size='lg'] {
+  --field-pad-x: 14px;
+  --field-pad-y: 12px;
+  --field-font-size: 16px;
+}
+
+/* ------------------------------------------------------------- variants */
+
+slice-textarea[data-variant='filled'] {
+  --field-bg: color-mix(in srgb, var(--primary-color) 7%, var(--primary-background-color));
+  --field-border: transparent;
+}
+
+slice-textarea[data-variant='ghost'] {
+  --field-bg: transparent;
+  --field-border: transparent;
+}
+
+/* --------------------------------------------------------------- layout */
+
+slice-textarea .slice_textarea_wrap {
+  position: relative;
+  max-width: 100%;
+  /* Spacing belongs to the container (a Form, a Grid); this restores it. */
+  margin: var(--control-margin-block, 0);
+}
+
+slice-textarea.slice_textarea--labelled[data-label-placement='floating'] .slice_textarea_wrap {
+  padding-top: calc(var(--field-font-size) * 1.15);
 }
 
 slice-textarea .slice_textarea {
-  display: flex;
-  padding: var(--slice-textarea-pad-y) var(--slice-textarea-pad-x);
-  /* Room for the label once it floats. At rest the label sits inside on the
-     first line box; on focus or a value it rises to just above this edge, and
-     without this it would overlap whatever is above the field. */
-  margin-top: 22px;
-  max-width: 100%;
-  border-radius: var(--border-radius-slice);
-  font-family: var(--font-family);
-  border: var(--slice-border) solid var(--primary-color);
-  background-color: var(--primary-background-color);
-  /* Vertical spacing belongs to the container, not to the control. This
-     used to be hardcoded to 25px, which silently doubled every layout that
-     already spaced its own fields (the Form grid added its own gap on top).
-     Set --control-margin-block on the host to restore standalone spacing. */
-  margin: var(--control-margin-block, 20px);
+  box-sizing: border-box;
   position: relative;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  padding: var(--field-pad-y) var(--field-pad-x);
+  border: var(--slice-border, 1px) solid var(--field-border);
+  border-radius: var(--field-radius);
+  background-color: var(--field-bg);
+  color: var(--font-primary-color);
+  cursor: text;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+slice-textarea .slice_textarea:hover {
+  border-color: color-mix(in srgb, var(--field-accent) 45%, var(--field-border));
+}
+
+slice-textarea[data-variant='ghost'] .slice_textarea:hover {
+  background-color: color-mix(in srgb, var(--field-accent) 7%, transparent);
 }
 
 slice-textarea .slice_textarea:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-color);
+  border-color: var(--field-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--field-accent) 22%, transparent);
 }
 
-slice-textarea .textarea_area {
-  color: var(--font-primary-color);
-  width: 100%;
-  min-height: 1.4em;
-  background: none;
-  outline: none;
-  border: none;
-  padding: 0;
-  resize: vertical;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: 1.4;
+slice-textarea .slice_textarea.is-invalid {
+  border-color: var(--field-danger);
 }
 
-slice-textarea .slice_textarea_placeholder {
-  color: var(--primary-color);
-  position: absolute;
-  /* At rest this IS the placeholder, so it has to sit inside the field. It used
-     to sit at `bottom: 100%` — always above — which meant the placeholder never
-     appeared and every Textarea opened already looking like it had a label.
-
-     A textarea has no vertical centre to hang a label from, so it rests on the
-     first line box: pad-y + 4px. On focus or a value it floats to just above
-     the top edge (see the rule below), where the border and the focus ring run
-     underneath unbroken instead of through the text. */
-  top: calc(var(--slice-textarea-pad-y) + 4px);
-  transform: none;
-  /* Inset by the control's own inline padding, matching Input. */
-  left: var(--slice-textarea-pad-x);
-  right: var(--slice-textarea-pad-x);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.85em;
-  line-height: 1.3;
-  user-select: none;
-  pointer-events: none;
-  /* Colour only: the error and disabled states still have to reach it. */
-  /* Colour rides along so error and disabled still reach the label; top and
-     transform carry the float. Input transitions the same three, and
-     Textarea.spec.js holds both fields to one mechanism. */
-  transition: top 0.2s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
-    color 0.15s ease;
+slice-textarea .slice_textarea.is-invalid:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--field-danger) 22%, transparent);
 }
 
-/* Floated label — rises to just above the field top once focused or filled.
-
-   Deliberately NO background patch. Painting the label in the page background to
-   "notch" the top border only works when the field sits directly on the page:
-   on a Card, a Modal or a table row the patch is the wrong colour and shows up
-   as a rectangle cutting through the border. Input had no patch and looked
-   right, so both fields now use that: the border runs continuously underneath
-   and the label simply sits above it. */
-slice-textarea .slice_textarea_value,
-slice-textarea .slice_textarea_focus {
-  /* Above the top edge with a 3px gap, the same destination Input uses.
-     -100% is the label own height, so it lands with its bottom edge just
-     clear of the field rather than on it.
-
-     A label that came to rest ON the border was cut by the 1px border and
-     the 2px focus ring, and the only ways to open a gap were painting a
-     colour (wrong on any surface but one) or splitting the border. Ending
-     the move above the edge means there is no line to cross. */
-  top: 0;
-  transform: translateY(calc(-100% - 3px));
-  transition: top 0.2s cubic-bezier(0.2, 0, 0, 1),
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1),
-    color 0.15s ease;
-}
-
-slice-textarea .required,
-slice-textarea .required label,
-slice-textarea .required textarea {
-  border-color: var(--danger-color);
-  --primary-color: var(--danger-color);
-}
-
-slice-textarea .disabled,
-slice-textarea .disabled label {
-  border-color: var(--disabled-color);
+slice-textarea .slice_textarea.disabled {
+  opacity: 0.55;
   cursor: not-allowed;
-  pointer-events: none;
-  color: var(--disabled-color);
 }
 
 /* Read-only: selectable and focusable, but visibly not an editing surface.
-   Deliberately NOT folded into `.disabled` above — a disabled field is greyed
-   out AND unselectable, and read-only output has to stay copyable. */
-slice-textarea .readonly,
-slice-textarea .readonly label {
+   Not folded into .disabled: read-only output has to stay copyable. */
+slice-textarea .slice_textarea.readonly {
+  background-color: var(--tertiary-background-color, var(--field-bg));
   cursor: default;
 }
 
-slice-textarea .readonly textarea {
-  background: var(--tertiary-background-color);
+slice-textarea .textarea_area {
+  width: 100%;
+  min-height: 1.45em;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--font-primary-color);
+  font: inherit;
+  line-height: 1.45;
+  resize: vertical;
 }
+
+slice-textarea .textarea_area:disabled {
+  cursor: not-allowed;
+}
+
+slice-textarea .textarea_area::placeholder {
+  color: var(--field-muted);
+  opacity: 0.8;
+}
+
+slice-textarea.slice_textarea--labelled[data-label-placement='floating']:not(.slice_textarea--focused) .textarea_area::placeholder {
+  color: transparent;
+}
+
+slice-textarea .slice_textarea_footer[hidden],
+slice-textarea .slice_textarea_count[hidden],
+slice-textarea .slice_textarea_placeholder[hidden] {
+  display: none;
+}
+
+/* -------------------------------------------------- floating label (shared) */
+
+slice-textarea .slice_textarea_placeholder {
+  position: absolute;
+  /* At rest: on the first line, the one difference from Input. */
+  top: calc(var(--field-pad-y) + 0.725em);
+  left: var(--field-pad-x);
+  right: var(--field-pad-x);
+  padding: 0;
+  overflow: hidden;
+  color: var(--field-muted);
+  font-size: 1em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left bottom;
+  transition: top 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    left 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.15s ease;
+}
+
+slice-textarea .slice_textarea_placeholder.slice_textarea_value,
+slice-textarea .slice_textarea_placeholder.slice_textarea_focus,
+slice-textarea .slice_textarea:has(.textarea_area:autofill) .slice_textarea_placeholder {
+  top: 0;
+  left: var(--field-pad-x);
+  transform: translateY(calc(-100% - 5px)) scale(0.82);
+}
+
+slice-textarea .slice_textarea_placeholder.slice_textarea_focus {
+  color: var(--field-accent);
+}
+
+slice-textarea .slice_textarea.is-invalid .slice_textarea_placeholder {
+  color: var(--field-danger);
+}
+
+slice-textarea.slice_textarea--required .slice_textarea_placeholder::after {
+  content: ' *';
+  color: var(--field-danger);
+}
+
+slice-textarea[data-label-placement='above'] .slice_textarea_placeholder:not([hidden]) {
+  position: static;
+  display: block;
+  margin-bottom: 6px;
+  color: var(--font-primary-color);
+  font-size: 0.93em;
+  font-weight: 600;
+  transform: none;
+  transition: color 0.15s ease;
+}
+
+/* ------------------------------------------------------- shake (shared) */
 
 @keyframes slice_textarea_shake {
-  0% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-5px) rotate(0.5deg);
-  }
-  50% {
-    transform: translateX(5px) rotate(-0.5deg);
-  }
-  75% {
-    transform: translateX(-3px) rotate(0.3deg);
-  }
-  100% {
-    transform: translateX(0);
-  }
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(0.5deg); }
+  50% { transform: translateX(5px) rotate(-0.5deg); }
+  75% { transform: translateX(-3px) rotate(0.3deg); }
+  100% { transform: translateX(0); }
 }
 
-slice-textarea .error {
-  --primary-color: var(--danger-color);
+slice-textarea .slice_textarea.error {
   animation: slice_textarea_shake 0.5s;
 }
 
-/* An error shake is decorative: run it once, and never at all when the user has
-   asked the system to reduce motion. */
+/* ------------------------------------------------------- help and error */
+
+slice-textarea .slice_textarea_footer {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 5px;
+  padding: 0 var(--field-pad-x);
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--field-muted);
+}
+
+slice-textarea .slice_textarea_message {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+slice-textarea .slice_textarea_message--error {
+  color: var(--field-danger);
+}
+
+slice-textarea .slice_textarea_count {
+  flex: none;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  slice-textarea .error {
+  slice-textarea .slice_textarea.error {
     animation: none;
+  }
+
+  slice-textarea .slice_textarea_placeholder {
+    transition: color 0.15s ease;
   }
 }

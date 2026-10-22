@@ -141,13 +141,15 @@ test.describe('Textarea', () => {
       await expect.poll(heightOf).toBeGreaterThan(40);
    });
 
-   test('conditions are validated while typing, without calling validateValue', async ({ mount }) => {
+   // Judged on blur without calling validateValue(), then live once shown.
+   test('conditions are validated on blur, then follow the value as it is fixed', async ({ mount }) => {
       const c = await mount('Textarea', { conditions: { minLength: 5 } });
       await c.locator('textarea').fill('hey');
-      await expect(c.locator('.slice_textarea')).toHaveClass(/\berror\b/);
+      await c.locator('textarea').blur();
+      await expect(c.locator('.slice_textarea')).toHaveClass(/is-invalid/);
 
       await c.locator('textarea').fill('hello there');
-      await expect(c.locator('.slice_textarea')).not.toHaveClass(/\berror\b/);
+      await expect(c.locator('.slice_textarea')).not.toHaveClass(/is-invalid/);
    });
 
    test('validateValue enforces conditions (minLength)', async ({ mount }) => {
@@ -293,5 +295,64 @@ test.describe('Input / Textarea — shared floating label', () => {
       expect(out.input.duration).toBe(out.textarea.duration);
       expect(out.input.iterations).toBe(out.textarea.iterations);
       expect(out.input.iterations).toBe('1');
+   });
+});
+
+test.describe('Textarea — field', () => {
+   test('label, help and counter work as on Input', async ({ mount, page }) => {
+      const c = await mount('Textarea', { label: 'Bio', help: 'Shown on your profile', maxlength: 40, showCount: true });
+      await expect(page.getByLabel('Bio')).toHaveCount(1);
+      await expect(c.locator('.slice_textarea_message')).toHaveText('Shown on your profile');
+      await c.locator('textarea').fill('Hello there');
+      await expect(c.locator('.slice_textarea_count')).toHaveText('11 / 40');
+   });
+
+   test('required: validate() shows the shared message', async ({ mount }) => {
+      const c = await mount('Textarea', { label: 'Feedback', required: true });
+      expect(await c.component.evaluate((el) => el.validate())).toBe(false);
+      await expect(c.locator('.slice_textarea_message')).toHaveText('This field is required');
+      await expect(c.locator('textarea')).toHaveAttribute('aria-invalid', 'true');
+   });
+
+   test('maxRows caps autoGrow, and the rest scrolls', async ({ mount }) => {
+      const c = await mount('Textarea', { label: 'Notes', autoGrow: true, rows: 2, maxRows: 4 });
+      const ta = c.locator('textarea');
+      await ta.fill(Array.from({ length: 12 }, (_, i) => `line ${i}`).join('\n'));
+      const state = await ta.evaluate((el) => {
+         const line = parseFloat(getComputedStyle(el).lineHeight);
+         return { rows: Math.round(el.clientHeight / line), overflow: getComputedStyle(el).overflowY };
+      });
+      expect(state.rows).toBe(4);
+      expect(state.overflow).toBe('auto');
+   });
+
+   test('resize: none removes the handle', async ({ mount }) => {
+      const c = await mount('Textarea', { resize: 'none' });
+      expect(await c.locator('textarea').evaluate((el) => getComputedStyle(el).resize)).toBe('none');
+   });
+
+   test('Ctrl+Enter calls onSubmit with the value', async ({ mount }) => {
+      const c = await mount('Textarea', { label: 'Message' }, { spies: ['onSubmit'] });
+      await c.locator('textarea').fill('Ship it');
+      await c.locator('textarea').press('Control+Enter');
+      await expect.poll(() => c.events('onSubmit')).toBe(1);
+      expect((await c.eventArgs('onSubmit'))[0][0]).toBe('Ship it');
+   });
+
+   test('sizes and variants share Input’s attributes', async ({ mount }) => {
+      const c = await mount('Textarea', { size: 'lg', variant: 'ghost' });
+      await expect(c.component).toHaveAttribute('data-size', 'lg');
+      await expect(c.component).toHaveAttribute('data-variant', 'ghost');
+   });
+
+   test('an empty required field with a minimum stays quiet until validate()', async ({ mount }) => {
+      const c = await mount('Textarea', { label: 'Feedback', required: true, minlength: 20 });
+      const ta = c.locator('textarea');
+      await ta.fill('x');
+      await ta.fill('');
+      await ta.blur();
+      await expect(c.locator('.slice_textarea')).not.toHaveClass(/is-invalid/);
+      expect(await c.component.evaluate((el) => el.validate())).toBe(false);
+      await expect(c.locator('.slice_textarea')).toHaveClass(/is-invalid/);
    });
 });

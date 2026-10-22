@@ -206,7 +206,7 @@ test.describe('TreeItem - caret', () => {
          stage.style.cssText = 'padding:24px;background:#fff;width:420px';
          document.body.appendChild(stage);
 
-         const nav = await slice.build('TreeView', { items: data });
+         const nav = await slice.build('TreeItem', data[0]); // TreeView no longer renders TreeItems
          stage.appendChild(nav);
          await new Promise((r) => setTimeout(r, 900));
 
@@ -245,7 +245,7 @@ test.describe('TreeItem - caret', () => {
          const stage = document.createElement('div');
          stage.style.cssText = 'padding:24px;width:420px';
          document.body.appendChild(stage);
-         const nav = await slice.build('TreeView', { items: data });
+         const nav = await slice.build('TreeItem', data[0]); // TreeView no longer renders TreeItems
          stage.appendChild(nav);
          await new Promise((r) => setTimeout(r, 900));
          const r = nav.querySelector('.caret').getBoundingClientRect();
@@ -267,7 +267,7 @@ test.describe('TreeItem - caret', () => {
          const stage = document.createElement('div');
          stage.style.cssText = 'padding:24px;width:420px';
          document.body.appendChild(stage);
-         const nav = await slice.build('TreeView', { items: data });
+         const nav = await slice.build('TreeItem', data[0]); // TreeView no longer renders TreeItems
          stage.appendChild(nav);
          await new Promise((r) => setTimeout(r, 900));
 

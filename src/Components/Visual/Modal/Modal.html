@@ -1,7 +1,12 @@
-<dialog class="slice-modal">
+<dialog class="slice-modal" data-layout="center" data-size="md" data-tone="neutral">
+  <div class="slice-modal__handle" aria-hidden="true"></div>
   <div class="slice-modal__header">
-    <div class="slice-modal__title"></div>
-    <button class="slice-modal__close" type="button" aria-label="Cerrar">&times;</button>
+    <span class="slice-modal__icon" hidden></span>
+    <div class="slice-modal__heading">
+      <div class="slice-modal__title" role="heading" aria-level="2"></div>
+      <p class="slice-modal__description" hidden></p>
+    </div>
+    <button class="slice-modal__close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
   </div>
   <div class="slice-modal__body"></div>
   <div class="slice-modal__footer"></div>

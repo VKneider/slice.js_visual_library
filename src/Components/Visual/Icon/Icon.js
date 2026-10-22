@@ -131,7 +131,7 @@ export default class Icon extends HTMLElement {
       // keep working.
       iconStyle: {
          type: 'string',
-         default: 'filled'
+         default: null
       }
    };
 
@@ -220,7 +220,9 @@ export default class Icon extends HTMLElement {
    get iconStyle() { return this._iconStyle; }
    set iconStyle(value) {
       this._iconStyle = value;
-      deprecate('iconStyle', 'a single-style icon (Lucide has no filled variant)');
+      // Only an iconStyle someone actually passed is worth a warning: Button and
+      // Card forward `icon.iconStyle`, which is usually undefined.
+      if (value != null) deprecate('iconStyle', 'a single-style icon (Lucide has no filled variant)');
    }
 
    get size() { return this._size; }

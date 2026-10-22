@@ -1,0 +1,629 @@
+/* DatePicker. Encapsulated under the element; colours from the theme tokens.
+
+   The field is Input's (same heights, border, focus ring, variants, floating
+   label, help line and shake) so a form mixing them reads as one. The
+   calendar is a manual popover in the top layer, like Select's list. */
+
+slice-datepicker {
+  --field-height: 42px;
+  --field-pad-x: 12px;
+  --field-font-size: 14px;
+  --field-radius: var(--border-radius-slice, 10px);
+  --field-border: var(--slice-border-raised, color-mix(in srgb, var(--font-primary-color) 18%, transparent));
+  --field-bg: var(--slice-surface-raised, var(--primary-background-color));
+  --field-accent: var(--primary-color);
+  --field-danger: var(--danger-color, #dc2626);
+  --field-muted: var(--font-secondary-color, color-mix(in srgb, var(--font-primary-color) 65%, transparent));
+  --dp-cell: 38px;
+  --dp-surface: var(--slice-surface-raised, var(--primary-background-color));
+
+  display: block;
+  font-family: var(--font-family);
+  font-size: var(--field-font-size);
+}
+
+slice-datepicker[hidden] {
+  display: none;
+}
+
+slice-datepicker[data-size='sm'] {
+  --field-height: 32px;
+  --field-pad-x: 10px;
+  --field-font-size: 13px;
+  --field-radius: calc(var(--border-radius-slice, 10px) * 0.8);
+}
+
+slice-datepicker[data-size='lg'] {
+  --field-height: 50px;
+  --field-pad-x: 14px;
+  --field-font-size: 16px;
+}
+
+slice-datepicker[data-variant='filled'] {
+  --field-bg: color-mix(in srgb, var(--primary-color) 7%, var(--primary-background-color));
+  --field-border: transparent;
+}
+
+slice-datepicker[data-variant='ghost'] {
+  --field-bg: transparent;
+  --field-border: transparent;
+}
+
+/* ---------------------------------------------------------------- field */
+
+slice-datepicker .slice_datepicker_wrap {
+  position: relative;
+  max-width: 100%;
+  margin: var(--control-margin-block, 0);
+}
+
+slice-datepicker.slice_datepicker--labelled[data-label-placement='floating'] .slice_datepicker_wrap {
+  padding-top: calc(var(--field-font-size) * 1.15);
+}
+
+slice-datepicker .slice_datepicker_field {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--field-height);
+  padding: 0 4px 0 var(--field-pad-x);
+  border: var(--slice-border, 1px) solid var(--field-border);
+  border-radius: var(--field-radius);
+  background-color: var(--field-bg);
+  color: var(--font-primary-color);
+  cursor: text;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+slice-datepicker .slice_datepicker_field:hover {
+  border-color: color-mix(in srgb, var(--field-accent) 45%, var(--field-border));
+}
+
+slice-datepicker[data-variant='ghost'] .slice_datepicker_field:hover {
+  background-color: color-mix(in srgb, var(--field-accent) 7%, transparent);
+}
+
+slice-datepicker .slice_datepicker_field:focus-within,
+slice-datepicker.slice_datepicker--open .slice_datepicker_field {
+  border-color: var(--field-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--field-accent) 22%, transparent);
+}
+
+slice-datepicker .slice_datepicker_field.is-invalid {
+  border-color: var(--field-danger);
+}
+
+slice-datepicker .slice_datepicker_field.is-invalid:focus-within {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--field-danger) 22%, transparent);
+}
+
+slice-datepicker .slice_datepicker_field.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+slice-datepicker .slice_datepicker_field.is-readonly {
+  background-color: var(--tertiary-background-color, var(--field-bg));
+  cursor: default;
+}
+
+slice-datepicker .slice_datepicker_input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: calc(var(--field-height) - 2px);
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+}
+
+slice-datepicker .slice_datepicker_input::placeholder {
+  color: var(--field-muted);
+  opacity: 0.8;
+}
+
+slice-datepicker.slice_datepicker--labelled[data-label-placement='floating']:not(.slice_datepicker--focused) .slice_datepicker_input::placeholder {
+  color: transparent;
+}
+
+slice-datepicker .slice_datepicker_clear,
+slice-datepicker .slice_datepicker_toggle {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--field-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+slice-datepicker .slice_datepicker_clear {
+  width: 24px;
+  height: 24px;
+}
+
+slice-datepicker .slice_datepicker_toggle {
+  width: calc(var(--field-height) - 10px);
+  height: calc(var(--field-height) - 10px);
+}
+
+slice-datepicker .slice_datepicker_clear:hover,
+slice-datepicker .slice_datepicker_toggle:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  color: var(--font-primary-color);
+}
+
+slice-datepicker .slice_datepicker_toggle:focus-visible,
+slice-datepicker .slice_datepicker_clear:focus-visible {
+  outline: 2px solid var(--field-accent);
+  outline-offset: 1px;
+}
+
+slice-datepicker.slice_datepicker--open .slice_datepicker_toggle,
+slice-datepicker .slice_datepicker_field:focus-within .slice_datepicker_toggle {
+  color: var(--field-accent);
+}
+
+slice-datepicker .slice_datepicker_toggle:disabled {
+  cursor: not-allowed;
+}
+
+slice-datepicker .slice_datepicker_clear[hidden],
+slice-datepicker .slice_datepicker_footer[hidden],
+slice-datepicker .slice_datepicker_label[hidden] {
+  display: none;
+}
+
+/* The floating label: the same rules as Input's. */
+slice-datepicker .slice_datepicker_label {
+  position: absolute;
+  top: 50%;
+  left: var(--field-pad-x);
+  right: calc(var(--field-height) + 4px);
+  padding: 0;
+  overflow: hidden;
+  color: var(--field-muted);
+  font-size: 1em;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transform-origin: left bottom;
+  transition: top 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    left 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 0.15s ease;
+}
+
+slice-datepicker .slice_datepicker_label.is-floated {
+  top: 0;
+  transform: translateY(calc(-100% - 5px)) scale(0.82);
+}
+
+slice-datepicker .slice_datepicker_label.is-focused {
+  color: var(--field-accent);
+}
+
+slice-datepicker .slice_datepicker_field.is-invalid .slice_datepicker_label {
+  color: var(--field-danger);
+}
+
+slice-datepicker.slice_datepicker--required .slice_datepicker_label::after {
+  content: ' *';
+  color: var(--field-danger);
+}
+
+slice-datepicker[data-label-placement='above'] .slice_datepicker_label:not([hidden]) {
+  position: static;
+  display: block;
+  margin-bottom: 6px;
+  color: var(--font-primary-color);
+  font-size: 0.93em;
+  font-weight: 600;
+  transform: none;
+  transition: color 0.15s ease;
+}
+
+@keyframes slice_datepicker_shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px) rotate(0.5deg); }
+  50% { transform: translateX(5px) rotate(-0.5deg); }
+  75% { transform: translateX(-3px) rotate(0.3deg); }
+  100% { transform: translateX(0); }
+}
+
+slice-datepicker .slice_datepicker_field.is-shaking {
+  animation: slice_datepicker_shake 0.5s;
+}
+
+slice-datepicker .slice_datepicker_footer {
+  margin-top: 5px;
+  padding: 0 var(--field-pad-x);
+  color: var(--field-muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+slice-datepicker .slice_datepicker_message--error {
+  color: var(--field-danger);
+}
+
+/* ------------------------------------------------------------ calendar */
+
+slice-datepicker .slice_datepicker_popup {
+  box-sizing: border-box;
+  position: fixed;
+  inset: auto;
+  z-index: 1000;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--field-border);
+  border-radius: calc(var(--border-radius-slice, 10px) + 4px);
+  background: var(--dp-surface);
+  color: var(--font-primary-color);
+  box-shadow: var(--slice-shadow-lg, 0 18px 50px rgba(0, 0, 0, 0.2));
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top left;
+  transition: opacity 0.16s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+slice-datepicker .slice_datepicker_popup[data-side='top'] {
+  transform-origin: bottom left;
+  transform: translateY(4px) scale(0.98);
+}
+
+slice-datepicker .slice_datepicker_popup.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+slice-datepicker:not(.slice_datepicker--inline) .slice_datepicker_popup:not(:popover-open):not(.is-open) {
+  display: none;
+}
+
+/* Inline: the calendar on the page, no field. */
+slice-datepicker.slice_datepicker--inline .slice_datepicker_field,
+slice-datepicker.slice_datepicker--inline .slice_datepicker_label {
+  display: none;
+}
+
+slice-datepicker.slice_datepicker--inline .slice_datepicker_wrap {
+  padding-top: 0;
+}
+
+slice-datepicker.slice_datepicker--inline .slice_datepicker_popup {
+  position: static;
+  display: inline-block;
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+
+slice-datepicker .dp_panel {
+  display: flex;
+}
+
+slice-datepicker .dp_presets {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 132px;
+  padding: 10px;
+  border-right: 1px solid var(--field-border);
+}
+
+slice-datepicker .dp_preset {
+  padding: 7px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 0.85em;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+slice-datepicker .dp_preset:hover {
+  background: color-mix(in srgb, var(--field-accent) 9%, transparent);
+}
+
+slice-datepicker .dp_preset.is-selected {
+  background: color-mix(in srgb, var(--field-accent) 14%, transparent);
+  color: var(--field-accent);
+  font-weight: 600;
+}
+
+slice-datepicker .dp_main {
+  padding: 12px;
+}
+
+slice-datepicker .dp_head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+slice-datepicker .dp_title {
+  flex: 1;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+/* First letter only: "capitalize" would also give "Octubre De 2026". */
+slice-datepicker .dp_title::first-letter,
+slice-datepicker .dp_month_name::first-letter {
+  text-transform: uppercase;
+}
+
+slice-datepicker .dp_title:hover,
+slice-datepicker .dp_nav:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--field-accent) 9%, transparent);
+}
+
+slice-datepicker .dp_nav {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--font-primary-color);
+  cursor: pointer;
+}
+
+slice-datepicker .dp_nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+slice-datepicker .dp_months {
+  display: flex;
+  gap: 18px;
+}
+
+slice-datepicker .dp_month_name {
+  margin: 0 0 6px;
+  font-size: 0.85em;
+  font-weight: 650;
+  text-align: center;
+}
+
+slice-datepicker .dp_grid {
+  border-collapse: separate;
+  border-spacing: 0 2px;
+}
+
+slice-datepicker .dp_grid th {
+  height: 28px;
+  padding: 0;
+  color: var(--field-muted);
+  font-size: 0.75em;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+slice-datepicker .dp_grid td {
+  padding: 0;
+  text-align: center;
+}
+
+slice-datepicker .dp_day {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: var(--dp-cell);
+  height: var(--dp-cell);
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+slice-datepicker .dp_day:hover:not(.is-disabled):not(.is-selected) {
+  background: color-mix(in srgb, var(--field-accent) 10%, transparent);
+}
+
+slice-datepicker .dp_day:focus-visible {
+  outline: 2px solid var(--field-accent);
+  outline-offset: 1px;
+}
+
+slice-datepicker .dp_day.is-outside {
+  color: var(--field-muted);
+  opacity: 0.6;
+}
+
+slice-datepicker .dp_day.is-today::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--field-accent);
+}
+
+slice-datepicker .dp_day.is-selected {
+  background: var(--field-accent);
+  color: var(--primary-color-contrast, #fff);
+  font-weight: 650;
+}
+
+slice-datepicker .dp_day.is-selected.is-today::after {
+  background: currentColor;
+}
+
+slice-datepicker .dp_day.is-disabled {
+  color: var(--field-muted);
+  opacity: 0.35;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* A range: a band behind the days, rounded at its ends. */
+slice-datepicker .dp_grid td.in-range {
+  background: color-mix(in srgb, var(--field-accent) 13%, transparent);
+}
+
+slice-datepicker .dp_grid td.in-range.is-preview {
+  background: color-mix(in srgb, var(--field-accent) 8%, transparent);
+}
+
+slice-datepicker .dp_grid td.range-start {
+  border-radius: 999px 0 0 999px;
+}
+
+slice-datepicker .dp_grid td.range-end {
+  border-radius: 0 999px 999px 0;
+}
+
+slice-datepicker .dp_grid td.range-start.range-end {
+  border-radius: 999px;
+}
+
+slice-datepicker .dp_grid td.in-range:first-child {
+  border-top-left-radius: 999px;
+  border-bottom-left-radius: 999px;
+}
+
+slice-datepicker .dp_grid td.in-range:last-child {
+  border-top-right-radius: 999px;
+  border-bottom-right-radius: 999px;
+}
+
+slice-datepicker .dp_picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: calc(var(--dp-cell) * 7);
+}
+
+slice-datepicker .dp_pick {
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--font-primary-color);
+  font: inherit;
+  font-size: 0.9em;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+slice-datepicker .dp_pick:hover:not(:disabled):not(.is-selected) {
+  background: color-mix(in srgb, var(--field-accent) 10%, transparent);
+}
+
+slice-datepicker .dp_pick.is-today {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--field-accent) 50%, transparent);
+}
+
+slice-datepicker .dp_pick.is-selected {
+  background: var(--field-accent);
+  color: var(--primary-color-contrast, #fff);
+  font-weight: 650;
+}
+
+slice-datepicker .dp_pick:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+slice-datepicker .dp_foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--field-border);
+}
+
+slice-datepicker .dp_status {
+  color: var(--field-muted);
+  font-size: 0.8em;
+}
+
+slice-datepicker .dp_foot_actions {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+slice-datepicker .dp_foot_button {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--field-accent);
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+slice-datepicker .dp_foot_button:hover {
+  background: color-mix(in srgb, var(--field-accent) 10%, transparent);
+}
+
+/* On a phone the presets go above the calendar and the cells shrink a bit. */
+@media (max-width: 480px) {
+  slice-datepicker {
+    --dp-cell: 36px;
+  }
+
+  slice-datepicker .dp_panel {
+    flex-direction: column;
+  }
+
+  slice-datepicker .dp_presets {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--field-border);
+  }
+
+  slice-datepicker .dp_months {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-datepicker .slice_datepicker_popup,
+  slice-datepicker .slice_datepicker_label {
+    transition: none;
+  }
+
+  slice-datepicker .slice_datepicker_field.is-shaking {
+    animation: none;
+  }
+}

@@ -13,29 +13,28 @@
 <h2 id="getting-started">Getting Started</h2>
 <p>Build a <code>ToolTipProvider</code> instance and call its methods against trigger elements:</p>
 <div class="code-block" data-block-id="doc-block-2"></div>
-<p>For a shared singleton across your app, build with a fixed <code>sliceId</code>:</p>
-<div class="code-block" data-block-id="doc-block-3"></div>
+<p><code>{ singleton: true }</code> makes every call return the same provider, so the whole app shares one bubble and one set of listeners. Without it, each call creates a new provider (it logs a warning). Do not use a fixed <code>sliceId</code> for this: a second build with the same <code>sliceId</code> returns <code>null</code>.</p>
 <h2 id="api">API</h2>
 <h3 id="attachelement-config"><code>attach(element, config?)</code></h3>
 <p>Registers an element as a tooltip trigger.</p>
-<div class="table-block" data-block-id="doc-block-4"></div>
-<div class="code-block" data-block-id="doc-block-5"></div>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<div class="code-block" data-block-id="doc-block-4"></div>
 <h3 id="detachelement"><code>detach(element)</code></h3>
 <p>Unregisters a trigger and removes its listeners.</p>
-<div class="code-block" data-block-id="doc-block-6"></div>
+<div class="code-block" data-block-id="doc-block-5"></div>
 <h3 id="scopecontainer"><code>scope(container)</code></h3>
 <p>Scans <code>container</code> for <code>[data-tooltip]</code> elements and attaches each one. Config is read from <code>data-*</code> attributes:</p>
-<div class="table-block" data-block-id="doc-block-7"></div>
+<div class="table-block" data-block-id="doc-block-6"></div>
+<div class="code-block" data-block-id="doc-block-7"></div>
 <div class="code-block" data-block-id="doc-block-8"></div>
-<div class="code-block" data-block-id="doc-block-9"></div>
 <h3 id="cleanup">Cleanup</h3>
 <p>As an app-lifetime singleton, <code>ToolTipProvider</code> removes all triggers, the shared bubble, and its global listeners automatically via the framework's <code>beforeDestroy</code> hook when it is torn down — you don't clean it up by hand. Use <code>detach(element)</code> to unregister a single trigger.</p>
 <h2 id="live-demos">Live Demos</h2>
+<div class="script-block" data-block-id="doc-block-9"></div>
 <div class="script-block" data-block-id="doc-block-10"></div>
 <div class="script-block" data-block-id="doc-block-11"></div>
-<div class="script-block" data-block-id="doc-block-12"></div>
 <h2 id="when-to-use-which">When to Use Which</h2>
-<div class="table-block" data-block-id="doc-block-13"></div>
+<div class="table-block" data-block-id="doc-block-12"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Use <code>scope()</code> on a container after the DOM is ready — it scans for <code>[data-tooltip]</code> once. For dynamic content, call <code>attach()</code> when new elements are inserted and <code>detach()</code> when removed.</div>
 <h2 id="pitfalls">Pitfalls</h2>

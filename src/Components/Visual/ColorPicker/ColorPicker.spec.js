@@ -85,7 +85,7 @@ test.describe('ColorPicker', () => {
       );
    });
 
-   test('size prop follows the shared recipe', async ({ mount }) => {
+   test('size prop follows the shared size list', async ({ mount }) => {
       const c = await mount('ColorPicker', { size: 'sm' });
       await expect(c.component).toHaveAttribute('data-size', 'sm');
 

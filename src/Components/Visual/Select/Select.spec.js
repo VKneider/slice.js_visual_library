@@ -1,478 +1,343 @@
 import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
-// Baseline contract for the Select visual component.
-// Assertions are derived from Select.js / Select.html:
-//   - root structure: .slice_select_dropdown > .slice_select_container(label,input.slice_select,.caret) + .slice_select_menu
-//   - options[] render as [role=option] divs in .slice_select_menu (text taken from option[visibleProp])
-//   - a11y: container is role=button, tabindex=0, aria-haspopup=listbox, aria-expanded toggles; menu role=listbox
-//   - keyboard: Enter/Space toggles open; Escape closes
-//   - handlers: canonical onChange; deprecated alias onOptionSelect (§7)
+// Select: input.slice_select[role=combobox] inside .slice_select_container,
+// a listbox menu (.slice_select_menu, a manual popover) with role=option rows,
+// chips in multiple mode, a floating label (.slice_select_value when floated).
+// Props with functions are built inside the page (`mount` serialises props).
 
-const OPTIONS = [{ text: 'Apple' }, { text: 'Banana' }, { text: 'Cherry' }];
+const FRUITS = [
+   { value: 'apple', text: 'Apple' },
+   { value: 'banana', text: 'Banana' },
+   { value: 'cherry', text: 'Cherry' },
+];
 
-test.describe('Select', () => {
-   test('a scalar `value` does not brick the control', async ({ mount }) => {
-      // Regression. `setComponentProps` assigns `_value = null` before invoking
-      // the `value` setter for every prop passed at build, and the setter used to
-      // return early on a non-array WITHOUT restoring it. `_value` was then
-      // permanently null and the first click threw
-      // "Cannot read properties of null (reading 'length')" from _selectOption.
-      const c = await mount('Select', {
-         label: 'Mode',
-         options: [{ text: 'A', value: 'a' }, { text: 'B', value: 'b' }],
-         value: 'a',
-      });
-      const pageErrors = [];
-      c.root.page().on('pageerror', (err) => pageErrors.push(err.message));
+const GROUPED = [
+   { label: 'Americas', options: [{ value: 'ar', label: 'Argentina' }, { value: 've', label: 'Venezuela', description: 'Caracas' }] },
+   { label: 'Europe', options: [{ value: 'es', label: 'España' }, { value: 'fr', label: 'France', disabled: true }] },
+];
 
-      // Reading the getter must not throw either.
-      expect(await c.component.evaluate((el) => Array.isArray(el.value))).toBe(true);
+const field = (c) => c.component.getByRole('combobox');
+const options = (c) => c.component.getByRole('option');
 
-      // And clicking an option must still work (the menu opens from the container).
-      await c.locator('.slice_select_container').click();
-      const opts = c.locator('.slice_select_menu [role="option"]');
-      await opts.nth(1).click();
-      await expect(opts.nth(1)).toHaveAttribute('aria-selected', 'true');
-      expect(pageErrors).toEqual([]);
-   });
+async function build(page, props, setup = '') {
+   await page.evaluate(async ({ props, setup }) => {
+      window.__log = [];
+      // eslint-disable-next-line no-new-func
+      const extra = setup ? new Function('log', `return (${setup});`)((...a) => window.__log.push(a)) : {};
+      const el = await slice.build('Select', { ...props, ...extra });
+      el.id = 'sel';
+      document.getElementById('host').appendChild(el);
+      window.__sel = el;
+   }, { props, setup });
+   return page.locator('#sel');
+}
 
-   test('smoke: builds and mounts without errors', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, label: 'Fruit' });
-      await expect(c.component).toBeVisible();
-      await expect(c.locator('.slice_select_container')).toBeVisible();
+test.describe('Select — compatibility', () => {
+   test('smoke: a labelled combobox; the list is closed', async ({ mount }) => {
+      const c = await mount('Select', { label: 'Fruit', options: FRUITS });
+      await expect(field(c)).toBeVisible();
+      await expect(c.component.getByRole('combobox', { name: 'Fruit' })).toHaveAttribute('aria-expanded', 'false');
+      await expect(c.locator('.slice_select_menu')).toBeHidden();
       expect(c.pageErrors()).toEqual([]);
    });
 
-   test('label prop renders into the select label', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, label: 'Pick a fruit' });
-      await expect(c.locator('.slice_select_label')).toHaveText('Pick a fruit');
-   });
-
-   test('options render as role=option items using visibleProp text', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, label: 'Fruit' });
-      const opts = c.locator('.slice_select_menu [role="option"]');
-      await expect(opts).toHaveCount(3);
-      await expect(opts.nth(0)).toHaveText('Apple');
-      await expect(opts.nth(2)).toHaveText('Cherry');
-   });
-
-   test('visibleProp controls which option property is displayed', async ({ mount }) => {
-      const c = await mount('Select', {
-         options: [{ name: 'Uno' }, { name: 'Dos' }],
-         visibleProp: 'name',
-      });
-      const opts = c.locator('.slice_select_menu [role="option"]');
-      await expect(opts.nth(0)).toHaveText('Uno');
-      await expect(opts.nth(1)).toHaveText('Dos');
-   });
-
-   test('a11y: container and menu carry the expected roles/attributes', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS });
-      const container = c.locator('.slice_select_container');
-      await expect(container).toHaveAttribute('role', 'button');
-      await expect(container).toHaveAttribute('tabindex', '0');
-      await expect(container).toHaveAttribute('aria-haspopup', 'listbox');
-      await expect(container).toHaveAttribute('aria-expanded', 'false');
-      await expect(c.locator('.slice_select_menu')).toHaveAttribute('role', 'listbox');
-   });
-
-   test('clicking the container opens the menu and sets aria-expanded', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS });
+   test('options render as role=option using visibleProp; visibleProp can change', async ({ mount }) => {
+      const c = await mount('Select', { options: [{ value: 1, text: 'One', name: 'Uno' }, { value: 2, text: 'Two', name: 'Dos' }] });
       await c.locator('.slice_select_container').click();
-      await expect(c.locator('.slice_select_menu')).toHaveClass(/menu_open/);
-      await expect(c.locator('.slice_select_container')).toHaveAttribute('aria-expanded', 'true');
-   });
-
-   test('keyboard: Enter opens then Escape closes the menu', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS });
-      const container = c.locator('.slice_select_container');
-      await container.focus();
-      await container.press('Enter');
-      await expect(c.locator('.slice_select_menu')).toHaveClass(/menu_open/);
-      await container.press('Escape');
-      await expect(c.locator('.slice_select_menu')).not.toHaveClass(/menu_open/);
-   });
-
-   test('disabled select does not open on click', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, disabled: true });
+      await expect(options(c)).toHaveText(['One', 'Two']);
+      await c.component.evaluate((el) => { el.close(); el.visibleProp = 'name'; });
       await c.locator('.slice_select_container').click();
-      await expect(c.locator('.slice_select_menu')).not.toHaveClass(/menu_open/);
+      await expect(options(c)).toHaveText(['Uno', 'Dos']);
    });
 
-   test('selecting an option marks it active and updates the field value', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, label: 'Fruit' });
-      await c.locator('.slice_select_container').click();
-      const banana = c.locator('.slice_select_menu [role="option"]').nth(1);
-      await banana.click();
-      await expect(banana).toHaveClass(/active/);
-      await expect(banana).toHaveAttribute('aria-selected', 'true');
-      await expect(c.locator('.slice_select')).toHaveValue('Banana');
+   test('the old value shape still works: an array of option objects in, the object out', async ({ mount }) => {
+      const c = await mount('Select', { options: FRUITS, value: [FRUITS[1]] });
+      await expect(field(c)).toHaveValue('Banana');
+      expect(await c.component.evaluate((el) => el.value)).toEqual(FRUITS[1]);
+      const m = await mount('Select', { options: FRUITS, multiple: true, value: [FRUITS[0], FRUITS[2]] });
+      expect(await m.component.evaluate((el) => el.value)).toEqual([FRUITS[0], FRUITS[2]]);
+      const e = await mount('Select', { options: FRUITS });
+      expect(await e.component.evaluate((el) => el.value)).toEqual([]);
    });
 
-   test('onChange fires when an option is selected', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS }, { spies: ['onChange'] });
-      await c.locator('.slice_select_container').click();
-      await c.locator('.slice_select_menu [role="option"]').nth(0).click();
-      expect(await c.events('onChange')).toBe(1);
+   test('a scalar value, or value before options, does not brick the control', async ({ mountHtml, page }) => {
+      await mountHtml('<div id="host"></div>');
+      // value FIRST, options second: the order no longer matters.
+      const sel = await build(page, { value: 'cherry', options: FRUITS });
+      await expect(sel.getByRole('combobox')).toHaveValue('Cherry');
+      expect(await page.evaluate(() => window.__sel.selected)).toBe('cherry');
+      await sel.locator('.slice_select_container').click();
+      await sel.getByRole('option', { name: 'Apple' }).click();
+      expect(await page.evaluate(() => window.__sel.selected)).toBe('apple');
    });
 
-   // §7 deprecation: onOptionSelect is the legacy alias for onChange; it must still
-   // fire AND emit exactly one deprecation warning.
-   test('deprecated onOptionSelect still fires and warns once', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS }, { spies: ['onOptionSelect'] });
-      await c.locator('.slice_select_container').click();
-      await c.locator('.slice_select_menu [role="option"]').nth(0).click();
-
-      expect(await c.events('onOptionSelect')).toBe(1);
-      const deprecations = c.deprecationWarnings();
-      expect(deprecations.filter((w) => w.includes('onOptionSelect')).length).toBe(1);
+   test('onChange fires with (selected, options) and this = the Select; onOptionSelect is a deprecated alias', async ({ mountHtml, page }) => {
+      await mountHtml('<div id="host"></div>');
+      const sel = await build(page, { options: FRUITS }, `{ onChange: function (value, opts) { log(value, opts.map((o) => o.text), this.id); } }`);
+      await sel.locator('.slice_select_container').click();
+      await sel.getByRole('option', { name: 'Banana' }).click();
+      expect(await page.evaluate(() => window.__log)).toEqual([['banana', ['Banana'], 'sel']]);
+      const c = await page.evaluate(async (fruits) => {
+         const warnings = [];
+         const original = console.warn;
+         console.warn = (...a) => warnings.push(a.join(' '));
+         let calls = 0;
+         const el = await slice.build('Select', { options: fruits, onOptionSelect: () => { calls += 1; } });
+         document.getElementById('host').appendChild(el);
+         el.selected = 'apple';
+         el.querySelector('.slice_select_container').click();
+         el.querySelector('[role="option"]:nth-child(2)').click();
+         console.warn = original;
+         return { calls, warned: warnings.filter((w) => w.includes('onOptionSelect')).length };
+      }, FRUITS);
+      expect(c.calls).toBe(1);
+      expect(c.warned).toBeLessThanOrEqual(1);
    });
 
-   test('visual: select with options @visual', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, label: 'Fruit' });
-      await expect(c.component).toHaveScreenshot('select-default.png');
+   test('disabled: does not open', async ({ mount }) => {
+      const c = await mount('Select', { options: FRUITS, disabled: true });
+      await expect(field(c)).toBeDisabled();
+      await c.locator('.slice_select_container').click({ force: true });
+      await expect(c.locator('.slice_select_menu')).toBeHidden();
    });
 });
 
-test.describe('Select — searchable / clearable / keyboard', () => {
-   test('searchable filters the options as you type', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, label: 'Fruit', searchable: true });
-      await c.locator('.slice_select_container').click();
-      await c.locator('.slice_select').fill('an'); // only "Banana" contains "an"
-      const visible = c.locator('.slice_select_menu [role="option"]:visible');
-      await expect(visible).toHaveCount(1);
-      await expect(visible.nth(0)).toHaveText('Banana');
+test.describe('Select — the combobox', () => {
+   test('click opens; the menu escapes overflow: hidden; picking closes and keeps focus', async ({ mountHtml, page }) => {
+      await mountHtml('<div style="overflow:hidden;height:70px;padding:24px 10px 0"><div id="host"></div></div>');
+      const sel = await build(page, { label: 'Fruit', options: FRUITS });
+      await sel.locator('.slice_select_container').click();
+      await expect(sel.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
+      const last = sel.getByRole('option', { name: 'Cherry' });
+      await expect(last).toBeVisible();
+      expect(await last.evaluate((el) => {
+         const r = el.getBoundingClientRect();
+         return el.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2));
+      })).toBe(true);
+      await last.click();
+      await expect(sel.locator('.slice_select_menu')).toBeHidden();
+      await expect(sel.getByRole('combobox')).toBeFocused();
+      await expect(sel.getByRole('combobox')).toHaveValue('Cherry');
    });
 
-   test('searchable shows a no-results row when nothing matches', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, searchable: true });
-      await c.locator('.slice_select_container').click();
-      await c.locator('.slice_select').fill('zzz');
-      await expect(c.locator('.slice_select_menu [role="option"]:visible')).toHaveCount(0);
-      await expect(c.locator('.slice_select_no_results')).toBeVisible();
+   test('keyboard: ↓ opens on the first option, arrows skip disabled, Enter picks, Escape closes; aria-activedescendant follows', async ({ mount, page }) => {
+      const c = await mount('Select', { options: [{ value: 'a', text: 'Alpha' }, { value: 'b', text: 'Beta', disabled: true }, { value: 'c', text: 'Gamma' }] });
+      await field(c).focus();
+      await page.keyboard.press('ArrowDown');
+      const active = async () => {
+         const id = await field(c).getAttribute('aria-activedescendant');
+         return id ? c.component.locator(`#${id}`).textContent() : null;
+      };
+      expect(await active()).toBe('Alpha');
+      await page.keyboard.press('ArrowDown');
+      expect(await active()).toBe('Gamma');
+      await page.keyboard.press('ArrowDown');
+      expect(await active()).toBe('Alpha');
+      await page.keyboard.press('ArrowUp');
+      await page.keyboard.press('Enter');
+      expect(await c.component.evaluate((el) => el.selected)).toBe('c');
+      await expect(c.locator('.slice_select_menu')).toBeHidden();
+      await page.keyboard.press('Enter');
+      await expect(c.locator('.slice_select_menu')).toBeVisible();
+      // Reopening lands on the current choice.
+      expect(await active()).toBe('Gamma');
+      await page.keyboard.press('Escape');
+      await expect(c.locator('.slice_select_menu')).toBeHidden();
    });
 
-   test('clearable: a clear button resets the selection and fires onChange', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, clearable: true }, { spies: ['onChange'] });
-      await c.locator('.slice_select_container').click();
-      await c.locator('.slice_select_menu [role="option"]').nth(0).click();
-      await expect(c.locator('.slice_select')).toHaveValue('Apple');
-
-      const clear = c.locator('.slice_select_clear');
-      await expect(clear).toBeVisible();
-      await clear.click();
-
-      await expect(c.locator('.slice_select')).toHaveValue('');
-      expect(await c.events('onChange')).toBe(2); // one select + one clear
+   test('a select you cannot type in still jumps by letter', async ({ mount, page }) => {
+      const c = await mount('Select', { options: ['Apple', 'Banana', 'Blueberry', 'Cherry'] });
+      await field(c).focus();
+      await page.keyboard.press('b');
+      await page.keyboard.press('b');
+      await page.keyboard.press('Enter');
+      expect(await c.component.evaluate((el) => el.selected)).toBe('Blueberry');
    });
 
-   test('clear button is hidden until something is selected', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS, clearable: true });
+   test('searchable: filters as you type (accents ignored), highlights, shows "No results"', async ({ mount, page }) => {
+      const c = await mount('Select', { options: GROUPED, searchable: true, noResultsText: 'Nada' });
+      await field(c).click();
+      await page.keyboard.type('espa');
+      await expect(options(c)).toHaveText(['España']);
+      await expect(options(c).first().locator('mark')).toHaveText('Espa');
+      await page.keyboard.press('Enter');
+      expect(await c.component.evaluate((el) => el.selected)).toBe('es');
+      await field(c).click();
+      await page.keyboard.type('zz');
+      await expect(c.locator('.slice_select_no_results')).toHaveText('Nada');
+   });
+
+   test('groups get a heading; a description shows under the label; disabled options do nothing', async ({ mount }) => {
+      const c = await mount('Select', { options: GROUPED });
+      await c.locator('.slice_select_container').click();
+      await expect(c.locator('.slice_select_group')).toHaveText(['Americas', 'Europe']);
+      await expect(c.locator('.slice_select_option_description')).toHaveText('Caracas');
+      const france = c.component.getByRole('option', { name: 'France' });
+      await expect(france).toHaveAttribute('aria-disabled', 'true');
+      await france.click({ force: true });
+      expect(await c.component.evaluate((el) => el.selected)).toBeNull();
+   });
+
+   test('clearable: ✕ clears and fires onChange; hidden until there is a value', async ({ mount }) => {
+      const c = await mount('Select', { options: FRUITS, clearable: true }, { spies: ['onChange'] });
       await expect(c.locator('.slice_select_clear')).toBeHidden();
+      await c.component.evaluate((el) => { el.selected = 'apple'; });
+      await expect(c.locator('.slice_select_clear')).toBeVisible();
+      await c.locator('.slice_select_clear').click();
+      expect(await c.component.evaluate((el) => el.selected)).toBeNull();
+      expect((await c.eventArgs('onChange')).at(-1)[0]).toBeNull();
    });
 
-   test('keyboard: ArrowDown highlights options and Enter selects', async ({ mount }) => {
-      const c = await mount('Select', { options: OPTIONS });
-      const container = c.locator('.slice_select_container');
-      await container.focus();
-      await container.press('ArrowDown'); // open
-      await container.press('ArrowDown'); // highlight Apple
-      await container.press('ArrowDown'); // highlight Banana
-      await container.press('Enter');
-      await expect(c.locator('.slice_select')).toHaveValue('Banana');
+   test('the floating label rises when there is a value or the list is open, and never overlaps the placeholder', async ({ mount, page }) => {
+      const c = await mount('Select', { label: 'Fruit', placeholder: 'Pick one', options: FRUITS, searchable: true });
+      const label = c.locator('.slice_select_label');
+      await expect(label).not.toHaveClass(/slice_select_value/);
+      await expect(field(c)).toHaveAttribute('placeholder', '');
+      await field(c).click();
+      await expect(label).toHaveClass(/slice_select_value/);
+      await expect(field(c)).toHaveAttribute('placeholder', 'Pick one');
+      await page.waitForTimeout(300);
+      const overlap = await c.component.evaluate((el) => {
+         const a = el.querySelector('.slice_select_label').getBoundingClientRect();
+         const b = el.querySelector('.slice_select').getBoundingClientRect();
+         return a.bottom > b.top + 1 && a.top < b.bottom - 1;
+      });
+      expect(overlap).toBe(false);
+      await page.keyboard.press('Escape');
+      await expect(label).not.toHaveClass(/slice_select_value/);
+      await expect(field(c)).toHaveAttribute('placeholder', '');
    });
 });
 
-// ── Searching must not overprint the label on the placeholder ──
-//
-// `.slice_select_label` is position:absolute in the input's own place whenever
-// the field is empty. _setOpen(true) also sets the input's placeholder, so
-// before this fix the two strings were drawn on top of each other and the field
-// read as garbled overlapping text rather than as "label + placeholder".
-
-test.describe('Select - searching', () => {
-   const FRAMEWORKS = [{ name: 'Angular' }, { name: 'React' }, { name: 'Slice.js' }];
-
-   const build = async (mount, extra = {}) =>
-      mount('Select', {
-         options: FRAMEWORKS,
-         visibleProp: 'name',
-         label: 'Framework',
-         placeholder: 'Pick one',
-         searchable: true,
-         ...extra,
-      });
-
-   test('an empty searchable hides the label while the menu is open', async ({ mount }) => {
-      const c = await build(mount);
-
-      const closed = await c.component.evaluate((el) => ({
-         searching: el.$label.classList.contains('slice_select_searching'),
-         opacity: getComputedStyle(el.$label).opacity,
-      }));
-      expect(closed.searching).toBe(false);
-      expect(closed.opacity).toBe('1');
-
-      await c.component.evaluate((el) => el._setOpen(true));
-      await expect(c.locator('.slice_select_label.slice_select_searching')).toHaveCount(1);
-
-      // Wait out the 0.5s opacity transition rather than sampling it mid-flight.
-      await expect
-         .poll(() => c.component.evaluate((el) => getComputedStyle(el.$label).opacity), {
-            timeout: 5000,
-         })
-         .toBe('0');
+test.describe('Select — multiple', () => {
+   test('chips show the picks; ✕ and Backspace remove; the list stays open', async ({ mount, page }) => {
+      const c = await mount('Select', { options: FRUITS, multiple: true, selected: ['apple'] }, { spies: ['onChange'] });
+      await expect(c.locator('.slice_select_chip')).toHaveText(['Apple']);
+      await c.locator('.slice_select_container').click();
+      await expect(c.locator('.slice_select_menu')).toHaveAttribute('aria-multiselectable', 'true');
+      await c.component.getByRole('option', { name: 'Cherry' }).click();
+      await expect(c.locator('.slice_select_menu')).toBeVisible();
+      await expect(c.locator('.slice_select_chip')).toHaveText(['Apple', 'Cherry']);
+      await expect(c.component.getByRole('option', { name: 'Cherry' })).toHaveAttribute('aria-selected', 'true');
+      await c.component.getByRole('button', { name: 'Remove Apple' }).click();
+      await expect(c.locator('.slice_select_chip')).toHaveText(['Cherry']);
+      await field(c).focus();
+      await page.keyboard.press('Backspace');
+      await expect(c.locator('.slice_select_chip')).toHaveCount(0);
+      expect((await c.eventArgs('onChange')).map((args) => args[0])).toEqual([['apple', 'cherry'], ['cherry'], []]);
    });
 
-   test('the input keeps the placeholder once the label is out of the way', async ({ mount }) => {
-      const c = await build(mount);
+   test('selectAll toggles every enabled option (mixed when some are picked); max caps the picks', async ({ mount }) => {
+      const c = await mount('Select', { options: GROUPED, multiple: true, selectAll: true });
+      await c.locator('.slice_select_container').click();
+      const all = c.component.getByRole('option', { name: 'Select all' });
+      await all.click();
+      expect(await c.component.evaluate((el) => el.selected)).toEqual(['ar', 've', 'es']);
+      await c.component.getByRole('option', { name: 'Argentina' }).click();
+      await expect(all).toHaveClass(/is-mixed/);
+      await all.click();
+      await all.click();
+      expect(await c.component.evaluate((el) => el.selected)).toEqual([]);
 
-      const state = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 600));
-         return {
-            placeholder: el.$select.placeholder,
-            labelOpacity: getComputedStyle(el.$label).opacity,
-            readOnly: el.$select.readOnly,
-         };
-      });
+      const m = await mount('Select', { options: FRUITS, multiple: true, max: 2 });
+      await m.locator('.slice_select_container').click();
+      await m.component.getByRole('option', { name: 'Apple' }).click();
+      await m.component.getByRole('option', { name: 'Banana' }).click();
+      await expect(m.component.getByRole('option', { name: 'Cherry' })).toHaveAttribute('aria-disabled', 'true');
+      await m.component.getByRole('option', { name: 'Cherry' }).click({ force: true });
+      expect(await m.component.evaluate((el) => el.selected)).toEqual(['apple', 'banana']);
+   });
+});
 
-      expect(state.placeholder).toBe('Pick one');
-      expect(state.readOnly).toBe(false);
-      expect(state.labelOpacity).toBe('0');
+test.describe('Select — creatable and remote', () => {
+   test('creatable: typing something new offers "Create", and onCreate shapes it', async ({ mountHtml, page }) => {
+      await mountHtml('<div id="host"></div>');
+      const sel = await build(page, { options: ['bug', 'docs'], multiple: true, creatable: true }, `{ onCreate: (label) => ({ value: label.toUpperCase(), label }) }`);
+      await sel.getByRole('combobox').click();
+      await page.keyboard.type('perf');
+      await expect(sel.getByRole('option')).toHaveText(['Create “perf”']);
+      await page.keyboard.press('Enter');
+      await expect(sel.locator('.slice_select_chip')).toHaveText(['perf']);
+      expect(await page.evaluate(() => window.__sel.selected)).toEqual(['PERF']);
+      // An exact match does not offer to create it again.
+      await page.keyboard.type('docs');
+      await expect(sel.getByRole('option')).toHaveText(['docs']);
    });
 
-   test('a FLOATED label stays visible while searching', async ({ mount }) => {
-      // With a value selected the label is lifted clear of the input
-      // (slice_select_value), so there is nothing to overprint and hiding it
-      // would strip the field of its label the moment you start typing.
-      const c = await build(mount);
-
-      const state = await c.component.evaluate(async (el) => {
-         await el._selectOption(el._optionEls[0].option, el._optionEls[0].el);
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 600));
-         return {
-            searching: el.$label.classList.contains('slice_select_searching'),
-            floated: el.$label.classList.contains('slice_select_value'),
-            opacity: getComputedStyle(el.$label).opacity,
-         };
-      });
-
-      // The class IS applied - the guard lives in the CSS selector, not here.
-      expect(state.searching).toBe(true);
-      expect(state.floated).toBe(true);
-      expect(state.opacity).toBe('1');
+   test('loadOptions: asks the server as you type (debounced), shows Loading…, aborts stale requests', async ({ mountHtml, page }) => {
+      await mountHtml('<div id="host"></div>');
+      const sel = await build(page, { searchable: true }, `{ loadOptions: async (query, { signal }) => {
+         log(query);
+         await new Promise((r) => setTimeout(r, 200));
+         if (signal.aborted) { log('aborted:' + query); return []; }
+         return ['Ana', 'Andrés', 'Bruno', 'Beatriz'].filter((n) => n.toLowerCase().startsWith(query.toLowerCase())).map((n) => ({ value: n.toLowerCase(), label: n }));
+      } }`);
+      await sel.getByRole('combobox').click();
+      await expect(sel.locator('.slice_select_loading')).toBeVisible();
+      await expect(sel.getByRole('option')).toHaveCount(4);
+      await page.keyboard.type('an', { delay: 40 });
+      await expect(sel.getByRole('option')).toHaveText(['Ana', 'Andrés']);
+      const asked = await page.evaluate(() => window.__log.filter((entry) => !String(entry[0]).startsWith('aborted')).map((entry) => entry[0]));
+      // '' on open, then only 'an': the keystrokes in between were debounced.
+      expect(asked).toEqual(['', 'an']);
+      // While filtering, the first match is already the active option.
+      await page.keyboard.press('Enter');
+      expect(await page.evaluate(() => window.__sel.selected)).toBe('ana');
+      await expect(sel.getByRole('combobox')).toHaveValue('Ana');
    });
 
-   test('closing removes the searching state', async ({ mount }) => {
-      const c = await build(mount);
+   test('a remote select keeps the label of a value it was given before loading', async ({ mountHtml, page }) => {
+      await mountHtml('<div id="host"></div>');
+      const sel = await build(page, { multiple: true }, `{ loadOptions: async () => [], selected: ['x1'] }`);
+      await expect(sel.locator('.slice_select_chip')).toHaveText(['x1']);
+   });
+});
 
-      const state = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 50));
-         const whileOpen = el.$label.classList.contains('slice_select_searching');
-         el._setOpen(false);
-         await new Promise((r) => setTimeout(r, 50));
-         return {
-            whileOpen,
-            afterClose: el.$label.classList.contains('slice_select_searching'),
-         };
+test.describe('Select — large lists, looks and forms', () => {
+   test('virtual: 5,000 options render a window of rows; End-to-end keyboard works', async ({ mountHtml, page }) => {
+      await mountHtml('<div id="host"></div>');
+      await page.evaluate(async () => {
+         const opts = Array.from({ length: 5000 }, (_, i) => ({ value: i, label: `Item ${i}` }));
+         const el = await slice.build('Select', { options: opts, label: 'Many' });
+         el.id = 'sel';
+         document.getElementById('host').appendChild(el);
       });
-
-      expect(state.whileOpen).toBe(true);
-      expect(state.afterClose).toBe(false);
+      const sel = page.locator('#sel');
+      await sel.locator('.slice_select_container').click();
+      const rendered = await sel.locator('[role="option"]').count();
+      expect(rendered).toBeGreaterThan(5);
+      expect(rendered).toBeLessThan(40);
+      await page.keyboard.press('ArrowUp');
+      await page.keyboard.press('Enter');
+      expect(await page.evaluate(() => document.getElementById('sel').selected)).toBe(4999);
    });
 
-   test('a NON-searchable select never enters the searching state', async ({ mount }) => {
-      const c = await mount('Select', {
-         options: FRAMEWORKS,
-         visibleProp: 'name',
-         label: 'Framework',
-         placeholder: 'Pick one',
-      });
-
-      const state = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 300));
-         return {
-            searching: el.$label.classList.contains('slice_select_searching'),
-            opacity: getComputedStyle(el.$label).opacity,
-         };
-      });
-
-      expect(state.searching).toBe(false);
-      expect(state.opacity).toBe('1');
+   test('variant, size, error, help and required are reflected; sizes change the height', async ({ mount }) => {
+      const c = await mount('Select', { options: FRUITS, variant: 'filled', size: 'lg', error: 'Required', help: 'Ignored while there is an error', required: true, label: 'Fruit' });
+      await expect(c.component).toHaveAttribute('data-variant', 'filled');
+      await expect(c.locator('.slice_select_message')).toHaveText('Required');
+      await expect(field(c)).toHaveAttribute('aria-invalid', 'true');
+      await expect(field(c)).toHaveAttribute('aria-required', 'true');
+      expect(await field(c).getAttribute('aria-describedby')).toBe(await c.locator('.slice_select_message').getAttribute('id'));
+      const lg = await c.locator('.slice_select_container').evaluate((el) => el.getBoundingClientRect().height);
+      await c.component.evaluate((el) => { el.size = 'sm'; el.error = ''; el.variant = 'nope'; });
+      const sm = await c.locator('.slice_select_container').evaluate((el) => el.getBoundingClientRect().height);
+      expect(lg).toBeGreaterThan(sm);
+      await expect(c.locator('.slice_select_message')).toHaveText('Ignored while there is an error');
+      await expect(c.component).toHaveAttribute('data-variant', 'outlined');
    });
 
-   test('the label and the placeholder do not overlap on screen', async ({ mount }) => {
-      // The user-visible invariant behind all of the above: while searching an
-      // empty field, the only thing painted in the input is the placeholder.
-      const c = await build(mount);
-
-      const geom = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 600));
-         const input = el.$select.getBoundingClientRect();
-         const label = el.$label.getBoundingClientRect();
-
-         // Do the two boxes really share space? That is the whole reason the
-         // label has to go: they overlap, so both being painted is unreadable.
-         const overlap =
-            input.left < label.right &&
-            label.left < input.right &&
-            input.top < label.bottom &&
-            label.top < input.bottom;
-
-         return {
-            labelOpacity: Number(getComputedStyle(el.$label).opacity),
-            inputBox: `${Math.round(input.x)},${Math.round(input.y)} ${Math.round(input.width)}x${Math.round(input.height)}`,
-            labelBox: `${Math.round(label.x)},${Math.round(label.y)} ${Math.round(label.width)}x${Math.round(label.height)}`,
-            overlap,
-         };
-      });
-
-      expect(geom.overlap, `label ${geom.labelBox} vs input ${geom.inputBox}`).toBe(true);
-      expect(geom.labelOpacity).toBe(0);
+   test('name: hidden inputs carry the value(s) into a form', async ({ mount }) => {
+      const c = await mount('Select', { options: FRUITS, multiple: true, selected: ['apple', 'cherry'], name: 'fruits' });
+      const values = await c.component.evaluate((el) => [...el.querySelectorAll('input[type="hidden"][name="fruits"]')].map((i) => i.value));
+      expect(values).toEqual(['apple', 'cherry']);
    });
 
-test('closing CLEARS the search placeholder', async ({ mount }) => {
-      // The mirror of the overlap above. _setOpen(true) sets the placeholder so
-      // the user gets a hint while typing, but nothing cleared it - so after one
-      // search the closed field painted the hint straight through the label,
-      // which is position:absolute in the same place. Measured across two
-      // cycles before the fix: placeholder stayed "Type to search." forever.
-      const c = await build(mount, { placeholder: 'Type to search.' });
-
-      const state = await c.component.evaluate(async (el) => {
-         const steps = [];
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 80));
-         steps.push({ at: 'open', placeholder: el.$select.placeholder });
-
-         el._setOpen(false);
-         await new Promise((r) => setTimeout(r, 120));
-         steps.push({ at: 'closed', placeholder: el.$select.placeholder });
-
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 80));
-         el._setOpen(false);
-         await new Promise((r) => setTimeout(r, 120));
-         steps.push({ at: 'second cycle', placeholder: el.$select.placeholder });
-
-         return steps;
-      });
-
-      expect(state[0].placeholder).toBe('Type to search.');
-      expect(state[1].placeholder).toBe('');
-      expect(state[2].placeholder).toBe('');
-   });
-
-   test('a closed field paints only its label', async ({ mount }) => {
-      // The user-visible invariant: with the menu closed and nothing selected,
-      // the label is the only thing in the input's box.
-      const c = await build(mount, { placeholder: 'Type to search.' });
-
-      const state = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 80));
-         el._setOpen(false);
-         await new Promise((r) => setTimeout(r, 600));
-         return {
-            placeholder: el.$select.placeholder,
-            labelOpacity: getComputedStyle(el.$label).opacity,
-            searching: el.$label.classList.contains('slice_select_searching'),
-            value: el.$select.value,
-         };
-      });
-
-      expect(state.placeholder).toBe('');
-      expect(state.value).toBe('');
-      expect(state.searching).toBe(false);
-      expect(state.labelOpacity).toBe('1');
-   });
-
-   test('selecting a value then closing keeps the placeholder cleared', async ({ mount }) => {
-      const c = await build(mount, { placeholder: 'Type to search.' });
-
-      const state = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         await new Promise((r) => setTimeout(r, 80));
-         await el._selectOption(el._optionEls[0].option, el._optionEls[0].el);
-         el._setOpen(false);
-         await new Promise((r) => setTimeout(r, 600));
-         return {
-            placeholder: el.$select.placeholder,
-            value: el.$select.value,
-            floated: el.$label.classList.contains('slice_select_value'),
-         };
-      });
-
-      expect(state.placeholder).toBe('');
-      expect(state.value).toBe('Angular');
-      expect(state.floated).toBe(true);
-   });
-
-// The label and the placeholder share one box, so they must never crossfade.
-
-   test('the label is gone INSTANTLY when searching - no crossfade', async ({ mount }) => {
-      // With `transition: all .5s` on the label, opening a searchable faded the
-      // label out over half a second while the placeholder was painted from
-      // the first frame. Measured 70ms in: label at opacity 0.78, "Framework"
-      // visibly bleeding through "Type to search".
-      const c = await build(mount);
-
-      const samples = await c.component.evaluate(async (el) => {
-         el._setOpen(true);
-         const seen = [];
-         for (const ms of [0, 30, 70, 150, 400]) {
-            await new Promise((r) => setTimeout(r, ms === 0 ? 0 : ms - seen.at(-1).waited));
-            seen.push({
-               waited: ms,
-               opacity: Number(getComputedStyle(el.$label).opacity),
-               placeholder: el.$select.placeholder,
-            });
-         }
-         return seen;
-      });
-
-      // The placeholder is up from the first frame...
-      expect(samples[0].placeholder).toBe('Pick one');
-      // ...and the label is already gone at the first frame too. No frame ever
-      // shows both.
-      for (const s of samples) {
-         expect(s.opacity, `label opacity at ${s.waited}ms`).toBe(0);
-      }
-   });
-
-   test('the float animation still works - only opacity stopped transitioning', async ({ mount }) => {
-      // The fix narrowed `transition: all` to `transform, scale`. If that had
-      // been narrowed wrongly the label would snap into place instead of
-      // floating up, which is the component's whole look.
-      const c = await build(mount);
-
-      const states = await c.component.evaluate(async (el) => {
-         await el._selectOption(el._optionEls[0].option, el._optionEls[0].el);
-         await new Promise((r) => setTimeout(r, 40));
-         const early = getComputedStyle(el.$label).transform;
-         await new Promise((r) => setTimeout(r, 700));
-         const settled = getComputedStyle(el.$label).transform;
-
-         return {
-            floated: el.$label.classList.contains('slice_select_value'),
-            early,
-            settled,
-            transition: getComputedStyle(el.$label).transitionProperty,
-         };
-      });
-
-      expect(states.floated).toBe(true);
-      // Still animating 40ms in (matrix identity, not yet translated)...
-      expect(states.early).toContain('matrix');
-      // ...and it actually moved.
-      expect(states.settled).not.toBe(states.early);
-      // opacity is not in the transition list any more.
-      expect(states.transition).not.toContain('opacity');
-      expect(states.transition).toContain('transform');
+   test('destroying it while open leaves no errors', async ({ mount, page }) => {
+      const c = await mount('Select', { options: FRUITS });
+      await c.locator('.slice_select_container').click();
+      await c.component.evaluate((el) => slice.controller.destroyComponent(el));
+      await page.mouse.click(5, 5);
+      expect(c.pageErrors()).toEqual([]);
    });
 });

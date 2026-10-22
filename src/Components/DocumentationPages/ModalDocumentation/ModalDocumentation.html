@@ -7,32 +7,51 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>The <code>Modal</code> component wraps the native <code>&lt;dialog&gt;</code> element to provide a focused overlay for confirmations, forms, alerts, and custom content. It uses <code>showModal()</code> for built-in focus trapping, Escape key handling, and backdrop styling.</p>
+<p><code>Modal</code> is a dialog built on the native <code>&lt;dialog&gt;</code> element. The browser handles the hard parts: the dialog sits above everything (no <code>z-index</code> to fight, and no ancestor with <code>overflow: hidden</code> can clip it), the page behind becomes inert, and focus stays inside. On top of that, <code>Modal</code> gives you:</p>
+<ul><li>five layouts: centred, near the top, a drawer from any side, a bottom sheet and fullscreen;</li><li>sizes and tones;</li><li>content and buttons straight from props;</li><li>one close path you can guard ("you have unsaved changes");</li><li>a promise for the answer;</li><li>animations both in and out.</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li>Built on <code>&lt;dialog&gt;</code> — focus trap, Escape dismiss, and <code>::backdrop</code> are handled natively.</li><li><code>open</code> prop controls visibility. Set <code>true</code> to call <code>showModal()</code>.</li><li><code>title</code> renders into a dedicated header slot.</li><li><code>dismissable</code> controls the close button and backdrop click to dismiss.</li><li><code>customColor</code> overrides the background, text, and accent colors.</li><li>The close button has <code>aria-label="Cerrar"</code>; the dialog has <code>role="dialog"</code> and <code>aria-modal="true"</code> (native).</li><li>Use <code>appendBody(node)</code> and <code>appendFooter(node)</code> to compose custom content after mounting.</li></ul>
-<h2 id="props">Props</h2>
-<div class="table-block" data-block-id="doc-block-1"></div>
-<h2 id="scrolling">Scrolling</h2>
-<p>The dialog is capped at <code>min(85vh, 640px)</code> and clips its own overflow, so <code>.slice-modal__body</code> always scrolls and the header and footer stay put. The body also sets <code>overscroll-behavior: contain</code>, so a scroll that reaches its end does not chain into the page behind the dialog on touch.</p>
-<p>Override the cap from CSS when you need a taller dialog:</p>
-<div class="code-block" data-block-id="doc-block-2"></div>
-<div class="callout callout-warning"><code>resizable: true</code> clears <code>max-width</code> <strong>and</strong> <code>max-height</code> on the dialog while it is open, so
-resizing past the cap works. The cap is restored on the next open.</div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<ul><li><code>open</code> shows or hides it. <code>show()</code> opens it and returns a promise that resolves with <code>{ returnValue, reason }</code> when it closes.</li><li><code>title</code> and <code>description</code> fill the header. They also name and describe the dialog for screen readers (<code>aria-labelledby</code> and <code>aria-describedby</code>). A modal with no title should get an <code>ariaLabel</code>.</li><li><code>icon</code> is any <code>Icon</code> name, shown in a tinted circle before the title.</li><li><code>content</code> fills the body. It takes text (shown as a paragraph, never parsed as HTML), a node, or a list mixing both. Setting it again replaces only what it put there before. <code>appendBody(node)</code> and <code>appendFooter(node)</code> still work and leave that alone.</li><li><code>actions</code> are the footer buttons. See [Actions](#actions).</li><li>Focus:</li></ul>
+<p>- When the modal opens, focus goes to the element marked <code>autofocus</code> if there is one. Otherwise it goes to the dialog itself, so it does not land on the ✕.   - <code>initialFocus</code> chooses the element instead: a CSS selector, <code>'first'</code> for the first field or button, or <code>'dialog'</code>.   - When the modal closes, focus returns to whatever had it before. <code>returnFocus: false</code> turns that off.</p>
+<ul><li>The page behind stops scrolling while the modal is open. Stacked modals share the lock, so it is released only when the last one closes. <code>scrollLock: false</code> leaves the page scrollable.</li><li>An empty footer is hidden. A header with no title, description or icon shrinks to a ✕ in the corner. With <code>dismissable: false</code> as well, the header disappears.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>size</code>: <code>'sm'</code> (400px), <code>'md'</code> (520px, default), <code>'lg'</code> (720px), <code>'xl'</code> (960px) or <code>'full'</code> (the whole screen minus a 16px margin). On a drawer the sizes are 320, 400, 560 and 720px. <code>width</code> and <code>maxWidth</code> override the size with any CSS length.</li><li><code>tone</code>:</li></ul>
+<p>- <code>'neutral'</code> (default) uses the primary colour.   - <code>'info'</code>, <code>'success'</code>, <code>'warning'</code> and <code>'danger'</code> tint the top bar and the icon circle.   - A tone also brings its own icon. <code>icon: 'none'</code> turns it off.</p>
+<ul><li><code>accent: false</code> removes the coloured bar on top.</li><li><code>customColor: { background, text, accent }</code> sets the colours by hand.</li></ul>
+<h2 id="layouts">Layouts</h2>
+<ul><li><code>layout</code>:</li></ul>
+<p>- <code>'center'</code> (default): a box in the middle of the screen.   - <code>'top'</code>: a box near the top, for search and command palettes.   - <code>'drawer'</code>: a panel the height (or width) of the screen, from the edge set by <code>side</code> (<code>'right'</code> by default, or <code>'left'</code>, <code>'top'</code> or <code>'bottom'</code>).   - <code>'sheet'</code>: rises from the bottom edge, with a grab handle. Drag the handle or the header down to close it. On a sheet the action buttons stretch across the full width, which suits thumbs.   - <code>'fullscreen'</code>: the whole viewport, for editors and long flows.</p>
+<ul><li><code>mobileLayout: 'sheet'</code> or <code>'fullscreen'</code> switches to that layout at <code>breakpoint</code> (600px) and below, and back when the window grows. <code>effectiveLayout</code> tells you which one is showing.</li><li>Each layout enters and leaves from its own direction: a drawer slides in from its side, a sheet from below. With reduced motion turned on, the modal simply appears and disappears.</li></ul>
+<h2 id="actions">Actions</h2>
+<p><code>actions</code> is a list of buttons for the footer. Each one is a <code>Button</code> config plus a few extras:</p>
+<ul><li><code>value</code> is the text. <code>variant</code>, <code>icon</code> and <code>size</code> are passed to <code>Button</code>.</li><li><code>onClick({ modal, action })</code> runs when it is clicked. Return <code>false</code> to stop the modal from closing.</li><li><code>close</code> decides what happens after the click:</li></ul>
+<p>- With no <code>onClick</code>, a button closes the modal by default, and its <code>value</code> becomes the return value. That is all a "Cancel" or "OK" needs.   - With an <code>onClick</code>, a button leaves the modal open unless you say <code>close: true</code>.   - <code>close: 'saved'</code> closes it with that return value.</p>
+<ul><li><code>autofocus: true</code> focuses the button when the modal opens. Use it on the safe choice.</li><li><code>disabled</code> and <code>hidden</code> do what they say. A node in the list is placed as it is.</li><li><code>actionsAlign</code> arranges the buttons: <code>'end'</code> (default), <code>'start'</code>, <code>'between'</code> or <code>'stretch'</code>.</li></ul>
+<h2 id="closing">Closing</h2>
+<p>Every way of closing has a reason, and <code>onClose({ returnValue, reason })</code> reports it:</p>
+<ul><li><code>'escape'</code>: the Escape key, or the back gesture on Android.</li><li><code>'backdrop'</code>: a click outside the dialog.</li><li><code>'close-button'</code>: the ✕.</li><li><code>'action'</code>: an action button.</li><li><code>'swipe'</code>: a sheet dragged down.</li><li><code>'form'</code>: a <code>&lt;form method="dialog"&gt;</code> inside was submitted. The return value is the value of the button that submitted it.</li><li><code>'api'</code>: your code called <code>close()</code>.</li></ul>
+<p>How to control it:</p>
+<ul><li><code>onBeforeClose({ reason, returnValue })</code> runs before anything a person does closes the modal. Return <code>false</code>, or a promise that resolves to <code>false</code>, and the modal stays open.</li><li><code>close(returnValue)</code> closes it straight away, without asking <code>onBeforeClose</code>, because a call from your code is a decision already made. <code>requestClose(reason, returnValue)</code> goes through the guard and resolves with whether the modal closed.</li><li><code>dismissable: false</code> removes the ✕ and ignores Escape and backdrop clicks. <code>closeOnEscape</code> and <code>closeOnBackdrop</code> turn off one of them alone.</li><li>A backdrop click that is not allowed to close the modal gives it a small shake, so the click does not seem lost.</li><li>An Escape that something inside the modal already used does not close it. For example, pressing Escape in an open <code>Select</code> or <code>DropDown</code> closes only the menu.</li><li><code>destroyOnClose: true</code> destroys and removes the modal once it has closed and finished animating out. Use it for modals you build for a single question.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
+<p>Each example is a small piece of a real app, built with other components from the library, so you can see the modal doing its job rather than its props one by one.</p>
+<div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <div class="script-block" data-block-id="doc-block-7"></div>
 <div class="script-block" data-block-id="doc-block-8"></div>
-<h2 id="practical-scenarios">Practical Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-9"></div>
-<div class="script-block" data-block-id="doc-block-10"></div>
-<div class="script-block" data-block-id="doc-block-11"></div>
-<div class="script-block" data-block-id="doc-block-12"></div>
+<h2 id="scrolling">Scrolling</h2>
+<p>The dialog is at most <code>min(85vh, 640px)</code> tall. Past that, only the body scrolls: the header and footer stay in view, and a scroll that reaches the end of the body does not carry on into the page on touch screens. To change the cap:</p>
+<div class="code-block" data-block-id="doc-block-9"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use modal for focused tasks that require user input or confirmation before continuing. Always provide a clear way to dismiss (close button, cancel action, or Escape key). For simple notifications, prefer <code>Toast</code> instead.</div>
+<div class="callout callout-tip">For a plain "are you sure?", use [ConfirmActionModal](/docs/display/confirm-action-modal): it is this modal with the question, the two buttons and the promise already wired up. Reach for <code>Modal</code> when the content is your own.</div>
+<div class="callout callout-tip">Put <code>autofocus</code> on the safe action of a destructive dialog ("Cancel"), not on "Delete". A stray Enter should never destroy anything.</div>
+<div class="callout callout-tip">Use <code>mobileLayout: 'sheet'</code> for modals people open on phones. A sheet sits where the thumb is, and it can be closed with a swipe.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">The modal creates a <code>&lt;dialog&gt;</code> in the top layer — ensure no other element interferes with <code>z-index</code> handling. Multiple open modals stack but the browser only allows one <code>&lt;dialog&gt;</code> in the top layer at a time; close one before opening another.</div>
-<div class="component-block" data-block-id="doc-block-13"></div>
+<div class="callout callout-warning">A <code>Modal</code> built with <code>slice.build</code> is not destroyed when it closes. Pass <code>destroyOnClose: true</code> for a one-off modal, or build one once and reuse it. Building a new one on every click without either leaks a component each time.</div>
+<div class="callout callout-warning"><code>close()</code> skips <code>onBeforeClose</code> on purpose. If your code closes the modal on someone's behalf and the guard should still run, call <code>requestClose()</code>.</div>
+<div class="callout callout-warning"><code>resizable: true</code> removes the width and height caps while the modal is open, so it can grow past them. Drag and resize only apply to the <code>center</code> and <code>top</code> layouts; on a drawer, sheet or fullscreen they are off.</div>
+<div class="component-block" data-block-id="doc-block-10"></div>
 </div>

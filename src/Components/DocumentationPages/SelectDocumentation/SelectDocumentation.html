@@ -7,24 +7,32 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Select</code> supports single/multiple options, custom display property and callback on selection.</p>
-<h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>Select</code> supports single and multiple selection flows from a structured options source.</li><li><code>visibleProp</code> maps option objects to user-facing labels without reshaping backend payloads.</li><li>Use the scenarios below to validate selection behavior in forms and filter toolbars.</li></ul>
-<h2 id="search-clear-keyboard">Search, clear &amp; keyboard</h2>
-<ul><li><code>searchable</code> (boolean) — type into the field to filter options by their <code>visibleProp</code> text; a</li></ul>
-<p>"No results" row appears when nothing matches. <code>placeholder</code> sets the hint shown while searching.</p>
-<ul><li><code>clearable</code> (boolean) — shows a clear button once something is selected; clicking it resets the</li></ul>
-<p>value and fires <code>onChange</code>.</p>
-<ul><li>Keyboard: <strong>↑/↓</strong> move the highlight, <strong>Enter</strong> selects the highlighted option (or toggles the menu),</li></ul>
-<p><strong>Home/End</strong> jump to the first/last option, <strong>Esc</strong> closes. <code>aria-expanded</code> / <code>aria-selected</code> are kept   in sync.</p>
+<p><code>Select</code> lets people pick one value, or several, from a list. The list can be searched, grouped, loaded from a server as they type, extended by typing something new, and long enough to need virtual scrolling. The field follows the WAI-ARIA combobox pattern, so it works from the keyboard and with screen readers. The list floats above everything, so a parent with <code>overflow: hidden</code> never clips it.</p>
+<h2 id="options">Options</h2>
+<p><code>options</code> is an array of strings, numbers or objects:</p>
+<ul><li><code>{ value, label }</code>: <code>value</code> is what you get back and <code>label</code> is what is shown. <code>text</code>, or whatever <code>visibleProp</code> names, also works as the label. An object without a <code>value</code> uses its <code>id</code>, else its label.</li><li><code>disabled</code>, <code>icon</code> (an <code>Icon</code> name) and <code>description</code> (a quieter second line) are optional on any option.</li><li><code>{ label, options: [...] }</code> is a group under a small heading.</li></ul>
+<h2 id="value">Value</h2>
+<ul><li><code>selected</code> is the clean way to read and set it: the option's value for a single select, an array of values for <code>multiple</code>, <code>null</code> (or <code>[]</code>) when empty.</li><li><code>selectedOptions</code> gives you the option objects you passed in, in the order they were picked.</li><li><code>value</code> keeps its old shape for existing code: the option object (single), an array of them (multiple), or <code>[]</code> when empty.</li><li>Setting <code>selected</code> or <code>value</code> accepts any form: a value, an array of values, an option object, or an array of them. The order of the props does not matter; a value given before the options waits for them.</li><li><code>onChange(selected, selectedOptions)</code> fires on every change, with <code>this</code> set to the Select. <code>onOptionSelect</code> is its older name.</li><li><code>open()</code>, <code>close()</code>, <code>clear()</code> and <code>focus()</code> work from code. <code>isOpen</code> tells you whether the list is open.</li></ul>
+<h2 id="behavior">Behavior</h2>
+<ul><li><strong>Keyboard</strong>:</li></ul>
+<p>- <strong>↓ / ↑</strong> open the list and move through it, skipping disabled options; <strong>PageUp / PageDown</strong> jump.   - <strong>Enter</strong> picks the highlighted option. <strong>Escape</strong> closes the list, or clears a <code>clearable</code> field.   - <strong>Tab</strong> leaves.   - In a field you cannot type in, letters jump to the matching option.</p>
+<ul><li><code>searchable</code> filters as you type. Accents and capitals do not matter ("espa" finds "España"), and the matching text is highlighted.</li><li><code>multiple</code> shows the picks as chips inside the field. Remove one with its ✕, or remove the last one with <strong>Backspace</strong>. The list stays open while you pick. <code>selectAll</code> adds a "Select all" row (a dash means some are picked) and <code>max</code> caps how many can be picked.</li><li><code>creatable</code> offers "Create …" for text that matches no option. <code>onCreate(label)</code> can shape the new option, or return <code>false</code> to refuse it.</li><li><code>loadOptions(query, { signal })</code> fetches options from a server. It runs when the list opens and again as the user types (after a short pause), and aborts the previous request. A loading row shows meanwhile. Values given before the options load keep their label.</li><li>Lists longer than 150 options render only the rows in view (<code>virtual: 'auto'</code>; <code>'on'</code> and <code>'off'</code> force it).</li><li><code>clearable</code> adds a ✕ that empties the field.</li><li><code>name</code> writes hidden inputs, so a plain <code>&lt;form&gt;</code> submits the value(s).</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>: <code>'outlined'</code> (default), <code>'filled'</code> or <code>'ghost'</code>, the same names <code>Button</code> uses.</li><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>label</code> floats above the field once there is a value or the list is open; <code>placeholder</code> shows inside the field after that.</li><li><code>help</code> adds a hint under the field. <code>error</code> replaces the hint, marks the field invalid (<code>aria-invalid</code>) and turns it red. <code>required</code> adds an asterisk and <code>aria-required</code>.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
-<h2 id="practical-setups">Practical Setups</h2>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
 <div class="script-block" data-block-id="doc-block-7"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Use <code>selected</code> and <code>onChange(selected)</code> in new code: you work with plain values (<code>'ve'</code>, <code>[1, 2]</code>) instead of option objects.</div>
+<div class="callout callout-tip">Turn on <code>searchable</code> once a list has more than about ten options; nobody wants to scroll through 200 countries.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>loadOptions</code> replaces the options on every query. Keep your option values stable between queries (a database id, not an index), or a picked value will not be recognised when it comes back.</div>
+<div class="callout callout-warning"><code>value</code> keeps returning option objects for compatibility. Reading <code>select.value.value</code> works for a single select but not for a multiple one; <code>selected</code> has no such trap.</div>
 <div class="component-block" data-block-id="doc-block-8"></div>
 </div>

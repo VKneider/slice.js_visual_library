@@ -112,13 +112,13 @@ const docsIndex = [
   {
     title: 'Modal',
     route: '/docs/feedback/modal',
-    description: 'Modal dialog component built on native <dialog> with composition via slots, focus trap, and backdrop dismiss.',
+    description: 'Native dialog with sizes, tones, centred, top, drawer, sheet and fullscreen layouts, actions, a close guard, a promise for the answer and enter/exit animations.',
     section: 'Feedback',
     group: 'Overlay',
     order: 10,
     navLabel: 'Modal',
     component: 'ModalDocumentation',
-    tags: ['modal', 'dialog', 'overlay', 'feedback']
+    tags: ['modal', 'dialog', 'drawer', 'sheet', 'overlay', 'feedback']
   },
   {
     title: 'Loading',
@@ -156,13 +156,13 @@ const docsIndex = [
   {
     title: 'Input',
     route: '/docs/input/input',
-    description: 'Input component documentation with practical setup examples.',
+    description: 'Text field with a floating label, variants, sizes, icon, prefix and suffix, clear button, help, errors, a counter and validation shared with Textarea.',
     section: 'Input Components',
     group: 'Basic',
     order: 11,
     navLabel: 'Input',
     component: 'InputDocumentation',
-    tags: ['input', 'forms']
+    tags: ['input', 'forms', 'field', 'validation']
   },
   {
     title: 'FileUpload',
@@ -178,13 +178,13 @@ const docsIndex = [
   {
     title: 'Select',
     route: '/docs/input/select',
-    description: 'Select component documentation with practical setup examples.',
+    description: 'Combobox with search, groups, multiple selection with chips, creatable options, server-loaded options and virtual scrolling.',
     section: 'Input Components',
     group: 'Basic',
     order: 12,
     navLabel: 'Select',
     component: 'SelectDocumentation',
-    tags: ['select', 'forms']
+    tags: ['select', 'combobox', 'forms', 'multiselect', 'autocomplete']
   },
   {
     title: 'Checkbox',
@@ -200,13 +200,13 @@ const docsIndex = [
   {
     title: 'Textarea',
     route: '/docs/input/textarea',
-    description: 'Multi-line text input with a floating label, auto-grow, validation conditions and an onChange handler.',
+    description: 'Multi-line text field that shares Input\'s label, looks and validation, with auto-grow up to a limit, a counter and Ctrl+Enter to submit.',
     section: 'Input Components',
     group: 'Basic',
     order: 13,
     navLabel: 'Textarea',
     component: 'TextareaDocumentation',
-    tags: ['textarea', 'input', 'forms', 'multiline']
+    tags: ['textarea', 'input', 'forms', 'multiline', 'validation']
   },
   {
     title: 'RadioGroup',
@@ -251,6 +251,17 @@ const docsIndex = [
     navLabel: 'ThemeSelector',
     component: 'ThemeSelectorDocumentation',
     tags: ['theme', 'selector', 'toggle', 'dark-mode', 'settings', 'light']
+  },
+  {
+    title: 'DatePicker',
+    route: '/docs/input/datepicker',
+    description: 'Date field with a calendar. People can type the date or pick it. Supports ranges over two months, min / max and disabled days, presets, an inline calendar, the full keyboard pattern and the same field styling and validation as Input.',
+    section: 'Input Components',
+    group: 'Basic',
+    order: 16,
+    navLabel: 'DatePicker',
+    component: 'DatePickerDocumentation',
+    tags: ['datepicker', 'date', 'calendar', 'range', 'forms']
   },
   {
     title: 'ThemeSwitcher',
@@ -310,13 +321,13 @@ const docsIndex = [
   {
     title: 'Card',
     route: '/docs/layout/card',
-    description: 'Card documentation with prop scenario scripts.',
+    description: 'One thing, summed up. A product, a person, a file, a project or a metric, shown among others like it, that can lead to its detail. Image or icon, title, badge, content, actions, selectable and loading states.',
     section: 'Layout',
     group: 'Containers',
     order: 20,
     navLabel: 'Card',
     component: 'CardDocumentation',
-    tags: ['card', 'layout']
+    tags: ['card', 'layout', 'grid', 'list', 'tile']
   },
   {
     title: 'Details',
@@ -354,46 +365,46 @@ const docsIndex = [
   {
     title: 'Navbar',
     route: '/docs/navigation/navbar',
-    description: 'Navbar component documentation with practical setup examples.',
+    description: 'Top navigation bar with five variants, nested dropdowns, the current page marked, sticky or fixed positioning and a real mobile menu.',
     section: 'Navigation',
     group: 'Core',
     order: 30,
     navLabel: 'Navbar',
     component: 'NavbarDocumentation',
-    tags: ['navbar', 'navigation']
+    tags: ['navbar', 'navigation', 'header', 'menu', 'mobile']
   },
   {
     title: 'Tabs',
     route: '/docs/navigation/tabs',
-    description: 'Deep Tabs documentation with behavior-first scenarios and integration patterns.',
+    description: 'Tab strip with four variants, a sliding indicator, icons, badges, closable and lazy tabs, overflow arrows, vertical layout, the full keyboard pattern and remembered state.',
     section: 'Navigation',
     group: 'Core',
     order: 31,
     navLabel: 'Tabs',
     component: 'TabsDocumentation',
-    tags: ['tabs', 'navigation', 'routing']
+    tags: ['tabs', 'navigation', 'routing', 'panels']
   },
   {
     title: 'DropDown',
     route: '/docs/navigation/dropdown',
-    description: 'DropDown component documentation with practical navigation scenarios.',
+    description: 'Menu button with links, actions, toggles and nested submenus, trigger variants, smart placement and full keyboard support.',
     section: 'Navigation',
     group: 'Core',
     order: 32,
     navLabel: 'DropDown',
     component: 'DropDownDocumentation',
-    tags: ['dropdown', 'navigation']
+    tags: ['dropdown', 'menu', 'navigation', 'submenu', 'actions']
   },
   {
     title: 'BottomNav',
     route: '/docs/navigation/bottom-nav',
-    description: 'BottomNav (floating bottom tab bar) documentation with practical navigation scenarios.',
+    description: 'App-style bottom tab bar with variants, badges, a raised centre action, label modes, docking on phones and hide-on-scroll.',
     section: 'Navigation',
     group: 'Core',
     order: 33,
     navLabel: 'BottomNav',
     component: 'BottomNavDocumentation',
-    tags: ['bottomnav', 'navigation', 'tabs', 'mobile']
+    tags: ['bottomnav', 'navigation', 'tabs', 'mobile', 'badge']
   },
   {
     title: 'Breadcrumbs',
@@ -420,13 +431,13 @@ const docsIndex = [
   {
     title: 'TreeView',
     route: '/docs/navigation/treeview',
-    description: 'TreeView documentation with nested item and navigation scenarios.',
+    description: 'Hierarchical list with full keyboard support, search, checkboxes, lazy branches, virtual scrolling, drag and drop and row menus.',
     section: 'Navigation',
     group: 'Navigation',
     order: 50,
     navLabel: 'TreeView',
     component: 'TreeViewDocumentation',
-    tags: ['treeview', 'navigation', 'tree']
+    tags: ['treeview', 'navigation', 'tree', 'files', 'checkbox', 'drag']
   },
   {
     title: 'Link',

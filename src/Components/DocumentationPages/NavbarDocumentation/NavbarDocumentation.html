@@ -7,14 +7,43 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Navbar</code> provides top-level navigation with optional logo, menu items and action buttons.</p>
+<p><code>Navbar</code> is the top navigation bar. It has a brand, links (dropdowns with submenus included) and actions, comes in five looks, marks the page you are on, and below a breakpoint turns into a mobile menu that behaves like one: a drawer, a full screen or a sheet.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>Navbar</code> organizes top-level navigation with optional branding, route links, dropdown groups and action buttons.</li><li>Layout behavior is controlled by positioning and direction settings to support product sites and internal dashboards.</li><li>Scenarios below focus on real navigation compositions rather than static prop duplication.</li></ul>
+<ul><li><code>brand</code> is <code>{ logo, text, path, alt }</code>: an image, a name, or both. <code>logo</code> (<code>{ src, path }</code>) is the older form and still works.</li><li><code>items</code> are the links:</li></ul>
+<p>- <code>{ text, path }</code> is a route link, navigated through <code>slice.router</code>.   - <code>{ text, href, target }</code> is a plain or external link.   - <code>{ text, items: [...] }</code> is a <code>DropDown</code> with submenus as deep as you like. The bar shows it as plain text that opens on hover; click and keyboard work too. See [DropDown](/docs/navigation/dropdown) for what its items can be. <code>type: 'dropdown'</code> with <code>options</code> is the older form and still works.   - Any item can also take <code>icon</code>, <code>exact</code> (see below) or <code>hidden</code>.</p>
+<ul><li><code>buttons</code> are Button configs (<code>{ value, onClick, icon, variant, color }</code>). <code>actions</code> takes the same configs or any node: a ThemeSwitcher, a search box, an avatar <code>DropDown</code>. They render in the order you give them.</li><li>Every prop is reactive: set <code>items</code>, <code>buttons</code>, <code>variant</code> or anything else at any time and the bar updates.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'filled'</code> (default): the primary colour, the original look. Same name as in <code>Button</code>; <code>'solid'</code> also works.   - <code>'surface'</code>: the page colour with a fine bottom border.   - <code>'glass'</code>: translucent, blurring what scrolls under it.   - <code>'transparent'</code>: no fill, for use over a hero; it turns into <code>surface</code> once the page scrolls.   - <code>'floating'</code>: a detached pill with a shadow.</p>
+<ul><li><code>size</code>: <code>'sm'</code> (52px), <code>'md'</code> (64px, default) or <code>'lg'</code> (76px). To use another height, set the <code>--nav-height</code> CSS property on the element.</li><li><code>align</code>: where the links sit, <code>'start'</code>, <code>'center'</code> (default) or <code>'end'</code>.</li><li><code>indicator</code> marks the current page:</li></ul>
+<p>- <code>'underline'</code> (default): a bar that slides under the link.   - <code>'pill'</code>: a soft background that slides behind the link.   - <code>'none'</code>: colour only.</p>
+<h2 id="the-current-page">The current page</h2>
+<p>The link whose <code>path</code> matches the URL gets <code>aria-current="page"</code> and the indicator.</p>
+<ul><li>An exact match wins. Otherwise the longest matching prefix wins, so <code>/docs/table</code> keeps "Docs" marked.</li><li><code>'/'</code> only matches itself, and an item with <code>exact: true</code> only matches its own path.</li><li>A dropdown counts as current when any page inside it does, at any depth.</li><li>The bar follows <code>slice.router</code> navigations and the browser's back and forward buttons. <code>setActivePath(path)</code> sets it by hand; <code>setActivePath(null)</code> goes back to following the URL.</li></ul>
+<h2 id="position-and-scrolling">Position and scrolling</h2>
+<ul><li><code>position</code>:</li></ul>
+<p>- <code>'static'</code> (default): part of the page.   - <code>'sticky'</code>: sticks to the top while its parent scrolls.   - <code>'fixed'</code>: pinned to the viewport. With <code>spacer: true</code> the bar also keeps its height in the page, so it covers nothing. That is off by default, because pages built for the old fixed bar already leave room for it.</p>
+<ul><li><code>hideOnScroll</code>: the bar slides away while you scroll down and comes back as soon as you scroll up.</li><li>Once the page scrolls, every variant gets the <code>nav_bar--scrolled</code> class: <code>surface</code> and <code>glass</code> gain a soft shadow, and <code>transparent</code> gains a fill.</li><li><code>direction: 'reverse'</code> mirrors the bar.</li></ul>
+<h2 id="mobile">Mobile</h2>
+<p>At <code>breakpoint</code> (768px by default) and below, the links and actions move behind a hamburger button that turns into an ✕.</p>
+<ul><li><code>mobileMenu</code>:</li></ul>
+<p>- <code>'drawer'</code> (default): a panel from the side.   - <code>'fullscreen'</code>: the whole screen.   - <code>'sheet'</code>: a panel hanging under the bar, which stays visible.</p>
+<ul><li>While the menu is open:</li></ul>
+<p>- Focus stays inside it.   - <strong>Escape</strong>, the ✕, a tap on the dimmed area or following a link closes it, and focus returns to the hamburger.   - The page behind it does not scroll.</p>
+<ul><li>The menu closes on its own when the window grows past the breakpoint.</li><li>Dropdowns inside it stack their submenus with a "‹ Back" row.</li><li><code>openMenu()</code>, <code>closeMenu()</code>, <code>toggleMenu()</code> and <code>isMenuOpen</code> drive it from code. <code>onMenuToggle(open)</code> tells you when it opens or closes.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="practical-setups">Practical Setups</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<div class="component-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Keep the bar to five or six top-level links and move the rest into dropdowns. The bar is the first thing people read, so short and scannable wins.</div>
+<div class="callout callout-tip">Use <code>exact: true</code> on a link whose path is a prefix of other links' paths (an "Overview" at <code>/docs</code> next to "API" at <code>/docs/api</code>), so only one of them is marked as current.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>position: 'fixed'</code> takes the bar out of the page. Either leave room for it yourself (a <code>padding-top</code> on your content) or pass <code>spacer: true</code>, but not both.</div>
+<div class="callout callout-warning"><code>hideOnScroll</code> and the scrolled state listen to the window's scroll. A bar inside a scrolling panel (not the page) will not see that panel scroll.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
 </div>

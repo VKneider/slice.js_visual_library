@@ -938,3 +938,64 @@ test.describe('Form - repeatable groups', () => {
       expect(await c.component.evaluate((el) => el.querySelectorAll('.slice-form__group').length)).toBe(0);
    });
 });
+test.describe('Form - text fields', () => {
+  const FIELDS = [
+    { kind: 'field', name: 'first', label: 'First name', component: 'Input', required: true },
+    { kind: 'field', name: 'last', label: 'Last name', component: 'Input' },
+    { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true, props: { type: 'email' } },
+    { kind: 'field', name: 'bio', label: 'Bio', component: 'Textarea', full: true },
+  ];
+
+  // Regression: the implicit step box sat in ONE column of the outer grid and
+  // split it again, so at columns: 2 every field got a quarter of the form.
+  test('columns: 2 gives each field half the form, and a full field all of it', async ({ mount, page }) => {
+    await page.setViewportSize({ width: 900, height: 800 });
+    const c = await mount('Form', { columns: 2, schema: FIELDS });
+    const widths = await c.component.evaluate((form) => {
+      const fields = form.querySelector('.slice-form__fields').getBoundingClientRect().width;
+      const one = form.querySelector('slice-input').getBoundingClientRect().width;
+      const full = form.querySelector('slice-textarea').getBoundingClientRect().width;
+      return { fields, one, full };
+    });
+    expect(widths.one).toBeGreaterThan(widths.fields * 0.45);
+    expect(Math.round(widths.full)).toBe(Math.round(widths.fields));
+  });
+
+  test('the Form owns the label: controls show none of their own, but are named by it', async ({ mount, page }) => {
+    const c = await mount('Form', { schema: FIELDS });
+    const first = c.locator('slice-input').first();
+    await expect(first).toHaveAttribute('data-label-placement', 'above');
+    await expect(first.locator('.slice_input_placeholder')).toBeHidden();
+    await expect(first.locator('input')).toHaveAttribute('aria-label', 'First name');
+    // Clicking the Form's label focuses the control.
+    await c.locator('.slice-form__label').filter({ hasText: 'Last name' }).click();
+    await expect(c.locator('slice-input').nth(1).locator('input')).toBeFocused();
+  });
+
+  test('submit uses the control’s own rules, marks it once, and focuses the first problem', async ({ mount }) => {
+    const c = await mount('Form', { schema: FIELDS }, { spies: ['onSubmit'] });
+    await c.locator('slice-input').nth(0).locator('input').fill('Ana');
+    await c.locator('slice-input').nth(2).locator('input').fill('ana@');
+    expect(await c.component.evaluate((f) => f.submit())).toBe(false);
+    expect(await c.events('onSubmit')).toBe(0);
+
+    const email = c.locator('.slice-form__field[data-name="email"]');
+    await expect(email.locator('.slice-form__error')).toHaveText('Enter a valid email address');
+    await expect(email.locator('slice-input input')).toBeFocused();
+    // One red edge: the control's own, not a second ring around it.
+    await expect(email.locator('.slice_input')).toHaveClass(/is-invalid/);
+    expect(await email.locator('.slice-form__control').evaluate((el) => getComputedStyle(el).boxShadow)).toBe('none');
+    // The control does not print a second copy of the message.
+    await expect(email.locator('.slice_input_footer')).toBeHidden();
+  });
+
+  test('an error on screen clears as soon as the field is fixed', async ({ mount }) => {
+    const c = await mount('Form', { schema: FIELDS });
+    await c.component.evaluate((f) => f.submit());
+    const first = c.locator('.slice-form__field[data-name="first"]');
+    await expect(first.locator('.slice-form__error')).toHaveText('This field is required');
+    await first.locator('input').fill('Ana');
+    await expect(first.locator('.slice-form__error')).toHaveText('');
+    await expect(first.locator('.slice_input')).not.toHaveClass(/is-invalid/);
+  });
+});

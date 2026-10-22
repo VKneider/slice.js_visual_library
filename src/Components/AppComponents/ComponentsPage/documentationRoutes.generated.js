@@ -159,6 +159,11 @@ const documentationRoutes = {
         component: 'ThemeSelectorDocumentation'
       },
       {
+        title: 'DatePicker',
+        path: '/docs/input/datepicker',
+        component: 'DatePickerDocumentation'
+      },
+      {
         title: 'ThemeSwitcher',
         path: '/docs/input/theme-switcher',
         component: 'ThemeSwitcherDocumentation'

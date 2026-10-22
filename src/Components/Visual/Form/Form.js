@@ -184,15 +184,20 @@ export default class Form extends HTMLElement {
   setError(name, message) {
     const field = this._fields.find((f) => f.name === name);
     if (!field) return;
-    field.$error.textContent = message || '';
-    field.$field.classList.toggle('slice-form__field--error', !!message);
+    this._paintError(field, message);
   }
 
   clearErrors() {
-    for (const field of this._fields) {
-      field.$error.textContent = '';
-      field.$field.classList.remove('slice-form__field--error');
-    }
+    for (const field of this._fields) this._paintError(field, '');
+  }
+
+  // The message is the Form's (one style for every kind of control); the red
+  // edge is the control's own when it has one (Input, Textarea), so it matches
+  // the control's focus ring instead of being a second ring drawn around it.
+  _paintError(field, message) {
+    field.$error.textContent = message || '';
+    field.$field.classList.toggle('slice-form__field--error', !!message);
+    if (field.ownsInvalid) field.instance.invalid = !!message;
   }
 
   /**
@@ -206,31 +211,48 @@ export default class Form extends HTMLElement {
 
     // Clear only what is about to be checked. On a stepped form, clearing
     // everything first would wipe the errors on the steps you already passed.
-    for (const field of scope) {
-      field.$error.textContent = '';
-      field.$field.classList.remove('slice-form__field--error');
-    }
+    for (const field of scope) this._paintError(field, '');
 
     const values = this.getValues();
-    let valid = true;
+    let firstInvalid = null;
 
     for (const field of scope) {
       if (!field.name) continue;
-      const value = this._valueFor(field, values);
-      let error = null;
-
-      if (field.config.required && this._isEmpty(value)) {
-        error = typeof field.config.required === 'string' ? field.config.required : 'This field is required';
-      } else if (typeof field.config.validate === 'function') {
-        error = field.config.validate(value, values) || null;
-      }
-
+      const error = this._errorFor(field, values);
       if (error) {
-        this.setError(field.name, error);
-        valid = false;
+        this._paintError(field, error);
+        firstInvalid = firstInvalid || field;
       }
     }
-    return valid;
+
+    // Take the person to the first problem instead of leaving them to scroll
+    // for a red line.
+    if (firstInvalid && typeof firstInvalid.instance?.focus === 'function') {
+      firstInvalid.instance.focus();
+    }
+    return !firstInvalid;
+  }
+
+  // The schema's rules first (required, validate), then the control's own
+  // (an Input of type email knows what an email looks like).
+  _errorFor(field, values) {
+    const value = this._valueFor(field, values);
+    if (field.config.required && this._isEmpty(value)) {
+      return typeof field.config.required === 'string' ? field.config.required : 'This field is required';
+    }
+    if (typeof field.config.validate === 'function') {
+      const error = field.config.validate(value, values);
+      if (error) return error;
+    }
+    const own = field.instance?.validationMessage;
+    return typeof own === 'string' && own ? own : null;
+  }
+
+  // An error already on screen follows the value as it is edited, so it goes
+  // away as soon as the field is fixed instead of lingering until Submit.
+  _revalidateField(field) {
+    if (!field.$field.classList.contains('slice-form__field--error')) return;
+    this._paintError(field, this._errorFor(field, this.getValues()) || '');
   }
 
   /** Number of steps. 1 for a plain schema. */
@@ -802,14 +824,26 @@ export default class Form extends HTMLElement {
     if (config.value !== undefined) props[valueProp] = config.value;
     const instance = config.component ? await slice.build(config.component, props) : null;
 
+    let ownsInvalid = false;
     if (instance) {
       this._built.push(instance);
+      // Controls that are text fields (Input, Textarea) are told that the Form
+      // owns the label and the error: no floating label of their own (the
+      // Form's sits above), no validation shown by themselves.
+      const caps = /** @type {any} */ (instance.constructor)?.props || {};
+      const given = config.props || {};
+      if ('labelPlacement' in caps && given.labelPlacement === undefined) instance.labelPlacement = 'above';
+      if ('validateOn' in caps && given.validateOn === undefined) instance.validateOn = 'manual';
+      if ('ariaLabel' in caps && config.label && given.ariaLabel === undefined) instance.ariaLabel = config.label;
+      if ('required' in caps && config.required && given.required === undefined) instance.required = true;
+      ownsInvalid = 'invalid' in caps;
       // The control gets its own box so CSS can tint it when the field is
       // invalid. The message alone is not enough: red text under an input that
       // still looks perfectly normal is easy to miss, and on a long form it is
       // invisible at a glance.
       const slot = document.createElement('div');
       slot.className = 'slice-form__control';
+      if (ownsInvalid) slot.dataset.ownsInvalid = 'true';
       slot.appendChild(instance);
       wrap.appendChild(slot);
     } else {
@@ -848,11 +882,12 @@ export default class Form extends HTMLElement {
     // A stepped form passes its own step box; everything else appends to the
     // shared field list.
     (target || this.$fields).appendChild(wrap);
-    this._fields.push({
+    const record = {
       name: config.name,
       instance,
       valueProp,
       config,
+      ownsInvalid,
       $error: error,
       $field: wrap,
       // Which step this field belongs to, so validate([n]) can scope itself.
@@ -860,7 +895,21 @@ export default class Form extends HTMLElement {
       // Set only for a group item: { name, index, itemName }. getValues() uses
       // it to rebuild the nested shape.
       group,
-    });
+    };
+    this._fields.push(record);
+
+    // Live re-validation of a field already marked invalid. Both events,
+    // because text fields fire `input` and toggles / pickers fire `change`.
+    const recheck = () => this._revalidateField(record);
+    wrap.addEventListener('input', recheck);
+    wrap.addEventListener('change', recheck);
+
+    // The Form's label is not a <label for> the control can use (its field is
+    // inside the component), so a click on it focuses the control by hand.
+    const label = wrap.querySelector('.slice-form__label');
+    if (label && instance && typeof instance.focus === 'function') {
+      label.addEventListener('click', () => instance.focus());
+    }
   }
 
   _handleSubmit(event) {

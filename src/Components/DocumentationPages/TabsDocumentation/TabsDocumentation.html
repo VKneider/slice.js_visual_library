@@ -7,27 +7,39 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Tabs</code> organizes related views in a compact navigation pattern where users switch context without leaving the current surface.</p>
-<p>Use it for dashboards, settings pages, reporting workspaces, and any area where users frequently compare categories.</p>
-<h2 id="core-behavior">Core behavior</h2>
-<ul><li>Tabs keep one panel active at a time and visually mark the selected context.</li><li>Selection can be user-driven (click) or controlled from external state.</li><li>Panel content should stay focused and lightweight to keep context switches responsive.</li><li>Pair tabs with concise labels and stable ordering to preserve orientation.</li><li><code>variant</code> picks the strip treatment: <code>primary</code> (default, underline) for top-level navigation, <code>secondary</code> (segmented control) for switching views inside one screen.</li><li>The panels container collapses itself when no item carries a <code>panel</code>, so a tab strip used purely as navigation adds no dead padding.</li></ul>
-<h2 id="advanced-use-cases">Advanced use cases</h2>
-<ul><li>Settings workspaces where each tab owns a form section and independent save flow.</li><li>Data-heavy dashboards where tabs split long pages into digestible operational slices.</li><li>Route-aware tabs that mirror URL query/path state so deep links open the right panel.</li><li>Lazy activation patterns where expensive content mounts only after first selection.</li></ul>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<p><code>Tabs</code> switches between sibling views without leaving the page. It follows the WAI-ARIA tabs pattern in full:</p>
+<ul><li>the tab strip, each tab and each panel carry the roles screen readers expect, and every tab is linked to its panel;</li><li>only one tab is in the Tab order at a time, and the arrow keys move between tabs;</li><li>the active tab is marked by an indicator that slides to it.</li></ul>
+<p>Tabs can have icons and badges, be disabled or closed, and load their panel only when first opened. When there are more tabs than fit, arrows appear to scroll the strip.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>items</code> are the tabs: <code>{ id, label, icon, badge, disabled, hidden, closable, panel }</code>.</li></ul>
+<p>- <code>panel</code> can be a node, a string, or a <strong>function</strong> that returns one (it may be <code>async</code>). A function runs the first time its tab opens, so expensive content (a Table, a chart, a request) only costs anything once someone looks at it. While it loads, the panel shows a shimmer.   - <code>badge</code> is a number (over 99 shows "99+"), a short text, or <code>true</code> for a dot. <code>setBadge(id, value)</code> updates it without re-rendering; <code>null</code> removes it.   - A tab with only an <code>icon</code> and no <code>label</code> takes its accessible name from <code>ariaLabel</code>.</p>
+<ul><li><code>activeTab</code> sets the open tab. <code>onChange(id)</code> and the <code>tab-change</code> event (<code>detail: { tabId, item, previous }</code>) report changes. <code>activeItem</code> and <code>activeIndex</code> tell you which one is open.</li><li><code>onBeforeChange(next, previous)</code> can return <code>false</code> to stay on the current tab, for example while it has unsaved changes.</li><li><code>select(id)</code>, <code>next()</code> and <code>prev()</code> switch from code. <code>addTab(item, index)</code> and <code>removeTab(id)</code> add and remove tabs.</li></ul>
+<h3 id="keyboard">Keyboard</h3>
+<ul><li><strong>← →</strong> (or <strong>↑ ↓</strong> when vertical) move to the next or previous tab, skipping disabled ones and wrapping at the ends.</li><li><strong>Home</strong> and <strong>End</strong> jump to the first and last tab.</li><li><strong>Delete</strong> closes a closable tab, as does a middle click.</li><li><code>activation: 'auto'</code> (default) opens a tab as soon as the arrow keys reach it. With <code>'manual'</code>, the arrows only move the focus and <strong>Enter</strong> or <strong>Space</strong> opens the tab. Use manual when opening a panel is slow.</li></ul>
+<h3 id="closing-tabs">Closing tabs</h3>
+<ul><li><code>closable: true</code> puts a ✕ on every tab; <code>closable</code> on an item does it for one tab (or <code>closable: false</code> keeps one open).</li><li><code>onClose(id, item)</code> runs first. Return <code>false</code> to keep the tab, for example to ask whether to discard changes.</li><li>When a tab is closed, its neighbour opens, and the closed tab's panel is destroyed along with every Slice component inside it.</li></ul>
+<h3 id="remembering-the-tab">Remembering the tab</h3>
+<ul><li><code>stateKey</code> remembers the open tab in the browser (localStorage), so it is still open after a reload.</li><li><code>urlParam: 'tab'</code> keeps it in the address (<code>?tab=billing</code>), so a link can open a page on the right tab. It replaces the current history entry rather than adding one, so Back leaves the page instead of stepping through every tab clicked.</li><li>On load, the URL wins, then what was remembered, then <code>activeTab</code>, then the first enabled tab.</li></ul>
+<h3 id="memory">Memory</h3>
+<p>The panels belong to the Tabs. When you set <code>items</code> again, a tab whose <code>id</code> and <code>panel</code> are the same keeps its panel exactly as it was, along with everything typed into it. A tab that is gone, or whose <code>panel</code> changed, has its panel destroyed. <code>keepMounted: false</code> throws away a function panel when you leave its tab and runs it again the next time it opens.</p>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'underline'</code> (default): a bar under the active tab. It was called <code>'primary'</code>, which still works.   - <code>'pill'</code>: a soft pill behind the active tab.   - <code>'segmented'</code>: a segmented control, where the active tab is a filled pill. It was called <code>'secondary'</code>, which still works.   - <code>'enclosed'</code>: card-like tabs attached to a bordered panel.</p>
+<ul><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>orientation: 'vertical'</code> puts the tabs in a column beside the panels, as in a settings page.</li><li><code>align</code>: <code>'start'</code> (default), <code>'center'</code>, <code>'end'</code> or <code>'stretch'</code> (tabs share the width equally).</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
 <div class="script-block" data-block-id="doc-block-6"></div>
-<h2 id="accessibility-notes">Accessibility notes</h2>
-<ul><li>Keep tab labels concise and unique so screen-reader users can distinguish options quickly.</li><li>Ensure visible focus styles remain clear for keyboard navigation.</li><li>Preserve logical tab order and avoid moving focus unexpectedly when panels switch.</li><li>If panel updates are significant, include clear heading structure inside each panel.</li></ul>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use tabs for sibling content groups only. If users must complete a sequence, prefer a stepper or wizard pattern.</div>
-<h2 id="variants">Variants</h2>
-<p><code>primary</code> (the default) is the underline strip for top-level navigation. <code>variant: 'secondary'</code> is a segmented control — the active tab becomes a filled pill — for switching between views of the same screen. Same items, same behaviour, different affordance.</p>
-<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="callout callout-tip">Use tabs for views at the same level that people switch between. If they have to go through them in order, use a [Form](/docs/input/form) with steps instead.</div>
+<div class="callout callout-tip">Make expensive panels functions. A Table with thousands of rows, a chart or a request in a tab nobody opens then costs nothing.</div>
+<div class="callout callout-tip">Use <code>urlParam</code> on pages people link to or come back to (settings, a record's details). A link that opens the right tab saves a click and a "where was that?".</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Do not hide critical validation errors inside inactive tabs without a global indicator. Users should know where attention is required.</div>
-<div class="component-block" data-block-id="doc-block-8"></div>
+<div class="callout callout-warning">Do not hide validation errors in a tab that is not open. If a tab holds an error, put a badge on it (<code>setBadge(id, '!')</code>) and open it on submit, so people know where to look.</div>
+<div class="callout callout-warning">Give every item a stable <code>id</code>. The tabs, their panels and what is remembered all go by it: an id that changes on every render rebuilds the panel each time, and throws away what was typed in it.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
 </div>

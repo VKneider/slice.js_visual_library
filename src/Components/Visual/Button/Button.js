@@ -7,7 +7,7 @@ function deprecate(oldName, newName) {
    console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
 }
 
-import { applySize, applyClassName, SIZE_VALUES } from '../../spike/recipes.js';
+import { applySize, applyClassName, SIZE_VALUES } from '../../shared/props.js';
 
 export default class Button extends HTMLElement {
 
@@ -31,7 +31,7 @@ export default class Button extends HTMLElement {
          default: 'md',
          required: false,
          // Generated from SIZE_VALUES so the runtime validation the framework
-         // already performs checks against the recipe, not against a literal.
+         // already performs checks against the shared list (shared/props.js).
          allowedValues: SIZE_VALUES
       },
       className: {
@@ -55,6 +55,12 @@ export default class Button extends HTMLElement {
       icon: {
          type: 'object',
          default: null
+      },
+      // A disabled button looks inert, leaves the Tab order and ignores clicks
+      // (the handler lives on the wrapper, so it is checked there too).
+      disabled: {
+         type: 'boolean',
+         default: false
       }
    };
 
@@ -71,6 +77,7 @@ export default class Button extends HTMLElement {
       // Listener is attached unconditionally; the handler is resolved at click
       // time so it works whether it arrived via onClick or the legacy alias.
       this.$container.addEventListener('click', async () => {
+         if (this._disabled) return;
          if (this._onClick) await this._onClick();
       });
 
@@ -142,6 +149,16 @@ export default class Button extends HTMLElement {
       if (icon.color) this.$icon.color = icon.color;
    }
 
+   get disabled() {
+      return this._disabled;
+   }
+
+   set disabled(value) {
+      this._disabled = value === true;
+      this.$button.disabled = this._disabled;
+      this.toggleAttribute('disabled', this._disabled);
+   }
+
    get variant() {
       return this._variant;
    }
@@ -161,7 +178,7 @@ export default class Button extends HTMLElement {
    }
 
    set size(value) {
-      // One list, from the recipe table — not a literal in this file. An
+      // One list, from shared/props.js — not a literal in this file. An
       // unknown value falls back rather than rendering at whatever the next
       // rule in the stylesheet happens to say.
       const next = applySize(this, value, 'md');

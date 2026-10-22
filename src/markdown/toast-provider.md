@@ -20,18 +20,30 @@ Unlike manually placing `<slice-toast>` elements, it handles the container, queu
 
 ## Getting the instance
 
-`ToastProvider` is registered as a `"Service"` type component. Build it to access the singleton:
+`ToastProvider` is a `"Service"` type component. Build it with `{ singleton: true }`: every call then returns the same instance, so the whole app shares one stack of notifications.
 
 ```js
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 ```
 
-Because it is a singleton, build it once and recover the same instance anywhere with `slice.getComponent('ToastProvider')`.
+Without `{ singleton: true }`, each `slice.build('ToastProvider')` creates a NEW provider, with its own container stacked over the others and its own pool. The provider logs a warning when that happens.
+
+## Memory: a pool of toasts
+
+The provider does not build a new `Toast` for every notification. It keeps a small pool and reuses it:
+
+- When a toast finishes hiding (it expired, was closed, or was pushed out by a newer one), it goes back to the pool. The next `show()` takes it from there and resets it, instead of building another.
+- At most 5 toasts are on screen, and at most 5 wait in the pool. A page that shows a thousand notifications still owns about five `Toast` components.
+- One toast is built as soon as the provider is, so the first notification appears already styled.
+- `poolSize` tells you how many toasts the provider owns right now.
+- Destroying the provider destroys every toast it owns.
+
+`Toast` has a `reuse(props)` method that makes a used toast new again. It is what the pool uses, and it works the same way if you manage `<slice-toast>` elements yourself.
 
 ## Basic usage
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const btn = await slice.build('Button', {
   value: 'Show toast',
   onClick: () => provider.show('Hello from ToastProvider!', { type: 'success' })
@@ -44,7 +56,7 @@ mount(btn);
 Buttons for each type: success, error, warning, info, and default (no icon).
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const container = document.createElement('div');
 container.style.display = 'flex';
 container.style.flexWrap = 'wrap';
@@ -81,7 +93,7 @@ mount(container);
 Sticky toasts (`duration: 0`) stay until manually closed. Short durations auto-dismiss quickly.
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const container = document.createElement('div');
 container.style.display = 'flex';
 container.style.flexWrap = 'wrap';
@@ -105,7 +117,7 @@ mount(container);
 Hide the close button for notifications that should auto-dismiss only.
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const btn = await slice.build('Button', {
   value: 'Non-dismissable toast',
   onClick: () => provider.show('Auto-dismiss only — no close button', { dismissable: false, duration: 3000 })
@@ -118,7 +130,7 @@ mount(btn);
 Apply a custom background, text, and accent.
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const btn = await slice.build('Button', {
   value: 'Custom styled toast',
   onClick: () => provider.show('Dark blue custom theme', {
@@ -134,7 +146,7 @@ mount(btn);
 `show()` returns a unique id. Pass it to `dismiss(id)` to close a specific toast programmatically.
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 let lastId = null;
 const showBtn = await slice.build('Button', {
   value: 'Show toast',
@@ -157,7 +169,7 @@ mount(container);
 Remove every visible toast at once.
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const container = document.createElement('div');
 container.style.display = 'flex';
 container.style.flexWrap = 'wrap';
@@ -196,7 +208,7 @@ Change the position of the toast stack with `setPosition(position)`.
 | `bottom-center`   | Bottom center           |
 
 :::script
-const provider = await slice.build('ToastProvider');
+const provider = await slice.build('ToastProvider', { singleton: true });
 const container = document.createElement('div');
 container.style.display = 'flex';
 container.style.flexWrap = 'wrap';
@@ -221,10 +233,11 @@ mount(container);
 | `dismiss(id)`                             | `this`     | Dismisses the toast with the given id    |
 | `clear()`                                 | `this`     | Dismisses all visible toasts             |
 | `setPosition(position)`                   | `this`     | Changes the position                     |
+| `poolSize` (getter)                       | `number`   | Toasts owned: on screen plus pooled      |
 
 ## Best practices
 
-- Build the provider once with `slice.build('ToastProvider')` and reuse the instance — it's a singleton.
+- Always build the provider with `slice.build('ToastProvider', { singleton: true })`, so every part of the app shares one instance.
 - Use `clear()` before changing routes or views to avoid stale notifications.
 - Use `duration: 0` for toasts that require user action to dismiss.
 - All six positions work with the stack layout — toasts never overlap.

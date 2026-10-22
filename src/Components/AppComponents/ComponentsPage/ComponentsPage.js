@@ -39,6 +39,11 @@ export default class ComponentsPage extends HTMLElement {
            const treeView = await slice.build('TreeView', {
               items: treeItems,
               activePath: window.location.pathname,
+              // Remember the open sections between visits.
+              stateKey: 'docs-nav',
+              ariaLabel: 'Documentation',
+              // While searching, show every match opened.
+              expanded: query ? 'all' : 'none',
                onClick: async (item) => {
                   if (item.path) {
                       treeView.setActiveTreeItem(item);

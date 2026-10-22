@@ -7,27 +7,35 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>BottomNav</code> is an app-style floating bottom tab bar. It shares the exact same API as <code>Navbar</code> (<code>logo</code>, <code>items</code>, <code>buttons</code>, <code>position</code>, <code>direction</code>), so it works as a drop-in alternative to the classic top navbar — especially on mobile, where it docks to the bottom edge instead of hiding navigation behind a hamburger.</p>
+<p><code>BottomNav</code> is an app-style tab bar. On wide screens it floats as a capsule; on phones it docks to the bottom edge, leaving room for the home indicator. It shares <code>Navbar</code>'s API (<code>logo</code>, <code>items</code>, <code>buttons</code>, <code>position</code>, <code>direction</code>), so the two are interchangeable, and adds what a bottom bar needs: badges, a raised centre action, label modes and hiding while you scroll.</p>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>items</code> render as tabs. Each item accepts the familiar <code>{ text, path }</code>, an optional</li></ul>
-<p><code>icon</code> (any valid <code>Icon</code> name, shown above the label), or <code>type: 'dropdown'</code> with <code>options</code>.</p>
-<ul><li>A spring-eased indicator slides under the active tab. The active tab is resolved from the</li></ul>
-<p>current route (exact match first, then the longest matching prefix for nested routes such   as <code>/docs/button</code> highlighting the <code>/docs</code> tab) and re-syncs on browser back/forward.</p>
-<ul><li><code>position: 'fixed'</code> floats the bar centered at the bottom on desktop and docks it full-width</li></ul>
-<p>to the bottom edge on mobile. <code>position: 'static'</code> renders it inline in normal flow.</p>
-<ul><li><code>direction: 'reverse'</code> mirrors the tab order (row-reverse), matching <code>Navbar</code>.</li><li><code>buttons</code> reuse the shared <code>Button</code> component and sit after the tabs as trailing actions.</li></ul>
+<ul><li><code>items</code> are the tabs:</li></ul>
+<p>- <code>{ text, path }</code> is a route tab, navigated through <code>slice.router</code>.   - <code>{ text, href }</code> is a plain link.   - <code>{ text, items: [...] }</code> is a [DropDown](/docs/navigation/dropdown) tab, and its menu opens upwards. <code>type: 'dropdown'</code> with <code>options</code> is the older form and still works.</p>
+<ul><li>Any tab can also take:</li></ul>
+<p>- <code>icon</code>, any <code>Icon</code> name, shown above the label.   - <code>badge</code>, a number (over 99 shows "99+"), some text, or <code>true</code> for a dot.   - <code>exact</code>, <code>hidden</code>, and <code>onClick(item, event)</code>.</p>
+<ul><li>Each tab is a real link. It works with the keyboard (<strong>← →</strong> move between tabs, <strong>Home / End</strong> jump to the ends), with middle-click and with screen readers. The current tab carries <code>aria-current="page"</code>.</li><li>The current tab follows the URL: an exact match wins, otherwise the longest matching prefix. It keeps up with <code>slice.router</code> navigations and back / forward. <code>setActivePath(path)</code> sets it by hand, and <code>onChange(item)</code> tells you when a click changed it.</li><li><code>setBadge(pathOrIndex, value)</code> updates a badge without rebuilding the bar; <code>null</code> removes it.</li><li><code>brand</code> (<code>{ logo, text, path }</code>) or the older <code>logo</code> adds a brand on the start side. It is hidden when the bar is docked.</li><li><code>buttons</code> add actions on the end side, drawn as the bar's own round pills (not <code>Button</code>): <code>{ value, icon, onClick, path }</code>. The emphasised one is filled; <code>variant: 'ghost'</code> gives a quiet one, and an icon without text makes a round icon button (name it with <code>ariaLabel</code>). <code>actions</code> takes the same configs or any node of your own. The tabs stay optically centred between the brand and the actions.</li><li>Every prop is reactive.</li></ul>
+<h2 id="looks-and-layout">Looks and layout</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'filled'</code> (default): the primary-colour capsule, with labels that pass AA contrast. Same name as in <code>Button</code>; <code>'solid'</code> also works.   - <code>'surface'</code>: the page colour with a fine border.   - <code>'glass'</code>: translucent and blurred.</p>
+<ul><li><code>layout</code>:</li></ul>
+<p>- <code>'auto'</code> (default): floats on wide screens and docks at <code>breakpoint</code> (600px) and below.   - <code>'floating'</code> or <code>'docked'</code> force one look everywhere.</p>
+<ul><li><code>labels</code>:</li></ul>
+<p>- <code>'always'</code> (default).   - <code>'active'</code>: only the current tab shows its name.   - <code>'none'</code>: icons only, but each label still names its link for screen readers.</p>
+<ul><li><code>indicator</code> marks the current tab: <code>'pill'</code> (default, a pill that slides), <code>'line'</code> (an accent bar; on top of the tab when docked) or <code>'none'</code>.</li><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>fab</code> adds a round centre action in the middle of the tabs: <code>{ icon, label, onClick, path }</code>. When the bar is docked it rises out of the bar.</li></ul>
+<h2 id="position-and-scrolling">Position and scrolling</h2>
+<ul><li><code>position</code>: <code>'fixed'</code> (default, pinned to the bottom), <code>'sticky'</code> or <code>'static'</code>. As before, any other value means <code>'static'</code>.</li><li><code>spacer: true</code> makes a fixed bar keep its height at the bottom of the page, so it covers nothing. It is off by default, because pages built for it already add a <code>padding-bottom</code>.</li><li><code>hideOnScroll</code> slides the bar away while you scroll down and brings it back as soon as you scroll up.</li><li><code>direction: 'reverse'</code> mirrors the bar and the order of the tabs.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">On <code>position: 'fixed'</code>, add some <code>padding-bottom</code> to your page content so the floating bar
-never covers the last rows. Pass a per-item <code>icon</code> for the clearest app-style tab pattern.</div>
+<div class="callout callout-tip">Keep three to five tabs. A bottom bar is reached with a thumb; more tabs than that make each target too small, so move the rest to a "More" dropdown tab.</div>
+<div class="callout callout-tip">Use <code>badge: true</code> (a dot) for "something new" and numbers only when the count matters. A bar full of numbers stops meaning anything.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Avoid <code>type: 'dropdown'</code> items inside a bottom-docked <code>BottomNav</code>: the shared <code>DropDown</code> opens
-downward and would render off-screen. Use dropdowns in top-anchored navigations (<code>Navbar</code>,
-<code>FloatingDock</code>) instead.</div>
-<div class="component-block" data-block-id="doc-block-5"></div>
+<div class="callout callout-warning">A fixed bar covers the bottom of the page. Either add a <code>padding-bottom</code> to your content or pass <code>spacer: true</code>, but not both.</div>
+<div class="callout callout-warning">With <code>labels: 'none'</code> give every tab an <code>icon</code>. A tab without one keeps showing its label (it would have nothing else to show), so the bar looks uneven.</div>
 </div>
