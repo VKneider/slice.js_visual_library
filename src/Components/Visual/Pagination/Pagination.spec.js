@@ -74,6 +74,13 @@ test.describe('Pagination — pages', () => {
       await expect(c.locator('.slice-pagination__item--current')).toHaveText('3');
    });
 
+   test('showPrevNext: false leaves only the pages', async ({ mount }) => {
+      const c = await mount('Pagination', { mode: 'dots', totalPages: 3, showPrevNext: false });
+      await expect(prev(c)).toHaveCount(0);
+      await expect(next(c)).toHaveCount(0);
+      await expect(c.locator('.slice-pagination__item--dot')).toHaveCount(3);
+   });
+
    test('showFirstLast and showLabels', async ({ mount }) => {
       const c = await mount('Pagination', { currentPage: 3, totalPages: 9, showFirstLast: true, showLabels: true });
       await expect(c.locator('[aria-label="First page"]')).toBeEnabled();

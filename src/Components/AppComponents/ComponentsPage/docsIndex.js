@@ -354,13 +354,13 @@ const docsIndex = [
   {
     title: 'ElementCarrousel',
     route: '/docs/layout/element-carrousel',
-    description: 'ElementCarrousel documentation with slide navigation and indicator scenarios.',
+    description: 'A row of slides that moves one position at a time. Swipe, drag, arrows, the keyboard, dots, a count or thumbnails, several slides per view with a peek, loop, and autoplay that pauses itself.',
     section: 'Layout',
     group: 'Containers',
     order: 25,
     navLabel: 'Carrousel',
     component: 'ElementCarrouselDocumentation',
-    tags: ['carrousel', 'carousel', 'layout', 'navigation']
+    tags: ['carrousel', 'carousel', 'slider', 'gallery', 'layout', 'navigation']
   },
   {
     title: 'Navbar',

@@ -75,7 +75,9 @@ function getKind(componentName, registry) {
 }
 
 function getRevision() {
-  return process.env.SLICE_DOCS_REVISION || process.env.GITHUB_SHA || 'master';
+  // Keep local and PR generation deterministic. Release automation can provide
+  // an immutable tag or commit explicitly through SLICE_DOCS_REVISION.
+  return process.env.SLICE_DOCS_REVISION || 'master';
 }
 
 function buildDocument(filePath, registry, revision, rawBaseUrl) {

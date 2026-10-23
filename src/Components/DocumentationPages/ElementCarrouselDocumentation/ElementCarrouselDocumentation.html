@@ -7,17 +7,45 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ElementCarrousel</code> renders a horizontal slide carousel with prev/next buttons and dot indicators. Each slide accepts any DOM node or HTML string.</p>
-<h2 id="api-and-behavior">API and Behavior</h2>
-<ul><li>Accepts <code>elements</code> (array of Nodes or strings) as its data source.</li><li>Slides are rendered as full-width panels with smooth CSS transition.</li><li>Dot indicators are clickable for direct navigation.</li><li>Arrow keys supported when the component has focus.</li><li>Resize-aware: repositions slides on window resize.</li><li>If <code>elements</code> is empty or not an array, no slides are rendered.</li></ul>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<p><code>ElementCarrousel</code> shows a row of slides that moves one position at a time. A slide can hold anything: a picture, a [Card](/docs/layout/card), a testimonial, or any other component.</p>
+<p>The row is a native scroll container with scroll snapping. A swipe on a phone, a trackpad flick and Shift+wheel all move it the way the platform does, and a mouse can drag it. Arrows, dots, the keyboard and autoplay move the same scroll.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>A product gallery</strong>: several photos of one thing, with thumbnails.</li><li><strong>A row of related items</strong> that does not need to be seen all at once: "Recommended for you", "Recently viewed", courses or articles. Use several slides per view and a peek.</li><li><strong>Testimonials or quotes</strong>: one at a time, moving by itself.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Content everyone must see</strong>, such as prices, terms or a main call to action. Few people look past the second slide, so put it on the page.</li><li><strong>Items people compare side by side.</strong> Use a [Grid](/docs/layout/grid) or a [Table](/docs/data/table), which show them all at once.</li><li><strong>Steps of a process</strong> that have to be done in order. Use a form with steps, or [Pagination](/docs/data/pagination) with <code>mode: 'dots'</code> under one Card.</li><li><strong>A long list.</strong> Past about 10 slides a carousel is hard to browse. Use a grid with [Pagination](/docs/data/pagination).</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<h3 id="slides">Slides</h3>
+<ul><li><code>elements</code> is an array of nodes (built components or plain elements) or strings. Each one becomes a slide.</li><li>Setting <code>elements</code> again replaces the slides. Components in slides that were dropped are destroyed. Elements passed again are kept as they are, with their state.</li><li>Every slide is announced as "Slide 2 of 5". Slides out of view are <code>inert</code>, so Tab never lands on something that cannot be seen.</li></ul>
+<h3 id="moving">Moving</h3>
+<ul><li><strong>Arrows</strong>: Previous and Next, disabled at the ends unless <code>loop</code> is on.</li><li><strong>Keyboard</strong>: ← and → move one position; Home and End go to the first and the last. Arrows typed in a field inside a slide stay in the field.</li><li><strong>Touch and trackpad</strong>: the native scroll, with snapping.</li><li><strong>Mouse</strong>: drag the row. A quick flick goes one slide further. A drag never counts as a click on what it ends on.</li><li><code>goTo(index)</code>, <code>next()</code> and <code>previous()</code> do the same from code.</li><li><code>onChange(index, { previous })</code> and the <code>slide-change</code> event report every move. <code>index</code> is the first slide in view.</li></ul>
+<h3 id="several-per-view">Several per view</h3>
+<ul><li><code>perView</code> is how many slides sit side by side. It can be a number, or an object keyed by the carousel's <strong>own</strong> width: <code>{ 0: 1, 560: 2, 900: 3 }</code>. The carousel's width is used, not the window's, so the same carousel works in a sidebar and in a page.</li><li><code>gap</code> is the space between slides, in pixels (16 by default).</li><li><code>peek</code> shows that many pixels of the next slide, as a hint that there is more.</li><li><code>align: 'center'</code> puts the current slide in the middle, with the peek on both sides, and dims the slides around it.</li><li>When everything fits, there are no arrows and no dots.</li></ul>
+<h3 id="autoplay">Autoplay</h3>
+<ul><li><code>autoplay: true</code> moves every 5 seconds; a number sets the time in milliseconds. It goes back to the first slide after the last.</li><li>It stops while the pointer is over the carousel or the focus is in it, so nothing moves while someone reads or clicks.</li><li>A pause button is always shown with it (WCAG 2.2.2: anything that moves by itself can be paused).</li><li>With *reduce motion* on in the system, it never starts, and the button starts it on request.</li><li>While it plays, slides are not announced, so a screen reader is not interrupted every few seconds.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>arrows</code>:</li></ul>
+<p>- <code>'overlay'</code> (default): round buttons over the edges of the slides, hidden at the ends;   - <code>'outside'</code>: beside the row, for cards that should not be covered. Under 480px they move over the slides, so a phone keeps the width for the slides;   - <code>'none'</code>: no arrows, for a row moved by swiping or by the dots.</p>
+<ul><li><code>indicators</code>:</li></ul>
+<p>- <code>'dots'</code> (default): one dot per position, built with [Pagination](/docs/data/pagination);   - <code>'count'</code>: "2 / 5";   - <code>'thumbnails'</code>: small buttons built by <code>thumbnail(slide, index)</code>, for galleries;   - <code>'none'</code>.</p>
+<ul><li>The CSS variables <code>--element-carrousel-accent</code> and <code>--element-carrousel-radius</code> adjust the current thumbnail, the focus ring and the corners.</li></ul>
+<h2 id="language">Language</h2>
+<ul><li><code>label</code> names the carousel ("Product photos"). Give every carousel one.</li><li><code>texts</code> replaces the other words:</li></ul>
+<p>- <code>label</code> (the default name);   - <code>slide</code> (<code>{index}</code>, <code>{total}</code>) and <code>announce</code> (<code>{index}</code>, <code>{total}</code>);   - <code>previous</code>, <code>next</code>, <code>goTo</code> (<code>{page}</code>);   - <code>play</code>, <code>pause</code>.</p>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use <code>Card</code> or custom component nodes as slides to maintain consistent layout across a carrousel.</div>
+<div class="callout callout-tip">Give every carousel a <code>label</code> that says what is in it ("Product photos", "Recommended courses"). Screen readers announce it when the focus enters.</div>
+<div class="callout callout-tip">Prefer several slides per view with a <code>peek</code> for rows of items. People see at once that there is more, and can swipe to it, without hunting for arrows or dots.</div>
+<div class="callout callout-tip">Build slides with the data you already have, and keep that data next to them. Use <code>index</code> and <code>onChange</code> to find which item is on screen, instead of reading it back from the slide.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Slides must be uniform in height for smooth transitions. Avoid mixing very tall and very short content in the same carrousel.</div>
-<div class="component-block" data-block-id="doc-block-5"></div>
+<div class="callout callout-warning">Do not hide the only copy of something important in a later slide. Most people never see past the second one.</div>
+<div class="callout callout-warning">Use autoplay sparingly, and only for content that can be missed (quotes, highlights). Text that moves while someone reads it is hard to follow. The pause button, the hover hold and the reduced-motion check are there for that reason; do not hide them.</div>
+<div class="callout callout-warning">Inside a flex or grid item, give that item <code>min-width: 0</code>. Flex and grid items do not shrink below their content by default, and a row of slides is wider than any screen, so the page would scroll sideways.</div>
+<div class="callout callout-warning">A slide's content fills its width. Do not give the elements fixed widths: they would overflow the slide on a phone. Use <code>perView</code> to decide how many fit instead.</div>
+<div class="component-block" data-block-id="doc-block-6"></div>
 </div>

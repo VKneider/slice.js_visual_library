@@ -1,105 +1,234 @@
-/* Encapsulated under the custom element so the carrousel styles never leak.
-   Colors use theme tokens (the old hardcoded blue/--accent fallbacks were
-   off-brand and referenced variables the theme system does not define). */
+/* ElementCarrousel (.slice-element-carrousel) — a scroll-snap track, arrows, and dots / count / thumbnails. */
 
 slice-element-carrousel {
+  --element-carrousel-per-view: 1;
+  --element-carrousel-gap: 16px;
+  --element-carrousel-peek: 0px;
+  --element-carrousel-accent: var(--primary-color);
+  --element-carrousel-radius: 14px;
+
   display: block;
+  min-width: 0;
+  position: relative;
 }
 
-slice-element-carrousel .slice_carousel {
-    position: relative;
-    height: 100%;
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+slice-element-carrousel[hidden] {
+  display: none;
 }
 
-slice-element-carrousel .slice_carousel_track_container {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    max-width: 900px;
+slice-element-carrousel .slice-element-carrousel__viewport {
+  position: relative;
+  min-width: 0;
 }
 
-slice-element-carrousel .slice_carousel_track {
-    display: flex;
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    transition: transform 0.5s ease-in-out;
-    width: 100%;
+/* ── Track ──────────────────────────────────────────────────────── */
+
+slice-element-carrousel .slice-element-carrousel__track {
+  position: relative;
+  display: flex;
+  gap: var(--element-carrousel-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+  border-radius: var(--element-carrousel-radius);
 }
 
-slice-element-carrousel .slice_carousel_slide {
-    min-width: 100%;
-    width: 100%;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    box-sizing: border-box;
+slice-element-carrousel .slice-element-carrousel__track::-webkit-scrollbar {
+  display: none;
 }
 
-slice-element-carrousel .slice_carousel_slide > * {
-    max-width: 100%;
-    width: 100%;
+slice-element-carrousel .slice-element-carrousel__track:focus-visible {
+  outline: 2px solid var(--element-carrousel-accent);
+  outline-offset: 2px;
 }
 
-slice-element-carrousel .slice_carousel_btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: color-mix(in srgb, var(--primary-color) 82%, transparent);
-    color: var(--primary-color-contrast);
-    border: none;
-    cursor: pointer;
-    z-index: 10;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2rem;
-    box-shadow: 0 2px 8px color-mix(in srgb, var(--primary-color) 35%, transparent);
-    transition: background 0.3s, transform 0.2s;
+slice-element-carrousel .slice-element-carrousel__slide {
+  box-sizing: border-box;
+  display: flex;
+  min-width: 0;
+  flex: 0 0 calc((100% - var(--element-carrousel-peek) - (var(--element-carrousel-per-view) - 1) * var(--element-carrousel-gap)) / var(--element-carrousel-per-view));
+  scroll-snap-align: start;
 }
 
-slice-element-carrousel .slice_carousel_btn:hover {
-    background: var(--primary-color);
-    color: var(--primary-color-contrast);
-    transform: translateY(-50%) scale(1.1);
+/* What is in a slide fills it, so cards in a row line up. */
+slice-element-carrousel .slice-element-carrousel__slide > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
 }
 
-slice-element-carrousel .slice_carousel_prev {
-    left: 10px;
+slice-element-carrousel .slice-element-carrousel__slide img {
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
-slice-element-carrousel .slice_carousel_next {
-    right: 10px;
+/* center: the slide in the middle, with a peek on both sides. */
+slice-element-carrousel[data-align='center'] .slice-element-carrousel__track {
+  padding-inline: var(--element-carrousel-peek);
+  scroll-padding-inline: var(--element-carrousel-peek);
 }
 
-slice-element-carrousel .slice_carousel_nav {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0;
-    gap: 10px;
+slice-element-carrousel[data-align='center'] .slice-element-carrousel__slide {
+  flex-basis: calc((100% - (var(--element-carrousel-per-view) - 1) * var(--element-carrousel-gap)) / var(--element-carrousel-per-view));
+  scroll-snap-align: center;
 }
 
-slice-element-carrousel .slice_carousel_indicator {
-    border: 0;
-    border-radius: 50%;
-    width: 12px;
-    height: 12px;
-    background: color-mix(in srgb, var(--primary-color) 30%, transparent);
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
+slice-element-carrousel[data-align='center'] .slice-element-carrousel__slide:not(.is-visible) {
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
 }
 
-slice-element-carrousel .slice_carousel_indicator.current-slide {
-    background: var(--primary-color);
-    transform: scale(1.2);
+slice-element-carrousel.is-dragging .slice-element-carrousel__track {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* ── Arrows ─────────────────────────────────────────────────────── */
+
+slice-element-carrousel .slice-element-carrousel__arrow {
+  display: inline-flex;
+}
+
+slice-element-carrousel[data-arrows='overlay'] .slice-element-carrousel__arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 2;
+  transition: opacity 0.2s ease;
+}
+
+slice-element-carrousel[data-arrows='overlay'] .slice-element-carrousel__arrow--prev { left: 10px; }
+slice-element-carrousel[data-arrows='overlay'] .slice-element-carrousel__arrow--next { right: 10px; }
+
+/* Overlay arrows sit on pictures: a raised surface keeps them readable. */
+slice-element-carrousel[data-arrows='overlay'] .slice-element-carrousel__arrow .slice_button {
+  border-radius: 999px;
+  border-color: var(--slice-border-raised, transparent);
+  background: var(--slice-surface-raised, var(--primary-background-color));
+  box-shadow: var(--slice-shadow-md);
+}
+
+slice-element-carrousel[data-arrows='overlay'] .slice-element-carrousel__arrow .slice_button:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+slice-element-carrousel[data-arrows='outside'] .slice-element-carrousel__viewport {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+slice-element-carrousel[data-arrows='outside'] .slice-element-carrousel__arrow--prev { order: -1; }
+slice-element-carrousel[data-arrows='outside'] .slice-element-carrousel__arrow .slice_button { border-radius: 999px; }
+
+slice-element-carrousel[data-arrows='none'] .slice-element-carrousel__arrow,
+slice-element-carrousel.is-single .slice-element-carrousel__arrow {
+  display: none;
+}
+
+/* ── Footer: play, count, dots, thumbnails ──────────────────────── */
+
+slice-element-carrousel .slice-element-carrousel__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  margin-top: 10px;
+}
+
+slice-element-carrousel .slice-element-carrousel__footer:not(:has(> :not(:empty):not([hidden]))),
+slice-element-carrousel.is-single .slice-element-carrousel__footer {
+  display: none;
+}
+
+slice-element-carrousel .slice-element-carrousel__play:empty,
+slice-element-carrousel .slice-element-carrousel__dots:empty {
+  display: none;
+}
+
+slice-element-carrousel .slice-element-carrousel__play .slice_button {
+  border-radius: 999px;
+}
+
+slice-element-carrousel .slice-element-carrousel__count {
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--font-secondary-color);
+}
+
+slice-element-carrousel .slice-element-carrousel__count[hidden],
+slice-element-carrousel .slice-element-carrousel__thumbs[hidden] {
+  display: none;
+}
+
+slice-element-carrousel .slice-element-carrousel__thumbs {
+  display: flex;
+  gap: 8px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 3px;
+  scrollbar-width: thin;
+}
+
+slice-element-carrousel .slice-element-carrousel__thumb {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 48px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--primary-background-color) 90%, var(--element-carrousel-accent));
+  color: var(--font-primary-color);
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+slice-element-carrousel .slice-element-carrousel__thumb > * {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+slice-element-carrousel .slice-element-carrousel__thumb:hover,
+slice-element-carrousel .slice-element-carrousel__thumb.is-current {
+  opacity: 1;
+}
+
+slice-element-carrousel .slice-element-carrousel__thumb.is-current {
+  border-color: var(--element-carrousel-accent);
+}
+
+slice-element-carrousel .slice-element-carrousel__thumb:focus-visible {
+  outline: 2px solid var(--element-carrousel-accent);
+  outline-offset: 2px;
+}
+
+slice-element-carrousel .slice-element-carrousel__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-element-carrousel[data-align='center'] .slice-element-carrousel__slide:not(.is-visible) {
+    transition: none;
+  }
 }

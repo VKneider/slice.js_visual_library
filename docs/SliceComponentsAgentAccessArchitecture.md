@@ -2,7 +2,7 @@
 
 ## Status
 
-This document defines the target architecture for agent access to Slice.js documentation. It is a design contract for the implementation work that follows; the interfaces described here are not necessarily available yet.
+This document defines the target architecture for agent access to Slice.js documentation. It is a design contract for the implementation work; the implementation status is tracked near the end of this document.
 
 ## Naming
 
@@ -407,6 +407,24 @@ The architecture is considered implemented at MVP level when:
 - The skill explains when to use framework versus Components documentation.
 - `slice get` remains responsible for code installation and is not silently triggered by documentation reads.
 - Existing framework MCP tools and existing component URLs remain compatible during migration.
+
+## Current implementation mapping
+
+The first implementation is now distributed across the following projects:
+
+| Area | Implementation |
+| --- | --- |
+| Components catalog generation | `slice.js_visual_library/scripts/build-agent-catalog.mjs` |
+| Components manifest | `slice.js_visual_library/agent/docs-manifest.json` |
+| Components catalog command | `slice docs list/search/get --source components` |
+| Framework catalog command | `slice docs list/search/get --source framework` |
+| Framework MCP tools | `slice_framework_list_docs`, `slice_framework_search_docs`, `slice_framework_get_doc` |
+| Components MCP tools | `slice_components_list_docs`, `slice_components_search_docs`, `slice_components_get_doc` |
+| Agent workflow | `slicejs_docs/skill/slice-js-developer/SKILL.md` |
+
+The CLI and MCP currently implement the same catalog contract independently because they are
+separate packages. The next consolidation step is to extract their shared catalog resolution and
+cache behavior into a reusable client package without changing the public commands or tools.
 
 ## Decision summary
 

@@ -1,7 +1,7 @@
 {
   "name": "slicejs-webframework-visual-components-library",
   "version": "1.4.0",
-  "description": "Official Visual components library and documentation registry for Slice.js",
+  "description": "Official Slice.js Components library and documentation registry for Visual and Service components",
   "main": "src/Components/index.js",
   "scripts": {
     "dev": "node ./node_modules/slicejs-cli/client.js dev --port 3001",

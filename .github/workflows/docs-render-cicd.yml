@@ -35,11 +35,14 @@ jobs:
       - name: Generate documentation artifacts
         run: npm run docs:generate
 
+      - name: Generate agent catalog
+        run: npm run docs:agent
+
       - name: Check generated changes (PR)
         if: github.event_name == 'pull_request'
         run: |
           if ! git diff --quiet; then
-            echo "Generated files are out of date. Run 'npm run docs:generate' and commit changes."
+            echo "Generated files are out of date. Run 'npm run docs:generate' and 'npm run docs:agent', then commit changes."
             git status --short
             exit 1
           fi
@@ -50,7 +53,7 @@ jobs:
           if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add src/Components src/Styles src/routes.js
+            git add agent src/Components src/Styles src/routes.js
             git commit -m "chore(docs): auto-generate docs artifacts from markdown"
             git push
           else

@@ -1,7 +1,7 @@
 <div align="center">
   <img src="src/images/Slice.js-logo.png" alt="Slice.js logo" width="150" />
-  <h1>Slice.js Visual Library</h1>
-  <p>Official Visual Components Library and Documentation Registry for Slice.js</p>
+  <h1>Slice.js Components</h1>
+  <p>Official Visual and Service Components Library and Documentation Registry for Slice.js</p>
   <p>
     <a href="https://components.slicejs.com"><strong>Explore the docs »</strong></a>
     <br />
@@ -17,9 +17,9 @@
 
 _Deployment note:_ this repository is configured for Vercel serverless routing through `api/index`.
 
-This repository contains the official visual components library for Slice.js. It serves as the source of truth for component documentation, hosting the markdown sources that generate interactive documentation pages with live examples, API tables, and usage guides.
+This repository contains **Slice.js Components**, the official Visual and Service components library for Slice.js. It serves as the source of truth for component documentation, hosting the Markdown sources that generate interactive documentation pages with live examples, API tables, and usage guides.
 
-The `slicejs-cli` registry points to this repository to resolve component metadata and documentation.
+The `slicejs-cli` registry points to this repository to resolve component metadata and documentation. The repository name `slice.js_visual_library` is retained as a legacy implementation and URL identifier.
 
 ### Input component highlights
 
@@ -69,6 +69,7 @@ The `slicejs-cli` registry points to this repository to resolve component metada
 | `pnpm run docs:generate` | Generate documentation pages from markdown |
 | `pnpm run docs:lint-md` | Validate markdown front matter and structure |
 | `pnpm run docs:sync-registry` | Sync registry, index and routes without full regeneration |
+| `pnpm run docs:agent` | Generate the machine-readable Slice.js Components catalog manifest |
 
 ## Testing
 
@@ -137,6 +138,8 @@ slice.js_visual_library/
 │   ├── routes.js                    # Main routes (auto-generated)
 │   ├── App/                         # Application shell
 │   └── Styles/                      # Global styles
+├── agent/
+│   └── docs-manifest.json            # Agent catalog index for Components documentation
 ├── playwright.config.js             # Component-test runner (auto-starts/stops the dev server)
 ├── playwright/
 │   ├── harness/sliceFixtures.js     # The `mount` fixture (real Slice runtime)

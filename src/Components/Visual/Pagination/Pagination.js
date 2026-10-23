@@ -64,6 +64,8 @@ export default class Pagination extends HTMLElement {
       siblingCount: { type: 'number', default: 1 },
       boundaryCount: { type: 'number', default: 1 },
       showFirstLast: { type: 'boolean', default: false },
+      // false hides Previous and Next, for dots under a carousel that has its own arrows.
+      showPrevNext: { type: 'boolean', default: true },
       showLabels: { type: 'boolean', default: false },
       showInfo: { type: 'boolean', default: false },
       showJump: { type: 'boolean', default: false },
@@ -97,6 +99,7 @@ export default class Pagination extends HTMLElement {
       this._siblingCount = 1;
       this._boundaryCount = 1;
       this._showFirstLast = false;
+      this._showPrevNext = true;
       this._showLabels = false;
       this._showInfo = false;
       this._showJump = false;
@@ -187,6 +190,9 @@ export default class Pagination extends HTMLElement {
 
    get showFirstLast() { return this._showFirstLast; }
    set showFirstLast(value) { this._showFirstLast = value === true; this._render(); }
+
+   get showPrevNext() { return this._showPrevNext; }
+   set showPrevNext(value) { this._showPrevNext = value !== false; this._render(); }
 
    get showLabels() { return this._showLabels; }
    set showLabels(value) { this._showLabels = value === true; this._render(); }
@@ -300,7 +306,7 @@ export default class Pagination extends HTMLElement {
       const nodes = [];
 
       if (this._showFirstLast) nodes.push(this._control({ page: 1, icon: 'first', aria: this._t('first'), disabled: atStart, edge: true }));
-      nodes.push(this._control({ page: cur - 1, icon: 'previous', text: this._showLabels ? this._t('previous') : '', aria: this._t('previousPage'), disabled: atStart, edge: true, rel: 'prev' }));
+      if (this._showPrevNext) nodes.push(this._control({ page: cur - 1, icon: 'previous', text: this._showLabels ? this._t('previous') : '', aria: this._t('previousPage'), disabled: atStart, edge: true, rel: 'prev' }));
 
       if (this._mode === 'dots') {
          const dots = document.createElement('span');
@@ -326,7 +332,7 @@ export default class Pagination extends HTMLElement {
          nodes.push(compact);
       }
 
-      nodes.push(this._control({ page: cur + 1, icon: 'next', text: this._showLabels ? this._t('next') : '', aria: this._t('nextPage'), disabled: atEnd, edge: true, rel: 'next', iconAfter: true }));
+      if (this._showPrevNext) nodes.push(this._control({ page: cur + 1, icon: 'next', text: this._showLabels ? this._t('next') : '', aria: this._t('nextPage'), disabled: atEnd, edge: true, rel: 'next', iconAfter: true }));
       if (this._showFirstLast) nodes.push(this._control({ page: total, icon: 'last', aria: this._t('last'), disabled: atEnd, edge: true }));
 
       // Keep the focus on the same control across the re-render.

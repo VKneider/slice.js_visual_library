@@ -31,7 +31,7 @@ tags: [pagination, pager, pages, navigation, data]
 - `currentPage` and `totalPages` set where it is.
 - Instead of `totalPages`, you can give `totalItems` and `pageSize`, and Pagination works out the pages and the range on screen.
 - Long ranges are shortened with ellipses: `siblingCount` (default 1) pages on each side of the current one, and `boundaryCount` (default 1) at each end.
-- `showFirstLast` adds « and », and `showLabels` writes "Previous" and "Next" beside the arrows.
+- `showFirstLast` adds « and », and `showLabels` writes "Previous" and "Next" beside the arrows. `showPrevNext: false` hides Previous and Next, for dots under a carousel that has its own arrows.
 
 ### Moving
 - A click moves to the page and calls `onPageChange(page, { previous, event })`. The `page-change` event also reports it.
