@@ -1,0 +1,1082 @@
+{
+  "schemaVersion": 1,
+  "catalog": "slicejs-components",
+  "displayName": "Slice.js Components",
+  "version": "1.4.0",
+  "revision": "master",
+  "repository": "VKneider/slice.js_visual_library",
+  "rawBaseUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library",
+  "documents": [
+    {
+      "id": "badge",
+      "title": "Badge",
+      "kind": "Visual",
+      "component": "Badge",
+      "sourcePath": "src/markdown/badge.md",
+      "route": "/docs/display/badge",
+      "section": "Display",
+      "group": "Basic",
+      "order": 25,
+      "description": "Small status pill or count, with semantic variants that follow the theme.",
+      "tags": [
+        "badge",
+        "pill",
+        "status",
+        "count",
+        "dot"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/badge.md"
+    },
+    {
+      "id": "bottom-nav",
+      "title": "BottomNav",
+      "kind": "Visual",
+      "component": "BottomNav",
+      "sourcePath": "src/markdown/bottom-nav.md",
+      "route": "/docs/navigation/bottom-nav",
+      "section": "Navigation",
+      "group": "Core",
+      "order": 33,
+      "description": "App-style bottom tab bar with variants, badges, a raised centre action, label modes, docking on phones and hide-on-scroll.",
+      "tags": [
+        "bottomnav",
+        "navigation",
+        "tabs",
+        "mobile",
+        "badge"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/bottom-nav.md"
+    },
+    {
+      "id": "breadcrumbs",
+      "title": "Breadcrumbs",
+      "kind": "Visual",
+      "component": "Breadcrumbs",
+      "sourcePath": "src/markdown/breadcrumbs.md",
+      "route": "/docs/navigation/breadcrumbs",
+      "section": "Navigation",
+      "group": "Core",
+      "order": 34,
+      "description": "Breadcrumbs component for hierarchical navigation context and quick backtracking.",
+      "tags": [
+        "breadcrumbs",
+        "navigation",
+        "hierarchy"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/breadcrumbs.md"
+    },
+    {
+      "id": "button",
+      "title": "Button",
+      "kind": "Visual",
+      "component": "Button",
+      "sourcePath": "src/markdown/button.md",
+      "route": "/docs/input/button",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 10,
+      "description": "Button documentation with executable prop scenarios.",
+      "tags": [
+        "button",
+        "input"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/button.md"
+    },
+    {
+      "id": "card",
+      "title": "Card",
+      "kind": "Visual",
+      "component": "Card",
+      "sourcePath": "src/markdown/card.md",
+      "route": "/docs/layout/card",
+      "section": "Layout",
+      "group": "Containers",
+      "order": 20,
+      "description": "One thing, summed up. A product, a person, a file, a project or a metric, shown among others like it, that can lead to its detail. Image or icon, title, badge, content, actions, selectable and loading states.",
+      "tags": [
+        "card",
+        "layout",
+        "grid",
+        "list",
+        "tile"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/card.md"
+    },
+    {
+      "id": "carrousel",
+      "title": "ElementCarrousel",
+      "kind": "Visual",
+      "component": "ElementCarrousel",
+      "sourcePath": "src/markdown/carrousel.md",
+      "route": "/docs/layout/element-carrousel",
+      "section": "Layout",
+      "group": "Containers",
+      "order": 25,
+      "description": "ElementCarrousel documentation with slide navigation and indicator scenarios.",
+      "tags": [
+        "carrousel",
+        "carousel",
+        "layout",
+        "navigation"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/carrousel.md"
+    },
+    {
+      "id": "checkbox",
+      "title": "Checkbox",
+      "kind": "Visual",
+      "component": "Checkbox",
+      "sourcePath": "src/markdown/checkbox.md",
+      "route": "/docs/input/checkbox",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 13,
+      "description": "Checkbox component documentation with practical prop scenarios.",
+      "tags": [
+        "checkbox",
+        "input",
+        "forms"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/checkbox.md"
+    },
+    {
+      "id": "chip",
+      "title": "Chip",
+      "kind": "Visual",
+      "component": "Chip",
+      "sourcePath": "src/markdown/chip.md",
+      "route": "/docs/display/chip",
+      "section": "Display",
+      "group": "Basic",
+      "order": 26,
+      "description": "Compact label for filters, tags and selections, optionally removable.",
+      "tags": [
+        "chip",
+        "tag",
+        "pill",
+        "filter",
+        "removable"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/chip.md"
+    },
+    {
+      "id": "code-visualizer",
+      "title": "CodeVisualizer",
+      "kind": "Visual",
+      "component": "CodeVisualizer",
+      "sourcePath": "src/markdown/code-visualizer.md",
+      "route": "/docs/display/code-visualizer",
+      "section": "Display",
+      "group": "Code",
+      "order": 10,
+      "description": "CodeVisualizer documentation with syntax highlighting and copy scenarios.",
+      "tags": [
+        "code",
+        "syntax",
+        "highlight",
+        "display"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/code-visualizer.md"
+    },
+    {
+      "id": "color-picker",
+      "title": "ColorPicker",
+      "kind": "Visual",
+      "component": "ColorPicker",
+      "sourcePath": "src/markdown/color-picker.md",
+      "route": "/docs/input/color-picker",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 17,
+      "description": "A labelled colour swatch with a hex readout that normalizes any CSS colour before the browser can silently black it out.",
+      "tags": [
+        "color",
+        "colour",
+        "picker",
+        "swatch",
+        "theme",
+        "hex",
+        "form"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/color-picker.md"
+    },
+    {
+      "id": "confirm-action-modal",
+      "title": "ConfirmActionModal",
+      "kind": "Visual",
+      "component": "ConfirmActionModal",
+      "sourcePath": "src/markdown/confirm-action-modal.md",
+      "route": "/docs/display/confirm-action-modal",
+      "section": "Display",
+      "group": "Feedback",
+      "order": 32,
+      "description": "Promise-based \"are you sure?\" modal and single-value prompt, built on Modal, with an event-manager channel.",
+      "tags": [
+        "modal",
+        "confirm",
+        "alert",
+        "prompt",
+        "danger",
+        "confirmation",
+        "dialog",
+        "events"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/confirm-action-modal.md"
+    },
+    {
+      "id": "css-conventions",
+      "title": "CSS Conventions",
+      "kind": "Documentation",
+      "sourcePath": "src/markdown/css-conventions.md",
+      "route": "/docs/internal/css-conventions",
+      "section": "Internal",
+      "group": "Documentation",
+      "order": 2,
+      "description": "Three rules to write component CSS that never leaks — host scope, explicit display, and prefixed keyframes.",
+      "tags": [
+        "css",
+        "scoping",
+        "encapsulation",
+        "display",
+        "conventions"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/css-conventions.md"
+    },
+    {
+      "id": "datepicker",
+      "title": "DatePicker",
+      "kind": "Visual",
+      "component": "DatePicker",
+      "sourcePath": "src/markdown/datepicker.md",
+      "route": "/docs/input/datepicker",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 16,
+      "description": "Date field with a calendar. People can type the date or pick it. Supports ranges over two months, min / max and disabled days, presets, an inline calendar, the full keyboard pattern and the same field styling and validation as Input.",
+      "tags": [
+        "datepicker",
+        "date",
+        "calendar",
+        "range",
+        "forms"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/datepicker.md"
+    },
+    {
+      "id": "details",
+      "title": "Details",
+      "kind": "Visual",
+      "component": "Details",
+      "sourcePath": "src/markdown/details.md",
+      "route": "/docs/layout/details",
+      "section": "Layout",
+      "group": "Containers",
+      "order": 21,
+      "description": "Content that folds open. One section, or a group of them as an accordion (one open at a time, or several), with icons, badges, lazy content, keyboard navigation and remembered state. Built on the native details element.",
+      "tags": [
+        "details",
+        "accordion",
+        "disclosure",
+        "faq",
+        "collapse",
+        "layout"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/details.md"
+    },
+    {
+      "id": "dom-service",
+      "title": "DomService",
+      "kind": "Service",
+      "component": "DomService",
+      "sourcePath": "src/markdown/dom-service.md",
+      "route": "/docs/services/dom-service",
+      "section": "Services",
+      "group": "Rendering",
+      "order": 62,
+      "description": "Reconciles a list of data against the child components that render it, without leaking.",
+      "tags": [
+        "dom",
+        "list",
+        "reconcile",
+        "reconcile",
+        "rendering",
+        "service"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/dom-service.md"
+    },
+    {
+      "id": "drag-drop-service",
+      "title": "DragDropService",
+      "kind": "Service",
+      "component": "DragDropService",
+      "sourcePath": "src/markdown/drag-drop-service.md",
+      "route": "/docs/services/drag-drop",
+      "section": "Services",
+      "group": "Interaction",
+      "order": 60,
+      "description": "Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder, with full touch support.",
+      "tags": [
+        "drag",
+        "drop",
+        "resize",
+        "dnd",
+        "sortable",
+        "reorder",
+        "service"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/drag-drop-service.md"
+    },
+    {
+      "id": "dropdown",
+      "title": "DropDown",
+      "kind": "Visual",
+      "component": "DropDown",
+      "sourcePath": "src/markdown/dropdown.md",
+      "route": "/docs/navigation/dropdown",
+      "section": "Navigation",
+      "group": "Core",
+      "order": 32,
+      "description": "Menu button with links, actions, toggles and nested submenus, trigger variants, smart placement and full keyboard support.",
+      "tags": [
+        "dropdown",
+        "menu",
+        "navigation",
+        "submenu",
+        "actions"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/dropdown.md"
+    },
+    {
+      "id": "empty-state",
+      "title": "EmptyState",
+      "kind": "Visual",
+      "component": "EmptyState",
+      "sourcePath": "src/markdown/empty-state.md",
+      "route": "/docs/display/empty-state",
+      "section": "Display",
+      "group": "Basic",
+      "order": 24,
+      "description": "The \"nothing here yet\" placeholder, with an optional icon, explanation and action.",
+      "tags": [
+        "empty",
+        "placeholder",
+        "zero-state",
+        "onboarding"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/empty-state.md"
+    },
+    {
+      "id": "fetch-manager",
+      "title": "FetchManager",
+      "kind": "Service",
+      "component": "FetchManager",
+      "sourcePath": "src/markdown/fetch-manager.md",
+      "route": "/docs/services/fetch-manager",
+      "section": "Services",
+      "group": "Networking",
+      "order": 30,
+      "description": "HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.",
+      "tags": [
+        "service",
+        "fetch",
+        "http",
+        "networking"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/fetch-manager.md"
+    },
+    {
+      "id": "file-download-service",
+      "title": "FileDownloadService",
+      "kind": "Service",
+      "component": "FileDownloadService",
+      "sourcePath": "src/markdown/file-download-service.md",
+      "route": "/docs/services/file-download-service",
+      "section": "Services",
+      "group": "Storage",
+      "order": 11,
+      "description": "Saves a string or Blob to the user's device, with the object URL lifecycle handled for you.",
+      "tags": [
+        "service",
+        "download",
+        "file",
+        "blob",
+        "export"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/file-download-service.md"
+    },
+    {
+      "id": "file-upload",
+      "title": "FileUpload",
+      "kind": "Visual",
+      "component": "FileUpload",
+      "sourcePath": "src/markdown/file-upload.md",
+      "route": "/docs/input/file-upload",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 12,
+      "description": "Drag-and-drop zone that is also a real, keyboard-operable file input.",
+      "tags": [
+        "file",
+        "upload",
+        "dropzone",
+        "drop",
+        "input"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/file-upload.md"
+    },
+    {
+      "id": "form",
+      "title": "Form",
+      "kind": "Visual",
+      "component": "Form",
+      "sourcePath": "src/markdown/form.md",
+      "route": "/docs/input/form",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 5,
+      "description": "Declarative forms with sections, descriptions and validation, composed from Slice components.",
+      "tags": [
+        "form",
+        "forms",
+        "validation",
+        "input"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/form.md"
+    },
+    {
+      "id": "grid",
+      "title": "Grid",
+      "kind": "Visual",
+      "component": "Grid",
+      "sourcePath": "src/markdown/grid.md",
+      "route": "/docs/layout/grid",
+      "section": "Layout",
+      "group": "Containers",
+      "order": 22,
+      "description": "Grid component documentation with layout composition scenarios.",
+      "tags": [
+        "grid",
+        "layout"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/grid.md"
+    },
+    {
+      "id": "html-service",
+      "title": "HtmlService",
+      "kind": "Service",
+      "component": "HtmlService",
+      "sourcePath": "src/markdown/html-service.md",
+      "route": "/docs/services/html-service",
+      "section": "Services",
+      "group": "Security",
+      "order": 12,
+      "description": "Escape, sanitize and strip HTML at the boundary where untrusted markup becomes real DOM.",
+      "tags": [
+        "service",
+        "html",
+        "sanitize",
+        "xss",
+        "security",
+        "dompurify",
+        "escape"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/html-service.md"
+    },
+    {
+      "id": "icon",
+      "title": "Icon",
+      "kind": "Visual",
+      "component": "Icon",
+      "sourcePath": "src/markdown/icon.md",
+      "route": "/docs/display/icon",
+      "section": "Display",
+      "group": "Basic",
+      "order": 20,
+      "description": "Complete icon reference with all 291 symbols, usage patterns, and style variants.",
+      "tags": [
+        "icon",
+        "display",
+        "reference"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/icon.md"
+    },
+    {
+      "id": "indexed-db-manager",
+      "title": "IndexedDbManager",
+      "kind": "Service",
+      "component": "IndexedDbManager",
+      "sourcePath": "src/markdown/indexed-db-manager.md",
+      "route": "/docs/services/indexed-db-manager",
+      "section": "Services",
+      "group": "Storage",
+      "order": 20,
+      "description": "Async Service wrapper over IndexedDB for a single auto-keyed object store.",
+      "tags": [
+        "service",
+        "storage",
+        "indexeddb"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/indexed-db-manager.md"
+    },
+    {
+      "id": "input",
+      "title": "Input",
+      "kind": "Visual",
+      "component": "Input",
+      "sourcePath": "src/markdown/input.md",
+      "route": "/docs/input/input",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 11,
+      "description": "Text field with a floating label, variants, sizes, icon, prefix and suffix, clear button, help, errors, a counter and validation shared with Textarea.",
+      "tags": [
+        "input",
+        "forms",
+        "field",
+        "validation"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/input.md"
+    },
+    {
+      "id": "layout",
+      "title": "Layout",
+      "kind": "Visual",
+      "component": "Layout",
+      "sourcePath": "src/markdown/layout.md",
+      "route": "/docs/layout/layout",
+      "section": "Layout",
+      "group": "Containers",
+      "order": 10,
+      "description": "Layout container documentation with view swapping scenarios.",
+      "tags": [
+        "layout",
+        "container"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/layout.md"
+    },
+    {
+      "id": "link",
+      "title": "Link",
+      "kind": "Visual",
+      "component": "Link",
+      "sourcePath": "src/markdown/link.md",
+      "route": "/docs/navigation/link",
+      "section": "Navigation Components",
+      "group": "Basic",
+      "order": 30,
+      "description": "Route-aware anchor with optional icon and subtitle — the one link primitive that navigates through slice.router.",
+      "tags": [
+        "link",
+        "navigation",
+        "anchor"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/link.md"
+    },
+    {
+      "id": "loading",
+      "title": "Loading",
+      "kind": "Visual",
+      "component": "Loading",
+      "sourcePath": "src/markdown/loading.md",
+      "route": "/docs/feedback/loading",
+      "section": "Feedback",
+      "group": "Status",
+      "order": 40,
+      "description": "Loading component documentation with activation and container usage scenarios.",
+      "tags": [
+        "loading",
+        "feedback"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/loading.md"
+    },
+    {
+      "id": "local-storage-manager",
+      "title": "LocalStorageManager",
+      "kind": "Service",
+      "component": "LocalStorageManager",
+      "sourcePath": "src/markdown/local-storage-manager.md",
+      "route": "/docs/services/local-storage-manager",
+      "section": "Services",
+      "group": "Storage",
+      "order": 10,
+      "description": "Service wrapper over window.localStorage with automatic JSON serialization.",
+      "tags": [
+        "service",
+        "storage",
+        "localstorage"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/local-storage-manager.md"
+    },
+    {
+      "id": "mini-inspector",
+      "title": "MiniInspector",
+      "kind": "Visual",
+      "component": "MiniInspector",
+      "sourcePath": "src/markdown/mini-inspector.md",
+      "route": "/docs/utilities/mini-inspector",
+      "section": "Utilities",
+      "group": "Developer",
+      "order": 10,
+      "description": "MiniInspector documentation with executable live-editing scenarios.",
+      "tags": [
+        "inspector",
+        "devtools",
+        "props",
+        "setters"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/mini-inspector.md"
+    },
+    {
+      "id": "modal",
+      "title": "Modal",
+      "kind": "Visual",
+      "component": "Modal",
+      "sourcePath": "src/markdown/modal.md",
+      "route": "/docs/feedback/modal",
+      "section": "Feedback",
+      "group": "Overlay",
+      "order": 10,
+      "description": "Native dialog with sizes, tones, centred, top, drawer, sheet and fullscreen layouts, actions, a close guard, a promise for the answer and enter/exit animations.",
+      "tags": [
+        "modal",
+        "dialog",
+        "drawer",
+        "sheet",
+        "overlay",
+        "feedback"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/modal.md"
+    },
+    {
+      "id": "multi-route",
+      "title": "MultiRoute",
+      "kind": "Visual",
+      "component": "MultiRoute",
+      "sourcePath": "src/markdown/multi-route.md",
+      "route": "/docs/routing/multi-route",
+      "section": "Routing",
+      "group": "Containers",
+      "order": 51,
+      "description": "MultiRoute container documentation with app-shell and dynamic route scenarios.",
+      "tags": [
+        "multiroute",
+        "routing",
+        "app-shell"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/multi-route.md"
+    },
+    {
+      "id": "navbar",
+      "title": "Navbar",
+      "kind": "Visual",
+      "component": "Navbar",
+      "sourcePath": "src/markdown/navbar.md",
+      "route": "/docs/navigation/navbar",
+      "section": "Navigation",
+      "group": "Core",
+      "order": 30,
+      "description": "Top navigation bar with five variants, nested dropdowns, the current page marked, sticky or fixed positioning and a real mobile menu.",
+      "tags": [
+        "navbar",
+        "navigation",
+        "header",
+        "menu",
+        "mobile"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/navbar.md"
+    },
+    {
+      "id": "not-found",
+      "title": "NotFound",
+      "kind": "Visual",
+      "component": "NotFound",
+      "sourcePath": "src/markdown/not-found.md",
+      "route": "/docs/navigation/not-found",
+      "section": "Navigation",
+      "group": "Core",
+      "order": 40,
+      "description": "NotFound 404 page documentation with route fallback scenarios.",
+      "tags": [
+        "not-found",
+        "404",
+        "navigation",
+        "routing"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/not-found.md"
+    },
+    {
+      "id": "pagination",
+      "title": "Pagination",
+      "kind": "Visual",
+      "component": "Pagination",
+      "sourcePath": "src/markdown/pagination.md",
+      "route": "/docs/data/pagination",
+      "section": "Data",
+      "group": "Tables",
+      "order": 11,
+      "description": "A controlled page navigator with ellipsis ranges, reusable on its own or via Table.",
+      "tags": [
+        "pagination",
+        "navigation",
+        "data"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/pagination.md"
+    },
+    {
+      "id": "parser-rules",
+      "title": "Markdown Parser Rules",
+      "kind": "Documentation",
+      "sourcePath": "src/markdown/parser-rules.md",
+      "route": "/docs/internal/markdown-parser-rules",
+      "section": "Internal",
+      "group": "Documentation",
+      "order": 1,
+      "description": "Contract, template, and generation rules for Slice.js documentation pages.",
+      "tags": [
+        "docs",
+        "parser",
+        "rules"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/parser-rules.md"
+    },
+    {
+      "id": "radio-group",
+      "title": "RadioGroup",
+      "kind": "Visual",
+      "component": "RadioGroup",
+      "sourcePath": "src/markdown/radio-group.md",
+      "route": "/docs/input/radio-group",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 14,
+      "description": "Single-choice control that owns its value — keyboard, forms and card pickers included.",
+      "tags": [
+        "radio",
+        "radiogroup",
+        "input",
+        "forms",
+        "choice"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/radio-group.md"
+    },
+    {
+      "id": "route",
+      "title": "Route",
+      "kind": "Visual",
+      "component": "Route",
+      "sourcePath": "src/markdown/route.md",
+      "route": "/docs/routing/route",
+      "section": "Routing",
+      "group": "Containers",
+      "order": 50,
+      "description": "Route container documentation with dynamic path and metadata scenarios.",
+      "tags": [
+        "route",
+        "routing",
+        "container"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/route.md"
+    },
+    {
+      "id": "select",
+      "title": "Select",
+      "kind": "Visual",
+      "component": "Select",
+      "sourcePath": "src/markdown/select.md",
+      "route": "/docs/input/select",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 12,
+      "description": "Combobox with search, groups, multiple selection with chips, creatable options, server-loaded options and virtual scrolling.",
+      "tags": [
+        "select",
+        "combobox",
+        "forms",
+        "multiselect",
+        "autocomplete"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/select.md"
+    },
+    {
+      "id": "slider",
+      "title": "Slider",
+      "kind": "Visual",
+      "component": "Slider",
+      "sourcePath": "src/markdown/slider.md",
+      "route": "/docs/input/slider",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 15,
+      "description": "Numeric slider with keyboard support, a two-thumb range mode, marks and formatted values.",
+      "tags": [
+        "slider",
+        "range",
+        "input",
+        "forms",
+        "number"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/slider.md"
+    },
+    {
+      "id": "store-service",
+      "title": "StoreService",
+      "kind": "Service",
+      "component": "StoreService",
+      "sourcePath": "src/markdown/store-service.md",
+      "route": "/docs/services/store-service",
+      "section": "Services",
+      "group": "State",
+      "order": 63,
+      "description": "A thin facade over slice.context, so context persistence is configured in one place.",
+      "tags": [
+        "store",
+        "context",
+        "state",
+        "persistence",
+        "service"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/store-service.md"
+    },
+    {
+      "id": "switch",
+      "title": "Switch",
+      "kind": "Visual",
+      "component": "Switch",
+      "sourcePath": "src/markdown/switch.md",
+      "route": "/docs/input/switch",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 14,
+      "description": "Switch component documentation with practical interaction scenarios.",
+      "tags": [
+        "switch",
+        "input",
+        "toggle"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/switch.md"
+    },
+    {
+      "id": "table",
+      "title": "Table",
+      "kind": "Visual",
+      "component": "Table",
+      "sourcePath": "src/markdown/table.md",
+      "route": "/docs/data/table",
+      "section": "Data",
+      "group": "Tables",
+      "order": 10,
+      "description": "Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling.",
+      "tags": [
+        "table",
+        "data",
+        "display",
+        "filter",
+        "search",
+        "selection",
+        "virtual",
+        "export",
+        "totals",
+        "menu"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/table.md"
+    },
+    {
+      "id": "tabs",
+      "title": "Tabs",
+      "kind": "Visual",
+      "component": "Tabs",
+      "sourcePath": "src/markdown/tabs.md",
+      "route": "/docs/navigation/tabs",
+      "section": "Navigation",
+      "group": "Core",
+      "order": 31,
+      "description": "Tab strip with four variants, a sliding indicator, icons, badges, closable and lazy tabs, overflow arrows, vertical layout, the full keyboard pattern and remembered state.",
+      "tags": [
+        "tabs",
+        "navigation",
+        "routing",
+        "panels"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/tabs.md"
+    },
+    {
+      "id": "textarea",
+      "title": "Textarea",
+      "kind": "Visual",
+      "component": "Textarea",
+      "sourcePath": "src/markdown/textarea.md",
+      "route": "/docs/input/textarea",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 13,
+      "description": "Multi-line text field that shares Input's label, looks and validation, with auto-grow up to a limit, a counter and Ctrl+Enter to submit.",
+      "tags": [
+        "textarea",
+        "input",
+        "forms",
+        "multiline",
+        "validation"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/textarea.md"
+    },
+    {
+      "id": "theme-selector",
+      "title": "ThemeSelector",
+      "kind": "Visual",
+      "component": "ThemeSelector",
+      "sourcePath": "src/markdown/theme-selector.md",
+      "route": "/docs/input/theme-selector",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 15,
+      "description": "A binary LIGHT/DARK toggle with sun and moon icons that switches the app theme and keeps every theme control in sync.",
+      "tags": [
+        "theme",
+        "selector",
+        "toggle",
+        "dark-mode",
+        "settings",
+        "light"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/theme-selector.md"
+    },
+    {
+      "id": "theme-switcher",
+      "title": "ThemeSwitcher",
+      "kind": "Visual",
+      "component": "ThemeSwitcher",
+      "sourcePath": "src/markdown/theme-switcher.md",
+      "route": "/docs/input/theme-switcher",
+      "section": "Input Components",
+      "group": "Basic",
+      "order": 16,
+      "description": "A one-click control that cycles through your registered themes and keeps every theme control in sync.",
+      "tags": [
+        "theme",
+        "switcher",
+        "toggle",
+        "dark-mode",
+        "settings"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/theme-switcher.md"
+    },
+    {
+      "id": "toast",
+      "title": "Toast",
+      "kind": "Visual",
+      "component": "Toast",
+      "sourcePath": "src/markdown/toast.md",
+      "route": "/docs/feedback/toast",
+      "section": "Feedback",
+      "group": "Notifications",
+      "order": 10,
+      "description": "Toast notification component with type-based styling, auto-dismiss, and dismissable modes.",
+      "tags": [
+        "toast",
+        "notification",
+        "feedback",
+        "alert"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/toast.md"
+    },
+    {
+      "id": "toast-provider",
+      "title": "ToastProvider",
+      "kind": "Service",
+      "component": "ToastProvider",
+      "sourcePath": "src/markdown/toast-provider.md",
+      "route": "/docs/services/toast-provider",
+      "section": "Services",
+      "group": "Feedback",
+      "order": 50,
+      "description": "Singleton service for programmatic toast management — show, dismiss, clear, and position notifications.",
+      "tags": [
+        "toast",
+        "provider",
+        "service",
+        "notification"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/toast-provider.md"
+    },
+    {
+      "id": "tooltip",
+      "title": "ToolTip",
+      "kind": "Visual",
+      "component": "ToolTip",
+      "sourcePath": "src/markdown/tooltip.md",
+      "route": "/docs/display/tooltip",
+      "section": "Display",
+      "group": "Overlay",
+      "order": 10,
+      "description": "ToolTip documentation with hover, focus, placement, and delay scenarios.",
+      "tags": [
+        "tooltip",
+        "overlay",
+        "display"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/tooltip.md"
+    },
+    {
+      "id": "tooltip-provider",
+      "title": "ToolTipProvider",
+      "kind": "Service",
+      "component": "ToolTipProvider",
+      "sourcePath": "src/markdown/tooltip-provider.md",
+      "route": "/docs/services/tooltip-provider",
+      "section": "Services",
+      "group": "Overlay",
+      "order": 15,
+      "description": "Lightweight singleton Service for efficient tooltip management via programmatic and data-attribute APIs.",
+      "tags": [
+        "tooltip",
+        "provider",
+        "service",
+        "overlay"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/tooltip-provider.md"
+    },
+    {
+      "id": "treeview",
+      "title": "TreeView",
+      "kind": "Visual",
+      "component": "TreeView",
+      "sourcePath": "src/markdown/treeview.md",
+      "route": "/docs/navigation/treeview",
+      "section": "Navigation",
+      "group": "Navigation",
+      "order": 50,
+      "description": "Hierarchical list with full keyboard support, search, checkboxes, lazy branches, virtual scrolling, drag and drop and row menus.",
+      "tags": [
+        "treeview",
+        "navigation",
+        "tree",
+        "files",
+        "checkbox",
+        "drag"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/treeview.md"
+    },
+    {
+      "id": "unsaved-changes-guard",
+      "title": "UnsavedChangesGuard",
+      "kind": "Service",
+      "component": "UnsavedChangesGuard",
+      "sourcePath": "src/markdown/unsaved-changes-guard.md",
+      "route": "/docs/services/unsaved-changes-guard",
+      "section": "Services",
+      "group": "Security",
+      "order": 13,
+      "description": "Warns before the user throws away work in progress — tab close, in-app navigation, or the back button.",
+      "tags": [
+        "service",
+        "unsaved",
+        "guard",
+        "navigation",
+        "beforeunload",
+        "confirm",
+        "dirty"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/unsaved-changes-guard.md"
+    }
+  ]
+}

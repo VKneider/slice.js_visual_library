@@ -168,6 +168,8 @@ export default class Modal extends HTMLElement {
 
       this._handleClose = this._handleClose.bind(this);
       this._handleKeyDown = this._handleKeyDown.bind(this);
+      this._trackKey = this._trackKey.bind(this);
+      this._keyInFlight = null;
       this._handleCancel = this._handleCancel.bind(this);
       this._handleDialogClose = this._handleDialogClose.bind(this);
       this._handleBackdropClick = this._handleBackdropClick.bind(this);
@@ -415,6 +417,12 @@ export default class Modal extends HTMLElement {
    close(returnValue) {
       this._open = false;
       if (!this.$dialog) return;
+      // Closed from inside an Enter or Space keydown (Enter in a field that
+      // submits): focus is about to go back to the opener, and the browser would
+      // finish that same key press on it - "clicking" the button that opened
+      // this modal and opening it again. Consume the key here.
+      const key = this._keyInFlight;
+      if (key && !key.defaultPrevented && (key.key === 'Enter' || key.key === ' ')) key.preventDefault();
       if (!this._closeReason) this._closeReason = 'api';
       if (this.$dialog.open) {
          if (returnValue !== undefined) this.$dialog.close(String(returnValue));
@@ -467,6 +475,7 @@ export default class Modal extends HTMLElement {
    async init() {
       this.$close.addEventListener('click', this._handleClose);
       this.$dialog.addEventListener('keydown', this._handleKeyDown);
+      this.$dialog.addEventListener('keydown', this._trackKey, true);
       this.$dialog.addEventListener('cancel', this._handleCancel);
       this.$dialog.addEventListener('close', this._handleDialogClose);
       this.$dialog.addEventListener('click', this._handleBackdropClick);
@@ -516,6 +525,13 @@ export default class Modal extends HTMLElement {
       }
       this._destroyNodes(this._actionNodes);
       this._actionNodes = [];
+      // Whatever went into the body and footer (content, appendBody,
+      // appendFooter: a Form, a Table, Buttons) was added after this modal was
+      // built, so the controller's cascade does not know about it. The modal
+      // owns it now: destroy it with the modal, or every one-off modal with a
+      // Form inside leaks that Form.
+      slice.controller.destroyByContainer(this.$body);
+      slice.controller.destroyByContainer(this.$footer);
       if (this._iconEl) {
          slice.controller.destroyComponent(this._iconEl);
          this._iconEl = null;
@@ -638,7 +654,7 @@ export default class Modal extends HTMLElement {
          value: String(caption),
          variant: variant || 'filled',
          onClick: async () => {
-            if (button.$button?.disabled) return;
+            if (button.disabled || button.$button?.disabled) return;
             let result;
             if (typeof onClick === 'function') result = await onClick({ modal: this, action });
             if (result === false || closes === false) return;
@@ -649,13 +665,11 @@ export default class Modal extends HTMLElement {
       if (size) props.size = size;
       if (icon) props.icon = icon;
       if (className) props.className = className;
+      if (disabled) props.disabled = true;
       const button = await slice.build('Button', props);
       if (!button) return null;
       button.classList.add('slice-modal__action');
-      if (button.$button) {
-         if (disabled) button.$button.disabled = true;
-         if (autofocus) button.$button.setAttribute('autofocus', '');
-      }
+      if (autofocus && button.$button) button.$button.setAttribute('autofocus', '');
       return button;
    }
 
@@ -943,6 +957,15 @@ export default class Modal extends HTMLElement {
       this.requestClose('close-button');
    }
 
+   // Remembers the key being dispatched inside the dialog for the rest of this
+   // task, so close() can tell it is running inside a key press.
+   _trackKey(event) {
+      this._keyInFlight = event;
+      window.setTimeout(() => {
+         if (this._keyInFlight === event) this._keyInFlight = null;
+      }, 0);
+   }
+
    _handleKeyDown(event) {
       if (event.key !== 'Escape') return;
       // Something inside (an open Select or DropDown) already used this Escape.
@@ -1022,6 +1045,7 @@ export default class Modal extends HTMLElement {
    _removeListeners() {
       this.$close.removeEventListener('click', this._handleClose);
       this.$dialog.removeEventListener('keydown', this._handleKeyDown);
+      this.$dialog.removeEventListener('keydown', this._trackKey, true);
       this.$dialog.removeEventListener('cancel', this._handleCancel);
       this.$dialog.removeEventListener('close', this._handleDialogClose);
       this.$dialog.removeEventListener('click', this._handleBackdropClick);

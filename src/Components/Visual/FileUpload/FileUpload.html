@@ -1,11 +1,12 @@
-<label class="slice_file_upload">
-  <span class="slice_file_upload__zone">
-    <span class="slice_file_upload__icon" data-el="icon" aria-hidden="true"></span>
-    <span class="slice_file_upload__prompt" data-el="prompt"></span>
-    <span class="slice_file_upload__hint" data-el="hint"></span>
+<div class="slice-file-upload__label" hidden></div>
+<label class="slice-file-upload__zone">
+  <input class="slice-file-upload__input" type="file" />
+  <span class="slice-file-upload__icon" aria-hidden="true"></span>
+  <span class="slice-file-upload__copy">
+    <span class="slice-file-upload__prompt"></span>
+    <span class="slice-file-upload__hint" hidden></span>
   </span>
-  <!-- Visually hidden but still focusable and clickable: the label wrapper is
-       what gives us keyboard + tap for free. -->
-  <input class="slice_file_upload__input" type="file" hidden />
 </label>
-<ul class="slice_file_upload__list" data-el="list" hidden></ul>
+<input class="slice-file-upload__form-value" type="file" tabindex="-1" aria-hidden="true" hidden />
+<div class="slice-file-upload__message" aria-live="polite" hidden></div>
+<ul class="slice-file-upload__list" hidden></ul>

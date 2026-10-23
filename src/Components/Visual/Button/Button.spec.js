@@ -124,6 +124,30 @@ test.describe('Button', () => {
       expect(deprecations.filter((w) => w.includes('onClickCallback')).length).toBe(1);
    });
 
+   test('disabled: inert, out of the Tab order, and the click does nothing', async ({ mount, page }) => {
+      const c = await mount('Button', { value: 'Save', disabled: true }, { spies: ['onClick'] });
+      await expect(c.locator('.slice_button')).toBeDisabled();
+      await c.locator('.slice_button_container').click({ force: true });
+      expect(await c.events('onClick')).toBe(0);
+      await c.component.evaluate((el) => { el.disabled = false; });
+      await c.locator('.slice_button_container').click();
+      expect(await c.events('onClick')).toBe(1);
+   });
+
+   test('icon only: no label, a square button named by ariaLabel', async ({ mount }) => {
+      const c = await mount('Button', { value: '', icon: 'letter-bold', ariaLabel: 'Bold' });
+      await expect(c.locator('.slice_button')).toHaveAttribute('aria-label', 'Bold');
+      await expect(c.locator('.slice_button_value')).toBeHidden();
+      const box = await c.locator('.slice_button').boundingBox();
+      expect(Math.abs(box.width - box.height)).toBeLessThan(3);
+   });
+
+   test('ariaLabel wins over the label for the accessible name', async ({ mount }) => {
+      const c = await mount('Button', { value: 'Save', ariaLabel: 'Save the draft' });
+      await expect(c.locator('.slice_button')).toHaveAttribute('aria-label', 'Save the draft');
+      await expect(c.locator('.slice_button_value')).toHaveText('Save');
+   });
+
    test('a11y: native button has type="button"', async ({ mount }) => {
       const c = await mount('Button', { value: 'X' });
       await expect(c.locator('.slice_button')).toHaveAttribute('type', 'button');

@@ -5,264 +5,245 @@ navLabel: ToolTip
 section: Display
 group: Overlay
 order: 10
-description: ToolTip documentation with hover, focus, placement, and delay scenarios.
+description: Explains a control on hover, keyboard focus or a long press. Title, text and shortcut, twelve placements with an arrow that follows the trigger, three looks, a toggletip mode for an ⓘ with links, and it shows above modals.
 component: ToolTipDocumentation
 generate: true
-tags: [tooltip, overlay, display]
+tags: [tooltip, toggletip, hint, overlay, display]
 ---
 
 # ToolTip
 
 ## Overview
-`ToolTip` displays a floating text label when the user hovers or focuses the wrapped content. The tooltip repositions itself to stay within the viewport and falls back to alternative placements when space is limited.
+A `ToolTip` explains the control it wraps: what an icon button does, the keyboard shortcut, or why a button is disabled. It shows on hover after a short delay, on keyboard focus right away, and on a long press on touch screens.
+
+```javascript
+const tip = await slice.build('ToolTip', { text: 'Bold', shortcut: '⌘B' });
+tip.appendChild(boldButton);
+```
+
+### When to use it
+- Icon buttons, whose icon alone may not say enough.
+- Keyboard shortcuts, next to the action's name.
+- A disabled control, to say why it is disabled.
+- An abbreviation or a term, wrapped in text.
+
+### When not to use it
+- **Information people need to complete a task.** Put it on the page, as a field's `help` text for example. A tooltip is hidden until someone looks for it.
+- **Anything to click** (a link, a button) belongs in a **toggletip** (`mode: 'toggletip'`), or a [Modal](/docs/feedback/modal).
+- **Many plain-text tooltips** on one page (a toolbar, a table) are cheaper with [ToolTipProvider](/docs/services/tooltip-provider), which shares one bubble.
 
 ## Core Behavior
-- `text` sets the tooltip string. Empty text suppresses the tooltip entirely.
-- Triggered by `mouseenter` / `mouseleave` and `focusin` / `focusout` (keyboard accessible).
-- `placement` controls preferred direction (`top`, `bottom`, `left`, `right`); the tooltip auto-falls back to other sides if the viewport doesn't fit.
-- `showDelay` / `hideDelay` add an intent delay for smoother hover experience.
-- `offset` controls gap between trigger and bubble (min `4px`).
-- `maxWidth` limits the bubble width (min `120px`).
-- `customColor` accepts `{ background, text }` to override the default theme tokens.
-- `Escape` key or clicking outside dismisses the bubble.
-- Bubble is appended to `document.body` for accurate positioning.
-- Sets `aria-describedby` on the host pointing to the bubble `id` when visible.
+
+### The trigger
+Whatever you put inside the ToolTip is its trigger.
+- **A focusable control** (a Button, a link, an input) keeps its own place in the Tab order and gets `aria-describedby`. The ToolTip adds no tab stop, so a toolbar is not twice as long to tab through.
+- **Text, or a disabled control,** has nothing to focus, so the ToolTip itself becomes focusable. That is how a disabled button can still say why, to the mouse and to the keyboard.
+
+### Showing and hiding
+- **Hover:** shows after `showDelay` (400ms by default), so it does not flash while the pointer crosses the page. Once one tooltip has shown, its neighbours show at once for a moment, so moving along a toolbar reads every label without waiting.
+- **Keyboard focus:** shows at once. A mouse click that happens to focus the control does not show it.
+- **Touch:** a long press shows it, and it stays a moment after the finger lifts.
+- **Clicking the control** does what the control does, and the tooltip steps aside.
+- The bubble can be hovered without closing, so it can be read and selected (WCAG 1.4.13). It closes `hideDelay` (100ms) after the pointer leaves both the trigger and the bubble.
+- **Escape** closes it from anywhere. That Escape is used up: a tooltip open in a Modal takes the first Escape, and the Modal the second.
+- It also closes when the trigger scrolls out of view or leaves the page. Only one tooltip is open at a time.
+- `show()`, `hide()` and `toggle()` work from code, and `onOpenChange(open)` reports changes. `disabled` switches it off.
+
+### Above everything
+The bubble is a popover, so it renders in the browser's top layer: above a [Modal](/docs/feedback/modal), a Drawer or a calendar, and never clipped by an ancestor's `overflow: hidden`.
+
+### Content
+- `text` is the description.
+- `title` adds a bold line above it, for a richer tooltip.
+- `shortcut` shows a key combination (`'⌘B'`, `'Ctrl+S'`) in a `<kbd>`.
+- `content` takes a node instead of `text`.
+
+Changing any of them while the tooltip is open updates it in place ("Copy" → "Copied!").
+
+### Toggletip
+`mode: 'toggletip'` is for an ⓘ button that explains something and may hold a link.
+- A click opens and closes it. Hover does nothing.
+- The trigger gets `aria-expanded`.
+- The bubble sits right after the trigger, so **Tab** goes from the ⓘ into its links.
+- **Escape** closes it and puts the focus back on the ⓘ. Tabbing out or clicking elsewhere closes it too.
+
+## Looks
+- `placement`: `'top'` (default), `'bottom'`, `'left'` or `'right'`, each with `-start` or `-end` to align with an edge of the trigger (`'bottom-start'`).
+  - When the side has no room, it flips to the other side, then shifts into the screen.
+  - The arrow keeps pointing at the trigger's centre after a shift. `arrow: false` removes it.
+- `variant`:
+  - `'inverse'` (default): dark on a light theme, light on a dark one;
+  - `'light'`: a raised surface with a border;
+  - `'accent'`: the primary colour.
+- `size`: `'sm'` or `'md'` (default).
+- `offset` (8px) is the gap to the trigger. `maxWidth` (280px) wraps long text.
+- `customColor: { background, text, border }` retints one tooltip.
 
 ## Live Preview
 :::component name="ToolTip"
 {
-  "text": "Save your work before leaving"
+  "text": "Save your work before leaving",
+  "showDelay": 0
 }
 :::
 
-## Placement Variants
-Use `placement` to control where the bubble appears. The component automatically tries fallback positions when the preferred side has no room.
+## Examples
+:::script label="Editor toolbar" expected="a toolbar of buttons, each with its name and shortcut; after the first tooltip, moving along the toolbar shows the others at once; Tab moves button to button with no extra stops"
+const tools = [
+  { label: 'Bold', icon: 'letter-bold', shortcut: '⌘B' },
+  { label: 'Italic', icon: 'letter-italic', shortcut: '⌘I' },
+  { label: 'Underline', icon: 'letter-underline', shortcut: '⌘U' },
+  { label: 'Insert link', icon: 'link', shortcut: '⌘K' },
+  { label: 'Undo', icon: 'undo', shortcut: '⌘Z' }
+];
+const toasts = await slice.build('ToastProvider', { singleton: true });
+const bar = document.createElement('div');
+bar.setAttribute('role', 'toolbar');
+bar.setAttribute('aria-label', 'Formatting');
+bar.style.cssText = 'display:inline-flex;gap:4px;padding:6px;border:1px solid var(--slice-border-raised);border-radius:12px';
 
-:::script label="Placement directions" expected="four tooltips with different placements"
-const row = document.createElement('div');
-row.style.cssText = 'display:flex;gap:24px;flex-wrap:wrap;align-items:center;padding:40px 0;';
-
-for (const placement of ['top', 'bottom', 'left', 'right']) {
-  const tt = await slice.build('ToolTip', {
-    text: `${placement} tooltip`,
-    placement
+for (const tool of tools) {
+  // Icon only: no label on screen, the name in ariaLabel.
+  const button = await slice.build('Button', {
+    value: '', ariaLabel: tool.label, icon: tool.icon, variant: 'ghost', size: 'sm',
+    onClick: () => toasts.show(tool.label, { duration: 1200 })
   });
-  tt.textContent = placement;
-  row.appendChild(tt);
+  const tip = await slice.build('ToolTip', { text: tool.label, shortcut: tool.shortcut, placement: 'bottom' });
+  tip.appendChild(button);
+  bar.appendChild(tip);
 }
+return bar;
+:::
 
+:::script label="Why is it disabled?" expected="a disabled Publish button whose tooltip says the title is missing (on hover, or by tabbing to it); typing a title enables it and the tooltip changes to its shortcut"
+const toasts = await slice.build('ToastProvider', { singleton: true });
+const publish = await slice.build('Button', {
+  value: 'Publish', icon: 'upload', disabled: true,
+  onClick: () => toasts.show(`Published “${title.value}”`, { type: 'success' })
+});
+const tip = await slice.build('ToolTip', { text: 'Add a title to publish', placement: 'right' });
+tip.appendChild(publish);
+
+const title = await slice.build('Input', {
+  label: 'Title',
+  onChange: (value) => {
+    const ready = value.trim().length > 0;
+    publish.disabled = !ready;
+    // The same tooltip, saying something else once the button works.
+    tip.text = ready ? 'Publish now' : 'Add a title to publish';
+    tip.shortcut = ready ? '⌘↵' : '';
+  }
+});
+
+const box = document.createElement('div');
+box.style.cssText = 'display:grid;gap:14px;max-width:420px;width:100%;justify-items:start';
+box.append(title, tip);
+return box;
+:::
+
+:::script label="A field with a toggletip" expected="a phone field with an ⓘ beside its label; clicking the ⓘ explains why the number is asked for, with a link Tab can reach; Escape closes it and returns to the ⓘ"
+const why = document.createElement('div');
+why.innerHTML = 'We only use it to text you about this delivery. <a href="#privacy">Read the privacy policy</a>';
+
+const info = await slice.build('ToolTip', { mode: 'toggletip', title: 'Why we ask', content: why, variant: 'light', placement: 'top-start' });
+const button = await slice.build('Button', { value: '', ariaLabel: 'Why we ask for your phone', icon: 'info-circle', variant: 'ghost', size: 'sm' });
+info.appendChild(button);
+
+const label = document.createElement('div');
+label.style.cssText = 'display:flex;align-items:center;gap:2px;font-weight:600;font-size:.9rem';
+label.append('Phone', info);
+
+const phone = await slice.build('Input', { ariaLabel: 'Phone', type: 'tel', placeholder: '+58 412 000 0000', labelPlacement: 'above' });
+const card = await slice.build('Card', { title: 'Delivery details', content: [label, phone] });
+card.style.maxWidth = '420px';
+return card;
+:::
+
+:::script label="Copy with feedback" expected="a Copy link button; clicking it copies the link and the tooltip says 'Copied!' for a moment, then goes back to 'Copy link'"
+const link = 'https://slice.dev/invite/7f3a';
+const field = await slice.build('Input', { value: link, readonly: true, ariaLabel: 'Invite link' });
+field.style.flex = '1';
+const tip = await slice.build('ToolTip', { text: 'Copy link', placement: 'top' });
+const copy = await slice.build('Button', {
+  value: 'Copy', icon: 'file-clone', variant: 'outlined',
+  onClick: async () => {
+    try { await navigator.clipboard.writeText(link); } catch { /* the docs page may not allow it */ }
+    tip.text = 'Copied!';
+    tip.show();
+    setTimeout(() => { tip.hide(); tip.text = 'Copy link'; }, 1200);
+  }
+});
+tip.appendChild(copy);
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:8px;align-items:center;max-width:480px;width:100%';
+row.append(field, tip);
 return row;
 :::
 
-## Delay for Intent
-Use `showDelay` to prevent flicker when the cursor passes over a trigger briefly. `hideDelay` keeps the bubble visible while moving between related triggers.
-
-:::script label="Show delay (200ms)" expected="tooltip appears after a short wait"
-const tt = await slice.build('ToolTip', {
-  text: 'Appears after 200ms',
-  showDelay: 200
-});
-tt.textContent = 'Hover me slowly';
-
-const note = document.createElement('p');
-note.textContent = 'Move cursor over the text and hold — the tooltip waits 200ms before appearing.';
-note.style.marginTop = '0';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(tt);
-return wrapper;
+:::script label="Inside a Modal" expected="a button opens a Modal whose icon buttons have tooltips, shown above the dialog; the first Escape closes the tooltip, the second the Modal"
+const open = async () => {
+  const actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:8px';
+  for (const [label, icon] of [['Download', 'download'], ['Share', 'share-nodes'], ['Move to trash', 'trash-bin']]) {
+    const button = await slice.build('Button', { value: '', ariaLabel: label, icon, variant: 'outlined', size: 'sm' });
+    const tip = await slice.build('ToolTip', { text: label, showDelay: 200 });
+    tip.appendChild(button);
+    actions.appendChild(tip);
+  }
+  const modal = await slice.build('Modal', { title: 'quarterly-report.pdf', icon: 'file-lines', content: ['2.4 MB · edited yesterday', actions], destroyOnClose: true });
+  document.body.appendChild(modal);
+  modal.show();
+};
+return await slice.build('Button', { value: 'Open file', onClick: open });
 :::
 
-:::script label="Hide delay (400ms)" expected="tooltip stays visible briefly after cursor leaves"
-const tt = await slice.build('ToolTip', {
-  text: 'Stays 400ms after you leave',
-  hideDelay: 400
-});
-tt.textContent = 'Hover then move away quickly';
+:::script label="Looks at a glance" expected="the three variants, the small size, a rich tooltip with a title, and twelve placements; hover each to see it"
+const box = document.createElement('div');
+box.style.cssText = 'display:grid;gap:22px;width:100%';
+const row = () => {
+  const r = document.createElement('div');
+  r.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px';
+  box.appendChild(r);
+  return r;
+};
+const add = async (target, label, props) => {
+  const tip = await slice.build('ToolTip', { showDelay: 0, ...props });
+  tip.appendChild(await slice.build('Button', { value: label, variant: 'outlined', size: 'sm' }));
+  target.appendChild(tip);
+};
+const looks = row();
+for (const variant of ['inverse', 'light', 'accent']) await add(looks, variant, { text: `variant: '${variant}'`, variant });
+await add(looks, 'size sm', { text: 'A small tooltip', size: 'sm' });
+await add(looks, 'rich', { title: 'Version history', text: 'See every change, and restore an earlier version.', shortcut: '⌥⌘H', maxWidth: 240 });
+await add(looks, 'no arrow', { text: 'No arrow', arrow: false });
 
-const hint = document.createElement('p');
-hint.textContent = 'The bubble fades out slowly — good for reading longer hints.';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(hint);
-wrapper.appendChild(tt);
-return wrapper;
-:::
-
-## Auto-Placement Fallback
-When the preferred `placement` has no room, the tooltip automatically falls back to the next available side.
-
-:::script label="Auto fallback near edge" expected="tooltip flips above or below when side has no space"
-const trigger = await slice.build('ToolTip', {
-  text: 'Flipped to fit in viewport — the tooltip avoids clipping automatically.',
-  placement: 'left'
-});
-trigger.textContent = 'Hover (near edge)';
-
-const container = document.createElement('div');
-container.style.cssText = 'display:flex;justify-content:flex-end;padding:20px;';
-container.appendChild(trigger);
-
-const note = document.createElement('p');
-note.textContent = 'This tooltip requests placement=left but since there is no room it falls back to a visible side.';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(container);
-return wrapper;
-:::
-
-## Keyboard & Dismiss
-The tooltip is fully keyboard accessible and respects common dismiss patterns.
-
-:::script label="Focus trigger (keyboard)" expected="tooltip appears when trigger receives focus"
-const tt = await slice.build('ToolTip', {
-  text: 'Appears on focus — try tabbing to this element.'
-});
-tt.textContent = 'Focus me (tab key)';
-
-const note = document.createElement('p');
-note.textContent = 'The tooltip activates on focusin (keyboard) just like mouseenter. Press Escape or click outside to close.';
-note.style.marginTop = '0';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(tt);
-return wrapper;
-:::
-
-## Custom Width and Offset
-`maxWidth` controls how wide the bubble can grow (default `300px`). `offset` tightens or increases the gap between trigger and bubble (minimum `4px`).
-
-:::script label="Long text with maxWidth" expected="tooltip wraps text within 180px"
-const tt = await slice.build('ToolTip', {
-  text: 'This is a longer description that wraps to multiple lines at 180px',
-  maxWidth: 180
-});
-tt.textContent = 'Narrow tooltip';
-
-const note = document.createElement('p');
-note.textContent = 'The bubble is capped at 180px wide so long text wraps.';
-note.style.marginTop = '0';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(tt);
-return wrapper;
-:::
-
-:::script label="Tight offset (4px)" expected="bubble appears close to trigger"
-const tt = await slice.build('ToolTip', {
-  text: 'Tight spacing',
-  offset: 4
-});
-tt.textContent = 'Hover (4px gap)';
-
-const note = document.createElement('p');
-note.textContent = 'Offset of 4px places the bubble very close to the trigger.';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(tt);
-return wrapper;
-:::
-
-## Prop Scenarios
-:::script label="Hover tooltip" expected="tooltip appears on hover over trigger text"
-const tooltip = await slice.build('ToolTip', {
-  text: 'This is a tooltip'
-});
-
-tooltip.textContent = 'Hover over this text';
-
-return tooltip;
-:::
-
-:::script label="Tooltip with button trigger" expected="tooltip wraps a button element"
-const tooltip = await slice.build('ToolTip', {
-  text: 'Click to confirm'
-});
-
-const button = await slice.build('Button', {
-  value: 'Submit'
-});
-
-tooltip.appendChild(button);
-
-const host = document.createElement('div');
-host.appendChild(tooltip);
-return host;
-:::
-
-:::script label="Empty text suppresses tooltip" expected="no bubble appears on hover"
-const tooltip = await slice.build('ToolTip', {
-  text: ''
-});
-
-tooltip.textContent = 'Hover me (no tooltip)';
-
-return tooltip;
-:::
-
-:::script label="Toolbar with icon buttons" expected="multiple tooltips in a toolbar row"
-const icons = [
-  { name: 'search', label: 'Search documents' },
-  { name: 'download', label: 'Download report' },
-  { name: 'share-nodes', label: 'Share with team' },
-  { name: 'trash-bin', label: 'Delete item' }
-];
-
-const toolbar = document.createElement('div');
-toolbar.style.cssText = 'display:flex;gap:6px;padding:8px 12px;border:1px solid var(--outline-primary);border-radius:8px;width:fit-content;';
-
-for (const item of icons) {
-  const icon = await slice.build('Icon', { name: item.name, iconStyle: 'filled', size: '18px' });
-  const tt = await slice.build('ToolTip', {
-    text: item.label,
-    placement: 'bottom',
-    hideDelay: 200
-  });
-  tt.appendChild(icon);
-  toolbar.appendChild(tt);
+const grid = document.createElement('div');
+grid.style.cssText = 'display:grid;grid-template-columns:repeat(4,max-content);gap:10px;padding:30px 0';
+for (const side of ['top', 'bottom', 'left', 'right']) {
+  for (const align of ['-start', '', '-end']) await add(grid, `${side}${align}`, { text: `placement: '${side}${align}'`, placement: `${side}${align}` });
 }
-
-const label = document.createElement('p');
-label.textContent = 'Common UI pattern: icon toolbar with bottom tooltips and a short hideDelay for smooth transitions.';
-label.style.marginTop = '0';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(label);
-wrapper.appendChild(toolbar);
-return wrapper;
-:::
-
-:::script label="Custom color tooltip" expected="tooltip with purple background and white text"
-const tt = await slice.build('ToolTip', {
-  text: 'Branded tooltip',
-  customColor: { background: '#7c3aed', text: '#ffffff' }
-});
-tt.textContent = 'Hover for purple tooltip';
-
-const note = document.createElement('p');
-note.textContent = 'Use customColor to match your brand palette.';
-note.style.marginTop = '0';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(tt);
-return wrapper;
+box.appendChild(grid);
+return box;
 :::
 
 ## Best Practices
 :::tip
-Pair tooltips with interactive elements (icon buttons, truncated text, input labels) to provide contextual hints without cluttering the UI. Use `hideDelay` (300–500ms) when tooltips contain multi-line content so users have time to read.
+Keep it short: a name, or a sentence. If it needs a paragraph, it belongs on the page or in a toggletip.
 :::
 
-## ToolTipProvider
-For pages with many tooltips (toolbars, data tables, icon grids), use [`ToolTipProvider`](/docs/services/tooltip-provider) — a singleton Service that shares one bubble and one set of listeners across all triggers via a programmatic or `data-tooltip` API.
+:::tip
+Explain disabled buttons. "Add a title to publish" saves people from guessing what is missing.
+:::
+
+:::tip
+Show the shortcut. A tooltip is the one place people look for it, and `shortcut` styles it as a key.
+:::
 
 ## Pitfalls
 :::warning
-The tooltip bubble is appended to `document.body` — ensure `z-index: 10000` does not conflict with other overlays. For critical information, prefer visible labels instead of tooltips.
+Do not put links or buttons in a plain tooltip: it closes when the pointer leaves, and touch users barely see it. Use `mode: 'toggletip'`.
+:::
+
+:::warning
+A tooltip is not a label. An icon-only button still needs its own accessible name (Button's `value`), and the tooltip describes it.
 :::

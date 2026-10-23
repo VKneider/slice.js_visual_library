@@ -7,21 +7,46 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>Pagination</code> is a <strong>controlled</strong> page navigator. It holds no page state of its own: you pass the <code>currentPage</code>, and on a click it calls <code>onPageChange(page)</code> — you then update <code>currentPage</code> to move it. Use it on its own for lists and search results, or let [<code>Table</code>](/docs/data/table) compose it for you.</p>
-<h2 id="api-and-behavior">API and Behavior</h2>
-<ul><li><code>currentPage</code> (number) — the active page (you own this value).</li><li><code>totalPages</code> (number) — total number of pages.</li><li><code>siblingCount</code> (number, default <code>1</code>) — pages shown on each side of the current page.</li><li><code>boundaryCount</code> (number, default <code>1</code>) — pages always shown at the start/end.</li><li><code>showFirstLast</code> (boolean, default <code>false</code>) — render «first / last» controls.</li><li><code>disabled</code> (boolean) — blocks navigation.</li><li><code>onPageChange(page)</code> — called with the requested page (never the current one).</li></ul>
-<p>Large ranges collapse with an ellipsis, e.g. <code>1 … 9 10 11 … 20</code>. Because it is controlled, clicking a page does <strong>not</strong> move it until you set <code>currentPage</code> — this keeps it in sync with whatever owns the data.</p>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<p><code>Pagination</code> splits a long list into pages and moves between them. It works on its own (search results, a product grid, a feed) and inside a [Table](/docs/data/table), which builds one for you with <code>pagination: true</code>.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Results people scan page by page and come back to ("it was on page 3").</li><li>Long lists where the total matters: "41–60 of 342".</li><li>Steps of a carousel or an onboarding, with <code>mode: 'dots'</code>.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>A feed people only scroll through</strong> reads better with "Load more" or infinite scrolling.</li><li><strong>Lists that fit on one screen</strong> do not need pages. Show them whole.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<h3 id="pages">Pages</h3>
+<ul><li><code>currentPage</code> and <code>totalPages</code> set where it is.</li><li>Instead of <code>totalPages</code>, you can give <code>totalItems</code> and <code>pageSize</code>, and Pagination works out the pages and the range on screen.</li><li>Long ranges are shortened with ellipses: <code>siblingCount</code> (default 1) pages on each side of the current one, and <code>boundaryCount</code> (default 1) at each end.</li><li><code>showFirstLast</code> adds « and », and <code>showLabels</code> writes "Previous" and "Next" beside the arrows.</li></ul>
+<h3 id="moving">Moving</h3>
+<ul><li>A click moves to the page and calls <code>onPageChange(page, { previous, event })</code>. The <code>page-change</code> event also reports it.</li><li><code>goTo(page)</code>, <code>next()</code> and <code>previous()</code> do the same from code, and the page is clamped to the range.</li><li><code>controlled: true</code> only reports the click, and waits for you to set <code>currentPage</code>. Use it when the page lives elsewhere: a router, a store, or a request that has to succeed first. Table uses it this way.</li><li>When Next or Previous re-renders the pages, the focus stays on the button that was pressed, so the keyboard can keep paging.</li></ul>
+<h3 id="range-page-size-and-jump">Range, page size and jump</h3>
+<ul><li><code>showInfo</code> shows the range on screen ("41–60 of 342"), or "Page 3 of 18" without <code>totalItems</code>.</li><li><code>pageSizes: [10, 20, 50]</code> adds a "Rows per page" [Select](/docs/input/select).</li></ul>
+<p>- <code>onPageSizeChange(size)</code> reports a new size.   - The page changes with the size, so the first item that was on screen stays in view.</p>
+<ul><li><code>showJump</code> adds a box to type a page number and press <strong>Enter</strong>.</li></ul>
+<h3 id="modes">Modes</h3>
+<ul><li><code>'pages'</code> (default): numbered pages. <strong>In a container narrower than 420px it turns into "Page 5 of 20" by itself</strong>, so a phone never gets a wrapped row of numbers.</li><li><code>'compact'</code>: always "Page 5 of 20" between Previous and Next.</li><li><code>'dots'</code>: one dot per page, for a carousel or an onboarding with a few steps.</li></ul>
+<h3 id="links">Links</h3>
+<p><code>hrefTemplate: '?page={page}'</code> renders real links instead of buttons, with <code>rel="prev"</code> and <code>rel="next"</code>:</p>
+<ul><li>each page has an address, so it can be bookmarked or opened in a new tab (Ctrl/⌘-click), and search engines can follow it;</li><li>a plain click still calls <code>onPageChange</code>, which can call <code>event.preventDefault()</code> to stay in the page.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'outlined'</code> (default): each control in a border, and the current page filled;   - <code>'soft'</code>: tinted controls;   - <code>'ghost'</code>: no border until hover;   - <code>'segmented'</code>: one joined bar, like a button group;   - <code>'underline'</code>: text links, with the current page underlined.</p>
+<ul><li><code>shape: 'circle'</code> makes round controls (<code>'rounded'</code> by default).</li><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>align</code>: <code>'start'</code> (default), <code>'center'</code>, <code>'end'</code> or <code>'between'</code>, which puts the range at the start and the pages at the end.</li><li>The CSS variables <code>--slice-pagination-accent</code>, <code>--slice-pagination-size</code>, <code>--slice-pagination-radius</code> and <code>--slice-pagination-gap</code> adjust it further.</li></ul>
+<h2 id="language">Language</h2>
+<p><code>texts</code> replaces every word:</p>
+<ul><li><code>label</code> (the nav's name);</li><li><code>previous</code>, <code>next</code>, <code>first</code>, <code>last</code>, <code>previousPage</code>, <code>nextPage</code>;</li><li><code>page</code> (<code>{page}</code>), <code>pageOf</code> (<code>{page}</code>, <code>{total}</code>), <code>info</code> (<code>{from}</code>, <code>{to}</code>, <code>{total}</code>);</li><li><code>empty</code>, <code>perPage</code>, <code>goTo</code>.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
 <div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Keep the page number in the parent (or in a <code>DataGridEngine</code>) and treat <code>Pagination</code> as a pure view.
-For tables, prefer <code>Table</code>'s built-in <code>pagination</code> prop over wiring this by hand.</div>
+<div class="callout callout-tip">Show the range ("41–60 of 342") whenever you know the total. It tells people how much there is, and where they are in it, better than page numbers alone.</div>
+<div class="callout callout-tip">Use <code>controlled: true</code> when the data comes from a server, and set <code>currentPage</code> once the response arrives. The pager then never shows a page whose results are not on screen yet.</div>
+<div class="callout callout-tip">Use <code>hrefTemplate</code> for pages people share or come back to (search, a blog, a catalog). A page with an address can be bookmarked, opened in a tab, and found by search engines.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">It is <strong>controlled</strong>: if you never update <code>currentPage</code> in your <code>onPageChange</code> handler, the pager will
-appear stuck. That is by design — the owner of the data decides when the page actually changes.</div>
-<div class="component-block" data-block-id="doc-block-6"></div>
+<div class="callout callout-warning">After a page change, bring the start of the list into view (<code>scrollIntoView</code>). Otherwise people press Next at the bottom and land at the bottom of the next page.</div>
+<div class="callout callout-warning">When the filters or the search change, go back to page 1. Page 7 of the old results may not exist in the new ones.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
 </div>

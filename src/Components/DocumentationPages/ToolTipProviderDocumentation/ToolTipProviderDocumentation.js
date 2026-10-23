@@ -4,285 +4,97 @@ export default class ToolTipProviderDocumentation extends HTMLElement {
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
     this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Data-attribute scope","expected":"three buttons share one tooltip bubble","kind":"script","content":"const container = document.createElement('div');\ncontainer.innerHTML = `\n  <div style=\"display:flex;gap:10px;margin-top:12px;\">\n    <button data-tooltip=\"Search documents\" data-tooltip-placement=\"bottom\">Search</button>\n    <button data-tooltip=\"Download report as PDF\" data-tooltip-placement=\"bottom\">Download</button>\n    <button data-tooltip=\"Delete permanently\" data-tooltip-placement=\"bottom\">Delete</button>\n  </div>\n`;\n\nconst tp = await slice.build('ToolTipProvider', { singleton: true });\ntp.scope(container);\n\nconst note = document.createElement('p');\nnote.textContent = 'All three buttons share one bubble. Hover each to see the tooltip.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(note);\nwrapper.appendChild(container);\nreturn wrapper;"},{"label":"Programmatic attach","expected":"two programmatic tooltips with different placement","kind":"script","content":"const btn1 = document.createElement('button');\nbtn1.textContent = 'Top tooltip';\nObject.assign(btn1.style, { marginRight: '30px', padding: '6px 14px' });\n\nconst btn2 = document.createElement('button');\nbtn2.textContent = 'Right tooltip';\nObject.assign(btn2.style, { padding: '6px 14px' });\n\nconst tp2 = await slice.build('ToolTipProvider', { singleton: true });\ntp2.attach(btn1, { text: 'Appears on top', placement: 'top', offset: 8 });\ntp2.attach(btn2, { text: 'Appears on the right side', placement: 'right', hideDelay: 300 });\n\nconst note = document.createElement('p');\nnote.textContent = 'Top tooltip uses offset=8; right tooltip uses hideDelay=300ms.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(note);\nwrapper.appendChild(btn1);\nwrapper.appendChild(btn2);\nreturn wrapper;"},{"label":"Custom color via provider","expected":"brand-colored tooltip bubble","kind":"script","content":"const btn = document.createElement('button');\nbtn.textContent = 'Brand tooltip';\nObject.assign(btn.style, { padding: '6px 14px' });\n\nconst tp3 = await slice.build('ToolTipProvider', { singleton: true });\ntp3.attach(btn, {\n  text: 'Matches brand colors',\n  placement: 'bottom',\n  customColor: { background: '#7c3aed', text: '#ffffff' }\n});\n\nconst note = document.createElement('p');\nnote.textContent = 'customColor is applied to the shared bubble.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(note);\nwrapper.appendChild(btn);\nreturn wrapper;"}];
+    this.scriptScenarios = [{"label":"A toolbar from data attributes","expected":"a toolbar of icon buttons described only by data attributes, sharing one bubble; most buttons show a shortcut; moving along shows each label at once after the first","kind":"script","content":"const tips = await slice.build('ToolTipProvider', { singleton: true });\nconst tools = [\n  ['letter-bold', 'Bold', '⌘B'], ['letter-italic', 'Italic', '⌘I'], ['letter-underline', 'Underline', '⌘U'], null,\n  ['list', 'Bulleted list', '⇧⌘8'], ['align-center', 'Centre', '⇧⌘E'], null,\n  ['link', 'Insert link', '⌘K'], ['image', 'Insert image', ''], ['table-row', 'Insert a row', '']\n];\nconst bar = document.createElement('div');\nbar.setAttribute('role', 'toolbar');\nbar.setAttribute('aria-label', 'Formatting');\nbar.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;padding:6px;border:1px solid var(--slice-border-raised);border-radius:12px';\nfor (const tool of tools) {\n  if (!tool) {\n    const sep = document.createElement('span');\n    sep.style.cssText = 'width:1px;margin:4px 4px;background:var(--slice-border-raised)';\n    bar.appendChild(sep);\n    continue;\n  }\n  const [icon, label, shortcut] = tool;\n  const button = await slice.build('Button', { value: '', ariaLabel: label, icon, variant: 'ghost', size: 'sm' });\n  // The tooltip lives in attributes: no ToolTip component per button.\n  button.dataset.tooltip = label;\n  if (shortcut) button.dataset.tooltipShortcut = shortcut;\n  button.dataset.tooltipPlacement = 'bottom';\n  bar.appendChild(button);\n}\ntips.scope(bar);\nreturn bar;"},{"label":"Truncated cells in a growing list","expected":"a list of files whose long names are cut with an ellipsis; hovering or tabbing to a name shows it in full; Add file adds rows that get tooltips without any extra call","kind":"script","content":"const tips = await slice.build('ToolTipProvider', { singleton: true });\nconst list = document.createElement('ul');\nlist.style.cssText = 'margin:0;padding:0;list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:min(320px,100%)';\n\nconst names = [\n  'Quarterly financial report – final version (approved by the board).pdf',\n  'Team offsite photos, Mérida, October 2026.zip',\n  'contract-acme-renewal-2027-signed.docx'\n];\nlet n = 0;\nconst addRow = (name) => {\n  const li = document.createElement('li');\n  li.style.cssText = 'display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--slice-border-raised);border-radius:10px';\n  const label = document.createElement('span');\n  label.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0';\n  label.textContent = name;\n  // The full name, for when it does not fit.\n  label.dataset.tooltip = name;\n  label.dataset.tooltipPlacement = 'top-start';\n  label.tabIndex = 0;\n  li.appendChild(label);\n  list.appendChild(li);\n};\nnames.forEach(addRow);\n// One call for the list: rows added later are covered too.\ntips.scope(list);\n\nconst add = await slice.build('Button', {\n  value: 'Add file', icon: 'plus', variant: 'outlined', size: 'sm',\n  onClick: () => addRow(`Scanned receipt ${++n} – supermarket, pharmacy and fuel for the month.pdf`)\n});\nconst box = document.createElement('div');\nbox.style.cssText = 'display:grid;gap:12px;justify-items:start';\nbox.append(list, add);\nreturn box;"},{"label":"Attach from code, with a toggletip","expected":"three Buttons get rich tooltips through attach(); an ⓘ gets a toggletip that opens on click and holds a link","kind":"script","content":"const tips = await slice.build('ToolTipProvider', { singleton: true });\nconst row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap';\n\nconst save = await slice.build('Button', { value: 'Save', icon: 'download' });\nconst share = await slice.build('Button', { value: 'Share', icon: 'share-nodes', variant: 'outlined' });\nconst archive = await slice.build('Button', { value: 'Archive', icon: 'archive', variant: 'ghost' });\ntips.attach(save, { text: 'Save the draft', shortcut: '⌘S' });\ntips.attach(share, { title: 'Share', text: 'Anyone with the link can view it.', variant: 'light', placement: 'bottom' });\ntips.attach(archive, { text: 'Move it out of the list. You can restore it later.', variant: 'accent', placement: 'right' });\n\nconst info = await slice.build('Button', { value: '', ariaLabel: 'About sharing', icon: 'info-circle', variant: 'ghost', size: 'sm' });\ntips.attach(info, { mode: 'toggletip', title: 'About sharing', text: 'Links expire after 30 days. Manage them in Settings → Sharing.', variant: 'light' });\n\nrow.append(save, share, archive, info);\nreturn row;"}];
   }
 
   async init() {
     this.markdownPath = "tooltip-provider.md";
-    this.markdownContent = "---\ntitle: ToolTipProvider\nroute: /docs/services/tooltip-provider\nnavLabel: ToolTipProvider\nsection: Services\ngroup: Overlay\norder: 15\ndescription: Lightweight singleton Service for efficient tooltip management via programmatic and data-attribute APIs.\ncomponent: ToolTipProviderDocumentation\ngenerate: true\ntags: [tooltip, provider, service, overlay]\n---\n\n# ToolTipProvider\n\n## Overview\n`ToolTipProvider` is a **Service** — a lightweight singleton that manages N tooltip triggers through a **single shared bubble** and **one set of global listeners**. Use it when you have many tooltips on a page and want optimal performance.\n\nUnlike the `<slice-tooltip>` custom element (one bubble + listeners per instance), `ToolTipProvider` reuses everything:\n\n| Aspect | `<slice-tooltip>` (×N) | `ToolTipProvider` |\n|---|---|---|\n| Bubbles in DOM | N | 1 |\n| Global listeners | 3 × N | 3 |\n| Show/hide timers | N pairs | 1 pair |\n\n## Getting Started\nBuild a `ToolTipProvider` instance and call its methods against trigger elements:\n\n```javascript\nconst tp = await slice.build('ToolTipProvider', { singleton: true });\ntp.attach(document.getElementById('save-btn'), {\n  text: 'Save changes',\n  placement: 'bottom'\n});\n```\n\n`{ singleton: true }` makes every call return the same provider, so the whole app shares one bubble and one set of listeners. Without it, each call creates a new provider (it logs a warning). Do not use a fixed `sliceId` for this: a second build with the same `sliceId` returns `null`.\n\n## API\n\n### `attach(element, config?)`\nRegisters an element as a tooltip trigger.\n\n| Param | Type | Default | Description |\n|---|---|---|---|\n| `element` | `Element` | — | The trigger node. Gets `tabindex=\"0\"` and event listeners. |\n| `config.text` | `string` | `data-tooltip` attr or `''` | Tooltip text. Empty = no bubble. |\n| `config.placement` | `string` | `data-tooltip-placement` or `'top'` | `'top'` \\| `'bottom'` \\| `'left'` \\| `'right'` |\n| `config.offset` | `number` | `data-tooltip-offset` or `10` | Gap from trigger (min `4`). |\n| `config.maxWidth` | `number` | `data-tooltip-max-width` or `300` | Bubble max-width (min `120`). |\n| `config.showDelay` | `number` | `data-tooltip-show-delay` or `0` | ms before bubble appears. |\n| `config.hideDelay` | `number` | `data-tooltip-hide-delay` or `120` | ms before bubble hides. |\n| `config.customColor` | `object` | `null` | `{ background, text }` |\n\n```javascript title=\"Programmatic attach\"\ntp.attach(document.getElementById('save-btn'), {\n  text: 'Save changes',\n  placement: 'bottom'\n});\n```\n\n### `detach(element)`\nUnregisters a trigger and removes its listeners.\n\n```javascript\ntp.detach(element);\n```\n\n### `scope(container)`\nScans `container` for `[data-tooltip]` elements and attaches each one. Config is read from `data-*` attributes:\n\n| Attribute | Maps to |\n|---|---|\n| `data-tooltip` | `text` |\n| `data-tooltip-placement` | `placement` |\n| `data-tooltip-offset` | `offset` |\n| `data-tooltip-max-width` | `maxWidth` |\n| `data-tooltip-show-delay` | `showDelay` |\n| `data-tooltip-hide-delay` | `hideDelay` |\n\n```html title=\"HTML with data attributes\"\n<div class=\"toolbar\">\n  <button data-tooltip=\"Search\" data-tooltip-placement=\"bottom\">Search</button>\n  <button data-tooltip=\"Download\" data-tooltip-placement=\"bottom\">Download</button>\n  <button data-tooltip=\"Delete\" data-tooltip-placement=\"bottom\" data-tooltip-offset=\"6\">Delete</button>\n</div>\n```\n\n```javascript title=\"Scan once\"\ntp.scope(document.querySelector('.toolbar'));\n```\n\n### Cleanup\nAs an app-lifetime singleton, `ToolTipProvider` removes all triggers, the shared bubble, and its global listeners automatically via the framework's `beforeDestroy` hook when it is torn down — you don't clean it up by hand. Use `detach(element)` to unregister a single trigger.\n\n## Live Demos\n\n:::script label=\"Data-attribute scope\" expected=\"three buttons share one tooltip bubble\"\nconst container = document.createElement('div');\ncontainer.innerHTML = `\n  <div style=\"display:flex;gap:10px;margin-top:12px;\">\n    <button data-tooltip=\"Search documents\" data-tooltip-placement=\"bottom\">Search</button>\n    <button data-tooltip=\"Download report as PDF\" data-tooltip-placement=\"bottom\">Download</button>\n    <button data-tooltip=\"Delete permanently\" data-tooltip-placement=\"bottom\">Delete</button>\n  </div>\n`;\n\nconst tp = await slice.build('ToolTipProvider', { singleton: true });\ntp.scope(container);\n\nconst note = document.createElement('p');\nnote.textContent = 'All three buttons share one bubble. Hover each to see the tooltip.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(note);\nwrapper.appendChild(container);\nreturn wrapper;\n:::\n\n:::script label=\"Programmatic attach\" expected=\"two programmatic tooltips with different placement\"\nconst btn1 = document.createElement('button');\nbtn1.textContent = 'Top tooltip';\nObject.assign(btn1.style, { marginRight: '30px', padding: '6px 14px' });\n\nconst btn2 = document.createElement('button');\nbtn2.textContent = 'Right tooltip';\nObject.assign(btn2.style, { padding: '6px 14px' });\n\nconst tp2 = await slice.build('ToolTipProvider', { singleton: true });\ntp2.attach(btn1, { text: 'Appears on top', placement: 'top', offset: 8 });\ntp2.attach(btn2, { text: 'Appears on the right side', placement: 'right', hideDelay: 300 });\n\nconst note = document.createElement('p');\nnote.textContent = 'Top tooltip uses offset=8; right tooltip uses hideDelay=300ms.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(note);\nwrapper.appendChild(btn1);\nwrapper.appendChild(btn2);\nreturn wrapper;\n:::\n\n:::script label=\"Custom color via provider\" expected=\"brand-colored tooltip bubble\"\nconst btn = document.createElement('button');\nbtn.textContent = 'Brand tooltip';\nObject.assign(btn.style, { padding: '6px 14px' });\n\nconst tp3 = await slice.build('ToolTipProvider', { singleton: true });\ntp3.attach(btn, {\n  text: 'Matches brand colors',\n  placement: 'bottom',\n  customColor: { background: '#7c3aed', text: '#ffffff' }\n});\n\nconst note = document.createElement('p');\nnote.textContent = 'customColor is applied to the shared bubble.';\n\nconst wrapper = document.createElement('div');\nwrapper.appendChild(note);\nwrapper.appendChild(btn);\nreturn wrapper;\n:::\n\n## When to Use Which\n\n| Scenario | Use |\n|---|---|\n| 1–3 tooltips, declarative markup | `<slice-tooltip>` component |\n| 10+ tooltips, dynamic content | `ToolTipProvider` |\n| Toolbar with icon buttons | `ToolTipProvider.scope()` + data attributes |\n| App-wide shared singleton | `slice.getComponent('ToolTipProvider')` |\n\n## Best Practices\n:::tip\nUse `scope()` on a container after the DOM is ready — it scans for `[data-tooltip]` once. For dynamic content, call `attach()` when new elements are inserted and `detach()` when removed.\n:::\n\n## Pitfalls\n:::warning\n`ToolTipProvider` uses a **shared bubble** — only one tooltip is visible at a time. If you need simultaneous tooltips (e.g., comparison of two elements), use individual `<slice-tooltip>` components instead.\n:::";
+    this.markdownContent = "---\ntitle: ToolTipProvider\nroute: /docs/services/tooltip-provider\nnavLabel: ToolTipProvider\nsection: Services\ngroup: Overlay\norder: 15\ndescription: Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.\ncomponent: ToolTipProviderDocumentation\ngenerate: true\ntags: [tooltip, provider, service, overlay, data-attributes]\n---\n\n# ToolTipProvider\n\n## Overview\n`ToolTipProvider` is a Service that gives tooltips to many elements with **one shared bubble** and **one set of listeners on the document**. Nothing is built per trigger: a toolbar of twenty buttons or a table of a thousand cells costs one bubble.\n\nIt behaves exactly like [ToolTip](/docs/display/tooltip), because both run on the same code:\n- the delay and warm-up;\n- the top layer above Modals;\n- Escape, hovering the bubble, a long press on touch;\n- title and shortcut, twelve placements, the variants, and toggletips.\n\n```javascript\nconst tips = await slice.build('ToolTipProvider', { singleton: true });\ntips.scope(document.querySelector('#toolbar'));         // every [data-tooltip] inside\ntips.attach(saveButton, { text: 'Save', shortcut: '⌘S' });\n```\n\n`{ singleton: true }` makes every build return the same provider, so the whole app shares one. A second provider logs a warning.\n\n### ToolTip or ToolTipProvider?\n| You have | Use |\n|---|---|\n| A few tooltips you build with their buttons | `ToolTip` around each one |\n| Many plain tooltips: a toolbar, a table, a list | `ToolTipProvider.scope()` with data attributes |\n| Markup you do not build yourself (HTML from a server, a rich-text editor) | `ToolTipProvider.scope()` |\n| A tooltip with a node inside, or one that changes often | `ToolTip` (`content`, `text`) |\n\n## API\n\n### `scope(container)`\nEvery element with `data-tooltip` (or `data-tooltip-title`) inside `container` gets a tooltip:\n- **including elements added later**, because the provider looks for the trigger when the pointer or the focus arrives, not when you call `scope()`;\n- the attributes are read when the tooltip shows, so changing `data-tooltip` changes the tooltip.\n\n`unscope(container)` stops it.\n\n| Attribute | Same as |\n|---|---|\n| `data-tooltip` | `text` |\n| `data-tooltip-title` | `title` |\n| `data-tooltip-shortcut` | `shortcut` |\n| `data-tooltip-placement` | `placement` (`top`, `bottom-start`, …) |\n| `data-tooltip-variant` | `variant` (`inverse`, `light`, `accent`) |\n| `data-tooltip-size` | `size` (`sm`, `md`) |\n| `data-tooltip-mode` | `mode` (`tooltip`, `toggletip`) |\n| `data-tooltip-offset`, `data-tooltip-max-width` | `offset`, `maxWidth` |\n| `data-tooltip-show-delay`, `data-tooltip-hide-delay` | `showDelay`, `hideDelay` |\n\n### `attach(element, config)` and `detach(element)`\n`attach` gives one element a tooltip from code, with the same options as ToolTip: `text`, `title`, `shortcut`, `placement`, `variant`, `size`, `mode`, `offset`, `maxWidth`, `showDelay`, `hideDelay`, `arrow` and `customColor`.\n- The config wins over the element's data attributes.\n- Calling it again merges the new config into the old one.\n- `detach` removes the tooltip.\n\nConfigs are kept in a `WeakMap`. An element removed from the page takes its config with it, so forgetting `detach` leaks nothing.\n\n### `show(element)` and `hide()`\nThese open and close a tooltip from code. `open` tells whether one is showing.\n\n### Keyboard reach\nAn element with nothing focusable in it (a `<span>`, an icon) gets `tabindex=\"0\"` from `attach()` or `scope()`. Keyboard users can then reach its tooltip, and `detach` takes the tab stop back. Buttons and links already have one, and nothing is added.\n\n### Cleanup\nDestroying the provider (`slice.controller.destroyComponent(tips)`) removes the bubble and the document listeners.\n\n## Examples\n:::script label=\"A toolbar from data attributes\" expected=\"a toolbar of icon buttons described only by data attributes, sharing one bubble; most buttons show a shortcut; moving along shows each label at once after the first\"\nconst tips = await slice.build('ToolTipProvider', { singleton: true });\nconst tools = [\n  ['letter-bold', 'Bold', '⌘B'], ['letter-italic', 'Italic', '⌘I'], ['letter-underline', 'Underline', '⌘U'], null,\n  ['list', 'Bulleted list', '⇧⌘8'], ['align-center', 'Centre', '⇧⌘E'], null,\n  ['link', 'Insert link', '⌘K'], ['image', 'Insert image', ''], ['table-row', 'Insert a row', '']\n];\nconst bar = document.createElement('div');\nbar.setAttribute('role', 'toolbar');\nbar.setAttribute('aria-label', 'Formatting');\nbar.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;padding:6px;border:1px solid var(--slice-border-raised);border-radius:12px';\nfor (const tool of tools) {\n  if (!tool) {\n    const sep = document.createElement('span');\n    sep.style.cssText = 'width:1px;margin:4px 4px;background:var(--slice-border-raised)';\n    bar.appendChild(sep);\n    continue;\n  }\n  const [icon, label, shortcut] = tool;\n  const button = await slice.build('Button', { value: '', ariaLabel: label, icon, variant: 'ghost', size: 'sm' });\n  // The tooltip lives in attributes: no ToolTip component per button.\n  button.dataset.tooltip = label;\n  if (shortcut) button.dataset.tooltipShortcut = shortcut;\n  button.dataset.tooltipPlacement = 'bottom';\n  bar.appendChild(button);\n}\ntips.scope(bar);\nreturn bar;\n:::\n\n:::script label=\"Truncated cells in a growing list\" expected=\"a list of files whose long names are cut with an ellipsis; hovering or tabbing to a name shows it in full; Add file adds rows that get tooltips without any extra call\"\nconst tips = await slice.build('ToolTipProvider', { singleton: true });\nconst list = document.createElement('ul');\nlist.style.cssText = 'margin:0;padding:0;list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:min(320px,100%)';\n\nconst names = [\n  'Quarterly financial report – final version (approved by the board).pdf',\n  'Team offsite photos, Mérida, October 2026.zip',\n  'contract-acme-renewal-2027-signed.docx'\n];\nlet n = 0;\nconst addRow = (name) => {\n  const li = document.createElement('li');\n  li.style.cssText = 'display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--slice-border-raised);border-radius:10px';\n  const label = document.createElement('span');\n  label.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0';\n  label.textContent = name;\n  // The full name, for when it does not fit.\n  label.dataset.tooltip = name;\n  label.dataset.tooltipPlacement = 'top-start';\n  label.tabIndex = 0;\n  li.appendChild(label);\n  list.appendChild(li);\n};\nnames.forEach(addRow);\n// One call for the list: rows added later are covered too.\ntips.scope(list);\n\nconst add = await slice.build('Button', {\n  value: 'Add file', icon: 'plus', variant: 'outlined', size: 'sm',\n  onClick: () => addRow(`Scanned receipt ${++n} – supermarket, pharmacy and fuel for the month.pdf`)\n});\nconst box = document.createElement('div');\nbox.style.cssText = 'display:grid;gap:12px;justify-items:start';\nbox.append(list, add);\nreturn box;\n:::\n\n:::script label=\"Attach from code, with a toggletip\" expected=\"three Buttons get rich tooltips through attach(); an ⓘ gets a toggletip that opens on click and holds a link\"\nconst tips = await slice.build('ToolTipProvider', { singleton: true });\nconst row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap';\n\nconst save = await slice.build('Button', { value: 'Save', icon: 'download' });\nconst share = await slice.build('Button', { value: 'Share', icon: 'share-nodes', variant: 'outlined' });\nconst archive = await slice.build('Button', { value: 'Archive', icon: 'archive', variant: 'ghost' });\ntips.attach(save, { text: 'Save the draft', shortcut: '⌘S' });\ntips.attach(share, { title: 'Share', text: 'Anyone with the link can view it.', variant: 'light', placement: 'bottom' });\ntips.attach(archive, { text: 'Move it out of the list. You can restore it later.', variant: 'accent', placement: 'right' });\n\nconst info = await slice.build('Button', { value: '', ariaLabel: 'About sharing', icon: 'info-circle', variant: 'ghost', size: 'sm' });\ntips.attach(info, { mode: 'toggletip', title: 'About sharing', text: 'Links expire after 30 days. Manage them in Settings → Sharing.', variant: 'light' });\n\nrow.append(save, share, archive, info);\nreturn row;\n:::\n\n## Best Practices\n:::tip\nUse one provider for the whole app (`{ singleton: true }`) and `scope()` the containers that hold tooltips: the toolbar, the table, the sidebar. Rows and buttons added later are covered with no extra code.\n:::\n\n:::tip\nGive truncated text a tooltip with the full text. Make the element focusable (`tabIndex = 0`) or let `scope()` do it, so keyboard users can read it too.\n:::\n\n## Pitfalls\n:::warning\nOne provider shows one tooltip at a time, and so does ToolTip: opening one closes any other. A comparison that needs two explanations side by side belongs on the page, not in tooltips.\n:::\n\n:::warning\nAn element added after `scope()` does not get the automatic `tabindex`. If it is not focusable on its own (a `<span>`), set `tabIndex = 0` on it, or call `attach()` for it.\n:::";
     if (true) {
       await this.setupCopyButton();
     }
       {
          const container = this.querySelector('[data-block-id="doc-block-1"]');
          if (container) {
-            const lines = ["| Aspect | `<slice-tooltip>` (×N) | `ToolTipProvider` |","|---|---|---|","| Bubbles in DOM | N | 1 |","| Global listeners | 3 × N | 3 |","| Show/hide timers | N pairs | 1 pair |"];
-            const clean = (line) => {
-               let value = line.trim();
-               if (value.startsWith('|')) {
-                  value = value.slice(1);
-               }
-               if (value.endsWith('|')) {
-                  value = value.slice(0, -1);
-               }
-               return value.split('|').map((cell) => cell.trim());
-            };
-
-            const formatCell = (text) => {
-               let output = text
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;');
-
-               const applyBold = (input) => {
-                  let result = '';
-                  let index = 0;
-                  while (index < input.length) {
-                     const start = input.indexOf('**', index);
-                     if (start === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     const end = input.indexOf('**', start + 2);
-                     if (end === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
-                     index = end + 2;
-                  }
-                  return result;
-               };
-
-               const applyInlineCode = (input) => {
-                  const parts = input.split(String.fromCharCode(96));
-                  if (parts.length === 1) return input;
-                  return parts
-                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
-                     .join('');
-               };
-
-               output = applyBold(output);
-               output = applyInlineCode(output);
-               return output;
-            };
-
-            const headers = lines.length > 0 ? clean(lines[0]) : [];
-            // Cells carry trusted inline markup (code/bold) from the parser, so
-            // they use Table's explicit { html } opt-in (Table escapes plain strings).
-            const rows = lines.slice(2).map((line) => clean(line).map((cell) => ({ html: formatCell(cell) })));
-            const table = await slice.build('Table', { headers, rows });
-            container.appendChild(table);
+            const code = await slice.build('CodeVisualizer', {
+               value: "const tips = await slice.build('ToolTipProvider', { singleton: true });\ntips.scope(document.querySelector('#toolbar'));         // every [data-tooltip] inside\ntips.attach(saveButton, { text: 'Save', shortcut: '⌘S' });",
+               language: "javascript"
+            });
+            if (null) {
+               const label = document.createElement('div');
+               label.classList.add('code-block-title');
+               label.textContent = null;
+               container.appendChild(label);
+            }
+            container.appendChild(code);
          }
       }
       {
          const container = this.querySelector('[data-block-id="doc-block-2"]');
          if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "const tp = await slice.build('ToolTipProvider', { singleton: true });\ntp.attach(document.getElementById('save-btn'), {\n  text: 'Save changes',\n  placement: 'bottom'\n});",
-               language: "javascript"
-            });
-            if (null) {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = null;
-               container.appendChild(label);
-            }
-            container.appendChild(code);
+            const lines = ["| You have | Use |","|---|---|","| A few tooltips you build with their buttons | `ToolTip` around each one |","| Many plain tooltips: a toolbar, a table, a list | `ToolTipProvider.scope()` with data attributes |","| Markup you do not build yourself (HTML from a server, a rich-text editor) | `ToolTipProvider.scope()` |","| A tooltip with a node inside, or one that changes often | `ToolTip` (`content`, `text`) |"];
+            const clean = (line) => {
+               let value = line.trim();
+               if (value.startsWith('|')) {
+                  value = value.slice(1);
+               }
+               if (value.endsWith('|')) {
+                  value = value.slice(0, -1);
+               }
+               return value.split('|').map((cell) => cell.trim());
+            };
+
+            const formatCell = (text) => {
+               let output = text
+                  .replace(/&/g, '&amp;')
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;');
+
+               const applyBold = (input) => {
+                  let result = '';
+                  let index = 0;
+                  while (index < input.length) {
+                     const start = input.indexOf('**', index);
+                     if (start === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     const end = input.indexOf('**', start + 2);
+                     if (end === -1) {
+                        result += input.slice(index);
+                        break;
+                     }
+                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
+                     index = end + 2;
+                  }
+                  return result;
+               };
+
+               const applyInlineCode = (input) => {
+                  const parts = input.split(String.fromCharCode(96));
+                  if (parts.length === 1) return input;
+                  return parts
+                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
+                     .join('');
+               };
+
+               output = applyBold(output);
+               output = applyInlineCode(output);
+               return output;
+            };
+
+            const headers = lines.length > 0 ? clean(lines[0]) : [];
+            // Cells carry trusted inline markup (code/bold) from the parser, so
+            // they use Table's explicit { html } opt-in (Table escapes plain strings).
+            const rows = lines.slice(2).map((line) => clean(line).map((cell) => ({ html: formatCell(cell) })));
+            const table = await slice.build('Table', { headers, rows });
+            container.appendChild(table);
          }
       }
       {
          const container = this.querySelector('[data-block-id="doc-block-3"]');
          if (container) {
-            const lines = ["| Param | Type | Default | Description |","|---|---|---|---|","| `element` | `Element` | — | The trigger node. Gets `tabindex=\"0\"` and event listeners. |","| `config.text` | `string` | `data-tooltip` attr or `''` | Tooltip text. Empty = no bubble. |","| `config.placement` | `string` | `data-tooltip-placement` or `'top'` | `'top'` \\| `'bottom'` \\| `'left'` \\| `'right'` |","| `config.offset` | `number` | `data-tooltip-offset` or `10` | Gap from trigger (min `4`). |","| `config.maxWidth` | `number` | `data-tooltip-max-width` or `300` | Bubble max-width (min `120`). |","| `config.showDelay` | `number` | `data-tooltip-show-delay` or `0` | ms before bubble appears. |","| `config.hideDelay` | `number` | `data-tooltip-hide-delay` or `120` | ms before bubble hides. |","| `config.customColor` | `object` | `null` | `{ background, text }` |"];
-            const clean = (line) => {
-               let value = line.trim();
-               if (value.startsWith('|')) {
-                  value = value.slice(1);
-               }
-               if (value.endsWith('|')) {
-                  value = value.slice(0, -1);
-               }
-               return value.split('|').map((cell) => cell.trim());
-            };
-
-            const formatCell = (text) => {
-               let output = text
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;');
-
-               const applyBold = (input) => {
-                  let result = '';
-                  let index = 0;
-                  while (index < input.length) {
-                     const start = input.indexOf('**', index);
-                     if (start === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     const end = input.indexOf('**', start + 2);
-                     if (end === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
-                     index = end + 2;
-                  }
-                  return result;
-               };
-
-               const applyInlineCode = (input) => {
-                  const parts = input.split(String.fromCharCode(96));
-                  if (parts.length === 1) return input;
-                  return parts
-                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
-                     .join('');
-               };
-
-               output = applyBold(output);
-               output = applyInlineCode(output);
-               return output;
-            };
-
-            const headers = lines.length > 0 ? clean(lines[0]) : [];
-            // Cells carry trusted inline markup (code/bold) from the parser, so
-            // they use Table's explicit { html } opt-in (Table escapes plain strings).
-            const rows = lines.slice(2).map((line) => clean(line).map((cell) => ({ html: formatCell(cell) })));
-            const table = await slice.build('Table', { headers, rows });
-            container.appendChild(table);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-4"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "tp.attach(document.getElementById('save-btn'), {\n  text: 'Save changes',\n  placement: 'bottom'\n});",
-               language: "javascript"
-            });
-            if ("Programmatic attach") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Programmatic attach";
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-5"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "tp.detach(element);",
-               language: "javascript"
-            });
-            if (null) {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = null;
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-6"]');
-         if (container) {
-            const lines = ["| Attribute | Maps to |","|---|---|","| `data-tooltip` | `text` |","| `data-tooltip-placement` | `placement` |","| `data-tooltip-offset` | `offset` |","| `data-tooltip-max-width` | `maxWidth` |","| `data-tooltip-show-delay` | `showDelay` |","| `data-tooltip-hide-delay` | `hideDelay` |"];
-            const clean = (line) => {
-               let value = line.trim();
-               if (value.startsWith('|')) {
-                  value = value.slice(1);
-               }
-               if (value.endsWith('|')) {
-                  value = value.slice(0, -1);
-               }
-               return value.split('|').map((cell) => cell.trim());
-            };
-
-            const formatCell = (text) => {
-               let output = text
-                  .replace(/&/g, '&amp;')
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;');
-
-               const applyBold = (input) => {
-                  let result = '';
-                  let index = 0;
-                  while (index < input.length) {
-                     const start = input.indexOf('**', index);
-                     if (start === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     const end = input.indexOf('**', start + 2);
-                     if (end === -1) {
-                        result += input.slice(index);
-                        break;
-                     }
-                     result += input.slice(index, start) + '<strong>' + input.slice(start + 2, end) + '</strong>';
-                     index = end + 2;
-                  }
-                  return result;
-               };
-
-               const applyInlineCode = (input) => {
-                  const parts = input.split(String.fromCharCode(96));
-                  if (parts.length === 1) return input;
-                  return parts
-                     .map((part, idx) => (idx % 2 === 1 ? '<code>' + part + '</code>' : part))
-                     .join('');
-               };
-
-               output = applyBold(output);
-               output = applyInlineCode(output);
-               return output;
-            };
-
-            const headers = lines.length > 0 ? clean(lines[0]) : [];
-            // Cells carry trusted inline markup (code/bold) from the parser, so
-            // they use Table's explicit { html } opt-in (Table escapes plain strings).
-            const rows = lines.slice(2).map((line) => clean(line).map((cell) => ({ html: formatCell(cell) })));
-            const table = await slice.build('Table', { headers, rows });
-            container.appendChild(table);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-7"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "<div class=\"toolbar\">\n  <button data-tooltip=\"Search\" data-tooltip-placement=\"bottom\">Search</button>\n  <button data-tooltip=\"Download\" data-tooltip-placement=\"bottom\">Download</button>\n  <button data-tooltip=\"Delete\" data-tooltip-placement=\"bottom\" data-tooltip-offset=\"6\">Delete</button>\n</div>",
-               language: "html"
-            });
-            if ("HTML with data attributes") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "HTML with data attributes";
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-8"]');
-         if (container) {
-            const code = await slice.build('CodeVisualizer', {
-               value: "tp.scope(document.querySelector('.toolbar'));",
-               language: "javascript"
-            });
-            if ("Scan once") {
-               const label = document.createElement('div');
-               label.classList.add('code-block-title');
-               label.textContent = "Scan once";
-               container.appendChild(label);
-            }
-            container.appendChild(code);
-         }
-      }
-      {
-         const container = this.querySelector('[data-block-id="doc-block-12"]');
-         if (container) {
-            const lines = ["| Scenario | Use |","|---|---|","| 1–3 tooltips, declarative markup | `<slice-tooltip>` component |","| 10+ tooltips, dynamic content | `ToolTipProvider` |","| Toolbar with icon buttons | `ToolTipProvider.scope()` + data attributes |","| App-wide shared singleton | `slice.getComponent('ToolTipProvider')` |"];
+            const lines = ["| Attribute | Same as |","|---|---|","| `data-tooltip` | `text` |","| `data-tooltip-title` | `title` |","| `data-tooltip-shortcut` | `shortcut` |","| `data-tooltip-placement` | `placement` (`top`, `bottom-start`, …) |","| `data-tooltip-variant` | `variant` (`inverse`, `light`, `accent`) |","| `data-tooltip-size` | `size` (`sm`, `md`) |","| `data-tooltip-mode` | `mode` (`tooltip`, `toggletip`) |","| `data-tooltip-offset`, `data-tooltip-max-width` | `offset`, `maxWidth` |","| `data-tooltip-show-delay`, `data-tooltip-hide-delay` | `showDelay`, `hideDelay` |"];
             const clean = (line) => {
                let value = line.trim();
                if (value.startsWith('|')) {

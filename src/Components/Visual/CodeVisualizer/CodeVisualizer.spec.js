@@ -25,6 +25,14 @@ test.describe('CodeVisualizer', () => {
       await expect(c.locator('.codevisualizer .code-keyword').first()).toHaveText('const');
    });
 
+   test('a builtin used as a method (.slice(...)) never leaks a placeholder', async ({ mount }) => {
+      const code = 'const page = posts.slice((p - 1) * 5, p * 5).map((t) => t);';
+      const c = await mount('CodeVisualizer', { value: code, language: 'javascript' });
+      await expect(c.locator('.codevisualizer code')).toHaveText(code);
+      await expect(c.locator('.codevisualizer code')).not.toContainText('__TOKEN_');
+      await expect(c.locator('.codevisualizer .code-method')).toHaveText(['.map']);
+   });
+
    test('html language produces a language-html code block', async ({ mount }) => {
       const c = await mount('CodeVisualizer', { value: '<div class="a">hi</div>', language: 'html' });
       await expect(c.locator('.codevisualizer code')).toHaveClass('language-html');

@@ -1,107 +1,218 @@
+/* ToolTip — the wrapper, and the bubble that ToolTip and ToolTipProvider share. */
+
 slice-tooltip {
   display: inline-flex;
   align-items: center;
+  vertical-align: middle;
 }
 
-slice-tooltip .tooltip-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  height: auto;
+slice-tooltip[hidden] {
+  display: none;
 }
 
-/* NOTE: `.slice-tooltip-bubble` is appended to document.body (not inside the
-   component), so it intentionally stays a globally-unique class — see §8. */
+/* A ToolTip that is its own trigger (text, or a disabled control inside). */
+slice-tooltip[data-own-focus='true'] {
+  border-radius: 4px;
+  cursor: help;
+}
+
+slice-tooltip[data-own-focus='true']:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* NOTE: `.slice-tooltip-bubble` lives at the end of <body> (or after a
+   toggletip's trigger), not inside the component, so it keeps a globally
+   unique class — see CSS conventions §8. */
 .slice-tooltip-bubble {
+  --tt-bg: color-mix(in srgb, var(--font-primary-color, #1e1b2e) 94%, var(--primary-color, #9333ea));
+  --tt-text: var(--primary-background-color, #fff);
+  --tt-muted: color-mix(in srgb, var(--tt-text) 72%, transparent);
+  --tt-border: transparent;
+  --tt-radius: 8px;
+  --tt-arrow: 6px;
+
+  /* Undo the popover defaults: the bubble is placed by code, not centred. */
   position: fixed;
-  background: var(--tt-bg, var(--accent, #334155));
-  color: var(--tt-text, var(--on-accent, #f1f5f9));
-  border: 1px solid var(--tt-border, transparent);
-  padding: 0.48rem 0.82rem;
-  border-radius: 0.55rem;
+  inset: auto;
+  margin: 0;
+  overflow: visible;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 280px;
+  padding: 7px 10px;
+  border: 1px solid var(--tt-border);
+  border-radius: var(--tt-radius);
+  color: var(--tt-text);
+  background: var(--tt-bg);
+  box-shadow: var(--slice-shadow-md);
+  font-family: var(--font-family, inherit);
   font-size: 0.8rem;
-  font-weight: 480;
-  letter-spacing: 0.005em;
-  max-width: 300px;
-  z-index: 10000;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(5px) scale(0.96);
-  transform-origin: center top;
-  transition: opacity 0.14s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow:
-    var(--slice-shadow-md);
+  font-weight: 500;
   line-height: 1.4;
-  text-align: left;
-  word-wrap: break-word;
+  text-align: start;
+  overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
+  z-index: 10000;
+  opacity: 0;
+  translate: var(--tt-from, 0 4px);
+  transition: opacity 0.12s ease, translate 0.16s ease;
 }
 
-.slice-tooltip-bubble[data-placement="bottom"] {
-  transform: translateY(-5px) scale(0.96);
-  transform-origin: center bottom;
-}
+.slice-tooltip-bubble[data-placement='bottom'] { --tt-from: 0 -4px; }
+.slice-tooltip-bubble[data-placement='left'] { --tt-from: 4px 0; }
+.slice-tooltip-bubble[data-placement='right'] { --tt-from: -4px 0; }
 
-.slice-tooltip-bubble[data-placement="left"] {
-  transform: translateX(5px) scale(0.96);
-  transform-origin: right center;
-}
-
-.slice-tooltip-bubble[data-placement="right"] {
-  transform: translateX(-5px) scale(0.96);
-  transform-origin: left center;
-}
-
-.slice-tooltip-bubble.visible {
+.slice-tooltip-bubble.is-visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
+  translate: 0 0;
 }
 
-.slice-tooltip-bubble::after {
+/* Browsers without popovers: shown and hidden by class. */
+.slice-tooltip-bubble:not([popover]):not(.is-fallback) {
+  display: none;
+}
+
+.slice-tooltip-bubble[data-size='sm'] {
+  padding: 4px 8px;
+  font-size: 0.74rem;
+  --tt-radius: 6px;
+  --tt-arrow: 5px;
+}
+
+/* ── Variants ───────────────────────────────────────────────────── */
+
+.slice-tooltip-bubble[data-variant='light'] {
+  --tt-bg: var(--slice-surface-raised, var(--primary-background-color, #fff));
+  --tt-text: var(--font-primary-color, #1e1b2e);
+  --tt-muted: var(--font-secondary-color, #6b5b8a);
+  --tt-border: var(--slice-border-raised, rgba(0, 0, 0, 0.12));
+}
+
+.slice-tooltip-bubble[data-variant='accent'] {
+  --tt-bg: var(--primary-color, #9333ea);
+  --tt-text: var(--primary-color-contrast, #fff);
+  --tt-muted: color-mix(in srgb, var(--primary-color-contrast, #fff) 78%, transparent);
+}
+
+/* ── Content ────────────────────────────────────────────────────── */
+
+.slice-tooltip-bubble__title {
+  font-weight: 650;
+}
+
+.slice-tooltip-bubble.is-rich {
+  padding: 10px 12px;
+}
+
+.slice-tooltip-bubble.is-rich .slice-tooltip-bubble__body {
+  margin-top: 2px;
+  color: var(--tt-muted);
+}
+
+.slice-tooltip-bubble__title[hidden],
+.slice-tooltip-bubble__body[hidden],
+.slice-tooltip-bubble__shortcut[hidden] {
+  display: none;
+}
+
+/* Text and shortcut on one line: "Bold  ⌘B". */
+.slice-tooltip-bubble:is(:popover-open, .is-fallback):not(.is-rich):has(.slice-tooltip-bubble__shortcut:not([hidden])) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.slice-tooltip-bubble__shortcut {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--tt-muted);
+  background: color-mix(in srgb, var(--tt-text) 14%, transparent);
+  white-space: nowrap;
+}
+
+.slice-tooltip-bubble.is-rich .slice-tooltip-bubble__shortcut {
+  margin-top: 6px;
+}
+
+.slice-tooltip-bubble a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.slice-tooltip-bubble[data-mode='toggletip'] {
+  padding: 12px 14px;
+  font-size: 0.84rem;
+  max-width: 320px;
+}
+
+.slice-tooltip-bubble[data-mode='toggletip'] a:focus-visible,
+.slice-tooltip-bubble[data-mode='toggletip'] button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ── Arrow: points at the trigger's centre, even after a shift ──── */
+
+.slice-tooltip-bubble.has-arrow::before {
   content: '';
   position: absolute;
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
+  width: calc(var(--tt-arrow) * 2);
+  height: calc(var(--tt-arrow) * 2);
+  background: var(--tt-bg);
+  border: 1px solid var(--tt-border);
+  rotate: 45deg;
   pointer-events: none;
 }
 
-.slice-tooltip-bubble[data-placement="top"]::after {
-  top: 100%;
-  left: calc(50% - 6px);
-  border-top-color: var(--tt-bg, var(--accent, #334155));
-  border-bottom: none;
+.slice-tooltip-bubble.has-arrow[data-placement='top']::before {
+  top: calc(100% - var(--tt-arrow));
+  left: calc(var(--tt-arrow-x, 50%) - var(--tt-arrow));
+  border-top-color: transparent;
+  border-left-color: transparent;
 }
 
-.slice-tooltip-bubble[data-placement="bottom"]::after {
-  bottom: 100%;
-  left: calc(50% - 6px);
-  border-bottom-color: var(--tt-bg, var(--accent, #334155));
-  border-top: none;
+.slice-tooltip-bubble.has-arrow[data-placement='bottom']::before {
+  bottom: calc(100% - var(--tt-arrow));
+  left: calc(var(--tt-arrow-x, 50%) - var(--tt-arrow));
+  border-bottom-color: transparent;
+  border-right-color: transparent;
 }
 
-.slice-tooltip-bubble[data-placement="left"]::after {
-  left: 100%;
-  top: calc(50% - 6px);
-  border-left-color: var(--tt-bg, var(--accent, #334155));
-  border-right: none;
+.slice-tooltip-bubble.has-arrow[data-placement='left']::before {
+  left: calc(100% - var(--tt-arrow));
+  top: calc(var(--tt-arrow-y, 50%) - var(--tt-arrow));
+  border-bottom-color: transparent;
+  border-left-color: transparent;
 }
 
-.slice-tooltip-bubble[data-placement="right"]::after {
-  right: 100%;
-  top: calc(50% - 6px);
-  border-right-color: var(--tt-bg, var(--accent, #334155));
-  border-left: none;
+.slice-tooltip-bubble.has-arrow[data-placement='right']::before {
+  right: calc(100% - var(--tt-arrow));
+  top: calc(var(--tt-arrow-y, 50%) - var(--tt-arrow));
+  border-top-color: transparent;
+  border-right-color: transparent;
+}
+
+/* The bubble's content sits above the arrow's square. */
+.slice-tooltip-bubble > * {
+  position: relative;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .slice-tooltip-bubble {
+    translate: 0 0;
     transition: opacity 0.1s ease;
-    transform: none !important;
   }
+}
 
-  .slice-tooltip-bubble.visible {
-    transform: none !important;
+@media (prefers-contrast: more) {
+  .slice-tooltip-bubble {
+    --tt-border: currentColor;
   }
 }

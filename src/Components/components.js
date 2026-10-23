@@ -110,6 +110,7 @@ const components = {
   "RadioGroupDocumentation": "DocumentationPages",
   "RouteDocumentation": "DocumentationPages",
   "SelectDocumentation": "DocumentationPages",
+  "SliceComponentsArchitectureDocumentation": "DocumentationPages",
   "SliderDocumentation": "DocumentationPages",
   "StoreServiceDocumentation": "DocumentationPages",
   "SwitchDocumentation": "DocumentationPages",

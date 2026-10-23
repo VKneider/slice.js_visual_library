@@ -7,39 +7,46 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ToolTip</code> displays a floating text label when the user hovers or focuses the wrapped content. The tooltip repositions itself to stay within the viewport and falls back to alternative placements when space is limited.</p>
+<p>A <code>ToolTip</code> explains the control it wraps: what an icon button does, the keyboard shortcut, or why a button is disabled. It shows on hover after a short delay, on keyboard focus right away, and on a long press on touch screens.</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Icon buttons, whose icon alone may not say enough.</li><li>Keyboard shortcuts, next to the action's name.</li><li>A disabled control, to say why it is disabled.</li><li>An abbreviation or a term, wrapped in text.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Information people need to complete a task.</strong> Put it on the page, as a field's <code>help</code> text for example. A tooltip is hidden until someone looks for it.</li><li><strong>Anything to click</strong> (a link, a button) belongs in a <strong>toggletip</strong> (<code>mode: 'toggletip'</code>), or a [Modal](/docs/feedback/modal).</li><li><strong>Many plain-text tooltips</strong> on one page (a toolbar, a table) are cheaper with [ToolTipProvider](/docs/services/tooltip-provider), which shares one bubble.</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>text</code> sets the tooltip string. Empty text suppresses the tooltip entirely.</li><li>Triggered by <code>mouseenter</code> / <code>mouseleave</code> and <code>focusin</code> / <code>focusout</code> (keyboard accessible).</li><li><code>placement</code> controls preferred direction (<code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>); the tooltip auto-falls back to other sides if the viewport doesn't fit.</li><li><code>showDelay</code> / <code>hideDelay</code> add an intent delay for smoother hover experience.</li><li><code>offset</code> controls gap between trigger and bubble (min <code>4px</code>).</li><li><code>maxWidth</code> limits the bubble width (min <code>120px</code>).</li><li><code>customColor</code> accepts <code>{ background, text }</code> to override the default theme tokens.</li><li><code>Escape</code> key or clicking outside dismisses the bubble.</li><li>Bubble is appended to <code>document.body</code> for accurate positioning.</li><li>Sets <code>aria-describedby</code> on the host pointing to the bubble <code>id</code> when visible.</li></ul>
+<h3 id="the-trigger">The trigger</h3>
+<p>Whatever you put inside the ToolTip is its trigger.</p>
+<ul><li><strong>A focusable control</strong> (a Button, a link, an input) keeps its own place in the Tab order and gets <code>aria-describedby</code>. The ToolTip adds no tab stop, so a toolbar is not twice as long to tab through.</li><li><strong>Text, or a disabled control,</strong> has nothing to focus, so the ToolTip itself becomes focusable. That is how a disabled button can still say why, to the mouse and to the keyboard.</li></ul>
+<h3 id="showing-and-hiding">Showing and hiding</h3>
+<ul><li><strong>Hover:</strong> shows after <code>showDelay</code> (400ms by default), so it does not flash while the pointer crosses the page. Once one tooltip has shown, its neighbours show at once for a moment, so moving along a toolbar reads every label without waiting.</li><li><strong>Keyboard focus:</strong> shows at once. A mouse click that happens to focus the control does not show it.</li><li><strong>Touch:</strong> a long press shows it, and it stays a moment after the finger lifts.</li><li><strong>Clicking the control</strong> does what the control does, and the tooltip steps aside.</li><li>The bubble can be hovered without closing, so it can be read and selected (WCAG 1.4.13). It closes <code>hideDelay</code> (100ms) after the pointer leaves both the trigger and the bubble.</li><li><strong>Escape</strong> closes it from anywhere. That Escape is used up: a tooltip open in a Modal takes the first Escape, and the Modal the second.</li><li>It also closes when the trigger scrolls out of view or leaves the page. Only one tooltip is open at a time.</li><li><code>show()</code>, <code>hide()</code> and <code>toggle()</code> work from code, and <code>onOpenChange(open)</code> reports changes. <code>disabled</code> switches it off.</li></ul>
+<h3 id="above-everything">Above everything</h3>
+<p>The bubble is a popover, so it renders in the browser's top layer: above a [Modal](/docs/feedback/modal), a Drawer or a calendar, and never clipped by an ancestor's <code>overflow: hidden</code>.</p>
+<h3 id="content">Content</h3>
+<ul><li><code>text</code> is the description.</li><li><code>title</code> adds a bold line above it, for a richer tooltip.</li><li><code>shortcut</code> shows a key combination (<code>'⌘B'</code>, <code>'Ctrl+S'</code>) in a <code>&lt;kbd&gt;</code>.</li><li><code>content</code> takes a node instead of <code>text</code>.</li></ul>
+<p>Changing any of them while the tooltip is open updates it in place ("Copy" → "Copied!").</p>
+<h3 id="toggletip">Toggletip</h3>
+<p><code>mode: 'toggletip'</code> is for an ⓘ button that explains something and may hold a link.</p>
+<ul><li>A click opens and closes it. Hover does nothing.</li><li>The trigger gets <code>aria-expanded</code>.</li><li>The bubble sits right after the trigger, so <strong>Tab</strong> goes from the ⓘ into its links.</li><li><strong>Escape</strong> closes it and puts the focus back on the ⓘ. Tabbing out or clicking elsewhere closes it too.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>placement</code>: <code>'top'</code> (default), <code>'bottom'</code>, <code>'left'</code> or <code>'right'</code>, each with <code>-start</code> or <code>-end</code> to align with an edge of the trigger (<code>'bottom-start'</code>).</li></ul>
+<p>- When the side has no room, it flips to the other side, then shifts into the screen.   - The arrow keeps pointing at the trigger's centre after a shift. <code>arrow: false</code> removes it.</p>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'inverse'</code> (default): dark on a light theme, light on a dark one;   - <code>'light'</code>: a raised surface with a border;   - <code>'accent'</code>: the primary colour.</p>
+<ul><li><code>size</code>: <code>'sm'</code> or <code>'md'</code> (default).</li><li><code>offset</code> (8px) is the gap to the trigger. <code>maxWidth</code> (280px) wraps long text.</li><li><code>customColor: { background, text, border }</code> retints one tooltip.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
-<div class="component-block" data-block-id="doc-block-1"></div>
-<h2 id="placement-variants">Placement Variants</h2>
-<p>Use <code>placement</code> to control where the bubble appears. The component automatically tries fallback positions when the preferred side has no room.</p>
-<div class="script-block" data-block-id="doc-block-2"></div>
-<h2 id="delay-for-intent">Delay for Intent</h2>
-<p>Use <code>showDelay</code> to prevent flicker when the cursor passes over a trigger briefly. <code>hideDelay</code> keeps the bubble visible while moving between related triggers.</p>
+<div class="component-block" data-block-id="doc-block-2"></div>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
-<h2 id="auto-placement-fallback">Auto-Placement Fallback</h2>
-<p>When the preferred <code>placement</code> has no room, the tooltip automatically falls back to the next available side.</p>
 <div class="script-block" data-block-id="doc-block-5"></div>
-<h2 id="keyboard-dismiss">Keyboard &amp; Dismiss</h2>
-<p>The tooltip is fully keyboard accessible and respects common dismiss patterns.</p>
 <div class="script-block" data-block-id="doc-block-6"></div>
-<h2 id="custom-width-and-offset">Custom Width and Offset</h2>
-<p><code>maxWidth</code> controls how wide the bubble can grow (default <code>300px</code>). <code>offset</code> tightens or increases the gap between trigger and bubble (minimum <code>4px</code>).</p>
 <div class="script-block" data-block-id="doc-block-7"></div>
 <div class="script-block" data-block-id="doc-block-8"></div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-9"></div>
-<div class="script-block" data-block-id="doc-block-10"></div>
-<div class="script-block" data-block-id="doc-block-11"></div>
-<div class="script-block" data-block-id="doc-block-12"></div>
-<div class="script-block" data-block-id="doc-block-13"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Pair tooltips with interactive elements (icon buttons, truncated text, input labels) to provide contextual hints without cluttering the UI. Use <code>hideDelay</code> (300–500ms) when tooltips contain multi-line content so users have time to read.</div>
-<h2 id="tooltipprovider">ToolTipProvider</h2>
-<p>For pages with many tooltips (toolbars, data tables, icon grids), use [<code>ToolTipProvider</code>](/docs/services/tooltip-provider) — a singleton Service that shares one bubble and one set of listeners across all triggers via a programmatic or <code>data-tooltip</code> API.</p>
+<div class="callout callout-tip">Keep it short: a name, or a sentence. If it needs a paragraph, it belongs on the page or in a toggletip.</div>
+<div class="callout callout-tip">Explain disabled buttons. "Add a title to publish" saves people from guessing what is missing.</div>
+<div class="callout callout-tip">Show the shortcut. A tooltip is the one place people look for it, and <code>shortcut</code> styles it as a key.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">The tooltip bubble is appended to <code>document.body</code> — ensure <code>z-index: 10000</code> does not conflict with other overlays. For critical information, prefer visible labels instead of tooltips.</div>
-<div class="component-block" data-block-id="doc-block-14"></div>
+<div class="callout callout-warning">Do not put links or buttons in a plain tooltip: it closes when the pointer leaves, and touch users barely see it. Use <code>mode: 'toggletip'</code>.</div>
+<div class="callout callout-warning">A tooltip is not a label. An icon-only button still needs its own accessible name (Button's <code>value</code>), and the tooltip describes it.</div>
 </div>

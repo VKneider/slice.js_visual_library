@@ -1,103 +1,348 @@
-/* Encapsulated under the custom element so the upload styles never leak. */
+/* FileUpload — a drop zone that is a real file input, and the list of what was picked. */
 
 slice-file-upload {
-  display: block;
-  width: 100%;
-}
+  --slice-file-upload-accent: var(--primary-color);
+  --slice-file-upload-bg: var(--primary-background-color);
+  --slice-file-upload-text: var(--font-primary-color);
+  --slice-file-upload-muted: var(--font-secondary-color);
+  --slice-file-upload-border: var(--slice-border-raised, var(--primary-color-shade));
+  --slice-file-upload-danger: var(--danger-color);
+  --slice-file-upload-radius: 12px;
+  --slice-file-upload-pad: 24px;
+  --slice-file-upload-icon: 32px;
 
-slice-file-upload .slice_file_upload {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  cursor: pointer;
+  width: 100%;
+  min-width: 0;
+  color: var(--slice-file-upload-text);
+  font-family: inherit;
 }
 
-slice-file-upload .slice_file_upload__zone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 24px 16px;
-  text-align: center;
-  border: 2px dashed color-mix(in srgb, var(--primary-color) 40%, transparent);
-  border-radius: calc(var(--border-radius-slice) * 1.5);
-  background: color-mix(in srgb, var(--primary-color) 5%, transparent);
-  color: var(--font-primary-color);
-  font-family: var(--font-family);
-  transition: border-color 0.18s ease, background-color 0.18s ease;
-}
-
-slice-file-upload .slice_file_upload__zone.is-over {
-  border-color: var(--primary-color);
-  border-style: solid;
-  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
-}
-
-slice-file-upload .slice_file_upload__zone.is-disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-  border-style: solid;
-}
-
-/* The focus ring belongs on the visible zone: the input itself is hidden. */
-slice-file-upload .slice_file_upload__input:focus-visible + .slice_file_upload__zone {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-slice-file-upload .slice_file_upload__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary-color);
-}
-
-slice-file-upload .slice_file_upload__icon:empty {
+slice-file-upload[hidden] {
   display: none;
 }
 
-slice-file-upload .slice_file_upload__prompt {
+slice-file-upload[data-size='sm'] {
+  --slice-file-upload-pad: 16px;
+  --slice-file-upload-icon: 24px;
+  --slice-file-upload-radius: 10px;
+}
+
+slice-file-upload[data-size='lg'] {
+  --slice-file-upload-pad: 36px;
+  --slice-file-upload-icon: 40px;
+  --slice-file-upload-radius: 14px;
+}
+
+slice-file-upload .slice-file-upload__label {
   font-size: 0.9rem;
   font-weight: 600;
 }
 
-slice-file-upload .slice_file_upload__hint {
-  font-size: 0.78rem;
-  color: var(--font-secondary-color);
-}
-
-slice-file-upload .slice_file_upload__hint[hidden] {
+slice-file-upload .slice-file-upload__label[hidden],
+slice-file-upload .slice-file-upload__hint[hidden],
+slice-file-upload .slice-file-upload__icon[hidden],
+slice-file-upload .slice-file-upload__message[hidden],
+slice-file-upload .slice-file-upload__list[hidden],
+slice-file-upload .slice-file-upload__bar[hidden] {
   display: none;
 }
 
-slice-file-upload .slice_file_upload__list {
+/* ── Zone ───────────────────────────────────────────────────────── */
+
+slice-file-upload .slice-file-upload__zone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: var(--slice-file-upload-pad) 16px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px dashed color-mix(in srgb, var(--slice-file-upload-accent) 35%, var(--slice-file-upload-border));
+  border-radius: var(--slice-file-upload-radius);
+  background: color-mix(in srgb, var(--slice-file-upload-bg) 95%, var(--slice-file-upload-accent));
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+}
+
+slice-file-upload .slice-file-upload__zone:hover {
+  border-color: color-mix(in srgb, var(--slice-file-upload-accent) 65%, transparent);
+}
+
+slice-file-upload .slice-file-upload__zone.is-over {
+  border-style: solid;
+  border-color: var(--slice-file-upload-accent);
+  background: color-mix(in srgb, var(--slice-file-upload-bg) 86%, var(--slice-file-upload-accent));
+  transform: scale(1.01);
+}
+
+/* Visually hidden, still focusable: Tab reaches the picker through the zone. */
+slice-file-upload .slice-file-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+slice-file-upload .slice-file-upload__zone:has(.slice-file-upload__input:focus-visible) {
+  outline: 2px solid var(--slice-file-upload-accent);
+  outline-offset: 2px;
+}
+
+slice-file-upload .slice-file-upload__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--slice-file-upload-accent);
+}
+
+slice-file-upload .slice-file-upload__copy {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+}
+
+slice-file-upload .slice-file-upload__prompt {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+slice-file-upload .slice-file-upload__browse {
+  color: var(--slice-file-upload-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+slice-file-upload .slice-file-upload__hint {
+  font-size: 0.8rem;
+  color: var(--slice-file-upload-muted);
+}
+
+/* compact: one row, a button-looking prompt; still a drop target. */
+slice-file-upload.slice-file-upload--compact .slice-file-upload__zone {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  text-align: start;
+  border-width: 1px;
+}
+
+slice-file-upload.slice-file-upload--compact {
+  --slice-file-upload-icon: 20px;
+}
+
+slice-file-upload .slice-file-upload__button {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--primary-color-contrast);
+  background: var(--slice-file-upload-accent);
+  white-space: nowrap;
+}
+
+/* ── States ─────────────────────────────────────────────────────── */
+
+slice-file-upload.is-disabled .slice-file-upload__zone {
+  cursor: not-allowed;
+  opacity: 0.55;
+  border-style: solid;
+  transform: none;
+}
+
+slice-file-upload.is-invalid .slice-file-upload__zone {
+  border-color: var(--slice-file-upload-danger);
+  background: color-mix(in srgb, var(--slice-file-upload-bg) 94%, var(--slice-file-upload-danger));
+}
+
+slice-file-upload .slice-file-upload__zone.is-shaking {
+  animation: slice-file-upload-shake 0.36s ease;
+}
+
+@keyframes slice-file-upload-shake {
+  0%, 100% { translate: 0; }
+  20% { translate: -6px; }
+  40% { translate: 5px; }
+  60% { translate: -3px; }
+  80% { translate: 2px; }
+}
+
+/* ── Message ────────────────────────────────────────────────────── */
+
+slice-file-upload .slice-file-upload__message {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+slice-file-upload .slice-file-upload__line {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--slice-file-upload-muted);
+}
+
+slice-file-upload .slice-file-upload__line--error,
+slice-file-upload .slice-file-upload__line--rejected {
+  color: var(--danger-color-readable, var(--slice-file-upload-danger));
+}
+
+/* ── List ───────────────────────────────────────────────────────── */
+
+slice-file-upload .slice-file-upload__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-slice-file-upload .slice_file_upload__list[hidden] {
-  display: none;
+slice-file-upload .slice-file-upload__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid var(--slice-file-upload-border);
+  border-radius: 10px;
+  background: var(--slice-file-upload-bg);
 }
 
-slice-file-upload .slice_file_upload__item {
-  padding: 6px 10px;
-  border-radius: calc(var(--border-radius-slice) * 0.8);
-  background: color-mix(in srgb, var(--medium-color) 16%, transparent);
-  font-family: var(--font-family);
-  font-size: 0.8rem;
-  color: var(--font-primary-color);
+slice-file-upload .slice-file-upload__item[data-status='error'] {
+  border-color: color-mix(in srgb, var(--slice-file-upload-danger) 55%, var(--slice-file-upload-border));
+}
+
+slice-file-upload .slice-file-upload__thumb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   overflow: hidden;
-  text-overflow: ellipsis;
+  border-radius: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--slice-file-upload-accent);
+  background: color-mix(in srgb, var(--slice-file-upload-bg) 88%, var(--slice-file-upload-accent));
+}
+
+slice-file-upload .slice-file-upload__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+slice-file-upload .slice-file-upload__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+slice-file-upload .slice-file-upload__name {
+  overflow: hidden;
+  font-size: 0.88rem;
+  font-weight: 600;
   white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+slice-file-upload .slice-file-upload__detail {
+  font-size: 0.78rem;
+  color: var(--slice-file-upload-muted);
+}
+
+slice-file-upload .slice-file-upload__item[data-status='done'] .slice-file-upload__detail {
+  color: var(--success-color-readable, var(--success-color));
+}
+
+slice-file-upload .slice-file-upload__item[data-status='error'] .slice-file-upload__detail {
+  color: var(--danger-color-readable, var(--slice-file-upload-danger));
+}
+
+slice-file-upload .slice-file-upload__bar {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--slice-file-upload-text) 10%, transparent);
+}
+
+slice-file-upload .slice-file-upload__bar > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--slice-file-upload-accent);
+  transition: width 0.2s ease;
+}
+
+slice-file-upload .slice-file-upload__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+slice-file-upload .slice-file-upload__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--slice-file-upload-muted);
+  background: transparent;
+  cursor: pointer;
+}
+
+slice-file-upload .slice-file-upload__action--icon {
+  padding: 0;
+}
+
+slice-file-upload .slice-file-upload__action--text {
+  color: var(--slice-file-upload-accent);
+}
+
+slice-file-upload .slice-file-upload__action:hover {
+  color: var(--slice-file-upload-text);
+  background: color-mix(in srgb, transparent 92%, var(--slice-file-upload-accent));
+}
+
+slice-file-upload .slice-file-upload__action:focus-visible {
+  outline: 2px solid var(--slice-file-upload-accent);
+  outline-offset: 1px;
+}
+
+slice-file-upload .slice-file-upload__action:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  slice-file-upload .slice_file_upload__zone {
+  slice-file-upload .slice-file-upload__zone,
+  slice-file-upload .slice-file-upload__bar > span {
     transition: none;
+  }
+
+  slice-file-upload .slice-file-upload__zone.is-shaking {
+    animation: none;
   }
 }

@@ -24,6 +24,15 @@ slice-button .slice_button_value {
   cursor: pointer;
 }
 
+slice-button .slice_button_value[hidden] {
+  display: none;
+}
+
+/* Icon only: as wide as it is tall. */
+slice-button .slice_button:has(> .slice_button_value[hidden]) {
+  padding-inline: var(--control-space-y, 10px);
+}
+
 slice-button .slice_button {
   display: inline-flex;
   align-items: center;
@@ -82,6 +91,16 @@ slice-button .slice_button:after {
 
 slice-button .slice_button:active {
   transform: translateY(5px);
+}
+
+slice-button .slice_button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+slice-button .slice_button:disabled:after {
+  display: none;
 }
 
 slice-button .slice_button:active:after {
@@ -147,12 +166,12 @@ slice-button .slice_button--sm:active {
 }
 
 /* Hover tint for the non-filled variants */
-slice-button .slice_button--outlined:hover,
-slice-button .slice_button--ghost:hover {
+slice-button .slice_button--outlined:hover:not(:disabled),
+slice-button .slice_button--ghost:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
-slice-button .slice_button--soft:hover {
+slice-button .slice_button--soft:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--primary-color) 26%, transparent);
 }
 

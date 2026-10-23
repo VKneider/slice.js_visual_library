@@ -7,36 +7,37 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p><code>ToolTipProvider</code> is a <strong>Service</strong> — a lightweight singleton that manages N tooltip triggers through a <strong>single shared bubble</strong> and <strong>one set of global listeners</strong>. Use it when you have many tooltips on a page and want optimal performance.</p>
-<p>Unlike the <code>&lt;slice-tooltip&gt;</code> custom element (one bubble + listeners per instance), <code>ToolTipProvider</code> reuses everything:</p>
-<div class="table-block" data-block-id="doc-block-1"></div>
-<h2 id="getting-started">Getting Started</h2>
-<p>Build a <code>ToolTipProvider</code> instance and call its methods against trigger elements:</p>
-<div class="code-block" data-block-id="doc-block-2"></div>
-<p><code>{ singleton: true }</code> makes every call return the same provider, so the whole app shares one bubble and one set of listeners. Without it, each call creates a new provider (it logs a warning). Do not use a fixed <code>sliceId</code> for this: a second build with the same <code>sliceId</code> returns <code>null</code>.</p>
+<p><code>ToolTipProvider</code> is a Service that gives tooltips to many elements with <strong>one shared bubble</strong> and <strong>one set of listeners on the document</strong>. Nothing is built per trigger: a toolbar of twenty buttons or a table of a thousand cells costs one bubble.</p>
+<p>It behaves exactly like [ToolTip](/docs/display/tooltip), because both run on the same code:</p>
+<ul><li>the delay and warm-up;</li><li>the top layer above Modals;</li><li>Escape, hovering the bubble, a long press on touch;</li><li>title and shortcut, twelve placements, the variants, and toggletips.</li></ul>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p><code>{ singleton: true }</code> makes every build return the same provider, so the whole app shares one. A second provider logs a warning.</p>
+<h3 id="tooltip-or-tooltipprovider">ToolTip or ToolTipProvider?</h3>
+<div class="table-block" data-block-id="doc-block-2"></div>
 <h2 id="api">API</h2>
-<h3 id="attachelement-config"><code>attach(element, config?)</code></h3>
-<p>Registers an element as a tooltip trigger.</p>
-<div class="table-block" data-block-id="doc-block-3"></div>
-<div class="code-block" data-block-id="doc-block-4"></div>
-<h3 id="detachelement"><code>detach(element)</code></h3>
-<p>Unregisters a trigger and removes its listeners.</p>
-<div class="code-block" data-block-id="doc-block-5"></div>
 <h3 id="scopecontainer"><code>scope(container)</code></h3>
-<p>Scans <code>container</code> for <code>[data-tooltip]</code> elements and attaches each one. Config is read from <code>data-*</code> attributes:</p>
-<div class="table-block" data-block-id="doc-block-6"></div>
-<div class="code-block" data-block-id="doc-block-7"></div>
-<div class="code-block" data-block-id="doc-block-8"></div>
+<p>Every element with <code>data-tooltip</code> (or <code>data-tooltip-title</code>) inside <code>container</code> gets a tooltip:</p>
+<ul><li><strong>including elements added later</strong>, because the provider looks for the trigger when the pointer or the focus arrives, not when you call <code>scope()</code>;</li><li>the attributes are read when the tooltip shows, so changing <code>data-tooltip</code> changes the tooltip.</li></ul>
+<p><code>unscope(container)</code> stops it.</p>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<h3 id="attachelement-config-and-detachelement"><code>attach(element, config)</code> and <code>detach(element)</code></h3>
+<p><code>attach</code> gives one element a tooltip from code, with the same options as ToolTip: <code>text</code>, <code>title</code>, <code>shortcut</code>, <code>placement</code>, <code>variant</code>, <code>size</code>, <code>mode</code>, <code>offset</code>, <code>maxWidth</code>, <code>showDelay</code>, <code>hideDelay</code>, <code>arrow</code> and <code>customColor</code>.</p>
+<ul><li>The config wins over the element's data attributes.</li><li>Calling it again merges the new config into the old one.</li><li><code>detach</code> removes the tooltip.</li></ul>
+<p>Configs are kept in a <code>WeakMap</code>. An element removed from the page takes its config with it, so forgetting <code>detach</code> leaks nothing.</p>
+<h3 id="showelement-and-hide"><code>show(element)</code> and <code>hide()</code></h3>
+<p>These open and close a tooltip from code. <code>open</code> tells whether one is showing.</p>
+<h3 id="keyboard-reach">Keyboard reach</h3>
+<p>An element with nothing focusable in it (a <code>&lt;span&gt;</code>, an icon) gets <code>tabindex="0"</code> from <code>attach()</code> or <code>scope()</code>. Keyboard users can then reach its tooltip, and <code>detach</code> takes the tab stop back. Buttons and links already have one, and nothing is added.</p>
 <h3 id="cleanup">Cleanup</h3>
-<p>As an app-lifetime singleton, <code>ToolTipProvider</code> removes all triggers, the shared bubble, and its global listeners automatically via the framework's <code>beforeDestroy</code> hook when it is torn down — you don't clean it up by hand. Use <code>detach(element)</code> to unregister a single trigger.</p>
-<h2 id="live-demos">Live Demos</h2>
-<div class="script-block" data-block-id="doc-block-9"></div>
-<div class="script-block" data-block-id="doc-block-10"></div>
-<div class="script-block" data-block-id="doc-block-11"></div>
-<h2 id="when-to-use-which">When to Use Which</h2>
-<div class="table-block" data-block-id="doc-block-12"></div>
+<p>Destroying the provider (<code>slice.controller.destroyComponent(tips)</code>) removes the bubble and the document listeners.</p>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Use <code>scope()</code> on a container after the DOM is ready — it scans for <code>[data-tooltip]</code> once. For dynamic content, call <code>attach()</code> when new elements are inserted and <code>detach()</code> when removed.</div>
+<div class="callout callout-tip">Use one provider for the whole app (<code>{ singleton: true }</code>) and <code>scope()</code> the containers that hold tooltips: the toolbar, the table, the sidebar. Rows and buttons added later are covered with no extra code.</div>
+<div class="callout callout-tip">Give truncated text a tooltip with the full text. Make the element focusable (<code>tabIndex = 0</code>) or let <code>scope()</code> do it, so keyboard users can read it too.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning"><code>ToolTipProvider</code> uses a <strong>shared bubble</strong> — only one tooltip is visible at a time. If you need simultaneous tooltips (e.g., comparison of two elements), use individual <code>&lt;slice-tooltip&gt;</code> components instead.</div>
+<div class="callout callout-warning">One provider shows one tooltip at a time, and so does ToolTip: opening one closes any other. A comparison that needs two explanations side by side belongs on the page, not in tooltips.</div>
+<div class="callout callout-warning">An element added after <code>scope()</code> does not get the automatic <code>tabindex</code>. If it is not focusable on its own (a <code>&lt;span&gt;</code>), set <code>tabIndex = 0</code> on it, or call <code>attach()</code> for it.</div>
 </div>

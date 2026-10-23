@@ -143,11 +143,17 @@ export default class CodeVisualizer extends HTMLElement {
       extractTokens(new RegExp(`\\b(${builtins.join('|')})\\b`, 'g'), 'code-builtin');
       
       // 6. Métodos y llamadas a funciones (esto debe ir después de extraer las palabras clave)
-      extractTokens(/(\.)([a-zA-Z_$][\w$]*)\s*(?=\()/g, 'code-method');
+      // A name already turned into a placeholder (`.slice(` became
+      // `.__TOKEN_27__(` as a builtin) is not a method name: skipping it keeps
+      // a placeholder from ending up inside another token, where it leaked
+      // into the page as "__TOKEN_27__".
+      extractTokens(/(\.)(?!__TOKEN_)([a-zA-Z_$][\w$]*)\s*(?=\()/g, 'code-method');
       
       // Reemplazar los tokens con el HTML resaltado. Replacer de función para no
-      // interpretar `$` del código como patrón especial de reemplazo.
-      tokens.forEach(token => {
+      // interpretar `$` del código como patrón especial de reemplazo. Newest
+      // first, so a token whose content holds an older placeholder still gets
+      // that placeholder replaced afterwards.
+      [...tokens].reverse().forEach(token => {
          tokenizedCode = tokenizedCode.replace(
             token.id,
             () => `<span class="${token.className}">${token.content}</span>`

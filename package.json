@@ -28,6 +28,7 @@
     "docs:generate": "node parser/index.js",
     "docs:lint-md": "node parser/index.js --lint-only",
     "docs:sync-registry": "node parser/index.js --sync-only",
+    "docs:agent": "node scripts/build-agent-catalog.mjs",
     "icons:generate": "node scripts/generate-icons.mjs && node scripts/generate-icon-table.mjs",
     "icons:audit": "node scripts/icon-map-audit.mjs && node scripts/icon-verify.mjs",
     "run": "node ./node_modules/slicejs-cli/client.js dev",

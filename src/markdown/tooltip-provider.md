@@ -5,178 +5,179 @@ navLabel: ToolTipProvider
 section: Services
 group: Overlay
 order: 15
-description: Lightweight singleton Service for efficient tooltip management via programmatic and data-attribute APIs.
+description: Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.
 component: ToolTipProviderDocumentation
 generate: true
-tags: [tooltip, provider, service, overlay]
+tags: [tooltip, provider, service, overlay, data-attributes]
 ---
 
 # ToolTipProvider
 
 ## Overview
-`ToolTipProvider` is a **Service** — a lightweight singleton that manages N tooltip triggers through a **single shared bubble** and **one set of global listeners**. Use it when you have many tooltips on a page and want optimal performance.
+`ToolTipProvider` is a Service that gives tooltips to many elements with **one shared bubble** and **one set of listeners on the document**. Nothing is built per trigger: a toolbar of twenty buttons or a table of a thousand cells costs one bubble.
 
-Unlike the `<slice-tooltip>` custom element (one bubble + listeners per instance), `ToolTipProvider` reuses everything:
-
-| Aspect | `<slice-tooltip>` (×N) | `ToolTipProvider` |
-|---|---|---|
-| Bubbles in DOM | N | 1 |
-| Global listeners | 3 × N | 3 |
-| Show/hide timers | N pairs | 1 pair |
-
-## Getting Started
-Build a `ToolTipProvider` instance and call its methods against trigger elements:
+It behaves exactly like [ToolTip](/docs/display/tooltip), because both run on the same code:
+- the delay and warm-up;
+- the top layer above Modals;
+- Escape, hovering the bubble, a long press on touch;
+- title and shortcut, twelve placements, the variants, and toggletips.
 
 ```javascript
-const tp = await slice.build('ToolTipProvider', { singleton: true });
-tp.attach(document.getElementById('save-btn'), {
-  text: 'Save changes',
-  placement: 'bottom'
-});
+const tips = await slice.build('ToolTipProvider', { singleton: true });
+tips.scope(document.querySelector('#toolbar'));         // every [data-tooltip] inside
+tips.attach(saveButton, { text: 'Save', shortcut: '⌘S' });
 ```
 
-`{ singleton: true }` makes every call return the same provider, so the whole app shares one bubble and one set of listeners. Without it, each call creates a new provider (it logs a warning). Do not use a fixed `sliceId` for this: a second build with the same `sliceId` returns `null`.
+`{ singleton: true }` makes every build return the same provider, so the whole app shares one. A second provider logs a warning.
+
+### ToolTip or ToolTipProvider?
+| You have | Use |
+|---|---|
+| A few tooltips you build with their buttons | `ToolTip` around each one |
+| Many plain tooltips: a toolbar, a table, a list | `ToolTipProvider.scope()` with data attributes |
+| Markup you do not build yourself (HTML from a server, a rich-text editor) | `ToolTipProvider.scope()` |
+| A tooltip with a node inside, or one that changes often | `ToolTip` (`content`, `text`) |
 
 ## API
 
-### `attach(element, config?)`
-Registers an element as a tooltip trigger.
-
-| Param | Type | Default | Description |
-|---|---|---|---|
-| `element` | `Element` | — | The trigger node. Gets `tabindex="0"` and event listeners. |
-| `config.text` | `string` | `data-tooltip` attr or `''` | Tooltip text. Empty = no bubble. |
-| `config.placement` | `string` | `data-tooltip-placement` or `'top'` | `'top'` \| `'bottom'` \| `'left'` \| `'right'` |
-| `config.offset` | `number` | `data-tooltip-offset` or `10` | Gap from trigger (min `4`). |
-| `config.maxWidth` | `number` | `data-tooltip-max-width` or `300` | Bubble max-width (min `120`). |
-| `config.showDelay` | `number` | `data-tooltip-show-delay` or `0` | ms before bubble appears. |
-| `config.hideDelay` | `number` | `data-tooltip-hide-delay` or `120` | ms before bubble hides. |
-| `config.customColor` | `object` | `null` | `{ background, text }` |
-
-```javascript title="Programmatic attach"
-tp.attach(document.getElementById('save-btn'), {
-  text: 'Save changes',
-  placement: 'bottom'
-});
-```
-
-### `detach(element)`
-Unregisters a trigger and removes its listeners.
-
-```javascript
-tp.detach(element);
-```
-
 ### `scope(container)`
-Scans `container` for `[data-tooltip]` elements and attaches each one. Config is read from `data-*` attributes:
+Every element with `data-tooltip` (or `data-tooltip-title`) inside `container` gets a tooltip:
+- **including elements added later**, because the provider looks for the trigger when the pointer or the focus arrives, not when you call `scope()`;
+- the attributes are read when the tooltip shows, so changing `data-tooltip` changes the tooltip.
 
-| Attribute | Maps to |
+`unscope(container)` stops it.
+
+| Attribute | Same as |
 |---|---|
 | `data-tooltip` | `text` |
-| `data-tooltip-placement` | `placement` |
-| `data-tooltip-offset` | `offset` |
-| `data-tooltip-max-width` | `maxWidth` |
-| `data-tooltip-show-delay` | `showDelay` |
-| `data-tooltip-hide-delay` | `hideDelay` |
+| `data-tooltip-title` | `title` |
+| `data-tooltip-shortcut` | `shortcut` |
+| `data-tooltip-placement` | `placement` (`top`, `bottom-start`, …) |
+| `data-tooltip-variant` | `variant` (`inverse`, `light`, `accent`) |
+| `data-tooltip-size` | `size` (`sm`, `md`) |
+| `data-tooltip-mode` | `mode` (`tooltip`, `toggletip`) |
+| `data-tooltip-offset`, `data-tooltip-max-width` | `offset`, `maxWidth` |
+| `data-tooltip-show-delay`, `data-tooltip-hide-delay` | `showDelay`, `hideDelay` |
 
-```html title="HTML with data attributes"
-<div class="toolbar">
-  <button data-tooltip="Search" data-tooltip-placement="bottom">Search</button>
-  <button data-tooltip="Download" data-tooltip-placement="bottom">Download</button>
-  <button data-tooltip="Delete" data-tooltip-placement="bottom" data-tooltip-offset="6">Delete</button>
-</div>
-```
+### `attach(element, config)` and `detach(element)`
+`attach` gives one element a tooltip from code, with the same options as ToolTip: `text`, `title`, `shortcut`, `placement`, `variant`, `size`, `mode`, `offset`, `maxWidth`, `showDelay`, `hideDelay`, `arrow` and `customColor`.
+- The config wins over the element's data attributes.
+- Calling it again merges the new config into the old one.
+- `detach` removes the tooltip.
 
-```javascript title="Scan once"
-tp.scope(document.querySelector('.toolbar'));
-```
+Configs are kept in a `WeakMap`. An element removed from the page takes its config with it, so forgetting `detach` leaks nothing.
+
+### `show(element)` and `hide()`
+These open and close a tooltip from code. `open` tells whether one is showing.
+
+### Keyboard reach
+An element with nothing focusable in it (a `<span>`, an icon) gets `tabindex="0"` from `attach()` or `scope()`. Keyboard users can then reach its tooltip, and `detach` takes the tab stop back. Buttons and links already have one, and nothing is added.
 
 ### Cleanup
-As an app-lifetime singleton, `ToolTipProvider` removes all triggers, the shared bubble, and its global listeners automatically via the framework's `beforeDestroy` hook when it is torn down — you don't clean it up by hand. Use `detach(element)` to unregister a single trigger.
+Destroying the provider (`slice.controller.destroyComponent(tips)`) removes the bubble and the document listeners.
 
-## Live Demos
-
-:::script label="Data-attribute scope" expected="three buttons share one tooltip bubble"
-const container = document.createElement('div');
-container.innerHTML = `
-  <div style="display:flex;gap:10px;margin-top:12px;">
-    <button data-tooltip="Search documents" data-tooltip-placement="bottom">Search</button>
-    <button data-tooltip="Download report as PDF" data-tooltip-placement="bottom">Download</button>
-    <button data-tooltip="Delete permanently" data-tooltip-placement="bottom">Delete</button>
-  </div>
-`;
-
-const tp = await slice.build('ToolTipProvider', { singleton: true });
-tp.scope(container);
-
-const note = document.createElement('p');
-note.textContent = 'All three buttons share one bubble. Hover each to see the tooltip.';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(container);
-return wrapper;
+## Examples
+:::script label="A toolbar from data attributes" expected="a toolbar of icon buttons described only by data attributes, sharing one bubble; most buttons show a shortcut; moving along shows each label at once after the first"
+const tips = await slice.build('ToolTipProvider', { singleton: true });
+const tools = [
+  ['letter-bold', 'Bold', '⌘B'], ['letter-italic', 'Italic', '⌘I'], ['letter-underline', 'Underline', '⌘U'], null,
+  ['list', 'Bulleted list', '⇧⌘8'], ['align-center', 'Centre', '⇧⌘E'], null,
+  ['link', 'Insert link', '⌘K'], ['image', 'Insert image', ''], ['table-row', 'Insert a row', '']
+];
+const bar = document.createElement('div');
+bar.setAttribute('role', 'toolbar');
+bar.setAttribute('aria-label', 'Formatting');
+bar.style.cssText = 'display:inline-flex;flex-wrap:wrap;gap:4px;padding:6px;border:1px solid var(--slice-border-raised);border-radius:12px';
+for (const tool of tools) {
+  if (!tool) {
+    const sep = document.createElement('span');
+    sep.style.cssText = 'width:1px;margin:4px 4px;background:var(--slice-border-raised)';
+    bar.appendChild(sep);
+    continue;
+  }
+  const [icon, label, shortcut] = tool;
+  const button = await slice.build('Button', { value: '', ariaLabel: label, icon, variant: 'ghost', size: 'sm' });
+  // The tooltip lives in attributes: no ToolTip component per button.
+  button.dataset.tooltip = label;
+  if (shortcut) button.dataset.tooltipShortcut = shortcut;
+  button.dataset.tooltipPlacement = 'bottom';
+  bar.appendChild(button);
+}
+tips.scope(bar);
+return bar;
 :::
 
-:::script label="Programmatic attach" expected="two programmatic tooltips with different placement"
-const btn1 = document.createElement('button');
-btn1.textContent = 'Top tooltip';
-Object.assign(btn1.style, { marginRight: '30px', padding: '6px 14px' });
+:::script label="Truncated cells in a growing list" expected="a list of files whose long names are cut with an ellipsis; hovering or tabbing to a name shows it in full; Add file adds rows that get tooltips without any extra call"
+const tips = await slice.build('ToolTipProvider', { singleton: true });
+const list = document.createElement('ul');
+list.style.cssText = 'margin:0;padding:0;list-style:none;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;width:min(320px,100%)';
 
-const btn2 = document.createElement('button');
-btn2.textContent = 'Right tooltip';
-Object.assign(btn2.style, { padding: '6px 14px' });
+const names = [
+  'Quarterly financial report – final version (approved by the board).pdf',
+  'Team offsite photos, Mérida, October 2026.zip',
+  'contract-acme-renewal-2027-signed.docx'
+];
+let n = 0;
+const addRow = (name) => {
+  const li = document.createElement('li');
+  li.style.cssText = 'display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--slice-border-raised);border-radius:10px';
+  const label = document.createElement('span');
+  label.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0';
+  label.textContent = name;
+  // The full name, for when it does not fit.
+  label.dataset.tooltip = name;
+  label.dataset.tooltipPlacement = 'top-start';
+  label.tabIndex = 0;
+  li.appendChild(label);
+  list.appendChild(li);
+};
+names.forEach(addRow);
+// One call for the list: rows added later are covered too.
+tips.scope(list);
 
-const tp2 = await slice.build('ToolTipProvider', { singleton: true });
-tp2.attach(btn1, { text: 'Appears on top', placement: 'top', offset: 8 });
-tp2.attach(btn2, { text: 'Appears on the right side', placement: 'right', hideDelay: 300 });
-
-const note = document.createElement('p');
-note.textContent = 'Top tooltip uses offset=8; right tooltip uses hideDelay=300ms.';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(btn1);
-wrapper.appendChild(btn2);
-return wrapper;
-:::
-
-:::script label="Custom color via provider" expected="brand-colored tooltip bubble"
-const btn = document.createElement('button');
-btn.textContent = 'Brand tooltip';
-Object.assign(btn.style, { padding: '6px 14px' });
-
-const tp3 = await slice.build('ToolTipProvider', { singleton: true });
-tp3.attach(btn, {
-  text: 'Matches brand colors',
-  placement: 'bottom',
-  customColor: { background: '#7c3aed', text: '#ffffff' }
+const add = await slice.build('Button', {
+  value: 'Add file', icon: 'plus', variant: 'outlined', size: 'sm',
+  onClick: () => addRow(`Scanned receipt ${++n} – supermarket, pharmacy and fuel for the month.pdf`)
 });
-
-const note = document.createElement('p');
-note.textContent = 'customColor is applied to the shared bubble.';
-
-const wrapper = document.createElement('div');
-wrapper.appendChild(note);
-wrapper.appendChild(btn);
-return wrapper;
+const box = document.createElement('div');
+box.style.cssText = 'display:grid;gap:12px;justify-items:start';
+box.append(list, add);
+return box;
 :::
 
-## When to Use Which
+:::script label="Attach from code, with a toggletip" expected="three Buttons get rich tooltips through attach(); an ⓘ gets a toggletip that opens on click and holds a link"
+const tips = await slice.build('ToolTipProvider', { singleton: true });
+const row = document.createElement('div');
+row.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap';
 
-| Scenario | Use |
-|---|---|
-| 1–3 tooltips, declarative markup | `<slice-tooltip>` component |
-| 10+ tooltips, dynamic content | `ToolTipProvider` |
-| Toolbar with icon buttons | `ToolTipProvider.scope()` + data attributes |
-| App-wide shared singleton | `slice.getComponent('ToolTipProvider')` |
+const save = await slice.build('Button', { value: 'Save', icon: 'download' });
+const share = await slice.build('Button', { value: 'Share', icon: 'share-nodes', variant: 'outlined' });
+const archive = await slice.build('Button', { value: 'Archive', icon: 'archive', variant: 'ghost' });
+tips.attach(save, { text: 'Save the draft', shortcut: '⌘S' });
+tips.attach(share, { title: 'Share', text: 'Anyone with the link can view it.', variant: 'light', placement: 'bottom' });
+tips.attach(archive, { text: 'Move it out of the list. You can restore it later.', variant: 'accent', placement: 'right' });
+
+const info = await slice.build('Button', { value: '', ariaLabel: 'About sharing', icon: 'info-circle', variant: 'ghost', size: 'sm' });
+tips.attach(info, { mode: 'toggletip', title: 'About sharing', text: 'Links expire after 30 days. Manage them in Settings → Sharing.', variant: 'light' });
+
+row.append(save, share, archive, info);
+return row;
+:::
 
 ## Best Practices
 :::tip
-Use `scope()` on a container after the DOM is ready — it scans for `[data-tooltip]` once. For dynamic content, call `attach()` when new elements are inserted and `detach()` when removed.
+Use one provider for the whole app (`{ singleton: true }`) and `scope()` the containers that hold tooltips: the toolbar, the table, the sidebar. Rows and buttons added later are covered with no extra code.
+:::
+
+:::tip
+Give truncated text a tooltip with the full text. Make the element focusable (`tabIndex = 0`) or let `scope()` do it, so keyboard users can read it too.
 :::
 
 ## Pitfalls
 :::warning
-`ToolTipProvider` uses a **shared bubble** — only one tooltip is visible at a time. If you need simultaneous tooltips (e.g., comparison of two elements), use individual `<slice-tooltip>` components instead.
+One provider shows one tooltip at a time, and so does ToolTip: opening one closes any other. A comparison that needs two explanations side by side belongs on the page, not in tooltips.
+:::
+
+:::warning
+An element added after `scope()` does not get the automatic `tabindex`. If it is not focusable on its own (a `<span>`), set `tabIndex = 0` on it, or call `attach()` for it.
 :::

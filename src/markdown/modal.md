@@ -130,7 +130,7 @@ const confirmDelete = async (row) => {
   // The destructive button only wakes up once the name is typed exactly.
   const matches = () => input.value.trim() === row.name;
   input.onChange = () => {
-    const btn = modal.footerElement.querySelector('.slice-modal__action:last-child button');
+    const btn = modal.footerElement.querySelector('.slice-modal__action:last-child');
     if (btn) btn.disabled = !matches();
   };
   input.addEventListener('keydown', (event) => {
@@ -340,53 +340,39 @@ wrap.append(bar, table);
 return wrap;
 :::
 
-:::script label="Upload files with progress" expected="pick or drop files; Upload shows progress per file, and the modal cannot be dismissed until it finishes"
+:::script label="Upload files with progress" expected="pick or drop files; Upload sends them with progress per file, and the modal cannot be dismissed until it finishes"
 const toasts = await slice.build('ToastProvider', { singleton: true });
 const summary = document.createElement('p');
 summary.textContent = 'No files uploaded yet.';
 
-const openUpload = async () => {
-  let files = [];
-  const list = document.createElement('ul');
-  list.style.cssText = 'list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:10px';
-  const bars = new Map();
-  let modal;
+// A pretend server: reports progress, takes longer for bigger files.
+const send = async (file, { signal, onProgress }) => {
+  for (let p = 0.2; p <= 1; p += 0.2) {
+    if (signal.aborted) throw new Error('aborted');
+    await new Promise((r) => setTimeout(r, 80 + Math.min(200, file.size / 5000)));
+    onProgress(p);
+  }
+  return { name: file.name };
+};
 
+const openUpload = async () => {
+  let modal;
+  const uploadButton = () => modal.footerElement.querySelector('.slice-modal__action:last-child');
+
+  // The list, the progress bars and cancel come with FileUpload.
   const zone = await slice.build('FileUpload', {
     multiple: true,
-    prompt: 'Drop files here, or click to choose',
-    hint: 'Any file, up to 10 at a time',
-    onFiles: (picked) => {
-      files = [...files, ...picked].slice(0, 10);
-      list.replaceChildren();
-      bars.clear();
-      for (const file of files) {
-        const item = document.createElement('li');
-        item.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:.85rem';
-        const name = document.createElement('span');
-        name.textContent = file.name;
-        name.style.cssText = 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
-        const size = document.createElement('span');
-        size.textContent = `${Math.max(1, Math.round(file.size / 1024))} KB`;
-        size.style.opacity = '.65';
-        const track = document.createElement('div');
-        track.style.cssText = 'grid-column:1/-1;height:6px;border-radius:99px;background:color-mix(in srgb,currentColor 12%,transparent);overflow:hidden';
-        const fill = document.createElement('div');
-        fill.style.cssText = 'height:100%;width:0;background:var(--primary-color);transition:width .2s';
-        track.appendChild(fill);
-        item.append(name, size, track);
-        list.appendChild(item);
-        bars.set(file, fill);
-      }
-      const upload = modal.footerElement.querySelector('.slice-modal__action:last-child button');
-      if (upload) upload.disabled = files.length === 0;
-    }
+    maxFiles: 10,
+    maxSize: '20 MB',
+    upload: send,
+    autoUpload: false,
+    onChange: (files) => { uploadButton().disabled = files.length === 0; }
   });
 
   modal = await slice.build('Modal', {
     title: 'Upload files',
     icon: 'upload',
-    content: [zone, list],
+    content: zone,
     mobileLayout: 'sheet',
     destroyOnClose: true,
     actions: [
@@ -398,14 +384,13 @@ const openUpload = async () => {
         onClick: async () => {
           // While uploading nothing may close it: no ✕, no Escape, no backdrop.
           modal.dismissable = false;
-          modal.footerElement.querySelectorAll('button').forEach((b) => { b.disabled = true; });
-          for (const [file, fill] of bars) {
-            for (let p = 0; p <= 100; p += 20) {
-              fill.style.width = `${p}%`;
-              await new Promise((r) => setTimeout(r, 70 + (file.size % 50)));
-            }
-          }
+          modal.footerElement.querySelectorAll('slice-button').forEach((b) => { b.disabled = true; });
+          const items = await zone.uploadAll();
           modal.dismissable = true;
+          if (items.some((i) => i.status === 'error')) {
+            modal.footerElement.querySelectorAll('slice-button').forEach((b) => { b.disabled = false; });
+            return false;   // stay open, so the failed ones can be retried
+          }
         }
       }
     ]
@@ -413,7 +398,7 @@ const openUpload = async () => {
   document.body.appendChild(modal);
   const { returnValue } = await modal.show();
   if (returnValue === 'done') {
-    summary.textContent = `Uploaded ${files.length} file${files.length === 1 ? '' : 's'}.`;
+    summary.textContent = `Uploaded ${zone.results.length} file${zone.results.length === 1 ? '' : 's'}.`;
     toasts.show(summary.textContent, { type: 'success' });
   }
 };

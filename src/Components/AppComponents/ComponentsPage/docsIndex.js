@@ -13,13 +13,13 @@ const docsIndex = [
   {
     title: 'Pagination',
     route: '/docs/data/pagination',
-    description: 'A controlled page navigator with ellipsis ranges, reusable on its own or via Table.',
+    description: 'Moves through pages of a list, a table or search results. Five looks, numbered, compact or dot modes, the range on screen, a page-size picker, a jump box, real links, and a compact form on narrow screens.',
     section: 'Data',
     group: 'Tables',
     order: 11,
     navLabel: 'Pagination',
     component: 'PaginationDocumentation',
-    tags: ['pagination', 'navigation', 'data']
+    tags: ['pagination', 'pager', 'pages', 'navigation', 'data']
   },
   {
     title: 'Icon',
@@ -90,13 +90,13 @@ const docsIndex = [
   {
     title: 'ToolTip',
     route: '/docs/display/tooltip',
-    description: 'ToolTip documentation with hover, focus, placement, and delay scenarios.',
+    description: 'Explains a control on hover, keyboard focus or a long press. Title, text and shortcut, twelve placements with an arrow that follows the trigger, three looks, a toggletip mode for an ⓘ with links, and it shows above modals.',
     section: 'Display',
     group: 'Overlay',
     order: 10,
     navLabel: 'ToolTip',
     component: 'ToolTipDocumentation',
-    tags: ['tooltip', 'overlay', 'display']
+    tags: ['tooltip', 'toggletip', 'hint', 'overlay', 'display']
   },
   {
     title: 'Toast',
@@ -167,13 +167,13 @@ const docsIndex = [
   {
     title: 'FileUpload',
     route: '/docs/input/file-upload',
-    description: 'Drag-and-drop zone that is also a real, keyboard-operable file input.',
+    description: 'Pick, drop or paste files, check them (type, size, count), see them with previews, remove them, and upload them with progress, retry and cancel. A real file input underneath, and a Form field.',
     section: 'Input Components',
     group: 'Basic',
     order: 12,
     navLabel: 'FileUpload',
     component: 'FileUploadDocumentation',
-    tags: ['file', 'upload', 'dropzone', 'drop', 'input']
+    tags: ['file', 'upload', 'dropzone', 'drop', 'input', 'attachment', 'image']
   },
   {
     title: 'Select',
@@ -508,13 +508,13 @@ const docsIndex = [
   {
     title: 'ToolTipProvider',
     route: '/docs/services/tooltip-provider',
-    description: 'Lightweight singleton Service for efficient tooltip management via programmatic and data-attribute APIs.',
+    description: 'Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.',
     section: 'Services',
     group: 'Overlay',
     order: 15,
     navLabel: 'ToolTipProvider',
     component: 'ToolTipProviderDocumentation',
-    tags: ['tooltip', 'provider', 'service', 'overlay']
+    tags: ['tooltip', 'provider', 'service', 'overlay', 'data-attributes']
   },
   {
     title: 'DomService',

@@ -1,29 +1,61 @@
-function numAttr(el, name) {
-   const v = el.getAttribute(name);
-   return v !== null ? Number(v) : undefined;
-}
+import { TooltipCore, DEFAULTS, focusableIn } from  "../../shared/tooltip-core.js";
+
+// ToolTipProvider — tooltips for many elements, with one shared bubble and no
+// component per trigger.
+//
+//   const tips = await slice.build('ToolTipProvider', { singleton: true });
+//   tips.scope(toolbar);                       // every [data-tooltip] inside
+//   tips.attach(saveButton, { text: 'Save', shortcut: '⌘S' });
+//
+// It listens once on the document and works out which trigger the pointer or
+// the focus is on, so:
+//   - nothing is attached per element, and an element removed from the page
+//     leaves nothing behind (configs live in a WeakMap);
+//   - elements added to a scope later get tooltips too;
+//   - data-tooltip attributes are read when the tooltip shows, so changing
+//     one changes the tooltip.
+//
+// It behaves like ToolTip in every way (they share TooltipCore): the delay
+// and warm-up, the top layer, Escape, hovering the bubble, long press on
+// touch, and aria-describedby on the element that takes focus.
+
+const ATTRS = {
+   text: 'data-tooltip',
+   title: 'data-tooltip-title',
+   shortcut: 'data-tooltip-shortcut',
+   placement: 'data-tooltip-placement',
+   variant: 'data-tooltip-variant',
+   size: 'data-tooltip-size',
+   mode: 'data-tooltip-mode',
+   offset: 'data-tooltip-offset',
+   maxWidth: 'data-tooltip-max-width',
+   showDelay: 'data-tooltip-show-delay',
+   hideDelay: 'data-tooltip-hide-delay',
+};
+const NUMERIC = new Set(['offset', 'maxWidth', 'showDelay', 'hideDelay']);
+const SELECTOR = '[data-tooltip], [data-tooltip-title]';
 
 export default class ToolTipProvider {
    constructor() {
-      this._registry = new Map();
-      this._activeTrigger = null;
-      this._bubble = null;
-      this._showTimer = null;
-      this._hideTimer = null;
-      this._removeTimer = null;
-      this._visible = false;
-      this._id = `tt-provider-${Math.random().toString(36).slice(2, 8)}`;
+      this._configs = new WeakMap();   // element -> config given to attach()
+      this._ownTabindex = new WeakSet(); // elements we made focusable
+      this._scopes = new Set();
+      this._listening = false;
+      this._hovered = null;
 
-      this._onShow = this._onShow.bind(this);
-      this._onHide = this._onHide.bind(this);
-      this._toggle = this._toggle.bind(this);
-      this._onKeyDown = this._onKeyDown.bind(this);
-      this._reposition = this._reposition.bind(this);
-      this._onOutsidePress = this._onOutsidePress.bind(this);
+      this._core = new TooltipCore();
+
+      this._onOver = this._onOver.bind(this);
+      this._onOut = this._onOut.bind(this);
+      this._onDown = this._onDown.bind(this);
+      this._onUp = () => this._core.pressEnd();
+      this._onFocusIn = this._onFocusIn.bind(this);
+      this._onFocusOut = this._onFocusOut.bind(this);
+      this._onClick = this._onClick.bind(this);
 
       ToolTipProvider._ensureCSS();
 
-      // A second provider means a second bubble and a second set of global
+      // A second provider means a second bubble and a second set of document
       // listeners. Almost always a missing { singleton: true }: say so.
       this._counted = true;
       ToolTipProvider._live += 1;
@@ -37,255 +69,221 @@ export default class ToolTipProvider {
 
    static _cssPromise = null;
 
+   // The bubble's styles live in ToolTip.css. Building one ToolTip loads them;
+   // the instance itself is not needed, so it is destroyed at once.
    static _ensureCSS() {
       if (ToolTipProvider._cssPromise) return;
       ToolTipProvider._cssPromise = (async () => {
          if (typeof slice === 'undefined' || !slice.controller) return;
-         if (slice.controller.requestedStyles.has('ToolTip')) return;
+         if (slice.controller.requestedStyles?.has('ToolTip')) return;
          try {
-            // Building one ToolTip loads its CSS; the instance is not needed
-            // (the provider draws a single shared bubble), so destroy it.
             const dummy = await slice.build('ToolTip', { text: '' });
             if (dummy) {
                slice.controller.destroyComponent(dummy);
                dummy.remove();
             }
          } catch (err) {
-            slice.logger?.logWarn?.('ToolTipProvider', 'Could not preload ToolTip CSS', err);
+            slice.logger?.logWarning?.('ToolTipProvider', 'Could not preload the ToolTip styles', err);
          }
       })();
    }
 
+   // ── API ────────────────────────────────────────────────────────
+
+   /** Give an element a tooltip. `config` wins over its data-tooltip-* attributes. */
    attach(element, config = {}) {
-      const existing = this._registry.get(element);
-      const merged = {
-         text: config.text ?? element.getAttribute('data-tooltip') ?? existing?.text ?? '',
-         placement: config.placement ?? element.getAttribute('data-tooltip-placement') ?? existing?.placement ?? 'top',
-         offset: config.offset ?? numAttr(element, 'data-tooltip-offset') ?? existing?.offset ?? 10,
-         maxWidth: config.maxWidth ?? numAttr(element, 'data-tooltip-max-width') ?? existing?.maxWidth ?? 300,
-         showDelay: config.showDelay ?? numAttr(element, 'data-tooltip-show-delay') ?? existing?.showDelay ?? 0,
-         hideDelay: config.hideDelay ?? numAttr(element, 'data-tooltip-hide-delay') ?? existing?.hideDelay ?? 120,
-         customColor: config.customColor ?? existing?.customColor ?? null
-      };
-      this._registry.set(element, merged);
-      this._addTriggerListeners(element);
-      element.setAttribute('tabindex', '0');
+      if (!(element instanceof Element)) return this;
+      const previous = this._configs.get(element) || {};
+      this._configs.set(element, { ...previous, ...config });
+      this._makeReachable(element);
+      this._listen();
       return this;
    }
 
+   /** Remove an element's tooltip. */
    detach(element) {
-      if (!this._registry.has(element)) return this;
-      if (this._activeTrigger === element) this._hide();
-      this._registry.delete(element);
-      this._removeTriggerListeners(element);
-      element.removeAttribute('aria-describedby');
-      if (this._registry.size === 0) this._removeGlobalListeners();
+      if (!(element instanceof Element)) return this;
+      if (this._core.trigger === element) this._core.hide({ instant: true });
+      this._configs.delete(element);
+      if (this._ownTabindex.has(element)) {
+         element.removeAttribute('tabindex');
+         this._ownTabindex.delete(element);
+      }
       return this;
    }
 
+   /**
+    * Every [data-tooltip] inside `container` gets a tooltip, including ones
+    * added later. `unscope(container)` stops it.
+    */
    scope(container) {
-      container.querySelectorAll('[data-tooltip]').forEach((el) => this.attach(el));
+      if (!(container instanceof Element || container instanceof Document)) return this;
+      this._scopes.add(container);
+      /** @type {ParentNode} */ (container).querySelectorAll(SELECTOR).forEach((el) => this._makeReachable(el));
+      this._listen();
       return this;
    }
 
-   // Framework teardown hook — the controller calls beforeDestroy() (never
-   // destroy()), so the provider's cleanup must live here.
+   /** Stop handling a container given to scope(). */
+   unscope(container) {
+      this._scopes.delete(container);
+      if (this._core.trigger && container.contains?.(this._core.trigger)) this._core.hide({ instant: true });
+      return this;
+   }
+
+   /** Show an element's tooltip from code. */
+   show(element) {
+      const config = this._configFor(element);
+      if (config) this._core.show(element, config);
+   }
+
+   /** Hide whatever tooltip is showing. */
+   hide() {
+      this._core.hide();
+   }
+
+   get open() { return this._core.visible; }
+
+   get bubble() { return this._core.bubble; }
+
+   // Framework teardown hook: the controller calls beforeDestroy().
    beforeDestroy() {
       if (this._counted) {
          this._counted = false;
          ToolTipProvider._live = Math.max(0, ToolTipProvider._live - 1);
       }
-      for (const el of [...this._registry.keys()]) this.detach(el);
-      this._removeBubble();
-      clearTimeout(this._showTimer);
-      clearTimeout(this._hideTimer);
-      clearTimeout(this._removeTimer);
-      this._registry = null;
+      this._unlisten();
+      this._core.destroy();
+      this._scopes.clear();
+      this._configs = new WeakMap();
    }
 
-   _addTriggerListeners(el) {
-      el.addEventListener('mouseenter', this._onShow);
-      el.addEventListener('mouseleave', this._onHide);
-      el.addEventListener('focusin', this._onShow);
-      el.addEventListener('focusout', this._onHide);
-      el.addEventListener('click', this._toggle);
-      el.addEventListener('keydown', this._onKeyDown);
-   }
+   // ── Finding the trigger ────────────────────────────────────────
 
-   _removeTriggerListeners(el) {
-      el.removeEventListener('mouseenter', this._onShow);
-      el.removeEventListener('mouseleave', this._onHide);
-      el.removeEventListener('focusin', this._onShow);
-      el.removeEventListener('focusout', this._onHide);
-      el.removeEventListener('click', this._toggle);
-      el.removeEventListener('keydown', this._onKeyDown);
-   }
-
-   _onShow(event) {
-      const el = event.currentTarget;
-      const cfg = this._registry.get(el);
-      if (!cfg || !cfg.text) return;
-      clearTimeout(this._hideTimer);
-      clearTimeout(this._removeTimer);
-      this._hideTimer = null;
-      this._removeTimer = null;
-
-      if (!cfg.showDelay) { this._show(el); return; }
-      clearTimeout(this._showTimer);
-      this._showTimer = setTimeout(() => this._show(el), cfg.showDelay);
-   }
-
-   _onHide(event) {
-      const el = event.currentTarget;
-      const cfg = this._registry.get(el);
-      if (!cfg) return;
-      clearTimeout(this._showTimer);
-      this._showTimer = null;
-      if (!cfg.hideDelay) { this._hide(); return; }
-      clearTimeout(this._hideTimer);
-      this._hideTimer = setTimeout(() => this._hide(), cfg.hideDelay);
-   }
-
-   _toggle(event) {
-      const el = event.currentTarget;
-      const cfg = this._registry.get(el);
-      if (!cfg || !cfg.text) return;
-      if (this._activeTrigger === el && this._visible) this._hide();
-      else this._show(el);
-   }
-
-   _onKeyDown(event) {
-      const cfg = this._registry.get(event.currentTarget);
-      if (event.key === 'Escape' && cfg && this._visible) this._hide();
-   }
-
-   _show(element) {
-      const cfg = this._registry.get(element);
-      if (!cfg || !cfg.text) return;
-      if (this._visible && this._activeTrigger === element) return;
-
-      clearTimeout(this._hideTimer);
-      clearTimeout(this._removeTimer);
-
-      if (this._activeTrigger && this._activeTrigger !== element) {
-         this._activeTrigger.removeAttribute('aria-describedby');
+   _triggerFor(node) {
+      let el = node instanceof Element ? node : node?.parentElement;
+      // The bubble is not a trigger, even if it sits next to one.
+      if (!el || this._core.bubble?.contains(el)) return null;
+      while (el) {
+         if (this._configs.has(el)) return el;
+         if (el.matches?.(SELECTOR)) {
+            for (const scope of this._scopes) {
+               if (!scope.isConnected && scope !== document) {
+                  this._scopes.delete(scope);
+                  continue;
+               }
+               if (scope.contains(el)) return el;
+            }
+         }
+         el = el.parentElement;
       }
-
-      this._activeTrigger = element;
-      this._createBubble(cfg);
-      this._position(element, cfg);
-      element.setAttribute('aria-describedby', this._id);
-      this._visible = true;
-      this._addGlobalListeners();
-      requestAnimationFrame(() => {
-         if (this._bubble) this._bubble.classList.add('visible');
-      });
+      return null;
    }
 
-   _hide() {
-      clearTimeout(this._showTimer);
-      clearTimeout(this._hideTimer);
-      this._showTimer = null;
-      this._hideTimer = null;
-      if (!this._bubble) return;
-      this._bubble.classList.remove('visible');
-      this._visible = false;
-      this._removeGlobalListeners();
-      clearTimeout(this._removeTimer);
-      this._removeTimer = setTimeout(() => this._removeBubble(), 180);
+   _configFor(element) {
+      if (!element) return null;
+      const fromAttributes = {};
+      for (const [key, attr] of Object.entries(ATTRS)) {
+         const value = element.getAttribute(attr);
+         if (value === null) continue;
+         fromAttributes[key] = NUMERIC.has(key) ? Number(value) : value;
+      }
+      return { ...DEFAULTS, ...fromAttributes, ...(this._configs.get(element) || {}) };
    }
 
-   _createBubble(cfg) {
-      if (this._bubble) {
-         this._bubble.textContent = cfg.text;
-         this._bubble.style.maxWidth = `${cfg.maxWidth}px`;
-         this._bubble.dataset.placement = cfg.placement;
-         this._applyCustomColor(cfg);
+   // An element with nothing focusable in it (an icon, a span) gets a tab
+   // stop, so keyboard users can reach its tooltip too.
+   _makeReachable(element) {
+      if (focusableIn(element)) return;
+      if (element.hasAttribute('tabindex')) return;
+      element.setAttribute('tabindex', '0');
+      this._ownTabindex.add(element);
+   }
+
+   // ── Document listeners ─────────────────────────────────────────
+
+   _listen() {
+      if (this._listening) return;
+      this._listening = true;
+      document.addEventListener('pointerover', this._onOver);
+      document.addEventListener('pointerout', this._onOut);
+      document.addEventListener('pointerdown', this._onDown, true);
+      document.addEventListener('pointerup', this._onUp, true);
+      document.addEventListener('pointercancel', this._onUp, true);
+      document.addEventListener('focusin', this._onFocusIn);
+      document.addEventListener('focusout', this._onFocusOut);
+      document.addEventListener('click', this._onClick, true);
+   }
+
+   _unlisten() {
+      if (!this._listening) return;
+      this._listening = false;
+      document.removeEventListener('pointerover', this._onOver);
+      document.removeEventListener('pointerout', this._onOut);
+      document.removeEventListener('pointerdown', this._onDown, true);
+      document.removeEventListener('pointerup', this._onUp, true);
+      document.removeEventListener('pointercancel', this._onUp, true);
+      document.removeEventListener('focusin', this._onFocusIn);
+      document.removeEventListener('focusout', this._onFocusOut);
+      document.removeEventListener('click', this._onClick, true);
+   }
+
+   _onOver(event) {
+      if (event.pointerType === 'touch') return;
+      const trigger = this._triggerFor(event.target);
+      if (!trigger || trigger === this._hovered) return;
+      this._hovered = trigger;
+      const config = this._configFor(trigger);
+      if (config.mode === 'toggletip') return;
+      this._core.queueShow(trigger, config);
+   }
+
+   _onOut(event) {
+      if (event.pointerType === 'touch' || !this._hovered) return;
+      const to = event.relatedTarget;
+      if (to && (this._hovered.contains(to))) return;
+      const trigger = this._hovered;
+      this._hovered = null;
+      if (this._configFor(trigger).mode === 'toggletip') return;
+      // Moving onto the bubble keeps it (the bubble cancels the hide itself).
+      this._core.queueHide();
+   }
+
+   _onDown(event) {
+      if (event.pointerType !== 'touch') return;
+      const trigger = this._triggerFor(event.target);
+      if (!trigger) return;
+      const config = this._configFor(trigger);
+      if (config.mode !== 'toggletip') this._core.pressStart(trigger, config);
+   }
+
+   _onFocusIn(event) {
+      const trigger = this._triggerFor(event.target);
+      if (!trigger) return;
+      const config = this._configFor(trigger);
+      if (config.mode === 'toggletip') return;
+      // Keyboard focus shows it; a mouse click that focuses the element does not.
+      if (!event.target.matches?.(':focus-visible')) return;
+      this._core.queueShow(trigger, config, { immediate: true });
+   }
+
+   _onFocusOut(event) {
+      const trigger = this._triggerFor(event.target);
+      if (!trigger || trigger !== this._core.trigger) return;
+      const next = event.relatedTarget;
+      if (next && (trigger.contains(next) || this._core.bubble?.contains(next))) return;
+      this._core.hide();
+   }
+
+   _onClick(event) {
+      const trigger = this._triggerFor(event.target);
+      if (!trigger) return;
+      const config = this._configFor(trigger);
+      if (config.mode === 'toggletip') {
+         this._core.toggle(trigger, config);
          return;
       }
-      this._bubble = document.createElement('div');
-      this._bubble.classList.add('slice-tooltip-bubble');
-      this._bubble.setAttribute('role', 'tooltip');
-      this._bubble.id = this._id;
-      this._bubble.textContent = cfg.text;
-      this._bubble.style.maxWidth = `${cfg.maxWidth}px`;
-      this._bubble.dataset.placement = cfg.placement;
-      this._applyCustomColor(cfg);
-      document.body.appendChild(this._bubble);
-   }
-
-   _removeBubble() {
-      if (this._bubble && this._bubble.parentNode) {
-         this._bubble.parentNode.removeChild(this._bubble);
-      }
-      this._bubble = null;
-   }
-
-   _applyCustomColor(cfg) {
-      if (!this._bubble || !cfg.customColor) return;
-      const cc = cfg.customColor;
-      if (cc.background) this._bubble.style.setProperty('--tt-bg', cc.background);
-      if (cc.text) this._bubble.style.setProperty('--tt-text', cc.text);
-   }
-
-   _position(element, cfg) {
-      if (!this._bubble) return;
-      const trig = element.getBoundingClientRect();
-      const bub = this._bubble.getBoundingClientRect();
-      let placement = cfg.placement;
-      const order = [placement, ...(this._fallbackMap[placement] || ['top', 'bottom', 'right', 'left'])];
-      let rect = this._computeRect(placement, trig, bub, cfg.offset);
-      for (const p of order) {
-         const r = this._computeRect(p, trig, bub, cfg.offset);
-         if (r.top >= 8 && r.left >= 8 && r.top + bub.height <= window.innerHeight - 8 && r.left + bub.width <= window.innerWidth - 8) {
-            placement = p; rect = r; break;
-         }
-      }
-      const margin = 8;
-      this._bubble.style.top = `${Math.min(Math.max(rect.top, margin), window.innerHeight - bub.height - margin)}px`;
-      this._bubble.style.left = `${Math.min(Math.max(rect.left, margin), window.innerWidth - bub.width - margin)}px`;
-      this._bubble.dataset.placement = placement;
-   }
-
-   get _fallbackMap() {
-      return {
-         top: ['bottom', 'right', 'left'],
-         bottom: ['top', 'right', 'left'],
-         left: ['right', 'top', 'bottom'],
-         right: ['left', 'top', 'bottom']
-      };
-   }
-
-   _computeRect(placement, trig, bub, offset) {
-      switch (placement) {
-         case 'bottom': return { top: trig.bottom + offset, left: trig.left + trig.width / 2 - bub.width / 2 };
-         case 'left': return { top: trig.top + trig.height / 2 - bub.height / 2, left: trig.left - bub.width - offset };
-         case 'right': return { top: trig.top + trig.height / 2 - bub.height / 2, left: trig.right + offset };
-         default: return { top: trig.top - bub.height - offset, left: trig.left + trig.width / 2 - bub.width / 2 };
-      }
-   }
-
-   _reposition() {
-      if (!this._bubble || !this._activeTrigger) return;
-      const cfg = this._registry.get(this._activeTrigger);
-      if (cfg) this._position(this._activeTrigger, cfg);
-   }
-
-   _addGlobalListeners() {
-      window.addEventListener('resize', this._reposition);
-      window.addEventListener('scroll', this._reposition, true);
-      document.addEventListener('pointerdown', this._onOutsidePress, true);
-   }
-
-   _removeGlobalListeners() {
-      window.removeEventListener('resize', this._reposition);
-      window.removeEventListener('scroll', this._reposition, true);
-      document.removeEventListener('pointerdown', this._onOutsidePress, true);
-   }
-
-   _onOutsidePress(event) {
-      if (!this._visible || !this._activeTrigger) return;
-      if (this._activeTrigger.contains(event.target) || this._bubble?.contains(event.target)) return;
-      this._hide();
+      // Clicking the control does what the control does; the tooltip steps aside.
+      if (this._core.trigger === trigger) this._core.hide({ instant: true });
    }
 }

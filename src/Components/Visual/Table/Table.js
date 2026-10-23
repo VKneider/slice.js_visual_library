@@ -1038,6 +1038,8 @@ export default class Table extends HTMLElement {
       this._pager = await slice.build('Pagination', {
         currentPage: this._engine.page,
         totalPages: this._engine.totalPages,
+        // The engine owns the page; the pager reports and follows it.
+        controlled: true,
         onPageChange: (page) => this._goToPage(page)
       });
       this._buildingPager = false;

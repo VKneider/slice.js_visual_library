@@ -21,6 +21,8 @@ The `Button` component renders an action trigger and supports text, callback, ic
 - The look is set with `variant` (`filled` · `outlined` · `ghost` · `soft` · `danger`), all derived from theme tokens; `customColor` overrides the colors when you need an exact value.
 - Density is set with `size` (`md` · `sm`); `sm` trims padding, type size and radius for toolbars and table rows.
 - `icon` takes either the object form `{ name, iconStyle }` or a bare name string, so `icon: 'trash-bin'` is enough when you do not need `iconStyle`.
+- `value: ''` with an `icon` makes an icon-only, square button; give it `ariaLabel` so it still has a name (and a [ToolTip](/docs/display/tooltip) to show it). `ariaLabel` also overrides the name of a labelled button.
+- `disabled: true` greys the button out, takes it out of the Tab order and ignores clicks. Set it again from code to turn the button back on, for example once a form is filled in.
 - Use script scenarios below as the living behavior contract; static props are documented in the generated props section.
 
 ## Live Preview

@@ -61,6 +61,12 @@ export default class Button extends HTMLElement {
       disabled: {
          type: 'boolean',
          default: false
+      },
+      // The accessible name when it should differ from the label, and the
+      // only name of an icon-only button (value: '', icon set).
+      ariaLabel: {
+         type: 'string',
+         default: ''
       }
    };
 
@@ -213,8 +219,26 @@ export default class Button extends HTMLElement {
    set value(value) {
       this._value = value;
       this.$value.textContent = value;
-      // Keep an accessible name even for icon-only buttons.
-      if (value) this.$button.setAttribute('aria-label', value);
+      // No label: an icon-only button. The empty label leaves the layout so
+      // the icon sits centred in a square.
+      this.$value.hidden = !value;
+      this._applyName();
+   }
+
+   get ariaLabel() {
+      return this._ariaLabel;
+   }
+
+   set ariaLabel(value) {
+      this._ariaLabel = value ? String(value) : '';
+      this._applyName();
+   }
+
+   // Keep an accessible name even for icon-only buttons.
+   _applyName() {
+      const name = this._ariaLabel || this._value;
+      if (name) this.$button.setAttribute('aria-label', name);
+      else this.$button.removeAttribute('aria-label');
    }
 
    get customColor() {

@@ -7,19 +7,57 @@
   </h1>
 </div>
 <h2 id="overview">Overview</h2>
-<p>A drop zone for files that works with a mouse, a finger and a keyboard. The zone is a <code>&lt;label&gt;</code> wrapping a real <code>&lt;input type="file"&gt;</code>, so the browser gives you click-to-open, focus and Enter/Space for free — none of which a clickable <code>&lt;div&gt;</code> would have.</p>
-<h2 id="api">API</h2>
-<ul><li><code>accept</code> (string) — extensions or MIME types, e.g. <code>'image/*,.png'</code>. Empty means anything.</li><li><code>multiple</code> (boolean) — allow more than one file.</li><li><code>disabled</code> (boolean)</li><li><code>prompt</code> (string, default <code>'Drag files here, or click to choose'</code>)</li><li><code>hint</code> (string) — small print under the prompt, e.g. the size limit.</li><li><code>icon</code> (string, default <code>'upload'</code>) — an <code>Icon</code> name; empty renders no glyph.</li><li><code>list</code> (boolean) — show the picked files under the zone.</li><li><code>onFiles</code> (function) — called as <code>onFiles(filesArray, fileList)</code></li></ul>
-<p>The input is cleared after every pick, so choosing the <strong>same</strong> file twice still fires <code>onFiles</code> instead of silently doing nothing.</p>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<p><code>FileUpload</code> takes files from people: picked with the file dialog, dropped on the zone, or pasted. It checks each file and turns away the wrong ones with a reason. It then lists the accepted files with a preview and a remove button, and can upload them with progress.</p>
+<p>Underneath is a real <code>&lt;input type="file"&gt;</code> inside a <code>&lt;label&gt;</code>, so the zone opens the picker with a click, a tap, <strong>Enter</strong> or <strong>Space</strong>, and <strong>Tab</strong> reaches it like any other field.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Attachments in a form: a CV, receipts, a contract.</li><li>Images for a profile, a listing or a gallery.</li><li>Importing a file the page will read itself, such as a CSV into a Table.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li>For one image with a crop step (an avatar editor), FileUpload only does the picking. The crop is another component.</li><li>For files that already live on the server, a FileUpload is the wrong tool. Show them in a list or a Table, with their own actions.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<h3 id="taking-files">Taking files</h3>
+<ul><li><code>multiple</code> allows several files. Without it, a new file replaces the one already there.</li><li><code>paste</code> (default <code>true</code>) takes files pasted while the zone has the focus, such as a screenshot.</li><li><code>browse()</code> opens the picker from code. <code>addFiles(files)</code> adds files from code, with the same checks.</li></ul>
+<h3 id="checks">Checks</h3>
+<p>Each file is checked before it is accepted:</p>
+<ul><li><code>accept</code> (<code>'.pdf,image/*'</code>) limits the type. Dropped files are checked too, which the browser does not do by itself.</li><li><code>maxSize</code> (<code>'5 MB'</code>, <code>'500 KB'</code> or a number of bytes) limits each file.</li><li><code>maxFiles</code> limits how many files there can be.</li></ul>
+<p>Files that fail are listed under the zone with the reason ("notes.txt: This type of file is not allowed") and reported to <code>onReject(rejected)</code>, as <code>[{ file, reason: 'type' | 'size' | 'count', message }]</code>.</p>
+<p>When you give no <code>hint</code>, the zone writes one from the checks: "PDF, IMAGE · up to 5.0 MB · 3 files at most".</p>
+<h3 id="the-list">The list</h3>
+<p>The accepted files are listed under the zone:</p>
+<ul><li>a preview for images, or the file's extension;</li><li>the name and the size;</li><li>a remove button.</li></ul>
+<p><code>list: false</code> hides the list when you show the files your own way, and <code>preview: false</code> keeps images as an extension tag. Removing a file moves the focus to the next one, or back to the zone.</p>
+<h3 id="uploading">Uploading</h3>
+<p>Pass <code>upload(file, { signal, onProgress })</code> and FileUpload sends each file:</p>
+<ul><li><code>onProgress(value)</code> takes 0–1 or 0–100 and fills that file's progress bar;</li><li>what <code>upload</code> returns is kept, and <code>results</code> lists it;</li><li>a thrown error marks the file as failed with its message, and <strong>Retry</strong> sends it again;</li><li>the ✕ during an upload aborts <code>signal</code> (pass it to <code>fetch</code>) and drops the file;</li><li><code>concurrency</code> (default 3) sets how many files go at once;</li><li><code>autoUpload: false</code> waits for <code>uploadAll()</code>, which resolves when every file is done or has failed;</li><li><code>onUpload(file, result)</code> and <code>onUploadError(file, error)</code> report each file.</li></ul>
+<h3 id="the-value">The value</h3>
+<ul><li><code>value</code> is the list of accepted files (<code>File[]</code>). It can be set from code, and <code>clear()</code> and <code>removeFile(file)</code> change it.</li><li><code>onChange(files, { items })</code> and the <code>change</code> event report every change. <code>onFiles(added)</code> reports only the new files.</li><li><code>items</code> gives each file's state: <code>{ file, status, progress, result, error }</code>.</li><li><code>name</code> adds a hidden input that carries the files, so a plain <code>&lt;form&gt;</code> posts them.</li></ul>
+<h3 id="validation">Validation</h3>
+<ul><li><code>required</code> shows "Add at least one file" when <code>validate()</code> runs (and on a Form's submit), never on its own.</li><li><code>validationMessage</code> also reports files still uploading ("Wait for the uploads to finish") or failed ones. A Form will not submit while either is true.</li><li><code>error</code> and <code>invalid</code> set an error from outside, <code>help</code> adds a line under the zone, and <code>validateOn: 'manual'</code> leaves all checking to <code>validate()</code>.</li></ul>
+<h3 id="inside-a-form">Inside a Form</h3>
+<p>Use <code>component: 'FileUpload'</code> in the schema. The Form shows the label and the errors, and <code>getValues()</code> returns the <code>File[]</code> under the field's name.</p>
+<h3 id="memory">Memory</h3>
+<p>Image previews use object URLs, which keep the file in memory until they are revoked. FileUpload revokes each one when its file is removed, the files are replaced or the component is destroyed. Destroying it also aborts uploads in flight.</p>
+<h2 id="looks">Looks</h2>
+<ul><li><code>variant</code>:</li></ul>
+<p>- <code>'dropzone'</code> (default): a large area for dropping files;   - <code>'compact'</code>: one row with a button, for forms where space is tight. It still takes drops.</p>
+<ul><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>.</li><li><code>icon</code> is the zone's icon (<code>'upload'</code> by default, <code>''</code> for none). <code>prompt</code> replaces the zone's text, and <code>hint</code> the line under it.</li><li><code>label</code> puts a label above the zone, outside a Form.</li></ul>
+<h2 id="language">Language</h2>
+<ul><li><code>texts</code> replaces the zone's words:</li></ul>
+<p>- <code>prompt</code> / <code>promptOne</code>, where <code>{browse}</code> marks the link;   - <code>browse</code>;   - <code>compact</code> / <code>compactOne</code>;   - <code>remove</code>, <code>retry</code>, <code>cancel</code>;   - <code>uploading</code>, with <code>{percent}</code>;   - <code>done</code>, <code>failed</code>, <code>upTo</code>, <code>maxFiles</code>.</p>
+<ul><li><code>messages</code> replaces the errors: <code>required</code>, <code>type</code>, <code>tooLarge</code> (<code>{max}</code>), <code>tooMany</code> (<code>{max}</code>), <code>uploading</code> and <code>failed</code>.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Validate the files in <code>onFiles</code> rather than relying on <code>accept</code>: it is only a picker hint, and a user
-can still drop anything. Check type and size there, and tell them what you rejected.</div>
+<div class="callout callout-tip">Say what is allowed before people pick: set <code>accept</code>, <code>maxSize</code> and <code>maxFiles</code>, and the zone writes the hint for you. Finding out after a slow upload is the worst time.</div>
+<div class="callout callout-tip">Pass the <code>signal</code> to <code>fetch(url, { signal, body: file })</code>. Cancel then really stops the request, instead of hiding a file that keeps uploading.</div>
+<div class="callout callout-tip">Read files in the page when you can: <code>await file.text()</code> for a CSV, an image's object URL for a preview. Nothing needs to reach the server until the person confirms.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning"><code>accept</code> filters the picker, not the drop handler. A file dragged onto the zone is <strong>not</strong> filtered
-by it — always re-check <code>files</code> yourself.</div>
-<div class="component-block" data-block-id="doc-block-4"></div>
+<div class="callout callout-warning"><code>accept</code> and <code>maxSize</code> help people, but they are not security. Check the type and the size again on the server: a request can be sent without this page.</div>
+<div class="callout callout-warning">Every <code>URL.createObjectURL</code> you make yourself keeps its file in memory until you call <code>URL.revokeObjectURL</code>. FileUpload frees its own previews. Free the ones you create, as the gallery and profile examples do.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
 </div>
