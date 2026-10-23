@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "catalog": "slicejs-components",
   "displayName": "Slice.js Components",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "revision": "master",
   "repository": "VKneider/slice.js_visual_library",
   "rawBaseUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library",
@@ -112,10 +112,12 @@
       "section": "Layout",
       "group": "Containers",
       "order": 25,
-      "description": "ElementCarrousel documentation with slide navigation and indicator scenarios.",
+      "description": "A row of slides that moves one position at a time. Swipe, drag, arrows, the keyboard, dots, a count or thumbnails, several slides per view with a peek, loop, and autoplay that pauses itself.",
       "tags": [
         "carrousel",
         "carousel",
+        "slider",
+        "gallery",
         "layout",
         "navigation"
       ],

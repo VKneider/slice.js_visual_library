@@ -1,6 +1,6 @@
 {
   "name": "slicejs-webframework-visual-components-library",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Official Slice.js Components library and documentation registry for Visual and Service components",
   "main": "src/Components/index.js",
   "scripts": {
