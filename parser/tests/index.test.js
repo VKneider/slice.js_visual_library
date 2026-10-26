@@ -76,6 +76,44 @@ Use [Avatar](/docs/display/avatar)s and [details](#details).
   });
 });
 
+test('parseMarkdownFile turns internal links in table cells into Link placeholders too', () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-table-link-'));
+  const markdownPath = path.join(tmpRoot, 'example.md');
+  fs.writeFileSync(
+    markdownPath,
+    `---
+title: Example
+route: /docs/example
+section: General
+group: Basic
+order: 1
+component: ExampleDocumentation
+---
+
+See [Avatar](/docs/display/avatar).
+
+| Layer | Slice |
+| --- | --- |
+| Cache | [QueryService](/docs/services/query-service#the-handle) |
+| Web | [MDN](https://developer.mozilla.org) |
+`,
+    'utf8'
+  );
+
+  const parsed = parseMarkdownFile(markdownPath);
+  const table = parsed.jsBlocks.find((block) => block.type === 'table');
+
+  assert.equal(table.rows[2], '| Cache | SLICE_INLINE_LINK_1_TOKEN |');
+  assert.equal(table.rows[3], '| Web | [MDN](https://developer.mozilla.org) |');
+  assert.deepEqual(parsed.jsBlocks.at(-1), {
+    type: 'inline-links',
+    links: [
+      { text: 'Avatar', path: '/docs/display/avatar' },
+      { text: 'QueryService', path: '/docs/services/query-service#the-handle' }
+    ]
+  });
+});
+
 test('writeFileIfChanged does not rewrite identical generated output', () => {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-write-'));
   const outputPath = path.join(tmpRoot, 'generated.js');

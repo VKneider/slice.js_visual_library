@@ -60,13 +60,17 @@ const escapeHtmlAttribute = (text) => {
 const isSafeMarkdownHref = (href) => /^(?:https?:\/\/|\/|#|mailto:)/i.test(href);
 const isInternalMarkdownHref = (href) => /^\/(?!\/)/.test(href);
 
+// Internal links become tokens, and each token becomes a Link in the page.
+// Shared by the text and by table cells (which are formatted in the page).
+const tokenizeInternalLinks = (text, inlineLinks) => text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (match, label, href) => {
+  if (!isInternalMarkdownHref(href)) return match;
+  const token = `SLICE_INLINE_LINK_${inlineLinks.length}_TOKEN`;
+  inlineLinks.push({ text: label, path: href });
+  return token;
+});
+
 const inlineMarkdown = (text, inlineLinks = []) => {
-  const tokenized = text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (match, label, href) => {
-    if (!isInternalMarkdownHref(href)) return match;
-    const token = `SLICE_INLINE_LINK_${inlineLinks.length}_TOKEN`;
-    inlineLinks.push({ text: label, path: href });
-    return token;
-  });
+  const tokenized = tokenizeInternalLinks(text, inlineLinks);
 
   let output = escapeHtml(tokenized);
   output = output.replace(/`([^`]+)`/g, '<code>$1</code>');
@@ -285,7 +289,7 @@ const renderBlocks = (blocks) => {
     if (block.type === 'table') {
       const id = nextId();
       htmlParts.push(`<div class="table-block" data-block-id="${id}"></div>`);
-      jsBlocks.push({ type: 'table', id, rows: block.rows });
+      jsBlocks.push({ type: 'table', id, rows: block.rows.map((row) => tokenizeInternalLinks(row, inlineLinks)) });
       continue;
     }
 

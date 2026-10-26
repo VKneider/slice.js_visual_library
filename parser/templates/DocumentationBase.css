@@ -24,6 +24,12 @@
   margin-bottom: 0.5em;
 }
 
+/* A link to /docs/page#section scrolls the heading into view below the fixed
+   navbar, not under it. */
+.documentation-content :is(h1, h2, h3, h4)[id] {
+  scroll-margin-top: calc(var(--docs-navbar-height, 72px) + 16px);
+}
+
 /* The title is the first element in the page — no empty space above it
    (otherwise its top margin stacks under the fixed navbar and leaves a gap). */
 .documentation-content > *:first-child,
