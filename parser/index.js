@@ -6,6 +6,7 @@ import { parseMarkdownFile } from './lib/markdownParser.js';
 import { writeComponentFiles } from './lib/generator.js';
 import { collectDocCandidates } from './lib/report.js';
 import { writeDocsIndex } from './lib/docsIndex.js';
+import { writeSeoArtifacts } from './lib/seo.js';
 import { generateMainRoutesFile } from './lib/routesSync.js';
 import { writeFileIfChanged, copyFileIfChanged } from './lib/fileUtils.js';
 
@@ -22,6 +23,7 @@ const DOCUMENTATION_ROUTES_PATH = path.join(ROOT, 'src', 'Components', 'AppCompo
 const FLAT_DOC_ROUTES_PATH = path.join(ROOT, 'src', 'Components', 'AppComponents', 'ComponentsPage', 'docRoutes.generated.js');
 const MAIN_ROUTES_PATH = path.join(ROOT, 'src', 'routes.js');
 const REPORT_PATH = path.join(ROOT, 'parser', 'report.json');
+const PUBLIC_DIR = path.join(ROOT, 'src', 'public');
 
 const REQUIRED_FRONT_MATTER = ['title', 'route', 'section', 'group', 'order', 'component'];
 
@@ -348,6 +350,7 @@ const run = () => {
 
   const generated = [];
   const indexEntries = [];
+  const seoEntries = [];
   const validationErrors = [];
 
   for (const markdownFilePath of markdownFiles) {
@@ -376,12 +379,18 @@ const run = () => {
 
       const generateFlag = parsed.frontMatter.generate;
       const isGenerateFalse = generateFlag === false || String(generateFlag).toLowerCase() === 'false';
-      if (isGenerateFalse) {
-        indexEntries.push(parsed.frontMatter);
-        continue;
-      }
 
       indexEntries.push(parsed.frontMatter);
+      seoEntries.push({
+        route: parsed.frontMatter.route,
+        title: parsed.frontMatter.title,
+        description: parsed.frontMatter.description,
+        section: parsed.frontMatter.section,
+        group: parsed.frontMatter.group,
+        markdownFile: relativePath
+      });
+
+      if (isGenerateFalse) continue;
 
       if (!options.lintOnly && !options.syncOnly) {
         const markdownPath = path.relative(MARKDOWN_DIR, markdownFilePath).replace(/\\/g, '/');
@@ -427,6 +436,13 @@ const run = () => {
 
     const generatedComponentNames = generated.map((entry) => entry.component);
     syncComponentsRegistry(generatedComponentNames);
+
+    // Crawler-facing output, derived from the same entries as the pages: the
+    // sitemap and the per-route manifest the server injects into the shell.
+    const seo = writeSeoArtifacts({ root: ROOT, publicDir: PUBLIC_DIR, entries: seoEntries });
+    if (seo.changed.length > 0) {
+      console.log(`SEO artifacts updated: ${seo.changed.join(', ')}`);
+    }
   }
 
   const docs = readAllGeneratedDocs(OUTPUT_DIR);

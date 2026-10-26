@@ -58,6 +58,19 @@ The parser renders a **Run** button for each script and reports PASS/FAIL in the
 - `CopyMarkdownMenu` is synced to `src/Components/AppComponents/CopyMarkdownMenu/`.
 - Global docs style is synced to `src/Styles/DocumentationBase.css`.
 
+## SEO Artifacts
+`docs:generate` also writes two files from the same front matter, so they can never drift:
+
+- `src/public/sitemap.xml` — one `<url>` per **real** page (the generated `docRoutes` plus `/`,
+  `/docs` and `/theme-creator`), never a section index that has no page. `<lastmod>` is the
+  markdown file's last **commit** date (not its mtime), so a fresh clone does not rewrite it.
+- `src/public/seo-manifest.json` — per-route `title`, `description`, `section`, `lastmod` and
+  `indexable`. Internal routes (`/__test`, `/playground`, `/game`, `/404`) are listed as
+  `indexable: false` + `noindex` so they get served without being indexed.
+
+Both are generated: edit `parser/lib/seo.js` or the front matter, never the XML/JSON by hand.
+`parser/tests/seo.test.js` fails when the committed sitemap does not match the generated routes.
+
 ## Commands
 ```bash
 npm run docs:lint-md

@@ -31,6 +31,16 @@ From markdown input, parser generates:
 - Components registry sync: `src/Components/components.js`
 - Global docs style sync: `src/Styles/DocumentationBase.css`
 - Copy markdown component sync: `src/Components/AppComponents/CopyMarkdownMenu/*`
+- SEO artifacts from the same front matter (never hand-edited):
+  - `src/public/sitemap.xml` — only real routes (`docsIndex` + `/` + `/docs` + `/theme-creator`), with
+    `<lastmod>` taken from the markdown file's **last commit date** (`git log`, not mtime — mtimes
+    reset on clone and would churn CI).
+  - `src/public/seo-manifest.json` — per-route `title`, `description`, `section`, `lastmod`,
+    `indexable` (internal routes carry `indexable: false` + `noindex`). Deterministic output
+    (sorted keys, no timestamps) so `writeFileIfChanged` stays quiet.
+  - `parser/tests/seo.test.js` is the drift guard: it fails if the committed sitemap stops matching
+    `docRoutes.generated.js`, or if a sitemap URL has no manifest entry. Adding a markdown page and
+    not running `docs:generate` breaks it on purpose.
 
 ### 4) Route namespace
 - Documentation namespace is `/docs` (not `/library`).

@@ -1,0 +1,720 @@
+{
+  "version": 1,
+  "origin": "https://components.slicejs.com",
+  "routes": {
+    "/": {
+      "title": "Slice.js Components | Slice.js",
+      "description": "Official visual components library for Slice.js. Interactive documentation with live examples, API tables, and usage guides for every component.",
+      "section": null,
+      "group": null,
+      "indexable": true,
+      "priority": "1.0",
+      "changefreq": "weekly",
+      "lastmod": null
+    },
+    "/404": {
+      "title": "Not found | Slice.js",
+      "description": "",
+      "section": null,
+      "group": null,
+      "indexable": false,
+      "priority": "0.0",
+      "changefreq": "yearly",
+      "lastmod": null,
+      "noindex": true
+    },
+    "/__test": {
+      "title": "Test Harness | Slice.js",
+      "description": "",
+      "section": null,
+      "group": null,
+      "indexable": false,
+      "priority": "0.0",
+      "changefreq": "yearly",
+      "lastmod": null,
+      "noindex": true
+    },
+    "/docs": {
+      "title": "Components Library | Slice.js",
+      "description": "Every Slice.js component, documented with live examples, prop tables and usage guides, grouped by input, display, layout, navigation, data and services.",
+      "section": null,
+      "group": null,
+      "indexable": true,
+      "priority": "0.9",
+      "changefreq": "weekly",
+      "lastmod": null
+    },
+    "/docs/data/datalist": {
+      "title": "DataList | Slice.js",
+      "description": "The list of records an app works with — people, orders, tasks, files. Rows or cards with avatars, details, status and actions; search, views, filters, sort and groups; selection with bulk actions; create, edit and delete with undo and rollback; pages, load more or infinite scrolling; local data, a slice.context store or a server.",
+      "section": "Data",
+      "group": "Tables",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/data/description-list": {
+      "title": "DescriptionList | Slice.js",
+      "description": "One record as label → value pairs — the detail of an order, a profile, the settings of a project. Values formatted by type and shown with components (Badge, Avatar), sections, copy buttons, edit in place with commit and rollback, a store or a server as the source, and a skeleton while it loads.",
+      "section": "Data",
+      "group": "Tables",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/data/pagination": {
+      "title": "Pagination | Slice.js",
+      "description": "Moves through pages of a list, a table or search results. Five looks, numbered, compact or dot modes, the range on screen, a page-size picker, a jump box, real links, and a compact form on narrow screens.",
+      "section": "Data",
+      "group": "Tables",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/data/table": {
+      "title": "Table | Slice.js",
+      "description": "Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling; rows from a slice.context store or a server, add / change / remove with rollback and undo, and cells edited in place like a spreadsheet.",
+      "section": "Data",
+      "group": "Tables",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/developer/mini-inspector": {
+      "title": "MiniInspector | Slice.js",
+      "description": "MiniInspector documentation with executable live-editing scenarios.",
+      "section": "Developer Tools",
+      "group": "Developer",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/display/avatar": {
+      "title": "Avatar | Slice.js",
+      "description": "A person, a team or a project as a small picture. Falls back to initials on a colour of their own, then to an icon; status dot, badge, sizes, shapes, and clickable.",
+      "section": "Display",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/display/avatar-group": {
+      "title": "AvatarGroup | Slice.js",
+      "description": "A few people as overlapping avatars and \"+N\" for the rest, with each name on hover and one accessible name for the group.",
+      "section": "Display",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/display/badge": {
+      "title": "Badge | Slice.js",
+      "description": "A status, a count or a mark next to what it describes. Tone for the meaning, variant for the loudness; icon, live indicator, dot, sizes and colours of your own.",
+      "section": "Display",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/display/chip": {
+      "title": "Chip | Slice.js",
+      "description": "Compact label for filters, tags and selections, optionally removable.",
+      "section": "Display",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/display/code-visualizer": {
+      "title": "CodeVisualizer | Slice.js",
+      "description": "CodeVisualizer documentation with syntax highlighting and copy scenarios.",
+      "section": "Display",
+      "group": "Code",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/display/confirm-action-modal": {
+      "title": "ConfirmActionModal | Slice.js",
+      "description": "Promise-based \"are you sure?\" modal and single-value prompt, built on Modal, with an event-manager channel.",
+      "section": "Display",
+      "group": "Feedback",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/display/empty-state": {
+      "title": "EmptyState | Slice.js",
+      "description": "The \"nothing here yet\" placeholder, with an optional icon, explanation and action.",
+      "section": "Display",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/display/icon": {
+      "title": "Icon | Slice.js",
+      "description": "Complete icon reference with all 291 symbols, usage patterns, and style variants.",
+      "section": "Display",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/display/tooltip": {
+      "title": "ToolTip | Slice.js",
+      "description": "Explains a control on hover, keyboard focus or a long press. Title, text and shortcut, twelve placements with an arrow that follows the trigger, three looks, a toggletip mode for an ⓘ with links, and it shows above modals.",
+      "section": "Display",
+      "group": "Overlay",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/feedback/alert": {
+      "title": "Alert | Slice.js",
+      "description": "A message inside the page, next to what it is about. Tone for the meaning, variant for the loudness; a title, actions such as Undo or Try again, a close button, and a timeout that waits while you point at it.",
+      "section": "Feedback",
+      "group": "Notifications",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/feedback/loading": {
+      "title": "Loading | Slice.js",
+      "description": "Shows that the app is busy, over the whole page or one part of it. Four indicators (the Slice logo, a ring, dots, a top bar), backdrops, a label, a delay and a minimum time, and a welcome screen for the first load of the app, built in or your own.",
+      "section": "Feedback",
+      "group": "Status",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/feedback/modal": {
+      "title": "Modal | Slice.js",
+      "description": "Native dialog with sizes, tones, centred, top, drawer, sheet and fullscreen layouts, actions, a close guard, a promise for the answer and enter/exit animations.",
+      "section": "Feedback",
+      "group": "Overlay",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/feedback/toast": {
+      "title": "Toast | Slice.js",
+      "description": "Toast notification component with type-based styling, auto-dismiss, and dismissable modes.",
+      "section": "Feedback",
+      "group": "Notifications",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/guides/data-and-loading": {
+      "title": "Data and the first load | Slice.js",
+      "description": "How to bring data from a server into a Slice app without keeping the page behind the loader. Why an awaited fetch in init() slows the first load, and the patterns that avoid it — data that arrives after the structure, a slice.context shared between components, critical data in parallel, refresh in the background, and saving changes.",
+      "section": "Guides",
+      "group": "Applications",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/guides/data-components": {
+      "title": "Writing a component that loads data | Slice.js",
+      "description": "The standard every Slice component that shows server data follows — three sources with the same names, the states it must show, requests that never block the page and are cancelled when they are not needed, and how changes are saved and taken back. With a complete component to copy.",
+      "section": "Guides",
+      "group": "Components",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/input/button": {
+      "title": "Button | Slice.js",
+      "description": "Button documentation with executable prop scenarios.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/input/checkbox": {
+      "title": "Checkbox | Slice.js",
+      "description": "Checkbox component documentation with practical prop scenarios.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-18"
+    },
+    "/docs/input/color-picker": {
+      "title": "ColorPicker | Slice.js",
+      "description": "A labelled colour swatch with a hex readout that normalizes any CSS colour before the browser can silently black it out.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-18"
+    },
+    "/docs/input/datepicker": {
+      "title": "DatePicker | Slice.js",
+      "description": "Date field with a calendar. People can type the date or pick it. Supports ranges over two months, min / max and disabled days, presets, an inline calendar, the full keyboard pattern and the same field styling and validation as Input.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/input/file-upload": {
+      "title": "FileUpload | Slice.js",
+      "description": "Pick, drop or paste files, check them (type, size, count), see them with previews, remove them, and upload them with progress, retry and cancel. A real file input underneath, and a Form field.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/input/form": {
+      "title": "Form | Slice.js",
+      "description": "Declarative forms with sections, descriptions and validation, composed from Slice components.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-26"
+    },
+    "/docs/input/input": {
+      "title": "Input | Slice.js",
+      "description": "Text field with a floating label, variants, sizes, icon, prefix and suffix, clear button, help, errors, a counter and validation shared with Textarea.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/input/radio-group": {
+      "title": "RadioGroup | Slice.js",
+      "description": "Single-choice control that owns its value — keyboard, forms and card pickers included.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-21"
+    },
+    "/docs/input/select": {
+      "title": "Select | Slice.js",
+      "description": "Combobox with search, groups, multiple selection with chips, creatable options, server-loaded options and virtual scrolling.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/input/slider": {
+      "title": "Slider | Slice.js",
+      "description": "Numeric slider with keyboard support, a two-thumb range mode, marks and formatted values.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-21"
+    },
+    "/docs/input/switch": {
+      "title": "Switch | Slice.js",
+      "description": "Switch component documentation with practical interaction scenarios.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-21"
+    },
+    "/docs/input/textarea": {
+      "title": "Textarea | Slice.js",
+      "description": "Multi-line text field that shares Input's label, looks and validation, with auto-grow up to a limit, a counter and Ctrl+Enter to submit.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/input/theme-selector": {
+      "title": "ThemeSelector | Slice.js",
+      "description": "A binary LIGHT/DARK toggle with sun and moon icons that switches the app theme and keeps every theme control in sync.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-06-11"
+    },
+    "/docs/input/theme-switcher": {
+      "title": "ThemeSwitcher | Slice.js",
+      "description": "A one-click control that cycles through your registered themes and keeps every theme control in sync.",
+      "section": "Input Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/internal/css-conventions": {
+      "title": "CSS Conventions | Slice.js",
+      "description": "Three rules to write component CSS that never leaks — host scope, explicit display, and prefixed keyframes.",
+      "section": "Internal",
+      "group": "Documentation",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/internal/markdown-parser-rules": {
+      "title": "Markdown Parser Rules | Slice.js",
+      "description": "Contract, template, and generation rules for Slice.js documentation pages.",
+      "section": "Internal",
+      "group": "Documentation",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-26"
+    },
+    "/docs/layout/card": {
+      "title": "Card | Slice.js",
+      "description": "One thing, summed up. A product, a person, a file, a project or a metric, shown among others like it, that can lead to its detail. Image or icon, title, badge, content, actions, selectable and loading states.",
+      "section": "Layout",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/layout/details": {
+      "title": "Details | Slice.js",
+      "description": "Content that folds open. One section, or a group of them as an accordion (one open at a time, or several), with icons, badges, lazy content, keyboard navigation and remembered state. Built on the native details element.",
+      "section": "Layout",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/layout/element-carrousel": {
+      "title": "ElementCarrousel | Slice.js",
+      "description": "A row of slides that moves one position at a time. Swipe, drag, arrows, the keyboard, dots, a count or thumbnails, several slides per view with a peek, loop, and autoplay that pauses itself.",
+      "section": "Layout",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/layout/grid": {
+      "title": "Grid | Slice.js",
+      "description": "Grid component documentation with layout composition scenarios.",
+      "section": "Layout",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/layout/layout": {
+      "title": "Layout | Slice.js",
+      "description": "Layout container documentation with view swapping scenarios.",
+      "section": "Layout",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/navigation/bottom-nav": {
+      "title": "BottomNav | Slice.js",
+      "description": "App-style bottom tab bar with variants, badges, a raised centre action, label modes, docking on phones and hide-on-scroll.",
+      "section": "Navigation",
+      "group": "Core",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/navigation/breadcrumbs": {
+      "title": "Breadcrumbs | Slice.js",
+      "description": "Breadcrumbs component for hierarchical navigation context and quick backtracking.",
+      "section": "Navigation",
+      "group": "Core",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-06-09"
+    },
+    "/docs/navigation/dropdown": {
+      "title": "DropDown | Slice.js",
+      "description": "Menu button with links, actions, toggles and nested submenus, trigger variants, smart placement and full keyboard support.",
+      "section": "Navigation",
+      "group": "Core",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/navigation/link": {
+      "title": "Link | Slice.js",
+      "description": "Route-aware anchor with optional icon and subtitle — the one link primitive that navigates through slice.router.",
+      "section": "Navigation Components",
+      "group": "Basic",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/navigation/navbar": {
+      "title": "Navbar | Slice.js",
+      "description": "Top navigation bar with five variants, nested dropdowns, the current page marked, sticky or fixed positioning and a real mobile menu.",
+      "section": "Navigation",
+      "group": "Core",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/navigation/not-found": {
+      "title": "NotFound | Slice.js",
+      "description": "NotFound 404 page documentation with route fallback scenarios.",
+      "section": "Navigation",
+      "group": "Core",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/navigation/side-menu": {
+      "title": "SideMenu | Slice.js",
+      "description": "A navigation menu whose items open more items, as deep as needed. Submenus slide in with a back button (drill) or open in place, indented (tree). Links, actions, lazy submenus, groups, badges and the current page.",
+      "section": "Navigation",
+      "group": "Navigation",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/navigation/tabs": {
+      "title": "Tabs | Slice.js",
+      "description": "Tab strip with four variants, a sliding indicator, icons, badges, closable and lazy tabs, overflow arrows, vertical layout, the full keyboard pattern and remembered state.",
+      "section": "Navigation",
+      "group": "Core",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/navigation/treeview": {
+      "title": "TreeView | Slice.js",
+      "description": "Hierarchical list with full keyboard support, search, checkboxes, lazy branches, virtual scrolling, drag and drop and row menus.",
+      "section": "Navigation",
+      "group": "Navigation",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/routing/multi-route": {
+      "title": "MultiRoute | Slice.js",
+      "description": "MultiRoute container documentation with app-shell and dynamic route scenarios.",
+      "section": "Routing",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/routing/route": {
+      "title": "Route | Slice.js",
+      "description": "Route container documentation with dynamic path and metadata scenarios.",
+      "section": "Routing",
+      "group": "Containers",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/services/dom-service": {
+      "title": "DomService | Slice.js",
+      "description": "Reconciles a list of data against the child components that render it, without leaking.",
+      "section": "Services",
+      "group": "Rendering",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/services/drag-drop": {
+      "title": "DragDropService | Slice.js",
+      "description": "Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder, with full touch support.",
+      "section": "Services",
+      "group": "Interaction",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/services/fetch-manager": {
+      "title": "FetchManager | Slice.js",
+      "description": "HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.",
+      "section": "Services",
+      "group": "Networking",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-06-09"
+    },
+    "/docs/services/file-download-service": {
+      "title": "FileDownloadService | Slice.js",
+      "description": "Saves a string or Blob to the user's device, with the object URL lifecycle handled for you.",
+      "section": "Services",
+      "group": "Storage",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/services/html-service": {
+      "title": "HtmlService | Slice.js",
+      "description": "Escape, sanitize and strip HTML at the boundary where untrusted markup becomes real DOM.",
+      "section": "Services",
+      "group": "Security",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/services/indexed-db-manager": {
+      "title": "IndexedDbManager | Slice.js",
+      "description": "Async Service wrapper over IndexedDB for a single auto-keyed object store.",
+      "section": "Services",
+      "group": "Storage",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/services/infinite-scroll": {
+      "title": "InfiniteScrollService | Slice.js",
+      "description": "Headless infinite scrolling. Watches the end of a list and loads the next page, one request at a time, with abort on reset, fill-the-screen, errors with retry, and page or cursor APIs.",
+      "section": "Services",
+      "group": "Interaction",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-25"
+    },
+    "/docs/services/local-storage-manager": {
+      "title": "LocalStorageManager | Slice.js",
+      "description": "Service wrapper over window.localStorage with automatic JSON serialization.",
+      "section": "Services",
+      "group": "Storage",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-05-31"
+    },
+    "/docs/services/store-service": {
+      "title": "StoreService | Slice.js",
+      "description": "A thin facade over slice.context, so context persistence is configured in one place.",
+      "section": "Services",
+      "group": "State",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/docs/services/toast-provider": {
+      "title": "ToastProvider | Slice.js",
+      "description": "Singleton service for programmatic toast management — show, dismiss, clear, and position notifications.",
+      "section": "Services",
+      "group": "Feedback",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/services/tooltip-provider": {
+      "title": "ToolTipProvider | Slice.js",
+      "description": "Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.",
+      "section": "Services",
+      "group": "Overlay",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-22"
+    },
+    "/docs/services/unsaved-changes-guard": {
+      "title": "UnsavedChangesGuard | Slice.js",
+      "description": "Warns before the user throws away work in progress — tab close, in-app navigation, or the back button.",
+      "section": "Services",
+      "group": "Security",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": "2026-10-13"
+    },
+    "/game": {
+      "title": "Game | Slice.js",
+      "description": "",
+      "section": null,
+      "group": null,
+      "indexable": false,
+      "priority": "0.0",
+      "changefreq": "yearly",
+      "lastmod": null,
+      "noindex": true
+    },
+    "/playground": {
+      "title": "Playground | Slice.js",
+      "description": "",
+      "section": null,
+      "group": null,
+      "indexable": false,
+      "priority": "0.0",
+      "changefreq": "yearly",
+      "lastmod": null,
+      "noindex": true
+    },
+    "/theme-creator": {
+      "title": "Theme Creator | Slice.js",
+      "description": "Tune the Slice.js theme tokens live - colour, radius, spacing and typography - and export the CSS variables for your own app.",
+      "section": null,
+      "group": null,
+      "indexable": true,
+      "priority": "0.5",
+      "changefreq": "monthly",
+      "lastmod": null
+    }
+  }
+}
