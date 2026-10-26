@@ -387,7 +387,8 @@ test.describe('Form - layout', () => {
 test.describe('Form - steps', () => {
    const STEP_SCHEMA = [
       { kind: 'step', label: 'Account', description: 'How you sign in', schema: [
-         { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true },
+          { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true,
+            props: { type: 'email' } },
       ] },
       { kind: 'step', label: 'Profile', description: 'How people see you', schema: [
          { kind: 'field', name: 'nickname', label: 'Nickname', component: 'Input', required: true },
@@ -456,6 +457,17 @@ test.describe('Form - steps', () => {
       expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
       await expect(c.locator('.slice-form__step[data-step="1"]')).toBeVisible();
       await expect(c.locator('.slice-form__step[data-step="0"]')).toBeHidden();
+   });
+
+   test('Next rejects a malformed email using the child Input validation', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      await c.component.evaluate((el) => el.setValue('email', 'not-an-email'));
+
+      expect(await c.component.evaluate((el) => el.nextStep())).toBe(false);
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error'))
+         .toHaveText('Enter a valid email address');
    });
 
    test('Back never validates - leaving an incomplete step is allowed', async ({ mount }) => {

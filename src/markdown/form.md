@@ -336,7 +336,8 @@ const form = await slice.build('Form', {
       label: 'Account',
       description: 'Where we send your sign-in link.',
       schema: [
-        { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true },
+        { kind: 'field', name: 'email', label: 'Email', component: 'Input', required: true,
+          props: { type: 'email' } },
         { kind: 'field', name: 'password', label: 'Password', component: 'Input',
           required: true, props: { secret: true } },
       ],
