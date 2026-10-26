@@ -22,6 +22,7 @@ tags: [multiroute, routing, app-shell]
 - Caches rendered components and calls `update()` when reusing.
 - Emits `route-rendered` with `path`, `component`, `params`, and `metadata`.
 - Does **not** register its paths with the Router. `routes.js` is the single source of truth, so every path a MultiRoute can show must also exist there (in the App Shell pattern they point at the shell). Otherwise a direct load, refresh, or deep-link to that URL resolves before the container mounts and falls through to `/404`.
+- `fallback: '<Component>'` renders that component when no route matches, instead of leaving the slot empty. It is built once and reused across paths, so switching between unknown URLs does not rebuild it. Opt-in: without it the container simply clears, which is what it always did. The App Shell passes `fallback: 'NotFound'` so a `/docs/<section>/<page>` that disappears still shows the 404 inside the docs layout.
 
 ## Prop Scenarios
 :::script label="app shell sections" expected="route list models section switching in a persistent shell"
@@ -65,6 +66,21 @@ const multi = await slice.build('MultiRoute', {
 const route = multi.props.routes.find((entry) => entry.path === '/admin');
 const note = document.createElement('p');
 note.textContent = `Admin route private=${route.metadata.private}`;
+return note;
+:::
+
+:::script label="fallback for a path nobody claims" expected="a URL that matches no entry renders the fallback component inside the container"
+// The page's own URL is not in this list, so nothing matches.
+const multi = await slice.build('MultiRoute', {
+  routes: [{ path: '/only/this', component: 'Card' }],
+  fallback: 'EmptyState'
+});
+
+await multi.render();
+
+const rendered = multi.firstElementChild?.tagName.toLowerCase() ?? 'nothing';
+const note = document.createElement('p');
+note.textContent = `Rendered: <${rendered}> (without fallback the slot would be empty)`;
 return note;
 :::
 
