@@ -38,7 +38,32 @@
   margin-top: 0;
 }
 
-.documentation-content h1 {
+/* The title bar is the flex-less row: `<h1>` and the "copy page" button are
+   inline siblings, so the heading is only the title (a screen reader used to
+   announce "Button Copy page as markdown"). The underline and the padding live
+   here now, which keeps the rendering identical. */
+.documentation-content .doc-title-bar {
+  text-align: center;
+  border-bottom: 3px solid var(--primary-color);
+  padding-bottom: 14px;
+}
+
+.documentation-content .doc-title-bar h1 {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+  text-align: inherit;
+  font-weight: 700;
+  /* The gap the button had inside the h1 was a space rendered at the title's
+     font size; in the bar it renders at body size. This restores the original
+     spacing (and scales with the title if it ever resizes). */
+  margin-right: 0.15em;
+}
+
+/* A page whose title did not come from the title bar (no copy button) still
+   gets the same look. */
+.documentation-content > h1 {
   text-align: center;
   border-bottom: 3px solid var(--primary-color);
   padding-bottom: 14px;

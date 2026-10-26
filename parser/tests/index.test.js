@@ -114,6 +114,38 @@ See [Avatar](/docs/display/avatar).
   });
 });
 
+test('the copy-page button is a sibling of the page title, not inside the <h1>', () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-title-'));
+  const markdownPath = path.join(tmpRoot, 'example.md');
+  fs.writeFileSync(
+    markdownPath,
+    `---
+title: Example
+route: /docs/example
+section: General
+group: Basic
+order: 1
+component: ExampleDocumentation
+---
+
+# Example
+
+Body.
+`,
+    'utf8'
+  );
+
+  const parsed = parseMarkdownFile(markdownPath);
+
+  // The heading carries only the title: a screen reader used to announce
+  // "Example Copy page as markdown" as the page's h1.
+  assert.match(
+    parsed.html,
+    /<h1 id="[^"]*">\s*<span class="doc-title-text">Example<\/span>\s*<\/h1>\s*<span class="copy-md-slot" data-copy-md><\/span>/
+  );
+  assert.doesNotMatch(parsed.html, /<h1[^>]*>[\s\S]*?copy-md-slot[\s\S]*?<\/h1>/);
+});
+
 test('writeFileIfChanged does not rewrite identical generated output', () => {
   const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-write-'));
   const outputPath = path.join(tmpRoot, 'generated.js');

@@ -252,8 +252,8 @@ const renderBlocks = (blocks) => {
  <div class="doc-title-bar">
    <h1 id="${unique}">
      <span class="doc-title-text">${inlineMarkdown(block.text, inlineLinks)}</span>
-     <span class="copy-md-slot" data-copy-md></span>
    </h1>
+   <span class="copy-md-slot" data-copy-md></span>
  </div>`);
         hasTitle = true;
       } else {

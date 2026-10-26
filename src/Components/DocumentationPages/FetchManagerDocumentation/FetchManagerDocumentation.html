@@ -3,8 +3,8 @@
  <div class="doc-title-bar">
    <h1 id="fetchmanager">
      <span class="doc-title-text">FetchManager</span>
-     <span class="copy-md-slot" data-copy-md></span>
    </h1>
+   <span class="copy-md-slot" data-copy-md></span>
  </div>
 <h2 id="overview">Overview</h2>
 <p><code>FetchManager</code> is how a Slice app talks to its server. It is <code>fetch</code> with what every app ends up writing around it: a base URL, headers sent every time, a query object turned into <code>?page=2&amp;status=open</code>, a body sent as JSON, the answer read the right way, a timeout, and — the important part — <strong>a failed answer throws</strong>.</p>
