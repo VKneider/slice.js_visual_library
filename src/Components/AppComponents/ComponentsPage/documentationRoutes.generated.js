@@ -47,6 +47,17 @@ const documentationRoutes = {
       },
     ]
   },
+  DeveloperTools: {
+    title: 'Developer Tools',
+    path: '/docs/developer',
+    items: [
+      {
+        title: 'MiniInspector',
+        path: '/docs/developer/mini-inspector',
+        component: 'MiniInspectorDocumentation'
+      },
+    ]
+  },
   Display: {
     title: 'Display',
     path: '/docs/display',
@@ -142,7 +153,7 @@ const documentationRoutes = {
   },
   InputComponents: {
     title: 'Input Components',
-    path: '/docs/input-components',
+    path: '/docs/input',
     items: [
       {
         title: 'Form',
@@ -295,7 +306,7 @@ const documentationRoutes = {
   },
   NavigationComponents: {
     title: 'Navigation Components',
-    path: '/docs/navigation-components',
+    path: '/docs/navigation',
     items: [
       {
         title: 'Link',
@@ -383,17 +394,6 @@ const documentationRoutes = {
         title: 'ToolTipProvider',
         path: '/docs/services/tooltip-provider',
         component: 'ToolTipProviderDocumentation'
-      },
-    ]
-  },
-  Utilities: {
-    title: 'Utilities',
-    path: '/docs/utilities',
-    items: [
-      {
-        title: 'MiniInspector',
-        path: '/docs/utilities/mini-inspector',
-        component: 'MiniInspectorDocumentation'
       },
     ]
   },

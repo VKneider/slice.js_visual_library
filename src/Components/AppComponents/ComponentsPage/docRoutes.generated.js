@@ -41,7 +41,7 @@ const docRoutes = [
   { path: '/docs/navigation/link', component: 'LinkDocumentation' },
   { path: '/docs/feedback/loading', component: 'LoadingDocumentation' },
   { path: '/docs/services/local-storage-manager', component: 'LocalStorageManagerDocumentation' },
-  { path: '/docs/utilities/mini-inspector', component: 'MiniInspectorDocumentation' },
+  { path: '/docs/developer/mini-inspector', component: 'MiniInspectorDocumentation' },
   { path: '/docs/feedback/modal', component: 'ModalDocumentation' },
   { path: '/docs/routing/multi-route', component: 'MultiRouteDocumentation' },
   { path: '/docs/navigation/navbar', component: 'NavbarDocumentation' },

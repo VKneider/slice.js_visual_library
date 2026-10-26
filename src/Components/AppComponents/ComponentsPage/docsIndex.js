@@ -44,6 +44,17 @@ const docsIndex = [
     tags: ['description list', 'detail', 'record', 'key value', 'properties', 'profile', 'inline edit', 'dl']
   },
   {
+    title: 'MiniInspector',
+    route: '/docs/developer/mini-inspector',
+    description: 'MiniInspector documentation with executable live-editing scenarios.',
+    section: 'Developer Tools',
+    group: 'Developer',
+    order: 10,
+    navLabel: 'MiniInspector',
+    component: 'MiniInspectorDocumentation',
+    tags: ['inspector', 'devtools', 'props', 'setters']
+  },
+  {
     title: 'Icon',
     route: '/docs/display/icon',
     description: 'Complete icon reference with all 291 symbols, usage patterns, and style variants.',
@@ -691,17 +702,6 @@ const docsIndex = [
     navLabel: 'IndexedDbManager',
     component: 'IndexedDbManagerDocumentation',
     tags: ['service', 'storage', 'indexeddb']
-  },
-  {
-    title: 'MiniInspector',
-    route: '/docs/utilities/mini-inspector',
-    description: 'MiniInspector documentation with executable live-editing scenarios.',
-    section: 'Utilities',
-    group: 'Developer',
-    order: 10,
-    navLabel: 'MiniInspector',
-    component: 'MiniInspectorDocumentation',
-    tags: ['inspector', 'devtools', 'props', 'setters']
   },
 ];
 

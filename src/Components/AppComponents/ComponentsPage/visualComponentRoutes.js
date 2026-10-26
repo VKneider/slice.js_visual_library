@@ -61,6 +61,14 @@ const COMPACT_NAV_GROUPS = [
   {
     value: 'Docs Internals',
     sections: ['Internal']
+  },
+  {
+    value: 'Guides',
+    sections: ['Guides']
+  },
+  {
+    value: 'Developer Tools',
+    sections: ['Developer Tools']
   }
 ];
 

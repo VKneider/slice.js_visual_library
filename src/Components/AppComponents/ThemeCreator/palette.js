@@ -22,7 +22,7 @@
  * lighter than the colour it shades, or a button whose label is unreadable.
  */
 
-import { hsvToHex, hexToHsv, readableOn } from '../../shared/color.js';
+import { hsvToHex, hexToHsv, readableOn } from '../../shared/color/hex.js';
 
 /**
  * Hue relationships in degrees from the base hue. The chosen rule is applied

@@ -215,10 +215,14 @@ const buildRoutesTree = (entries) => {
       items.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
       sectionItems.push(...items.map(({ order, ...rest }) => rest));
     }
+    const firstItemPath = sectionItems[0]?.path || '';
+    const pathMatch = firstItemPath.match(/^\/docs\/([^/]+)/);
+    const sectionPath = pathMatch ? `/docs/${pathMatch[1]}` : `/docs/${sectionName.toLowerCase().replace(/\s+/g, '-')}`;
+
     sections.push({
       key: sectionName,
       title: sectionName,
-      path: `/docs/${sectionName.toLowerCase().replace(/\s+/g, '-')}`,
+      path: sectionPath,
       items: sectionItems
     });
   }
@@ -448,4 +452,4 @@ if (isMain) {
   run();
 }
 
-export { validateFrontMatter, mergeComponentsRegistry, lintMarkdownSourceForManualPropsTable, generateMainRoutesFile };
+export { validateFrontMatter, mergeComponentsRegistry, lintMarkdownSourceForManualPropsTable, generateMainRoutesFile, buildRoutesTree };

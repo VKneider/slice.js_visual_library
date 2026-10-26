@@ -1,8 +1,8 @@
 ---
 title: MiniInspector
-route: /docs/utilities/mini-inspector
+route: /docs/developer/mini-inspector
 navLabel: MiniInspector
-section: Utilities
+section: Developer Tools
 group: Developer
 order: 10
 description: MiniInspector documentation with executable live-editing scenarios.

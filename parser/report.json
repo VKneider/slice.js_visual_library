@@ -113,11 +113,11 @@
       "component": "GridDocumentation"
     },
     {
-      "filePath": "src/markdown/guide-data-components.md",
+      "filePath": "src/markdown/guides/data-components.md",
       "component": "DataComponentsDocumentation"
     },
     {
-      "filePath": "src/markdown/guide-data-loading.md",
+      "filePath": "src/markdown/guides/data-loading.md",
       "component": "DataAndLoadingDocumentation"
     },
     {
