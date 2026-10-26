@@ -99,7 +99,7 @@ A request that does not get a good answer **throws** an `HttpError`. Nothing to 
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `'http'` (the server answered with a non-2xx status), `'network'` (no answer: offline, DNS, CORS), `'timeout'`. |
+| `kind` | `'http'` (the server answered with a non-2xx status), `'network'` (no answer: offline, DNS, CORS), `'timeout'`, `'parse'` (the answer said it was JSON and was not). |
 | `status` | The HTTP status; `0` when there was no answer. |
 | `message` | The server's own message when it sent one (`body.message`, `body.error` or `body.detail`), else a plain sentence ("GET /api/orders answered 503."). |
 | `body` | The answer, read (JSON or text). |

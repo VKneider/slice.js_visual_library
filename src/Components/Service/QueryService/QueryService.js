@@ -42,6 +42,24 @@ function stable(value) {
    if (value === null || typeof value !== 'object') return JSON.stringify(value);
    if (value instanceof Date) return `"${value.toISOString()}"`;
    if (Array.isArray(value)) return `[${value.map(stable).join(',')}]`;
+   // A Map or a Set would otherwise stringify to {} and collide with every
+   // other one: same entries, in any order, is the same key.
+   if (value instanceof Map) {
+      const entries = [...value.entries()].map(([k, v]) => `${stable(k)}:${stable(v)}`).sort();
+      return `map{${entries.join(',')}}`;
+   }
+   if (value instanceof Set) {
+      return `set{${[...value].map(stable).sort().join(',')}}`;
+   }
+   if (typeof Blob !== 'undefined' && value instanceof Blob) {
+      return `blob{${JSON.stringify(value.name || '')},${value.size},${JSON.stringify(value.type || '')}}`;
+   }
+   const proto = Object.getPrototypeOf(value);
+   if (proto !== Object.prototype && proto !== null) {
+      // A class instance (a URL, a custom type): there is nothing to walk. Same
+      // type and same text is the same key; when it matters, key by its id.
+      return `${value.constructor?.name || 'object'}(${String(value)})`;
+   }
    const keys = Object.keys(value).filter((k) => value[k] !== undefined).sort();
    return `{${keys.map((k) => `${JSON.stringify(k)}:${stable(value[k])}`).join(',')}}`;
 }
@@ -149,10 +167,18 @@ export default class QueryService {
     * shared. An invalidation under `prefix` makes them load again.
     * @param {any[] | ((params: any) => any[])} prefix  ['orders', 'list'], or params → key
     * @param {(params: any, ctx: { signal: AbortSignal }) => Promise<any>} fn
+    * @param {{ staleTime?: number, retry?: number, base?: any[] }} [options]
+    *   `base` is where the listener sits when `prefix` is a key function that
+    *   does not put the params last; by default the prefix itself (or the
+    *   function's key without its last part).
     */
    loader(prefix, fn, options = {}) {
       const keyOf = typeof prefix === 'function' ? prefix : (params) => [...toKey(prefix), params];
-      const base = typeof prefix === 'function' ? toKey(prefix({})).slice(0, -1) : toKey(prefix);
+      const base = options.base !== undefined
+         ? toKey(options.base)
+         : typeof prefix === 'function'
+            ? toKey(prefix({})).slice(0, -1)
+            : toKey(prefix);
       const load = (query = {}) => {
          const { signal, ...params } = query || {};
          const handle = this.query(keyOf(params), (ctx) => fn(params, ctx), options);
@@ -259,7 +285,7 @@ export default class QueryService {
          key, hash, fn: null, state: IDLE, data: undefined,
          updatedAt: 0, staleTime: null, retry: null,
          promise: null, controller: null, refetchAfter: false, waiters: 0,
-         observers: new Map(), lastUsed: Date.now(), handle: null,
+         observers: new Map(), lastUsed: Date.now(), handle: null, publishing: false,
       };
       entry.handle = this._handle(entry);
       this._entries.set(hash, entry);
@@ -438,14 +464,27 @@ export default class QueryService {
       entry.state = Object.freeze({ ...IDLE, ...entry.state, ...changes });
       if (this._destroyed) return;
       this._prune(entry);
-      const state = entry.state;
-      for (const observer of [...entry.observers.keys()]) {
-         if (entry.state !== state) return;   // a callback changed it again: that call told everyone
-         try {
-            observer.callback(state);
-         } catch (error) {
-            slice.logger.error('QueryService', `A watcher of ${entry.hash} failed`, error);
-         }
+      // A watcher may publish again (a `setData` in its callback). The nested
+      // call only records the new state; this loop then starts another pass, so
+      // every watcher ends on the newest state instead of the one that happened
+      // to be current when the loop started.
+      if (entry.publishing) return;
+      entry.publishing = true;
+      try {
+         let delivered;
+         do {
+            delivered = entry.state;
+            for (const observer of [...entry.observers.keys()]) {
+               if (entry.state !== delivered) break; // changed under us: another pass
+               try {
+                  observer.callback(delivered);
+               } catch (error) {
+                  slice.logger.error('QueryService', `A watcher of ${entry.hash} failed`, error);
+               }
+            }
+         } while (entry.state !== delivered);
+      } finally {
+         entry.publishing = false;
       }
    }
 }

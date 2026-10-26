@@ -82,6 +82,31 @@ test.describe('QueryService', () => {
       ]);
    });
 
+   test('a watcher that publishes again still reaches the others with the newest state', async ({ mountHtml }) => {
+      const h = await mountHtml('<div></div>');
+      const out = await run(h.page, {}, `
+         const host = await slice.build('Badge', { value: 'x' });
+         const handle = queries.query(['reentrant'], async () => ({ n: 1 }));
+         const seenA = [];
+         const seenB = [];
+         let changed = false;
+         handle.watch(host, (s) => {
+            seenA.push(s.data?.n ?? null);
+            if (!changed && s.status === 'ready') {
+               changed = true;
+               handle.setData(() => ({ n: 2 }));     // publishes from inside a callback
+            }
+         });
+         handle.watch(host, (s) => seenB.push(s.data?.n ?? null));
+         await handle.load();
+         slice.controller.destroyComponent(host);
+         return { seenA, seenB, final: handle.data };
+      `);
+      expect(out.seenA.at(-1)).toBe(2);
+      expect(out.seenB.at(-1)).toBe(2);
+      expect(out.final).toEqual({ n: 2 });
+   });
+
    test('mutate() invalidates a prefix: what is watched asks again, the rest waits until it is used', async ({ mountHtml }) => {
       const h = await mountHtml('<div></div>');
       const seen = await server(h.page, (req, n) => [200, req.method === 'PATCH' ? { ok: true } : { n }], 20);

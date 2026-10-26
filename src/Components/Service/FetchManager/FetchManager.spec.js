@@ -93,6 +93,23 @@ test.describe('FetchManager', () => {
       expect(out).toEqual([null, 'pong', { a: 1 }]);
    });
 
+   test('a 200 whose body claims JSON but is not is a parse error; an empty one is null', async ({ mountHtml }) => {
+      const h = await mountHtml('<div></div>');
+      await server(h.page, (route, req) => route.fulfill({
+         status: 200,
+         headers: { 'content-type': 'application/json' },
+         body: req.path === '/empty' ? '' : '{not json',
+      }));
+      const out = await run(h.page, { baseUrl: '/__api' }, `
+         let broken;
+         try { await http.get('/broken'); } catch (e) { broken = { kind: e.kind, status: e.status, isHttp: e instanceof http.HttpError }; }
+         const empty = await http.get('/empty');
+         return { broken, empty };
+      `);
+      expect(out.broken).toEqual({ kind: 'parse', status: 200, isHttp: true });
+      expect(out.empty).toBeNull();
+   });
+
    test('timeout: an HttpError of kind "timeout"; your own signal: an AbortError', async ({ mountHtml }) => {
       const h = await mountHtml('<div></div>');
       await server(h.page, async (route) => {

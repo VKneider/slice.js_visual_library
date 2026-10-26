@@ -312,7 +312,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/routing/multi-route</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -336,7 +336,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/services/fetch-manager</loc>
-    <lastmod>2026-06-09</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -372,6 +372,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/services/query-service</loc>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

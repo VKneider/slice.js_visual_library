@@ -117,4 +117,21 @@ test.describe('Link', () => {
       expect(out.top).toBeLessThan(50);
       expect(out.hereTop).toBeLessThan(50);
    });
+
+   test('a malformed #hash does not throw', async ({ mountHtml }) => {
+      const h = await mountHtml('<div style="height:2000px"></div>');
+      const errors = [];
+      h.page.on('pageerror', (error) => errors.push(error.message));
+      await h.page.evaluate(async () => {
+         const link = await slice.build('Link', { text: 'Odd', path: '#100%' });
+         document.body.prepend(link);
+         try {
+            link.querySelector('a').click();
+            await new Promise((r) => setTimeout(r, 120));
+         } finally {
+            slice.controller.destroyComponent(link);
+         }
+      });
+      expect(errors).toEqual([]);
+   });
 });

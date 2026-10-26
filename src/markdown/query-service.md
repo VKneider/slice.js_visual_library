@@ -97,7 +97,7 @@ Show it like this: `loading` → a skeleton; `ready` + `fetching` → the data, 
 | --- | --- |
 | `query(key, fn, options?)` | A query's handle. |
 | `get(key, url, options?)` | A GET through `http` as a query. |
-| `loader(prefix, fn, options?)` | A `load` for DataList, Table or DescriptionList: each page, search, filter or sort is its own query under `prefix`, cached; an invalidation under `prefix` makes the component load again. `fn(params, { signal })`. |
+| `loader(prefix, fn, options?)` | A `load` for DataList, Table or DescriptionList: each page, search, filter or sort is its own query under `prefix`, cached; an invalidation under `prefix` makes the component load again. `fn(params, { signal })`. `options.base` is where the listener sits when `prefix` is a key function that does not put the params last. |
 | `mutate(fn, { invalidates, onSuccess, onError }?)` | Runs a change; when it succeeds, invalidates each prefix in `invalidates`. Resolves with what `fn` returned; rethrows its error. |
 | `invalidate(prefix?)` | Everything under `prefix` is stale; what is watched asks again now, the rest when it is next used. |
 | `prefetch(key, fn, options?)` | Asks before it is needed. Never throws. |

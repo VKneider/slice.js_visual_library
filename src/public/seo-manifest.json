@@ -552,7 +552,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-05-31"
+      "lastmod": "2026-10-26"
     },
     "/docs/routing/route": {
       "title": "Route | Slice.js",
@@ -592,7 +592,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-06-09"
+      "lastmod": "2026-10-26"
     },
     "/docs/services/file-download-service": {
       "title": "FileDownloadService | Slice.js",
@@ -652,7 +652,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": null
+      "lastmod": "2026-10-26"
     },
     "/docs/services/store-service": {
       "title": "StoreService | Slice.js",

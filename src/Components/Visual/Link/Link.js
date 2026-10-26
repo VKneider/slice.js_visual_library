@@ -25,8 +25,16 @@ export default class Link extends HTMLElement {
       const [path, hash] = href.split('#');
       if (path) await slice.router.navigate(path);
       if (!hash) return;
+      // A hand-written hash may not be valid percent-encoding ('#100%'): use it
+      // as written instead of throwing inside the frame callback.
+      let id = hash;
+      try {
+         id = decodeURIComponent(hash);
+      } catch {
+         id = hash;
+      }
       requestAnimationFrame(() => {
-         document.getElementById(decodeURIComponent(hash))?.scrollIntoView({ block: 'start' });
+         document.getElementById(id)?.scrollIntoView({ block: 'start' });
       });
    }
 

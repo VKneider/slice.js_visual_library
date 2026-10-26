@@ -239,6 +239,9 @@ export default class FetchManager {
          } catch (cause) {
             if (signal?.aborted) throw signal.reason ?? cause;
             if (timedOut) throw new HttpError({ kind: 'timeout', url: request.url, method, cause });
+            // A body that is not what its type promised (broken JSON) is a real
+            // failure, not "nothing came back".
+            if (cause instanceof HttpError) throw cause;
             body = null;
          }
          return { response, body, request };
@@ -312,20 +315,29 @@ export default class FetchManager {
    static async _read(response, method, responseType) {
       if (responseType === 'response') return response;
       if (method === 'HEAD' || response.status === 204 || response.status === 205) return null;
-      if (responseType === 'json') return response.json();
+      if (responseType === 'json') return FetchManager._json(response);
       if (responseType === 'text') return response.text();
       if (responseType === 'blob') return response.blob();
       if (responseType === 'arrayBuffer') return response.arrayBuffer();
       const type = (response.headers.get('content-type') || '').toLowerCase();
-      if (type.includes('json')) {
-         const text = await response.text();
-         return text ? JSON.parse(text) : null;
-      }
+      if (type.includes('json')) return FetchManager._json(response);
       if (type.startsWith('text/') || type.includes('xml') || type.includes('html') || !type) {
          const text = await response.text();
          return text === '' ? null : text;
       }
       return response.blob();
+   }
+
+   // A 200 whose body claims to be JSON but is not is a broken answer, not "no
+   // data": the caller has to be able to tell it from an empty one.
+   static async _json(response) {
+      const text = await response.text();
+      if (!text.trim()) return null;
+      try {
+         return JSON.parse(text);
+      } catch (cause) {
+         throw new HttpError({ kind: 'parse', status: response.status, url: response.url, cause });
+      }
    }
 
    static _normalizeRetry(retry) {
@@ -347,7 +359,10 @@ export default class FetchManager {
          const date = Date.parse(after);
          if (Number.isFinite(date)) return Math.max(0, Math.min(date - Date.now(), 30000));
       }
-      return base * 2 ** attempt;
+      // ±20 %, so many clients coming back at once (a reconnect) do not retry
+      // in lockstep.
+      const wait = base * 2 ** attempt;
+      return Math.round(wait * (0.8 + Math.random() * 0.4));
    }
 
    static _isLegacyCall(args) {
