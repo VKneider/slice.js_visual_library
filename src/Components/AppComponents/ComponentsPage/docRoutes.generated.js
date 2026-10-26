@@ -48,6 +48,7 @@ const docRoutes = [
   { path: '/docs/navigation/not-found', component: 'NotFoundDocumentation' },
   { path: '/docs/data/pagination', component: 'PaginationDocumentation' },
   { path: '/docs/internal/markdown-parser-rules', component: 'MarkdownParserRulesDocumentation' },
+  { path: '/docs/services/query-service', component: 'QueryServiceDocumentation' },
   { path: '/docs/input/radio-group', component: 'RadioGroupDocumentation' },
   { path: '/docs/routing/route', component: 'RouteDocumentation' },
   { path: '/docs/input/select', component: 'SelectDocumentation' },

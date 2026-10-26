@@ -7,23 +7,50 @@
    </h1>
  </div>
 <h2 id="overview">Overview</h2>
-<p><code>FetchManager</code> is a <strong>Service</strong> component: an HTTP client built on the native <code>fetch</code> API. It adds an optional <code>baseUrl</code>, a request timeout (via <code>AbortController</code>), default headers, and a simple last-request cache. It does <strong>not</strong> drive any loading UI — show your own busy state around calls (e.g. a component's <code>loading</code> prop) if you want one.</p>
-<p>Build it with an optional <code>baseUrl</code> and <code>timeout</code> (ms, default <code>10000</code>):</p>
+<p><code>FetchManager</code> is how a Slice app talks to its server. It is <code>fetch</code> with what every app ends up writing around it: a base URL, headers sent every time, a query object turned into <code>?page=2&amp;status=open</code>, a body sent as JSON, the answer read the right way, a timeout, and — the important part — <strong>a failed answer throws</strong>.</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
-<h2 id="methods">Methods</h2>
-<div class="table-block" data-block-id="doc-block-2"></div>
-<h3 id="request-parameters"><code>request</code> parameters</h3>
+<p>It knows nothing about caching or about components. Keeping data, sharing it between components and refreshing it after a change is <span data-inline-link="0"></span>, which uses the functions you write with this one. How the two fit into an app is in <span data-inline-link="1"></span>.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Any request to your own API or another HTTP API, from a domain Service (<code>OrdersService</code>), a <code>load</code> or a <code>commit</code>.</li><li>You want errors you can show: the server's message, the status, the field.</li><li>Every request needs the same token, header or 401 handling.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li>To keep data between pages or share it between components: <span data-inline-link="2"></span> (which calls this).</li><li>Streaming answers you read as they arrive (Server-Sent Events, a <code>ReadableStream</code>): use <code>fetch</code> or <code>EventSource</code> directly, or <code>responseType: 'response'</code> and read <code>body</code> yourself.</li><li>Uploads with a progress bar: <code>fetch</code> does not report upload progress; use <code>XMLHttpRequest</code> for that one request.</li></ul>
+<h2 id="build-it-once">Build it once</h2>
+<p>Build it as a singleton, usually in the App component or in a domain Service, so every part of the app uses the same configuration.</p>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<h3 id="props">Props</h3>
 <div class="table-block" data-block-id="doc-block-3"></div>
-<h2 id="usage">Usage</h2>
-<div class="code-block" data-block-id="doc-block-4"></div>
-<div class="code-block" data-block-id="doc-block-5"></div>
-<h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Set a <code>baseUrl</code> once and pass relative <code>endpoint</code>s. Use <code>setDefaultHeaders</code> for cross-cutting
-headers like auth tokens. Tune <code>timeout</code> (ms) per service — the request aborts automatically
-when it elapses.</div>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<h3 id="options-of-a-request">Options of a request</h3>
+<div class="table-block" data-block-id="doc-block-5"></div>
+<h2 id="errors">Errors</h2>
+<p>A request that does not get a good answer <strong>throws</strong> an <code>HttpError</code>. Nothing to check after <code>await</code>: if the line after it runs, the data is good.</p>
+<div class="table-block" data-block-id="doc-block-6"></div>
+<p>Cancelling with your own <code>signal</code> is <strong>not</strong> an <code>HttpError</code>: it rejects with an <code>AbortError</code>, as <code>fetch</code> does. Components that take <code>load</code> already ignore it.</p>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<h2 id="examples">Examples</h2>
+<h3 id="a-domain-service">A domain Service</h3>
+<p>The usual place for requests is a Service per part of your app. Components call it; none of them build URLs.</p>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<p>With <span data-inline-link="3"></span> on top, the same Service also keeps and shares what it loaded: see <span data-inline-link="4"></span>.</p>
+<h3 id="a-table-that-loads-pages-from-the-server">A Table that loads pages from the server</h3>
+<p><code>load</code> receives a <code>signal</code>. Pass it on, and a new search cancels the request for the old one.</p>
+<div class="code-block" data-block-id="doc-block-9"></div>
+<p>When <code>commit</code> throws, the table takes the change back and shows <code>error.message</code>: the server's "Prices over 1,000 need approval." reaches the user without any code in between.</p>
+<h3 id="downloading-a-file">Downloading a file</h3>
+<div class="code-block" data-block-id="doc-block-10"></div>
+<h3 id="refreshing-a-token-once-on-401">Refreshing a token once on 401</h3>
+<p><code>onRequest</code> can return a new request, and <code>onResponseError</code> sees every failure. For a retry after refreshing, wrap the call:</p>
+<div class="code-block" data-block-id="doc-block-11"></div>
+<h2 id="moving-from-requestmethod-data-endpoint-">Moving from <code>request(method, data, endpoint, …)</code></h2>
+<p>The old call still works exactly as before, and the console warns once that it is deprecated. It returned the error body as if it were data and reported failures through callbacks; the new methods throw.</p>
+<div class="table-block" data-block-id="doc-block-12"></div>
+<h2 id="best-practices">Best practices</h2>
+<div class="callout callout-tip">- Build it once (<code>singleton: true</code>) and give components functions (<code>orders.list</code>), not URLs.
+- Pass <code>signal</code> from <code>load</code> to <code>get</code>: a new search cancels the old request, and leaving the page cancels everything.
+- Return useful messages from the server (<code>{ "message": "…" }</code>): <code>HttpError</code> shows them as they are.
+- Put the token in <code>onRequest</code> and the 401 in <code>onResponseError</code>, not in every call.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning"><code>request</code> uses positional parameters — pass <code>null</code>/<code>undefined</code> to skip the ones you don't need,
-and remember <code>data</code> must be <code>null</code> for <code>GET</code>. The built-in cache is intentionally simple: it
-keys only on <code>endpoint</code> and remembers a single last response, so it's best for read-heavy,
-low-variance calls (call <code>disableCache()</code> when responses must always be fresh).</div>
+<div class="callout callout-warning">Retries are only for GET and HEAD. A POST that timed out may have been saved; asking again could create the order twice. If your API supports it, send an idempotency key and retry it yourself.</div>
+<div class="callout callout-warning">Do not await requests in a component's <code>init()</code>: the app's loader waits for it. Give the request to a component's <code>load</code>, or start it without <code>await</code>. See <span data-inline-link="6"></span>.</div>
 </div>

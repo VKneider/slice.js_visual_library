@@ -222,7 +222,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/internal/markdown-parser-rules</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -367,6 +367,11 @@
   <url>
     <loc>https://components.slicejs.com/docs/services/local-storage-manager</loc>
     <lastmod>2026-05-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/query-service</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

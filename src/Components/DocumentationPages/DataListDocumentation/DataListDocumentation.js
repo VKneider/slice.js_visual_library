@@ -95,7 +95,7 @@ export default class DataListDocumentation extends HTMLElement {
       {
          const container = this.querySelector('[data-block-id="doc-block-3"]');
          if (container) {
-            const lines = ["| Part | What it is |","| --- | --- |","| `title` | The main line (`'title'` by default). |","| `description` | A quieter line under it. |","| `avatar` / `icon` / `image` | What is on the left: an [Avatar](/docs/display/avatar) (`{ src, name, status }`), an icon name, or a picture. |","| `meta` | Small facts with icons: `[{ value: 'city', icon: 'map-pin' }]`. `format(value, item)` changes how one reads. |","| `tags` | An array of words or [Chip](/docs/display/chip) props. |","| `badge` | A status on the right ([Badge](/docs/display/badge) props, a word or a number). |","| `value` | A figure on the right, such as an amount. |","| `timestamp` | A date, shown as \"3 hours ago\", with the full date on hover. |","| `renderItem(item)` | Draw the middle part yourself; the avatar, status and actions still go around it. |"];
+            const lines = ["| Part | What it is |","| --- | --- |","| `title` | The main line (`'title'` by default). |","| `description` | A quieter line under it. |","| `avatar` / `icon` / `image` | What is on the left: an SLICE_INLINE_LINK_4_TOKEN (`{ src, name, status }`), an icon name, or a picture. |","| `meta` | Small facts with icons: `[{ value: 'city', icon: 'map-pin' }]`. `format(value, item)` changes how one reads. |","| `tags` | An array of words or SLICE_INLINE_LINK_5_TOKEN props. |","| `badge` | A status on the right (SLICE_INLINE_LINK_6_TOKEN props, a word or a number). |","| `value` | A figure on the right, such as an amount. |","| `timestamp` | A date, shown as \"3 hours ago\", with the full date on hover. |","| `renderItem(item)` | Draw the middle part yourself; the avatar, status and actions still go around it. |"];
             const clean = (line) => {
                let value = line.trim();
                if (value.startsWith('|')) {
@@ -265,7 +265,7 @@ export default class DataListDocumentation extends HTMLElement {
          }
        }
       {
-         const links = [{"text":"Table","path":"/docs/data/table"},{"text":"TreeView","path":"/docs/navigation/treeview"},{"text":"SideMenu","path":"/docs/navigation/side-menu"},{"text":"Select","path":"/docs/input/select"},{"text":"Modal","path":"/docs/feedback/modal"},{"text":"Pagination","path":"/docs/data/pagination"},{"text":"InfiniteScrollService","path":"/docs/services/infinite-scroll"}];
+         const links = [{"text":"Table","path":"/docs/data/table"},{"text":"TreeView","path":"/docs/navigation/treeview"},{"text":"SideMenu","path":"/docs/navigation/side-menu"},{"text":"Select","path":"/docs/input/select"},{"text":"Avatar","path":"/docs/display/avatar"},{"text":"Chip","path":"/docs/display/chip"},{"text":"Badge","path":"/docs/display/badge"},{"text":"Modal","path":"/docs/feedback/modal"},{"text":"Pagination","path":"/docs/data/pagination"},{"text":"InfiniteScrollService","path":"/docs/services/infinite-scroll"}];
          for (const [index, linkProps] of links.entries()) {
             const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
             if (!placeholder) continue;
@@ -295,7 +295,7 @@ export default class DataListDocumentation extends HTMLElement {
     const copyMenu = await slice.build('CopyMarkdownMenu', {
       markdownPath: this.markdownPath,
       markdownContent: this.markdownContent,
-      label: '❐'
+      label: 'â'
     });
 
     container.appendChild(copyMenu);
@@ -312,11 +312,11 @@ export default class DataListDocumentation extends HTMLElement {
       //
       // The markdown parser already emits one <div class="script-block"> at the
       // position of each block, in document order, and those divs come from the same
-      // parse as this.scriptScenarios — so the counts always line up. They used to be
+      // parse as this.scriptScenarios â€” so the counts always line up. They used to be
       // ignored: every scenario was appended in one lump to the end of
       // .documentation-content under a second, generated <h2>Prop Scenarios</h2>. The
-      // result was that the heading an author wrote sat over nothing at all — the divs
-      // were never filled, nothing in the repo reads .script-block — the real demos were
+      // result was that the heading an author wrote sat over nothing at all â€” the divs
+      // were never filled, nothing in the repo reads .script-block â€” the real demos were
       // exiled below the props table, and 38 of 53 pages showed the heading twice.
       const blocks = [...this.querySelectorAll('.script-block')];
       const inPlace = blocks.length === this.scriptScenarios.length;

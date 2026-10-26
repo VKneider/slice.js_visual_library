@@ -1,0 +1,61 @@
+<div class="documentation-content queryservicedocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="queryservice">
+     <span class="doc-title-text">QueryService</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>QueryService</code> keeps what the app already got from the server, and knows whether it is still fresh and who is showing it. It is the layer React Query or SWR are in React.</p>
+<p>A <strong>query</strong> is a <strong>key</strong> (what the data is) and a <strong>function</strong> (how to get it):</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p>It makes no requests itself: the function can call <span data-inline-link="0"></span>, <code>fetch</code>, IndexedDB, anything that returns a promise. What it adds:</p>
+<ul><li><strong>One request per key.</strong> Three components that ask for <code>['orders', 'open']</code> at the same time cause one request.</li><li><strong>Fresh data is not asked again.</strong> For <code>staleTime</code> (30 s) it comes from memory. After that it is shown at once and refreshed behind the screen (stale-while-revalidate).</li><li><strong>Invalidation.</strong> After a change, <code>invalidate(['orders'])</code> makes everything under that key stale, and what is on screen asks again by itself.</li><li><strong>Retries</strong> for failures worth retrying (a 5xx, the network); never for a 4xx.</li><li><strong>Cancellation.</strong> A request nobody waits for any more is aborted.</li><li><strong>A refresh when the tab comes back</strong> or the network returns, for what is on screen.</li><li><strong>Forgetting.</strong> A query nobody watches for <code>gcTime</code> (5 min) is dropped.</li></ul>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>The same server data is shown in several places (a list, a counter in the menu, a detail).</li><li>Going back to a page should show its data at once, not a skeleton again.</li><li>After a change (a save, a delete) the parts of the app that show that data should update.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li>One component shows one set of data, once: give it <code>load</code> (<span data-inline-link="1"></span>, <span data-inline-link="2"></span>, <span data-inline-link="3"></span>). They already show the skeleton, the error and Try again.</li><li>Data the <strong>app</strong> owns (the session after sign-in, the filters chosen, a cart, a draft): that is a <code>slice.context</code>. See <a href="#queries-and-slicecontext">server data and contexts</a>.</li></ul>
+<h2 id="build-it-once">Build it once</h2>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<h2 id="a-query">A query</h2>
+<p><code>queries.query(key, fn, options?)</code> returns the query's <strong>handle</strong>. The same key always gives the same handle, from anywhere in the app.</p>
+<ul><li><strong>The key</strong> is an array: <code>['orders']</code>, <code>['orders', 42]</code>, <code>['orders', 'list', { page: 2, status: 'open' }]</code>. Objects in it are compared by value, in any order. Keys are a hierarchy: <code>['orders']</code> is the prefix of all the others, and invalidating it reaches them all.</li><li><strong>The function</strong> receives <code>{ signal, key }</code>. Pass <code>signal</code> on, so a cancelled query stops its request.</li><li><strong>Options:</strong> <code>staleTime</code> and <code>retry</code> for this query, and <code>initialData</code> (shown at once, as <code>ready</code>).</li></ul>
+<h3 id="the-state">The state</h3>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<p>Show it like this: <code>loading</code> → a skeleton; <code>ready</code> + <code>fetching</code> → the data, quietly busy; <code>error</code> with <code>data</code> → the data and a small notice; <code>error</code> without → the error and Try again.</p>
+<h3 id="the-handle">The handle</h3>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<p><code>watch</code> is the Slice version of a hook: it ties the subscription to the component, as <code>slice.context.watch</code> does, so there is nothing to clean up. Only the watchers of <strong>that</strong> query are called, with a new state object each time.</p>
+<h2 id="the-service">The service</h2>
+<div class="table-block" data-block-id="doc-block-5"></div>
+<h2 id="examples">Examples</h2>
+<h3 id="one-query-three-places-a-change-that-updates-them-all">One query, three places, a change that updates them all</h3>
+<p>A list of orders, a counter of open ones and a line that says when the data arrived, all from the server. <strong>Mark paid</strong> saves with <code>mutate</code> and invalidates <code>['orders']</code>: the list and the counter ask again by themselves. The line under it counts the requests the server got: running the example again, or going to another page and back within 30 seconds, asks for nothing.</p>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h3 id="ask-before-the-click">Ask before the click</h3>
+<p>A detail usually opens after the pointer has been on its link for a few hundred milliseconds. <code>prefetch</code> uses that time: when the click comes, the data is there or on its way, and <code>load</code> shares the same request.</p>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h3 id="in-a-component">In a component</h3>
+<p>A component watches the queries it shows and starts them in <code>init()</code>, <strong>without</strong> <code>await</code>: the page shows at once with its skeleton (see <span data-inline-link="4"></span>).</p>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<h3 id="optimistic-show-the-change-before-the-server-answers">Optimistic: show the change before the server answers</h3>
+<p><code>setData</code> changes what is shown now; if the save fails, put it back.</p>
+<div class="code-block" data-block-id="doc-block-9"></div>
+<p>For lists shown in DataList or Table, their own <code>updateItem(…, { commit })</code> already does this, with the rollback; give it a <code>commit</code> that calls <code>queries.mutate</code>.</p>
+<h2 id="queries-and-slicecontext">Queries and slice.context</h2>
+<p>They hold different things, and they meet in the key.</p>
+<div class="table-block" data-block-id="doc-block-10"></div>
+<p>The rule: <strong>if reloading the page would have to ask the server for it, it is a query; if the user or the app decides it, it is a context.</strong></p>
+<p>The usual way they work together: a context says <strong>which</strong> data, the query keeps it.</p>
+<div class="code-block" data-block-id="doc-block-11"></div>
+<p>And the other way: a sign-in answer is server data that becomes the app's. Keep it in a context (persisted, if it must survive a reload), and <code>remove()</code> the queries on sign-out so the next user sees nothing of the last one.</p>
+<h2 id="best-practices">Best practices</h2>
+<div class="callout callout-tip">- One <code>QueryService</code> for the whole app (<code>singleton: true</code>), used through a Service per domain (<code>OrdersService</code>): components never build keys or URLs. See <span data-inline-link="5"></span>.
+- Keys from general to specific: <code>['orders']</code>, <code>['orders', 'list', params]</code>, <code>['orders', id]</code>. Then <code>invalidate(['orders'])</code> after any change to orders is always right.
+- Pass <code>signal</code> to the request: a query nobody waits for is cancelled.
+- Never <code>await</code> a query in <code>init()</code>: <code>watch</code>, then <code>load()</code>.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not copy query data into a context to share it. The query <strong>is</strong> the shared copy; a second one gets out of date, and then you have two truths. Share the handle (or the domain Service that gives it).</div>
+<div class="callout callout-warning">A key must contain everything the function depends on. A function that reads <code>page</code> from outside, with a key that does not include it, returns page 1's cached data for page 2.</div>
+</div>

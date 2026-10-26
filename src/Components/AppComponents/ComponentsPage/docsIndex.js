@@ -607,13 +607,24 @@ const docsIndex = [
   {
     title: 'FetchManager',
     route: '/docs/services/fetch-manager',
-    description: 'HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.',
+    description: 'The app\'s HTTP client. get, post, patch… that return the data or throw an HttpError; baseUrl, default headers, query objects, JSON bodies, timeouts with your own signal, safe retries, and hooks to add a token or handle a 401 in one place.',
     section: 'Services',
     group: 'Networking',
     order: 30,
     navLabel: 'FetchManager',
     component: 'FetchManagerDocumentation',
-    tags: ['service', 'fetch', 'http', 'networking']
+    tags: ['service', 'fetch', 'http', 'networking', 'api', 'request', 'error', 'retry', 'timeout', 'interceptor']
+  },
+  {
+    title: 'QueryService',
+    route: '/docs/services/query-service',
+    description: 'What the app already knows from the server. One request per key however many components ask, data kept while it is fresh and refreshed behind the screen when it is not, invalidation after a change, retries, cancellation. React Query, the Slice way.',
+    section: 'Services',
+    group: 'Networking',
+    order: 31,
+    navLabel: 'QueryService',
+    component: 'QueryServiceDocumentation',
+    tags: ['service', 'query', 'cache', 'server state', 'react query', 'swr', 'stale-while-revalidate', 'invalidate', 'mutate', 'prefetch']
   },
   {
     title: 'ToolTipProvider',

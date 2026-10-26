@@ -33,7 +33,7 @@ export default class DescriptionListDocumentation extends HTMLElement {
       {
          const container = this.querySelector('[data-block-id="doc-block-2"]');
          if (container) {
-            const lines = ["| Option | What it does |","| --- | --- |","| `key` | A key or a path (`'customer.name'`). |","| `label` | The label. Without one, the key is turned into one (`createdAt` → \"Created at\"). |","| `type` | How the value is shown (below). `'text'` by default. |","| `format(value, item)` | The text to show, when the type's own format is not what you want. |","| `render(value, item)` | Anything else: return a node or a string. |","| `badge` | For `type: 'badge'`: a function from the value to [Badge](/docs/display/badge) props, or a map `{ paid: { label: 'Paid', tone: 'success' } }`. |","| `avatar` | For `type: 'avatar'`: a function from the value to [Avatar](/docs/display/avatar) props. An object with `name` and `src` works without it. |","| `path`, `href` | Makes the value a link: an app route (through `slice.router`) or an address. A key or a function of the item. |","| `copy` | A copy button. `true` copies the value; a function returns the text to copy. |","| `edit` | Makes the field editable (below). |","| `help` | A short line under the label. |","| `hidden` | `true`, or a function of the item, to leave the row out. |","| `empty` | What an empty value shows, instead of \"—\". |","| `span` | In the grid layout, `2`, `3` or `'full'` columns. |"];
+            const lines = ["| Option | What it does |","| --- | --- |","| `key` | A key or a path (`'customer.name'`). |","| `label` | The label. Without one, the key is turned into one (`createdAt` → \"Created at\"). |","| `type` | How the value is shown (below). `'text'` by default. |","| `format(value, item)` | The text to show, when the type's own format is not what you want. |","| `render(value, item)` | Anything else: return a node or a string. |","| `badge` | For `type: 'badge'`: a function from the value to SLICE_INLINE_LINK_7_TOKEN props, or a map `{ paid: { label: 'Paid', tone: 'success' } }`. |","| `avatar` | For `type: 'avatar'`: a function from the value to SLICE_INLINE_LINK_8_TOKEN props. An object with `name` and `src` works without it. |","| `path`, `href` | Makes the value a link: an app route (through `slice.router`) or an address. A key or a function of the item. |","| `copy` | A copy button. `true` copies the value; a function returns the text to copy. |","| `edit` | Makes the field editable (below). |","| `help` | A short line under the label. |","| `hidden` | `true`, or a function of the item, to leave the row out. |","| `empty` | What an empty value shows, instead of \"—\". |","| `span` | In the grid layout, `2`, `3` or `'full'` columns. |"];
             const clean = (line) => {
                let value = line.trim();
                if (value.startsWith('|')) {
@@ -185,7 +185,7 @@ export default class DescriptionListDocumentation extends HTMLElement {
          }
        }
       {
-         const links = [{"text":"Badge","path":"/docs/display/badge"},{"text":"Avatar","path":"/docs/display/avatar"},{"text":"DataList","path":"/docs/data/datalist"},{"text":"DataList","path":"/docs/data/datalist"},{"text":"Table","path":"/docs/data/table"},{"text":"Form","path":"/docs/input/form"},{"text":"Card","path":"/docs/layout/card"},{"text":"Input","path":"/docs/input/input"},{"text":"Textarea","path":"/docs/input/textarea"},{"text":"DatePicker","path":"/docs/input/datepicker"},{"text":"Select","path":"/docs/input/select"},{"text":"Switch","path":"/docs/input/switch"},{"text":"Form","path":"/docs/input/form"}];
+         const links = [{"text":"Badge","path":"/docs/display/badge"},{"text":"Avatar","path":"/docs/display/avatar"},{"text":"DataList","path":"/docs/data/datalist"},{"text":"DataList","path":"/docs/data/datalist"},{"text":"Table","path":"/docs/data/table"},{"text":"Form","path":"/docs/input/form"},{"text":"Card","path":"/docs/layout/card"},{"text":"Badge","path":"/docs/display/badge"},{"text":"Avatar","path":"/docs/display/avatar"},{"text":"Input","path":"/docs/input/input"},{"text":"Textarea","path":"/docs/input/textarea"},{"text":"DatePicker","path":"/docs/input/datepicker"},{"text":"Select","path":"/docs/input/select"},{"text":"Switch","path":"/docs/input/switch"},{"text":"Form","path":"/docs/input/form"}];
          for (const [index, linkProps] of links.entries()) {
             const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
             if (!placeholder) continue;
@@ -215,7 +215,7 @@ export default class DescriptionListDocumentation extends HTMLElement {
     const copyMenu = await slice.build('CopyMarkdownMenu', {
       markdownPath: this.markdownPath,
       markdownContent: this.markdownContent,
-      label: '❐'
+      label: 'â'
     });
 
     container.appendChild(copyMenu);
@@ -232,11 +232,11 @@ export default class DescriptionListDocumentation extends HTMLElement {
       //
       // The markdown parser already emits one <div class="script-block"> at the
       // position of each block, in document order, and those divs come from the same
-      // parse as this.scriptScenarios — so the counts always line up. They used to be
+      // parse as this.scriptScenarios â€” so the counts always line up. They used to be
       // ignored: every scenario was appended in one lump to the end of
       // .documentation-content under a second, generated <h2>Prop Scenarios</h2>. The
-      // result was that the heading an author wrote sat over nothing at all — the divs
-      // were never filled, nothing in the repo reads .script-block — the real demos were
+      // result was that the heading an author wrote sat over nothing at all â€” the divs
+      // were never filled, nothing in the repo reads .script-block â€” the real demos were
       // exiled below the props table, and 38 of 53 pages showed the heading twice.
       const blocks = [...this.querySelectorAll('.script-block')];
       const inPlace = blocks.length === this.scriptScenarios.length;

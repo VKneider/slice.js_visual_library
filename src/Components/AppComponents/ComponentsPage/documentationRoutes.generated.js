@@ -356,6 +356,11 @@ const documentationRoutes = {
         component: 'FetchManagerDocumentation'
       },
       {
+        title: 'QueryService',
+        path: '/docs/services/query-service',
+        component: 'QueryServiceDocumentation'
+      },
+      {
         title: 'LocalStorageManager',
         path: '/docs/services/local-storage-manager',
         component: 'LocalStorageManagerDocumentation'
