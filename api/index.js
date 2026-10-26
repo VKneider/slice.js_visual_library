@@ -2,6 +2,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import compression from 'compression';
@@ -26,6 +27,11 @@ const app = express();
 const ORIGIN = 'https://components.slicejs.com';
 let seoManifest = null;
 let spaShell = null;
+// Every page, rendered once: route → { html, gzip, br }. Answering a request
+// then costs one Map lookup and one write, with no string work and no
+// compression in the hot path.
+let routePages = null;
+let shellPage = null;
 const NOINDEX_META = { noindex: true };
 
 const loadSeoManifest = () => {
@@ -144,14 +150,79 @@ const injectMeta = (html, meta) => {
     .replace(/<\/head>/i, `${jsonLdScript}\n  </head>`);
 };
 
+// ── Prerendered pages ──────────────────────────────────────────────
+// Built once, when the server starts: the final HTML for every route in the
+// manifest, plus its gzip and brotli versions. A request then does a Map
+// lookup, picks the encoding and writes bytes. Nothing is computed, nothing is
+// compressed while somebody waits.
+
+const encodePage = (html) => {
+  const raw = Buffer.from(html, 'utf8');
+  return {
+    html: raw,
+    gzip: zlib.gzipSync(raw, { level: 9 }),
+    // Quality 9, not 11: on a 2 KB page the difference is a few dozen bytes and
+    // quality 11 makes the startup (72 pages) three times slower.
+    br: zlib.brotliCompressSync(raw, {
+      params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9 }
+    })
+  };
+};
+
+const buildRoutePages = () => {
+  const started = Date.now();
+  routePages = new Map();
+
+  for (const [route, meta] of Object.entries(seoManifest.routes || {})) {
+    const html = injectMeta(spaShell, {
+      ...meta,
+      canonical: meta.canonical || `${seoManifest.origin || ORIGIN}${route}`,
+      route
+    });
+    routePages.set(route, encodePage(html));
+  }
+
+  // The shell itself, for a path that is not a page (404) and for the dev
+  // `.html` carve-out below.
+  shellPage = encodePage(spaShell);
+
+  console.log(
+    `SEO pages prerendered: ${routePages.size} routes + shell (${Date.now() - started} ms, ` +
+      `${Math.round([...routePages.values()].reduce((total, page) => total + page.gzip.length + page.br.length + page.html.length, 0) / 1024)} KB)`
+  );
+};
+
+// The bytes for a prerendered page: brotli when the client takes it, gzip next,
+// the raw HTML otherwise. Content-Encoding is set, so the compression
+// middleware leaves it alone (it skips anything already encoded).
+const sendPage = (req, res, page, status = 200) => {
+  const accept = String(req.headers['accept-encoding'] || '');
+  let body = page.html;
+  if (page.br && /\bbr\b/.test(accept)) {
+    res.set('Content-Encoding', 'br');
+    body = page.br;
+  } else if (page.gzip && /\bgzip\b/.test(accept)) {
+    res.set('Content-Encoding', 'gzip');
+    body = page.gzip;
+  }
+
+  res.status(status);
+  res.set('Content-Type', 'text/html; charset=utf-8');
+  res.set('Vary', 'Accept-Encoding');
+  res.set('Content-Length', String(body.length));
+  res.end(body);
+};
+
 // Parsear argumentos de linea de comandos
 const args = process.argv.slice(2);
 const cliMode = args.includes('--production') ? 'production' : 'development';
 const runMode = process.env.NODE_ENV === 'production' ? 'production' : cliMode;
 const folderDeployed = runMode === 'production' ? 'dist' : 'src';
 
-// Load SEO manifest and SPA shell (needs folderDeployed)
+// Load SEO manifest and SPA shell (needs folderDeployed), then render every
+// page once so requests never do it.
 loadSeoManifest();
+buildRoutePages();
 
 const publicEnvProvider = createPublicEnvProvider({
   mode: runMode,
@@ -472,7 +543,6 @@ app.use('/api', (req, res) => {
 
 app.use((req, res) => {
   const pathname = decodeURI(req.path).replace(/\/+$/, '') || '/';
-  const meta = seoManifest?.routes?.[pathname];
 
   // Development serves components unbundled, so the framework fetches each
   // `<Component>.html` over HTTP — and a JS-only component (Link, MultiRoute…)
@@ -480,23 +550,19 @@ app.use((req, res) => {
   // shell; answering 404 makes `slice.build` return null and the page dies.
   // The production build inlines templates, so it never asks for them.
   if (runMode === 'development' && pathname.endsWith('.html')) {
-    return res.type('html').send(spaShell);
+    return sendPage(req, res, shellPage);
   }
 
-  if (!meta) {
+  const page = routePages.get(pathname);
+  if (!page) {
     // A path that is not a page: the same shell, with a real 404 status. The
     // client router already renders NotFound for paths outside routes.js, so
     // the body stays untouched — only the status tells crawlers it is gone.
-    return res.status(404).type('html').send(spaShell);
+    return sendPage(req, res, shellPage, 404);
   }
 
-  // Known route: 200 with per-route meta
-  const routeMeta = {
-    ...meta,
-    canonical: meta.canonical || `${seoManifest.origin}${pathname}`,
-    route: pathname
-  };
-  res.type('html').send(injectMeta(spaShell, routeMeta));
+  // Known route: 200 with the page rendered at startup.
+  sendPage(req, res, page);
 });
 
 // ==============================================

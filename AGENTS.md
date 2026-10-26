@@ -61,7 +61,11 @@ fallback itself:
 - Internal routes (`/__test`, `/playground`, `/game`) → `200` + `noindex`.
 
 No rendering happens on the server: the same shell bytes go out, only the `<head>` differs, and the
-client SPA still mounts everything. Two traps this already hit:
+client SPA still mounts everything. Each page is rendered **once at startup**
+(`buildRoutePages()` → `routePages`: final HTML + gzip + brotli per route, ~340 KB for the whole
+site), so a request is a `Map` lookup and one `res.end`; `Content-Encoding` is set from
+`Accept-Encoding`, which also tells the compression middleware to leave it alone. Two traps this
+already hit:
 
 - The shell writes tags XHTML-style (`<meta … />`), so every replace pattern must consume the
   self-closing slash — otherwise the leftover ` />` lands in the document as text and breaks `<head>`.
