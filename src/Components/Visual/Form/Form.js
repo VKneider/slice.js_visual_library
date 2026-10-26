@@ -202,7 +202,16 @@ export default class Form extends HTMLElement {
 
   /**
    * Validate the form, or just the fields on one step.
+   *
+   * A failure also TAKES the person there: the form reveals the step that owns
+   * the first problem (a wizard keeps every step's controls built but hidden, so
+   * without this the message would be painted on a step that is not on screen
+   * and the focus call would land on a `display: none` field) and focuses the
+   * control. That is what makes `submit()` from the last step honest - a failed
+   * Submit never leaves you staring at a step that looks fine.
+   *
    * @param {number[]} [stepIndexes] restrict to these steps
+   * @returns {boolean} true when every field in scope is valid
    */
   validate(stepIndexes = null) {
     const scope = stepIndexes
@@ -225,12 +234,24 @@ export default class Form extends HTMLElement {
       }
     }
 
-    // Take the person to the first problem instead of leaving them to scroll
-    // for a red line.
-    if (firstInvalid && typeof firstInvalid.instance?.focus === 'function') {
-      firstInvalid.instance.focus();
-    }
+    if (firstInvalid) this._revealInvalid(firstInvalid);
     return !firstInvalid;
+  }
+
+  /**
+   * Show the step that owns a validation error and focus its control.
+   *
+   * The step is set DIRECTLY, never through `gotoStep()`: validation has
+   * already run, and jumping forward through the gate would call `validate()`
+   * again - a recursion, not a move. Revealing a result is not the same as
+   * letting anyone skip a check.
+   */
+  _revealInvalid(field) {
+    if (this.isStepped && field.step !== this._stepIndex) {
+      this._stepIndex = Math.max(0, Math.min(field.step, this._steps.length - 1));
+      this._syncSteps();
+    }
+    if (typeof field.instance?.focus === 'function') field.instance.focus();
   }
 
   // The schema's rules first (required, validate), then the control's own
@@ -373,6 +394,21 @@ export default class Form extends HTMLElement {
     return true;
   }
 
+  /**
+   * What the primary action button (and Enter) does.
+   *
+   * On a wizard it is "Next", so it must ADVANCE - and only validate the steps
+   * up to the one on screen. Submitting from there would run the whole form's
+   * validation, paint errors on steps that are not even visible, and never move.
+   * On the last step (or a plain, single-step form) it is Submit.
+   *
+   * @returns {boolean} whether the form advanced or was submitted
+   */
+  _advanceOrSubmit() {
+    if (this.isStepped && this._stepIndex < this._steps.length - 1) return this.nextStep();
+    return this.submit();
+  }
+
   reset() {
     this.clearErrors();
     for (const field of this._fields) {
@@ -508,7 +544,16 @@ export default class Form extends HTMLElement {
       }
     }
 
-    const submit = await slice.build('Button', { value: this._submitText, onClick: () => this.submit() });
+    // The primary action is ONE button that changes job with the step: it
+    // advances while there are steps left and submits on the last one. It used
+    // to be wired straight to submit(), so on a wizard every click validated
+    // all the steps at once - including the ones AHEAD, which the user cannot
+    // even see - and never advanced. The label changed to "Next"; the
+    // behaviour did not, so the button looked broken.
+    const submit = await slice.build('Button', {
+      value: this._submitText,
+      onClick: () => this._advanceOrSubmit(),
+    });
     if (submit) {
       this._built.push(submit);
       this.$nextBtn = submit;
@@ -914,7 +959,9 @@ export default class Form extends HTMLElement {
 
   _handleSubmit(event) {
     event.preventDefault();
-    this.submit();
+    // Enter inside a field is the same gesture as the primary button: on a
+    // wizard step it must advance, not submit the remaining steps unseen.
+    this._advanceOrSubmit();
   }
 
   _destroyBuilt() {

@@ -524,20 +524,121 @@ test.describe('Form - steps', () => {
       expect(state.advanced).toBe(false);
    });
 
-   test('submit on a stepped form validates EVERY step, not just the last', async ({ mount }) => {
-      const c = await mount('Form', { schema: STEP_SCHEMA, submitText: 'Finish' });
+   // ── The BUTTON, not just the API ──
+   // Everything above drives nextStep()/gotoStep() directly, which is why the
+   // forward button could be wired to submit() without a single test failing:
+   // the label said "Next", the click submitted the whole form (validating the
+   // hidden steps too) and never advanced. These click the thing a user clicks.
 
-      const state = await c.component.evaluate((el) => {
-         el.gotoStep(2); // jump to the end without filling anything
-         return { submitted: el.submit() };
-      });
+   test('clicking Next advances a valid step instead of submitting', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA }, { spies: ['onSubmit'] });
 
-      expect(state.submitted).toBe(false);
-      // The error is on step 1, which is not even on screen - the progress
-      // indicator is the only way back to it.
-      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error')).toHaveText(
-         'This field is required'
-      );
+      await c.component.evaluate((el) => el.setValue('email', 'a@b.co'));
+      await c.locator('.slice-form__actions slice-button').last().click();
+
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
+      await expect(c.locator('.slice-form__step[data-step="1"]')).toBeVisible();
+      expect(await c.events('onSubmit')).toBe(0);
+   });
+
+   test('clicking Next on an invalid step refuses and paints only that step', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA }, { spies: ['onSubmit'] });
+
+      await c.locator('.slice-form__actions slice-button').last().click();
+
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error'))
+         .toHaveText('This field is required');
+      // The NEXT step's fields were never looked at, so a submit() bug that
+      // validates every step (and reports errors on steps the user cannot see)
+      // cannot hide here.
+      await expect(c.locator('.slice-form__field[data-name="nickname"] .slice-form__error')).toHaveText('');
+      expect(await c.events('onSubmit')).toBe(0);
+   });
+
+   test('clicking Next blocks a malformed email through the child Input', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      await c.locator('.slice-form__field[data-name="email"] input').fill('not-an-email');
+      await c.locator('.slice-form__actions slice-button').last().click();
+
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error'))
+         .toHaveText('Enter a valid email address');
+   });
+
+   test('clicking the last step button submits the collected values', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA, submitText: 'Finish' }, { spies: ['onSubmit'] });
+      const next = c.locator('.slice-form__actions slice-button').last();
+
+      await c.locator('.slice-form__field[data-name="email"] input').fill('a@b.co');
+      await next.click();
+      await c.locator('.slice-form__field[data-name="nickname"] input').fill('vicky');
+      await next.click();
+
+      // Third and last step: the same button now IS the submit button.
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(2);
+      await expect(next).toHaveText('Finish');
+      await next.click();
+
+      await expect(async () => {
+         const [values] = (await c.eventArgs('onSubmit'))[0] || [];
+         expect(values).toMatchObject({ email: 'a@b.co', nickname: 'vicky' });
+      }).toPass({ timeout: 3000 });
+   });
+
+   test('Enter on an intermediate step advances rather than submitting', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA }, { spies: ['onSubmit'] });
+
+      await c.locator('.slice-form__field[data-name="email"] input').fill('a@b.co');
+      await c.locator('.slice-form__field[data-name="email"] input').press('Enter');
+
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
+      expect(await c.events('onSubmit')).toBe(0);
+   });
+
+   test('a failed Submit from the last step returns to the step that owns the error', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA, submitText: 'Finish' }, { spies: ['onSubmit'] });
+      const next = c.locator('.slice-form__actions slice-button').last();
+
+      // Reach the last step honestly, then break step 0 from under the wizard
+      // (the shape of a cross-field rule or an async check resolving late).
+      await c.locator('.slice-form__field[data-name="email"] input').fill('a@b.co');
+      await next.click();
+      await c.locator('.slice-form__field[data-name="nickname"] input').fill('vicky');
+      await next.click();
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(2);
+
+      await c.component.evaluate((el) => el.setValue('email', ''));
+      await next.click();
+
+      // Submit is refused, and the form does NOT leave the message on a step
+      // that is hidden: it goes back to step 0 and focuses the field.
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      await expect(c.locator('.slice-form__step[data-step="0"]')).toBeVisible();
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error'))
+         .toHaveText('This field is required');
+      expect(
+         await c.component.evaluate((el) => document.activeElement === el.querySelector('.slice-form__field[data-name="email"] input'))
+      ).toBe(true);
+      expect(await c.events('onSubmit')).toBe(0);
+   });
+
+   test('Next refuses and goes back when a step already passed stopped validating', async ({ mount }) => {
+      const c = await mount('Form', { schema: STEP_SCHEMA });
+
+      await c.component.evaluate((el) => el.setValue('email', 'a@b.co'));
+      await c.locator('.slice-form__actions slice-button').last().click();
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(1);
+
+      // Step 0 is no longer valid, so Next cannot silently do nothing: the
+      // reason is on the step behind, and that is where the form takes you.
+      await c.component.evaluate((el) => el.setValue('email', 'nope'));
+      await c.locator('.slice-form__actions slice-button').last().click();
+
+      expect(await c.component.evaluate((el) => el.stepIndex)).toBe(0);
+      await expect(c.locator('.slice-form__field[data-name="email"] .slice-form__error'))
+         .toHaveText('Enter a valid email address');
    });
 
    test('rechecking one step does not wipe the errors on another', async ({ mount }) => {

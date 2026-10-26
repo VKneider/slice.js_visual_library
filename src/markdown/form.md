@@ -62,6 +62,7 @@ schema: [
 - **The progress indicator cannot skip validation.** Clicking a step ahead is refused
   exactly as Next would be, so the indicator is a shortcut and not a hole.
 - The last step's button is the **Submit** button, and says `submitText`.
+- **A failed Submit cannot strand you.** Submit checks every step; if the first problem is on a step you already left, the form goes back to that step and focuses the field instead of printing its message on a hidden one.
 - A schema with no `step` is one implicit step: no progress bar, no Back, no Next.
 
 `stepIndex`, `stepCount`, `isStepped`, `nextStep()`, `prevStep()` and `gotoStep(i)`
@@ -179,8 +180,8 @@ Anything you pass in a field's `props` wins over these defaults.
 ## Methods
 | Method | Description |
 | --- | --- |
-| `submit()` | Validates; calls `onSubmit(values)` and returns `true` if valid. |
-| `validate()` | Runs validation, shows errors, focuses the first invalid field, returns a boolean. |
+| `submit()` | Validates every step; calls `onSubmit(values)` and returns `true` if valid. On a failure it reveals the step owning the first error and focuses the field. |
+| `validate()` | Runs validation, shows errors, reveals + focuses the first invalid field, returns a boolean. |
 | `getValues()` | `{ name: value }` read from each field's component. |
 | `setValue(name, value)` / `setError(name, msg)` / `clearErrors()` / `reset()` | Programmatic helpers. |
 

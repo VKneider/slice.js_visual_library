@@ -22,7 +22,7 @@
 <p>while any of them is invalid — painting the errors in place.</p>
 <ul><li><strong>Back never validates.</strong> Leaving a half-filled step is allowed; only moving on is gated.</li><li><strong>The progress indicator cannot skip validation.</strong> Clicking a step ahead is refused</li></ul>
 <p>exactly as Next would be, so the indicator is a shortcut and not a hole.</p>
-<ul><li>The last step's button is the <strong>Submit</strong> button, and says <code>submitText</code>.</li><li>A schema with no <code>step</code> is one implicit step: no progress bar, no Back, no Next.</li></ul>
+<ul><li>The last step's button is the <strong>Submit</strong> button, and says <code>submitText</code>.</li><li><strong>A failed Submit cannot strand you.</strong> Submit checks every step; if the first problem is on a step you already left, the form goes back to that step and focuses the field instead of printing its message on a hidden one.</li><li>A schema with no <code>step</code> is one implicit step: no progress bar, no Back, no Next.</li></ul>
 <p><code>stepIndex</code>, <code>stepCount</code>, <code>isStepped</code>, <code>nextStep()</code>, <code>prevStep()</code> and <code>gotoStep(i)</code> are public. <code>nextText</code> sets the label of the advance button.</p>
 <div class="callout callout-tip">Use a Modal for two or three short steps, and a route per step for anything longer. A Modal
 has no URL, so there is nothing to link to and nothing for the back button to go back to.</div>
