@@ -53,9 +53,11 @@ fallback itself:
 - Known route → `200` with that route's `<title>`, `description`, `canonical`, `og:*`, `twitter:*`,
   `robots` and JSON-LD (`WebSite` on `/`, `TechArticle` + real `BreadcrumbList` on docs pages).
 - Unknown route → `404` with the **same shell body**: the client router already renders `NotFound`,
-  so the server only has to say “this is gone”. No fake title/canonical is injected. `MultiRoute`
-  takes a `fallback` prop for the inner case: a `/docs/*` path that matches `routes.js` but is not a
-  page still shows the docs layout, with `NotFound` where the article would be.
+  so the server only has to say “this is gone”. No fake title/canonical is injected.
+- `routes.js` lists every real documentation page explicitly (from the docs index), instead of the
+  old `/docs/${section}/${page}` patterns. That is what makes a typo reach the Router's own
+  fallback (`matchRoute` → the `/404` route → `NotFound`) instead of mounting the docs shell around
+  an empty page. `MultiRoute`'s `fallback` prop stays as a second net for in-app navigations.
 - Internal routes (`/__test`, `/playground`, `/game`) → `200` + `noindex`.
 
 No rendering happens on the server: the same shell bytes go out, only the `<head>` differs, and the
