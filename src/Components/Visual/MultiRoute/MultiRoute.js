@@ -131,9 +131,31 @@ export default class MultiRoute extends HTMLElement {
             }
          }));
       } else {
-         // Limpiamos el contenido si no hay una coincidencia de ruta
-         this.innerHTML = '';
+         // Nothing matched: show the `fallback` component when one was given
+         // (the docs shell passes NotFound), otherwise leave the slot empty.
+         await this.renderFallback();
       }
+   }
+
+   /**
+    * Renders `props.fallback` for a path no route claims. Without a fallback the
+    * slot is cleared, which is what a router with nothing to say has always done.
+    * The instance is kept so moving between bad URLs does not rebuild it.
+    */
+   async renderFallback() {
+      const fallbackName = this.props?.fallback;
+      if (!fallbackName) {
+         this.innerHTML = '';
+         return false;
+      }
+
+      if (!this._fallbackComponent?.isConnected) {
+         this._fallbackComponent = await slice.build(fallbackName, {});
+      }
+
+      this.innerHTML = '';
+      this.appendChild(this._fallbackComponent);
+      return true;
    }
 
    async renderIfCurrentRoute() {
@@ -144,6 +166,12 @@ export default class MultiRoute extends HTMLElement {
          await this.render();
          return true;
       }
+
+      if (this.props?.fallback) {
+         await this.render();
+         return true;
+      }
+
       return false;
    }
 

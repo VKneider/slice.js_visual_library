@@ -83,6 +83,19 @@ test.describe('MultiRoute', () => {
       expect(c.pageErrors()).toEqual([]);
    });
 
+   test('fallback: renders the given component when no route matches', async ({ mount }) => {
+      const c = await mount('MultiRoute', { routes: ROUTES, fallback: 'NotFound' });
+      await c.component.evaluate((el) => el.render());
+      await expect(c.locator('slice-notfound')).toBeAttached();
+      expect(c.pageErrors()).toEqual([]);
+   });
+
+   test('fallback: without one the slot stays empty, as before', async ({ mount }) => {
+      const c = await mount('MultiRoute', { routes: ROUTES });
+      await c.component.evaluate((el) => el.render());
+      expect(await c.component.evaluate((el) => el.innerHTML.trim())).toBe('');
+   });
+
    test('visual: empty multi-route on non-matching path @visual', async ({ mount }) => {
       const c = await mount('MultiRoute', { routes: ROUTES });
       await expect(c.component).toHaveScreenshot('multiroute-empty.png');

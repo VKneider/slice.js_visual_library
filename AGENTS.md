@@ -52,8 +52,10 @@ fallback itself:
 
 - Known route → `200` with that route's `<title>`, `description`, `canonical`, `og:*`, `twitter:*`,
   `robots` and JSON-LD (`WebSite` on `/`, `TechArticle` + real `BreadcrumbList` on docs pages).
-- Unknown route → `404` + `noindex` (this is what kills the old "soft 404": every bad URL used to
-  return `200` with the home metadata and the app sat on “Loading…” forever).
+- Unknown route → `404` with the **same shell body**: the client router already renders `NotFound`,
+  so the server only has to say “this is gone”. No fake title/canonical is injected. `MultiRoute`
+  takes a `fallback` prop for the inner case: a `/docs/*` path that matches `routes.js` but is not a
+  page still shows the docs layout, with `NotFound` where the article would be.
 - Internal routes (`/__test`, `/playground`, `/game`) → `200` + `noindex`.
 
 No rendering happens on the server: the same shell bytes go out, only the `<head>` differs, and the

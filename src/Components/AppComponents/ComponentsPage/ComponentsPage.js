@@ -21,7 +21,10 @@ export default class ComponentsPage extends HTMLElement {
       // Crear el MultiRoute con todas las rutas (usa docRoutes.generated.js para
       // que el bundle analyzer pueda detectar estaticamente los componentes)
       const visualComponentsMultiRoute = await slice.build('MultiRoute', {
-         routes: docRoutes
+         routes: docRoutes,
+         // A /docs/* path that is not a page (a moved page, a typo) still shows
+         // the layout and its menu, with NotFound in the content area.
+         fallback: 'NotFound'
       });
 
       // Crear el MainMenu que contendrá el TreeView

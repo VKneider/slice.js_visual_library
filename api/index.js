@@ -484,9 +484,10 @@ app.use((req, res) => {
   }
 
   if (!meta) {
-    // Unknown route: real 404 with noindex
-    const notFoundMeta = { title: 'Not found | Slice.js', description: '', canonical: ORIGIN, noindex: true };
-    return res.status(404).type('html').send(injectMeta(spaShell, notFoundMeta));
+    // A path that is not a page: the same shell, with a real 404 status. The
+    // client router already renders NotFound for paths outside routes.js, so
+    // the body stays untouched — only the status tells crawlers it is gone.
+    return res.status(404).type('html').send(spaShell);
   }
 
   // Known route: 200 with per-route meta

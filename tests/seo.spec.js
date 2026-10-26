@@ -100,28 +100,34 @@ test.describe('Per-route metadata @server', () => {
 });
 
 test.describe('Real 404 for routes that are not pages @server', () => {
-  test('an unknown docs path answers 404 with noindex', async ({ page }) => {
+  test('an unknown docs path answers 404 with the app shell', async ({ page }) => {
     const response = await page.request.get('/docs/xyz/nope');
     expect(response.status()).toBe(404);
 
-    const tags = meta(await response.text());
-    expect(tags.title).toContain('Not found');
-    expect(tags.robots).toBe('noindex, nofollow');
+    // The body is the shell on purpose: the client router decides what to show.
+    const html = await response.text();
+    expect(html).toContain('<div id="app">');
+    expect(html).toContain('/App/index.js');
+  });
+
+  test('the client renders NotFound for a docs path that is not a page', async ({ page }) => {
+    await page.goto('/docs/xyz/nope');
+    await expect(page.locator('h1')).toContainText('404');
   });
 
   test('the old dead sitemap URL no longer pretends to exist', async ({ page }) => {
     // /docs/utilities/mini-inspector was in the hand-maintained sitemap; the
     // real page is /docs/developer/mini-inspector.
-    const response = await page.request.get('/docs/utilities/mini-inspector');
-    expect(response.status()).toBe(404);
-    expect(meta(await response.text()).robots).toBe('noindex, nofollow');
-
+    expect((await page.request.get('/docs/utilities/mini-inspector')).status()).toBe(404);
     expect((await page.request.get('/docs/developer/mini-inspector')).status()).toBe(200);
   });
 
-  test('a path outside the app answers 404', async ({ page }) => {
+  test('a path outside the app answers 404 and renders its 404 page', async ({ page }) => {
     const response = await page.request.get('/does-not-exist');
     expect(response.status()).toBe(404);
+
+    await page.goto('/does-not-exist');
+    await expect(page.locator('h1')).toContainText('404');
   });
 
   test('internal routes still load but are not indexable', async ({ page }) => {
