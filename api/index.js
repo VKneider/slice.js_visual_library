@@ -20,11 +20,139 @@ import sliceConfig from '../src/sliceConfig.json' with { type: 'json' };
 let server;
 const app = express();
 
+// ==============================================
+// SEO MANIFEST — loaded once at startup, used by the SPA fallback
+// ==============================================
+const ORIGIN = 'https://components.slicejs.com';
+let seoManifest = null;
+let spaShell = null;
+const NOINDEX_META = { noindex: true };
+
+const loadSeoManifest = () => {
+  const manifestPath = path.join(__dirname, `../${folderDeployed}`, 'public', 'seo-manifest.json');
+  try {
+    seoManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    console.log(`SEO manifest loaded: ${Object.keys(seoManifest.routes).length} routes`);
+  } catch (e) {
+    console.warn('SEO manifest not found, falling back to generic shell:', e.message);
+    seoManifest = { routes: {}, origin: ORIGIN };
+  }
+
+  const shellPath = path.join(__dirname, `../${folderDeployed}`, 'App', 'index.html');
+  try {
+    spaShell = fs.readFileSync(shellPath, 'utf8');
+  } catch (e) {
+    console.warn('SPA shell not found:', e.message);
+    spaShell = '<!DOCTYPE html><html><head></head><body></body></html>';
+  }
+};
+
+const escapeHtml = (text) => String(text || '')
+  .replace(/&/g, '&')
+  .replace(/</g, '<')
+  .replace(/>/g, '>')
+  .replace(/"/g, '"')
+  .replace(/'/g, '&#39;');
+
+const injectMeta = (html, meta) => {
+  const title = escapeHtml(meta.title || 'Slice.js Components');
+  const description = escapeHtml(meta.description || '');
+  const canonical = escapeHtml(meta.canonical || ORIGIN);
+  const ogTitle = escapeHtml(meta.title || 'Slice.js Components');
+  const ogDescription = escapeHtml(meta.description || '');
+  const ogUrl = canonical;
+  const route = meta.route || '/';
+
+  // Build JSON-LD: WebSite for home, TechArticle + BreadcrumbList for docs
+  let jsonLdScripts = [];
+
+  if (route === '/') {
+    jsonLdScripts.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Slice.js Components',
+      url: ORIGIN
+    });
+  } else if (route.startsWith('/docs/')) {
+    const parts = route.split('/').filter(Boolean); // ['docs', 'input', 'button']
+    const breadcrumbs = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: ORIGIN },
+        { '@type': 'ListItem', position: 2, name: 'Components Library', item: `${ORIGIN}/docs` }
+      ]
+    };
+    if (parts.length >= 2) {
+      breadcrumbs.itemListElement.push({
+        '@type': 'ListItem',
+        position: 3,
+        name: parts[1],
+        item: `${ORIGIN}/docs/${parts[1]}`
+      });
+    }
+    if (parts.length === 3) {
+      breadcrumbs.itemListElement.push({
+        '@type': 'ListItem',
+        position: 4,
+        name: parts[2],
+        item: canonical
+      });
+    }
+    jsonLdScripts.push({
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      headline: meta.title,
+      description: meta.description,
+      url: canonical,
+      author: { '@type': 'Organization', name: 'vkneider.dev' },
+      publisher: { '@type': 'Organization', name: 'Slice.js' }
+    });
+    jsonLdScripts.push(breadcrumbs);
+  } else {
+    jsonLdScripts.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Slice.js Components',
+      url: ORIGIN
+    });
+  }
+
+  const jsonLdScript = jsonLdScripts.map(j => `<script type="application/ld+json">${JSON.stringify(j)}</script>`).join('\n');
+
+  const robots = meta.noindex ? 'noindex, nofollow' : 'index, follow';
+
+  // The shell is written XHTML-style (`<meta ... />`), so every pattern has to
+  // consume the self-closing slash too — otherwise the leftover ` />` is left in
+  // the document as text (it broke the whole <head> when this shipped).
+  const withMeta = html
+    .replace(/<title>[^<]*<\/title>/i, `<title>${title}</title>`)
+    .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${description}" />`)
+    .replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/i, `<link rel="canonical" href="${canonical}" />`)
+    .replace(/<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:title" content="${ogTitle}" />`)
+    .replace(/<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:description" content="${ogDescription}" />`)
+    .replace(/<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/i, `<meta property="og:url" content="${ogUrl}" />`)
+    .replace(/<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${ogTitle}" />`)
+    .replace(/<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${ogDescription}" />`)
+    .replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, `<meta name="robots" content="${robots}" />`);
+
+  // Drop every structured-data block the shell shipped with and put this page's
+  // own in its place. Doing it in two chained replaces duplicated the block: the
+  // second pass matched the script the first pass had just written.
+  return withMeta
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\s*/gi, '')
+    .replace(/<\/head>/i, `${jsonLdScript}\n  </head>`);
+};
+
 // Parsear argumentos de linea de comandos
 const args = process.argv.slice(2);
 const cliMode = args.includes('--production') ? 'production' : 'development';
 const runMode = process.env.NODE_ENV === 'production' ? 'production' : cliMode;
 const folderDeployed = runMode === 'production' ? 'dist' : 'src';
+
+// Load SEO manifest and SPA shell (needs folderDeployed)
+loadSeoManifest();
+
 const publicEnvProvider = createPublicEnvProvider({
   mode: runMode,
   envFilePath: path.join(__dirname, '..', '.env')
@@ -258,6 +386,11 @@ if (runMode === 'development') {
   app.use(express.static(path.join(__dirname, `../${folderDeployed}`, 'public')));
   app.use('/App', express.static(path.join(__dirname, `../${folderDeployed}`, 'App')));
   app.use('/Components', express.static(path.join(__dirname, `../${folderDeployed}`, 'Components')));
+  // Generated runtime artifacts live at the deploy ROOT (slice-events.generated.js,
+  // ComponentLibrary.js…). Without this mount they fell through to the SPA
+  // fallback, which answered a <script> with index.html — the module then failed
+  // to parse (`GET /slice-events.generated.js 404` once the fallback learned 404).
+  app.use(express.static(path.join(__dirname, `../${folderDeployed}`)));
   app.get('/manifest.json', (req, res) => {
     const manifestPath = path.join(__dirname, `../${folderDeployed}`, 'manifest.json');
     if (fs.existsSync(manifestPath)) {
@@ -334,24 +467,35 @@ app.use('/api', (req, res) => {
 });
 
 // ==============================================
-// SPA FALLBACK
+// SPA FALLBACK — per-route meta from SEO manifest, real 404 for unknown routes
 // ==============================================
 
 app.use((req, res) => {
-  const indexPath = path.join(__dirname, `../${folderDeployed}`, 'App', 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      res.status(404).send(`
-        <h1>404 - Page Not Found</h1>
-        <p>The requested file could not be found in /${folderDeployed}</p>
-        <p>Make sure you've run the appropriate build command:</p>
-        <ul>
-          <li>For development: Files should be in /src</li>
-          <li>For production: Run "npm run build" first</li>
-        </ul>
-      `);
-    }
-  });
+  const pathname = decodeURI(req.path).replace(/\/+$/, '') || '/';
+  const meta = seoManifest?.routes?.[pathname];
+
+  // Development serves components unbundled, so the framework fetches each
+  // `<Component>.html` over HTTP — and a JS-only component (Link, MultiRoute…)
+  // has no template file. The dev server has always answered those with the
+  // shell; answering 404 makes `slice.build` return null and the page dies.
+  // The production build inlines templates, so it never asks for them.
+  if (runMode === 'development' && pathname.endsWith('.html')) {
+    return res.type('html').send(spaShell);
+  }
+
+  if (!meta) {
+    // Unknown route: real 404 with noindex
+    const notFoundMeta = { title: 'Not found | Slice.js', description: '', canonical: ORIGIN, noindex: true };
+    return res.status(404).type('html').send(injectMeta(spaShell, notFoundMeta));
+  }
+
+  // Known route: 200 with per-route meta
+  const routeMeta = {
+    ...meta,
+    canonical: meta.canonical || `${seoManifest.origin}${pathname}`,
+    route: pathname
+  };
+  res.type('html').send(injectMeta(spaShell, routeMeta));
 });
 
 // ==============================================

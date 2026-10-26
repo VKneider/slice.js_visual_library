@@ -46,6 +46,30 @@ From markdown input, parser generates:
 - Documentation namespace is `/docs` (not `/library`).
 - Current top-level routes are defined in `src/routes.js` and map docs paths to `ComponentsPage` (app shell pattern).
 
+### 4b) Request-time metadata (server, not SSR)
+`api/index.js` reads `seo-manifest.json` + `App/index.html` **once at startup** and answers the SPA
+fallback itself:
+
+- Known route → `200` with that route's `<title>`, `description`, `canonical`, `og:*`, `twitter:*`,
+  `robots` and JSON-LD (`WebSite` on `/`, `TechArticle` + real `BreadcrumbList` on docs pages).
+- Unknown route → `404` + `noindex` (this is what kills the old "soft 404": every bad URL used to
+  return `200` with the home metadata and the app sat on “Loading…” forever).
+- Internal routes (`/__test`, `/playground`, `/game`) → `200` + `noindex`.
+
+No rendering happens on the server: the same shell bytes go out, only the `<head>` differs, and the
+client SPA still mounts everything. Two traps this already hit:
+
+- The shell writes tags XHTML-style (`<meta … />`), so every replace pattern must consume the
+  self-closing slash — otherwise the leftover ` />` lands in the document as text and breaks `<head>`.
+- Development serves components unbundled and fetches `<Component>.html` over HTTP, and JS-only
+  components (Link, MultiRoute…) have no template file. Those requests keep getting the shell in
+  `development`; a 404 there makes `slice.build` return `null` and the page dies.
+- `dist/` root files (`slice-events.generated.js`, `ComponentLibrary.js`) need the root static mount
+  in production, or the fallback answers a `<script>` with HTML.
+
+`tests/seo.spec.js` (`@server`) covers all of it: per-route meta, real 404, `noindex`, every sitemap
+URL answering 200 with its own canonical, and every script the shell references resolving to JS.
+
 ### 5) Live examples pattern
 - `:::script` blocks in markdown are rendered as:
   1. Code block (`CodeVisualizer`)
