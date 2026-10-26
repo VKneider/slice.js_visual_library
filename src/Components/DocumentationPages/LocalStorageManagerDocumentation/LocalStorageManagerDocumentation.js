@@ -3,8 +3,9 @@ export default class LocalStorageManagerDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [];
   }
 
   async init() {
@@ -123,6 +124,16 @@ export default class LocalStorageManagerDocumentation extends HTMLElement {
             container.appendChild(code);
          }
       }
+      {
+         const links = [{"text":"`IndexedDbManager`","path":"/docs/services/indexed-db-manager"}];
+         for (const [index, linkProps] of links.entries()) {
+            const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
+            if (!placeholder) continue;
+            const link = await slice.build('Link', linkProps);
+            placeholder.replaceWith(link);
+            this._inlineLinks.push(link);
+         }
+      }
     await this.renderScriptScenarios();
   }
 
@@ -130,9 +141,12 @@ export default class LocalStorageManagerDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

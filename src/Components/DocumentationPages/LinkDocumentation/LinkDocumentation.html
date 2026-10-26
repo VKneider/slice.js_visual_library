@@ -1,11 +1,11 @@
 <div class="documentation-content linkdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="link">
-    <span class="doc-title-text">Link</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="link">
+     <span class="doc-title-text">Link</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>Link</code> is a route-aware <code>&lt;a&gt;</code>: it keeps a real <code>href</code> in the DOM (so right-click → open in new tab still works, and the URL is visible on hover) but intercepts the click and hands the path to <code>slice.router.navigate</code>, so navigation goes through the client-side router instead of a full page load.</p>
 <p>It is built with DOM APIs (<code>setAttribute</code> / <code>textContent</code>) rather than an <code>innerHTML</code> template, so a <code>path</code> like <code>javascript:...</code> or text containing markup can never inject into the page.</p>

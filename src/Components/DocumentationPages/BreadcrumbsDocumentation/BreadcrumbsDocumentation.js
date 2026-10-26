@@ -3,8 +3,9 @@ export default class BreadcrumbsDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Docs hierarchy trail","expected":"parent sections are links and current page is highlighted","kind":"script","content":"const breadcrumbs = await slice.build('Breadcrumbs', {\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Navigation', path: '/docs/navigation' },\n    { text: 'Breadcrumbs', path: '/docs/navigation/breadcrumbs' }\n  ]\n});\n\nreturn breadcrumbs;"},{"label":"Collapsed long trail","expected":"middle segments collapse into ellipsis","kind":"script","content":"const breadcrumbs = await slice.build('Breadcrumbs', {\n  maxItems: 3,\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Navigation', path: '/docs/navigation' },\n    { text: 'Routing', path: '/docs/routing' },\n    { text: 'Guards', path: '/docs/routing/guards' }\n  ]\n});\n\nreturn breadcrumbs;"},{"label":"Route tree + currentPath (MultiRoute style)","expected":"trail resolves from children tree","kind":"script","content":"const routeChildren = [\n  {\n    path: '/docs',\n    text: 'Docs',\n    children: [\n      {\n        path: '/navigation',\n        text: 'Navigation',\n        children: [\n          { path: '/breadcrumbs', text: 'Breadcrumbs' }\n        ]\n      }\n    ]\n  }\n];\n\nconst breadcrumbs = await slice.build('Breadcrumbs', {\n  children: routeChildren,\n  currentPath: '/docs/navigation/breadcrumbs'\n});\n\nreturn breadcrumbs;"},{"label":"Functional MultiRoute + Demo components","expected":"breadcrumbs and view swap together","kind":"script","content":"const container = document.createElement('section');\ncontainer.style.display = 'grid';\ncontainer.style.gap = '10px';\n\nconst controls = document.createElement('div');\ncontrols.style.display = 'flex';\ncontrols.style.gap = '8px';\ncontrols.style.flexWrap = 'wrap';\n\nconst frame = document.createElement('div');\nframe.style.border = '1px solid color-mix(in srgb, var(--primary-color-shade) 55%, transparent)';\nframe.style.borderRadius = '10px';\nframe.style.padding = '10px';\n\nconst routes = [\n  { path: '/demo/home', component: 'DemoRouteHome' },\n  { path: '/demo/details', component: 'DemoRouteDetails' },\n  { path: '/demo/state', component: 'DemoRouteState' }\n];\n\nconst children = [\n  {\n    path: '/demo',\n    text: 'Demo',\n    children: [\n      {\n        path: '/home',\n        text: 'Home'\n      },\n      {\n        path: '/details',\n        text: 'Details'\n      },\n      {\n        path: '/state',\n        text: 'State'\n      }\n    ]\n  }\n];\n\nconst breadcrumbs = await slice.build('Breadcrumbs', {\n  children,\n  currentPath: '/demo/home'\n});\n\nconst multi = await slice.build('MultiRoute', { routes });\n\nlet demoPath = '/demo/home';\nconst originalMatchRoute = multi.matchRoute.bind(multi);\nmulti.matchRoute = () => originalMatchRoute(demoPath);\n\nconst setDemoPath = async (path) => {\n  demoPath = path;\n  breadcrumbs.currentPath = path;\n  await multi.render();\n};\n\nfor (const route of routes) {\n  const button = await slice.build('Button', {\n    value: route.path.split('/').pop(),\n    onClick: () => setDemoPath(route.path)\n  });\n  controls.appendChild(button);\n}\n\nframe.appendChild(multi);\ncontainer.appendChild(breadcrumbs);\ncontainer.appendChild(controls);\ncontainer.appendChild(frame);\n\nawait setDemoPath('/demo/home');\n\nreturn container;"},{"label":"Parent links only","expected":"current page is hidden for compact headers","kind":"script","content":"const breadcrumbs = await slice.build('Breadcrumbs', {\n  includeCurrent: false,\n  separator: '>',\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Navigation', path: '/docs/navigation' },\n    { text: 'Breadcrumbs', path: '/docs/navigation/breadcrumbs' }\n  ]\n});\n\nreturn breadcrumbs;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Docs hierarchy trail","expected":"parent sections are links and current page is highlighted","kind":"script","content":"const breadcrumbs = await slice.build('Breadcrumbs', {\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Navigation', path: '/docs/navigation' },\n    { text: 'Breadcrumbs', path: '/docs/navigation/breadcrumbs' }\n  ]\n});\n\nreturn breadcrumbs;"},{"label":"Collapsed long trail","expected":"middle segments collapse into ellipsis","kind":"script","content":"const breadcrumbs = await slice.build('Breadcrumbs', {\n  maxItems: 3,\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Navigation', path: '/docs/navigation' },\n    { text: 'Routing', path: '/docs/routing' },\n    { text: 'Guards', path: '/docs/routing/guards' }\n  ]\n});\n\nreturn breadcrumbs;"},{"label":"Route tree + currentPath (MultiRoute style)","expected":"trail resolves from children tree","kind":"script","content":"const routeChildren = [\n  {\n    path: '/docs',\n    text: 'Docs',\n    children: [\n      {\n        path: '/navigation',\n        text: 'Navigation',\n        children: [\n          { path: '/breadcrumbs', text: 'Breadcrumbs' }\n        ]\n      }\n    ]\n  }\n];\n\nconst breadcrumbs = await slice.build('Breadcrumbs', {\n  children: routeChildren,\n  currentPath: '/docs/navigation/breadcrumbs'\n});\n\nreturn breadcrumbs;"},{"label":"Functional MultiRoute + Demo components","expected":"breadcrumbs and view swap together","kind":"script","content":"const container = document.createElement('section');\ncontainer.style.display = 'grid';\ncontainer.style.gap = '10px';\n\nconst controls = document.createElement('div');\ncontrols.style.display = 'flex';\ncontrols.style.gap = '8px';\ncontrols.style.flexWrap = 'wrap';\n\nconst frame = document.createElement('div');\nframe.style.border = '1px solid color-mix(in srgb, var(--primary-color-shade) 55%, transparent)';\nframe.style.borderRadius = '10px';\nframe.style.padding = '10px';\n\nconst routes = [\n  { path: '/demo/home', component: 'DemoRouteHome' },\n  { path: '/demo/details', component: 'DemoRouteDetails' },\n  { path: '/demo/state', component: 'DemoRouteState' }\n];\n\nconst children = [\n  {\n    path: '/demo',\n    text: 'Demo',\n    children: [\n      {\n        path: '/home',\n        text: 'Home'\n      },\n      {\n        path: '/details',\n        text: 'Details'\n      },\n      {\n        path: '/state',\n        text: 'State'\n      }\n    ]\n  }\n];\n\nconst breadcrumbs = await slice.build('Breadcrumbs', {\n  children,\n  currentPath: '/demo/home'\n});\n\nconst multi = await slice.build('MultiRoute', { routes });\n\nlet demoPath = '/demo/home';\nconst originalMatchRoute = multi.matchRoute.bind(multi);\nmulti.matchRoute = () => originalMatchRoute(demoPath);\n\nconst setDemoPath = async (path) => {\n  demoPath = path;\n  breadcrumbs.currentPath = path;\n  await multi.render();\n};\n\nfor (const route of routes) {\n  const button = await slice.build('Button', {\n    value: route.path.split('/').pop(),\n    onClick: () => setDemoPath(route.path)\n  });\n  controls.appendChild(button);\n}\n\nframe.appendChild(multi);\ncontainer.appendChild(breadcrumbs);\ncontainer.appendChild(controls);\ncontainer.appendChild(frame);\n\nawait setDemoPath('/demo/home');\n\nreturn container;"},{"label":"Parent links only","expected":"current page is hidden for compact headers","kind":"script","content":"const breadcrumbs = await slice.build('Breadcrumbs', {\n  includeCurrent: false,\n  separator: '>',\n  items: [\n    { text: 'Docs', path: '/docs' },\n    { text: 'Navigation', path: '/docs/navigation' },\n    { text: 'Breadcrumbs', path: '/docs/navigation/breadcrumbs' }\n  ]\n});\n\nreturn breadcrumbs;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class BreadcrumbsDocumentation extends HTMLElement {
             const component = await slice.build('Breadcrumbs', props);
             container.appendChild(component);
          }
-      }
+       }
       {
          const container = this.querySelector('[data-block-id="doc-block-7"]');
          if (container) {
@@ -42,7 +43,7 @@ export default class BreadcrumbsDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -50,9 +51,12 @@ export default class BreadcrumbsDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

@@ -1,0 +1,766 @@
+/* DataList — records with a title, details, a status and actions. */
+
+slice-data-list {
+  --slice-data-list-accent: var(--primary-color);
+  --slice-data-list-text: var(--font-primary-color);
+  --slice-data-list-muted: var(--font-secondary-color);
+  --slice-data-list-bg: var(--primary-background-color);
+  --slice-data-list-border: var(--slice-border-raised, var(--primary-color-shade));
+  --slice-data-list-hover: color-mix(in srgb, var(--slice-data-list-text) 4%, transparent);
+  --slice-data-list-selected: color-mix(in srgb, var(--slice-data-list-accent) 9%, transparent);
+  --slice-data-list-radius: 12px;
+  --slice-data-list-pad-y: 12px;
+  --slice-data-list-pad-x: 14px;
+  --slice-data-list-gap: 12px;
+  --slice-data-list-min-item: 260px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  color: var(--slice-data-list-text);
+}
+
+slice-data-list[hidden] {
+  display: none;
+}
+
+slice-data-list[data-density='compact'] {
+  --slice-data-list-pad-y: 7px;
+  --slice-data-list-pad-x: 12px;
+  --slice-data-list-gap: 10px;
+}
+
+slice-data-list[data-density='spacious'] {
+  --slice-data-list-pad-y: 16px;
+  --slice-data-list-pad-x: 18px;
+  --slice-data-list-gap: 14px;
+}
+
+/* ── Toolbar ────────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+
+slice-data-list .slice-data-list__toolbar[hidden],
+slice-data-list .slice-data-list__views[hidden],
+slice-data-list .slice-data-list__bulk[hidden],
+slice-data-list .slice-data-list__state[hidden],
+slice-data-list .slice-data-list__footer[hidden],
+slice-data-list [hidden] {
+  display: none;
+}
+
+slice-data-list .slice-data-list__search {
+  flex: 1 1 220px;
+  min-width: 0;
+  max-width: 360px;
+}
+
+slice-data-list .slice-data-list__search:empty {
+  display: none;
+}
+
+slice-data-list .slice-data-list__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+slice-data-list .slice-data-list__filter.is-active .slice_dropdown_trigger,
+slice-data-list .slice-data-list__filter.is-active button {
+  border-color: var(--slice-data-list-accent);
+  color: var(--slice-data-list-accent);
+}
+
+/* Views: a segmented row of toggles with counts. */
+slice-data-list .slice-data-list__views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  order: -1;
+  flex-basis: 100%;
+}
+
+slice-data-list .slice-data-list__view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--slice-data-list-muted);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+slice-data-list .slice-data-list__view:hover {
+  background: var(--slice-data-list-hover);
+  color: var(--slice-data-list-text);
+}
+
+slice-data-list .slice-data-list__view[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--slice-data-list-accent) 12%, transparent);
+  color: var(--slice-data-list-accent);
+}
+
+slice-data-list .slice-data-list__view:focus-visible {
+  outline: 2px solid var(--slice-data-list-accent);
+  outline-offset: 2px;
+}
+
+slice-data-list .slice-data-list__view-count {
+  min-width: 1.4em;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: 0.78em;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* ── Bulk bar ───────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  min-height: 36px;
+  padding: 4px var(--slice-data-list-pad-x);
+  border-radius: 10px;
+}
+
+slice-data-list .slice-data-list__bulk.has-selection {
+  background: var(--slice-data-list-selected);
+}
+
+slice-data-list .slice-data-list__select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+slice-data-list .slice-data-list__bulk-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+slice-data-list .slice-data-list__bulk-clear,
+slice-data-list .slice-data-list__link {
+  margin-inline-start: auto;
+  padding: 2px 6px;
+  border: 0;
+  background: none;
+  color: var(--slice-data-list-accent);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+slice-data-list .slice-data-list__link {
+  margin-inline-start: 6px;
+}
+
+/* ── Notice (undo, save errors) ─────────────────────────────────── */
+
+/* The undo / error bar: an Alert (Visual/Alert) placed here. */
+slice-data-list .slice-data-list__notice {
+  display: contents;
+}
+
+/* ── The list ───────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__body {
+  position: relative;
+  min-width: 0;
+}
+
+slice-data-list.has-max-height .slice-data-list__body {
+  max-height: var(--slice-data-list-max-height);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+slice-data-list .slice-data-list__items {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transition: opacity 0.2s ease;
+}
+
+slice-data-list.is-busy .slice-data-list__items {
+  opacity: 0.55;
+}
+
+slice-data-list .slice-data-list__items:empty {
+  display: none;
+}
+
+/* outlined: one box, rows split by lines. */
+slice-data-list[data-variant='outlined'] .slice-data-list__items {
+  border: 1px solid var(--slice-data-list-border);
+  border-radius: var(--slice-data-list-radius);
+  overflow: clip;
+}
+
+slice-data-list[data-variant='outlined'] .slice-data-list__item + .slice-data-list__item,
+slice-data-list[data-variant='ghost'] .slice-data-list__item + .slice-data-list__item {
+  border-top: 1px solid var(--slice-data-list-border);
+}
+
+/* separated: one card per row. */
+slice-data-list[data-variant='separated'] .slice-data-list__items {
+  gap: 8px;
+}
+
+slice-data-list[data-variant='separated'] .slice-data-list__item {
+  border: 1px solid var(--slice-data-list-border);
+  border-radius: var(--slice-data-list-radius);
+  background: var(--slice-surface-raised, var(--slice-data-list-bg));
+}
+
+/* filled: tinted rows. */
+slice-data-list[data-variant='filled'] .slice-data-list__items {
+  gap: 6px;
+}
+
+slice-data-list[data-variant='filled'] .slice-data-list__item {
+  border-radius: var(--slice-data-list-radius);
+  background: color-mix(in srgb, var(--slice-data-list-accent) 5%, transparent);
+}
+
+/* ── One item ───────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--slice-data-list-gap);
+  min-width: 0;
+  padding: var(--slice-data-list-pad-y) var(--slice-data-list-pad-x);
+  transition: background-color 0.15s ease;
+}
+
+slice-data-list .slice-data-list__item:hover {
+  background-color: var(--slice-data-list-hover);
+}
+
+slice-data-list .slice-data-list__item.is-selected {
+  background-color: var(--slice-data-list-selected);
+}
+
+slice-data-list .slice-data-list__item.is-new {
+  animation: slice-data-list-new 1.6s ease-out;
+}
+
+slice-data-list .slice-data-list__item.is-busy {
+  opacity: 0.6;
+}
+
+slice-data-list .slice-data-list__item.is-busy .slice-data-list__actions {
+  pointer-events: none;
+}
+
+slice-data-list .slice-data-list__item.is-busy::before {
+  content: '';
+  position: absolute;
+  inset: auto var(--slice-data-list-pad-x) 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--slice-data-list-accent), transparent);
+  background-size: 200% 100%;
+  animation: slice-data-list-busy 1s linear infinite;
+}
+
+slice-data-list .slice-data-list__check {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--slice-data-list-accent);
+  cursor: pointer;
+}
+
+slice-data-list .slice-data-list__select-all-box {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--slice-data-list-accent);
+}
+
+slice-data-list .slice-data-list__leading {
+  flex: none;
+  display: inline-flex;
+}
+
+slice-data-list .slice-data-list__leading--icon {
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--slice-data-list-accent) 12%, transparent);
+  color: var(--slice-data-list-accent);
+}
+
+slice-data-list[data-density='compact'] .slice-data-list__leading--icon {
+  width: 32px;
+  height: 32px;
+}
+
+slice-data-list .slice-data-list__image {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--slice-data-list-hover);
+}
+
+slice-data-list .slice-data-list__main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+slice-data-list .slice-data-list__title {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: start;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+slice-data-list a.slice-data-list__title,
+slice-data-list button.slice-data-list__title {
+  cursor: pointer;
+}
+
+slice-data-list a.slice-data-list__title:hover,
+slice-data-list button.slice-data-list__title:hover {
+  color: var(--slice-data-list-accent);
+}
+
+/* The title's hit area covers the whole row; the controls stay on top. */
+slice-data-list .slice-data-list__title.is-stretched::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+slice-data-list .slice-data-list__title:focus-visible {
+  outline: none;
+}
+
+slice-data-list .slice-data-list__title:focus-visible::after {
+  outline: 2px solid var(--slice-data-list-accent);
+  outline-offset: -2px;
+  border-radius: var(--slice-data-list-radius);
+}
+
+slice-data-list .slice-data-list__check,
+slice-data-list .slice-data-list__actions,
+slice-data-list .slice-data-list__tags,
+slice-data-list .slice-data-list__main a:not(.slice-data-list__title),
+slice-data-list .slice-data-list__main button:not(.slice-data-list__title) {
+  position: relative;
+  z-index: 1;
+}
+
+slice-data-list .slice-data-list__description {
+  overflow: hidden;
+  color: var(--slice-data-list-muted);
+  font-size: 0.9em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+slice-data-list .slice-data-list__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  color: var(--slice-data-list-muted);
+  font-size: 0.82em;
+}
+
+slice-data-list .slice-data-list__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+slice-data-list .slice-data-list__meta-icon {
+  display: inline-flex;
+}
+
+slice-data-list .slice-data-list__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+slice-data-list .slice-data-list__trailing {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: end;
+}
+
+slice-data-list .slice-data-list__value {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+slice-data-list .slice-data-list__time {
+  color: var(--slice-data-list-muted);
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
+slice-data-list .slice-data-list__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+
+/* ── Groups ─────────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__group {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--slice-data-list-bg);
+}
+
+slice-data-list[data-variant='outlined'] .slice-data-list__group {
+  background: color-mix(in srgb, var(--slice-data-list-text) 3%, var(--slice-data-list-bg));
+  border-top: 1px solid var(--slice-data-list-border);
+}
+
+slice-data-list[data-variant='outlined'] .slice-data-list__group:first-child {
+  border-top: 0;
+}
+
+slice-data-list .slice-data-list__group-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px var(--slice-data-list-pad-x);
+  border: 0;
+  background: none;
+  color: var(--slice-data-list-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-align: start;
+  text-transform: uppercase;
+}
+
+slice-data-list button.slice-data-list__group-label {
+  cursor: pointer;
+}
+
+slice-data-list button.slice-data-list__group-label::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  margin-inline-start: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+slice-data-list button.slice-data-list__group-label[aria-expanded='false']::after {
+  transform: rotate(-45deg);
+}
+
+slice-data-list .slice-data-list__group-count {
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Grid layout: cards ─────────────────────────────────────────── */
+
+slice-data-list[data-layout='grid'] .slice-data-list__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--slice-data-list-min-item)), 1fr));
+  gap: 12px;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__item {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  border: 1px solid var(--slice-data-list-border);
+  border-top: 1px solid var(--slice-data-list-border);
+  border-radius: var(--slice-data-list-radius);
+  background: var(--slice-surface-raised, var(--slice-data-list-bg));
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__main {
+  flex-basis: 0;
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__trailing {
+  flex-direction: row;
+  flex-basis: 100%;
+  align-items: center;
+  justify-content: space-between;
+  order: 3;
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__actions {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__check {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+slice-data-list[data-layout='grid'][data-selection='single'] .slice-data-list__item,
+slice-data-list[data-layout='grid'][data-selection='multiple'] .slice-data-list__item {
+  padding-top: calc(var(--slice-data-list-pad-y) + 22px);
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__group {
+  grid-column: 1 / -1;
+  position: static;
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+slice-data-list[data-layout='grid'] .slice-data-list__leading:has(.slice-data-list__image) {
+  flex-basis: 100%;
+}
+
+/* ── States ─────────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__state {
+  display: grid;
+  gap: 10px;
+  padding: 8px 0;
+}
+
+slice-data-list .slice-data-list__state.is-error {
+  justify-items: center;
+  padding: 28px 16px;
+  border: 1px dashed color-mix(in srgb, var(--danger-color, #dc2626) 45%, transparent);
+  border-radius: var(--slice-data-list-radius);
+  color: var(--danger-color-readable, var(--danger-color, #dc2626));
+  text-align: center;
+}
+
+slice-data-list .slice-data-list__state.is-error p {
+  margin: 0;
+}
+
+slice-data-list .slice-data-list__skeleton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--slice-data-list-pad-y) var(--slice-data-list-pad-x);
+}
+
+slice-data-list .slice-data-list__skeleton-lead,
+slice-data-list .slice-data-list__skeleton-lines i {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--slice-data-list-hover) 25%, color-mix(in srgb, var(--slice-data-list-text) 9%, transparent) 50%, var(--slice-data-list-hover) 75%);
+  background-size: 200% 100%;
+  animation: slice-data-list-shimmer 1.3s linear infinite;
+}
+
+slice-data-list .slice-data-list__skeleton-lead {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+slice-data-list .slice-data-list__skeleton-lines {
+  display: grid;
+  flex: 1;
+  gap: 8px;
+}
+
+slice-data-list .slice-data-list__skeleton-lines i {
+  height: 11px;
+}
+
+slice-data-list .slice-data-list__skeleton-lines i:first-child { width: 45%; }
+slice-data-list .slice-data-list__skeleton-lines i:last-child { width: 70%; }
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+
+slice-data-list .slice-data-list__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  color: var(--slice-data-list-muted);
+  font-size: 0.85rem;
+}
+
+/* The pager gets the room it needs to show its numbers. */
+slice-data-list .slice-data-list__pager {
+  display: flex;
+  flex: 1 1 320px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+slice-data-list .slice-data-list__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+slice-data-list .slice-data-list__more:empty,
+slice-data-list .slice-data-list__summary:empty,
+slice-data-list .slice-data-list__pager:empty {
+  display: none;
+}
+
+slice-data-list .slice-data-list__load-more {
+  min-height: 34px;
+  padding: 0 16px;
+  border: 1px solid var(--slice-data-list-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--slice-data-list-accent);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+slice-data-list .slice-data-list__load-more:hover {
+  background: var(--slice-data-list-hover);
+}
+
+slice-data-list[data-pagination='load-more'] .slice-data-list__footer,
+slice-data-list[data-pagination='infinite'] .slice-data-list__footer {
+  justify-content: center;
+  flex-direction: column;
+}
+
+slice-data-list .slice-data-list__sentinel {
+  height: 1px;
+}
+
+slice-data-list .slice-data-list__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Narrow lists (phones, side panels) ─────────────────────────── */
+
+slice-data-list.is-narrow[data-layout='list'] .slice-data-list__item {
+  flex-wrap: wrap;
+}
+
+slice-data-list.is-narrow[data-layout='list'] .slice-data-list__main {
+  flex-basis: 0;
+}
+
+/* On a phone a title gets two lines instead of being cut short. */
+slice-data-list.is-narrow .slice-data-list__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+}
+
+slice-data-list.is-narrow .slice-data-list__search {
+  max-width: none;
+  flex-basis: 100%;
+}
+
+slice-data-list.is-narrow .slice-data-list__controls {
+  margin-inline-start: 0;
+}
+
+/* ── Motion ─────────────────────────────────────────────────────── */
+
+@keyframes slice-data-list-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes slice-data-list-new {
+  0% { background-color: color-mix(in srgb, var(--slice-data-list-accent) 22%, transparent); }
+  100% { background-color: transparent; }
+}
+
+@keyframes slice-data-list-busy {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@keyframes slice-data-list-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-data-list .slice-data-list__item,
+  slice-data-list .slice-data-list__skeleton-lead,
+  slice-data-list .slice-data-list__skeleton-lines i,
+  slice-data-list .slice-data-list__item.is-busy::before {
+    animation: none;
+    transition: none;
+  }
+}

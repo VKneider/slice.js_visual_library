@@ -1,3 +1,7 @@
+import { readPath, writePath } from '../../shared/data/paths.js';
+import { insertItem, patchItem, removeItems, restoreItems, revertItem } from '../../shared/data/collection.js';
+import { normalizeEdit, editKind, controlFor, readControl, validateValue, optionLabel, TEXT_KINDS } from '../../shared/editing/inlineControl.js';
+
 // Default UI strings. Every one can be overridden through the `labels` prop
 // (partially: only the keys you pass change), which is how a Spanish app gets a
 // Spanish table without forking the component. `{shown}`, `{total}`, `{count}`
@@ -51,6 +55,15 @@ const DEFAULT_LABELS = {
   selectRowAction: 'Select',
   deselectRow: 'Deselect',
   detailEmpty: '—',
+  undo: 'Undo',
+  dismiss: 'Dismiss',
+  removed: '{count} rows removed',
+  removedOne: 'Row removed',
+  saveError: 'The change could not be saved.',
+  loadError: 'The rows could not be loaded.',
+  retry: 'Try again',
+  editCell: 'Edit {label}',
+  copiedCell: 'Copied',
   operators: {
     contains: 'contains',
     notContains: 'does not contain',
@@ -94,6 +107,7 @@ const FILTER_OPERATORS = {
  */
 
 const INTERACTIVE = 'a, button, input, select, textarea, label, summary, [role="button"], [contenteditable="true"]';
+const UNDO_MS = 5000;
 
 export default class Table extends HTMLElement {
   static props = {
@@ -246,6 +260,29 @@ export default class Table extends HTMLElement {
     // Fired with `{ format, scope, count }` after every export.
     onExport: { type: 'function', default: null },
 
+    // ---- data sources (besides `rows`)
+    // A slice.context store: the table shows the array at `contextPath` ('' when
+    // the state IS the array) and follows it; addRow / updateRow / removeRow and
+    // cell edits write back to it, so every component reading it sees them.
+    context: { type: 'string', default: '' },
+    contextPath: { type: 'string', default: 'items' },
+    // A server: `async ({ page, pageSize, search, filters, sort, signal }) =>
+    // { items, total }` (or an array). Turns the table remote: it asks again on
+    // every sort, page, search or filter, shows loading, and an error with Try
+    // again. Set it when building the table (not reactive afterwards).
+    load: { type: 'function', default: null },
+
+    // ---- editing
+    // Saving a cell edit (a column with `edit`): `({ row, before, key, value,
+    // previous, column }) => any`. The cell shows the new value at once, busy;
+    // it is written to the rows when this resolves (a returned object replaces
+    // the row), and taken back, in red, if it throws or returns false.
+    commit: { type: 'function', default: null },
+    // After every saved cell edit: `({ row, key, value, previous })`.
+    onCellChange: { type: 'function', default: null },
+    // A load, a save or a CRUD commit failed: `(error, { type, row?, key? })`.
+    onError: { type: 'function', default: null },
+
     // Notifications. In 'remote' these are how you drive fetching; in 'local'
     // they are optional hooks (the table still sorts/pages locally).
     onSortChange: { type: 'function', default: null },
@@ -282,6 +319,7 @@ export default class Table extends HTMLElement {
     this.$footer = this.querySelector('.table_footer');
     this.$table = this.querySelector('.table');
     this.$loading = this.querySelector('.table_loading');
+    this.$notice = this.querySelector('.table_notice');
 
     // Internal state uses names no declared prop can derive (§10): the framework
     // nulls `_<prop>` for every declared prop before applying it.
@@ -337,6 +375,30 @@ export default class Table extends HTMLElement {
     this._persistTimer = 0;
     this._modal = null;
 
+    // Data sources and CRUD.
+    this._context = '';
+    this._contextPath = 'items';
+    this._load = null;
+    this._commit = null;
+    this._onCellChange = null;
+    this._onError = null;
+    this._contextWatch = null;
+    this._abort = null;
+    this._fetchError = null;
+    this._fetchQueued = false;
+    this._busyRows = new Set();
+    this._freshRows = new Set();
+    this._timers = new Set();
+    this._alert = null;                // the undo / error bar (an Alert)
+    this._noticeExpire = null;         // what makes the current undo final
+    // Cell editing.
+    this._gridMode = false;            // some column has `edit`: cells are a grid
+    this._activeCell = null;           // { rowKey, columnKey }
+    this._cellEditor = null;           // the open editor
+    this._busyCells = new Set();       // 'rowKey|columnKey'
+    this._cellErrors = new Map();      // same id -> message
+    this._kindMemo = null;
+
     this._engine = null;
     this._pager = null;
     this._buildingPager = false;
@@ -361,6 +423,8 @@ export default class Table extends HTMLElement {
     this._handleOutsidePointer = this._handleOutsidePointer.bind(this);
     this._handleCardsBarChange = this._handleCardsBarChange.bind(this);
     this._handleCardsBarClick = this._handleCardsBarClick.bind(this);
+    this._handleBodyDoubleClick = this._handleBodyDoubleClick.bind(this);
+    this._handleBodyFocusOut = this._handleBodyFocusOut.bind(this);
 
     slice.controller.setComponentProps(this, props || {});
   }
@@ -455,6 +519,39 @@ export default class Table extends HTMLElement {
   set onPageChange(value) {
     this._onPageChange = typeof value === 'function' ? value : null;
   }
+
+  // ---- data sources & editing
+
+  set context(value) {
+    this._context = typeof value === 'string' ? value : '';
+    if (this._mounted && this._context) {
+      if (!this._contextWatch) this._watchContext();
+      this._readContext();
+    }
+  }
+  get context() { return this._context; }
+
+  set contextPath(value) {
+    this._contextPath = typeof value === 'string' ? value : 'items';
+    if (this._mounted && this._context) this._readContext();
+  }
+  get contextPath() { return this._contextPath; }
+
+  set load(value) {
+    this._load = typeof value === 'function' ? value : null;
+    // A server pages, sorts and filters: the table only shows what it sends.
+    if (this._load && !this._engine) this._remote = true;
+  }
+  get load() { return this._load; }
+
+  set commit(value) { this._commit = typeof value === 'function' ? value : null; }
+  get commit() { return this._commit; }
+
+  set onCellChange(value) { this._onCellChange = typeof value === 'function' ? value : null; }
+  get onCellChange() { return this._onCellChange; }
+
+  set onError(value) { this._onError = typeof value === 'function' ? value : null; }
+  get onError() { return this._onError; }
 
   set loading(value) {
     this._loading = value === true;
@@ -728,6 +825,7 @@ export default class Table extends HTMLElement {
     // or the initial props would be frozen into storage on the first visit.
     this._booting = true;
     this._resolvedColumns = this._resolveColumns();
+    this._syncGridMode();
 
     // The engine owns the view state (data, search, filters, page, sort). Built
     // per-instance and explicitly destroyed in beforeDestroy() (a Service has no
@@ -760,6 +858,21 @@ export default class Table extends HTMLElement {
     this.$menu.addEventListener('focusout', this._handleMenuFocusOut);
     this.$cardsBar.addEventListener('change', this._handleCardsBarChange);
     this.$cardsBar.addEventListener('click', this._handleCardsBarClick);
+    this.$body.addEventListener('dblclick', this._handleBodyDoubleClick);
+    this.$body.addEventListener('focusout', this._handleBodyFocusOut);
+    // The undo and error bar is an Alert, built once and reused.
+    this._alert = /** @type {any} */ (await slice.build(/** @type {any} */ ('Alert'), {
+      open: false, size: 'sm', tone: 'neutral', variant: 'filled', dismissible: true, dismissLabel: this._text.dismiss
+    }));
+    if (this._alert) this.$notice.appendChild(this._alert);
+    if (this._context) {
+      this._watchContext();
+      const rows = this._contextRows();
+      if (rows) {
+        this._rows = rows;
+        this._engine.setData(rows);
+      }
+    }
 
     this.$searchInput.value = this._query;
     this.$panel.id = `${this._uid}-filters`;
@@ -787,6 +900,12 @@ export default class Table extends HTMLElement {
     }
     await this._applyPagination(); // builds the pager if paginating + renders
     this._booting = false;
+    if (this._load) this._fetch();
+  }
+
+  // A cached route came back: the data may have changed meanwhile.
+  update() {
+    if (this._mounted) this.reload();
   }
 
   beforeDestroy() {
@@ -797,6 +916,17 @@ export default class Table extends HTMLElement {
       this._resizeObserver = null;
     }
     if (this._scrollFrame) cancelAnimationFrame(this._scrollFrame);
+    this._mounted = false;
+    this._abort?.abort();
+    this._closeCellEditor(false);
+    for (const timer of this._timers) clearTimeout(timer);
+    this._timers.clear();
+    // Leaving settles a waiting undo, as the time running out would.
+    this._flushNotice();
+    if (this._alert) slice.controller.destroyComponent(this._alert);
+    this._alert = null;
+    this.$body.removeEventListener('dblclick', this._handleBodyDoubleClick);
+    this.$body.removeEventListener('focusout', this._handleBodyFocusOut);
     clearTimeout(this._searchTimer);
     clearTimeout(this._flashTimer);
     // A pending save would be lost with the component: write it now.
@@ -901,7 +1031,10 @@ export default class Table extends HTMLElement {
         aggregate: col.aggregate !== undefined && col.aggregate !== null ? col.aggregate : null,
         aggregateFormat: typeof col.aggregateFormat === 'function' ? col.aggregateFormat : null,
         hideable: col.hideable !== false,
-        hidden: col.hidden === true
+        hidden: col.hidden === true,
+        // Editing in the cell: true, a control type, or { type, options,
+        // required, min, max, step, validate, parse } (shared/editing/inlineControl.js).
+        edit: normalizeEdit(col.edit)
       }));
     }
     // Legacy: derive positional columns from string headers.
@@ -925,12 +1058,14 @@ export default class Table extends HTMLElement {
       aggregate: null,
       aggregateFormat: null,
       hideable: true,
-      hidden: false
+      hidden: false,
+      edit: null
     }));
   }
 
   _refreshColumns() {
     this._resolvedColumns = this._resolveColumns();
+    this._syncGridMode();
     this._computeView();
     this._contentVersion += 1;
     this._panelStale = true;
@@ -1006,6 +1141,7 @@ export default class Table extends HTMLElement {
     const column = this._viewColumns[Number(cell.dataset.sortIndex)];
     this._engine.toggleSort(cell.dataset.sortKey, this._sortOptions(column));
     if (this._onSortChange) this._onSortChange(this._publicSort(this._engine.sort));
+    this._queueFetch();
     this._persist();
     this._resetScroll();
     this._afterStateChange();
@@ -1015,6 +1151,7 @@ export default class Table extends HTMLElement {
     if (!this._engine) return;
     this._engine.setPage(page);
     if (this._onPageChange) this._onPageChange(this._engine.page);
+    this._queueFetch();
     this._afterStateChange();
   }
 
@@ -1163,6 +1300,7 @@ export default class Table extends HTMLElement {
     if (emit && this._onFilterChange) {
       this._onFilterChange({ search: this._query, filters: this._engine.filters });
     }
+    this._queueFetch();
     this._persist();
     if (render) this._afterStateChange();
   }
@@ -1629,6 +1767,8 @@ export default class Table extends HTMLElement {
     if (this._menuState || this._externalMenu) queueMicrotask(() => this._dropStaleMenus());
     const columns = this._viewColumns;
     const { rows, offset, total } = this._bodySource();
+    // Rebuilt rows must not drop the keyboard user's place in the grid.
+    const refocus = this._gridMode && !this._cellEditor && this.$body.contains(document.activeElement);
 
     if (!force && this._window.start === offset && this._window.end === offset + rows.length) return;
     this._window = { start: offset, end: offset + rows.length };
@@ -1642,10 +1782,13 @@ export default class Table extends HTMLElement {
       const index = offset + i;
       const key = this._keyOf(row, index);
       const cached = this._rowCache.get(key);
-      if (cached && cached.row === row && cached.version === this._contentVersion) {
+      // A row with an open cell editor keeps its <tr> (and the editor) even if
+      // the row changed meanwhile; it is redrawn when the editor closes.
+      const holdsEditor = this._cellEditor && this._cellEditor.rowKey === key;
+      if (cached && (cached.row === row || holdsEditor) && cached.version === this._contentVersion) {
         return { key, row, index, cached };
       }
-      const cells = columns.map((column) => (column.render ? column.render(row) : this._cellValue(row, column)));
+      const cells = columns.map((column) => this._displayCell(row, column));
       return { key, row, index, cells };
     });
 
@@ -1722,6 +1865,8 @@ export default class Table extends HTMLElement {
     this._place(this.$body, target);
 
     this._paintSelection(false);
+    this._paintRowStates();
+    if (this._gridMode) this._syncActiveCell(refocus);
     this._layoutSticky();
   }
 
@@ -1731,7 +1876,15 @@ export default class Table extends HTMLElement {
     const td = document.createElement('td');
     td.className = 'table_empty';
     td.colSpan = this._visibleColumnsCount();
-    if (this._engine.isFiltered && !this._remote) {
+    if (this._fetchError) {
+      // The server failed: say so, and offer to ask again.
+      td.classList.add('table_empty--error');
+      td.setAttribute('role', 'alert');
+      td.appendChild(this._el('span', null, { text: this._text.loadError }));
+      const retry = this._el('button', 'table_empty_clear', { type: 'button', text: this._text.retry });
+      retry.addEventListener('click', () => this.reload());
+      td.appendChild(retry);
+    } else if (this._engine.isFiltered && !this._remote) {
       td.appendChild(this._el('span', null, { text: this._text.noResults }));
       const clear = this._el('button', 'table_empty_clear', { type: 'button', text: this._text.clearFilters });
       clear.addEventListener('click', () => this.clearFilters());
@@ -1760,7 +1913,8 @@ export default class Table extends HTMLElement {
 
   _buildRow(row, cells, columns) {
     const tr = document.createElement('tr');
-    if (this._syncClickable()) tr.setAttribute('tabindex', '0');
+    // In a grid the cells are the tab stops, not the rows.
+    if (this._syncClickable() && !this._gridMode) tr.setAttribute('tabindex', '0');
     const nameCell = cells.find((value) => typeof value === 'string' || typeof value === 'number');
     if (nameCell !== undefined) tr.dataset.rowName = String(nameCell);
     if (this._selection !== 'none') {
@@ -1785,6 +1939,18 @@ export default class Table extends HTMLElement {
       this.renderCell(td, cells[columnIndex]);
       if (column.label != null) td.dataset.label = String(column.label);
       td.dataset.columnIndex = String(columnIndex);
+      if (this._gridMode) {
+        // A grid: every data cell can be reached with the arrows (one tab
+        // stop, roving), and the editable ones open an editor in place.
+        td.tabIndex = -1;
+        td.dataset.cell = '';
+        if (column.edit) {
+          td.classList.add('table_cell--editable');
+          td.dataset.edit = this._cellKind(column);
+        } else {
+          td.setAttribute('aria-readonly', 'true');
+        }
+      }
       // The card title in the mobile 'cards' layout.
       if (columnIndex === 0) td.classList.add('table_primary_cell');
       tr.appendChild(td);
@@ -1979,6 +2145,7 @@ export default class Table extends HTMLElement {
   _applySort(sort) {
     this._engine.setSort(sort ? { ...sort, ...this._sortOptionsFor(sort.key) } : null);
     if (this._onSortChange) this._onSortChange(this._publicSort(this._engine.sort));
+    this._queueFetch();
     this._persist();
     this._resetScroll();
     this._afterStateChange();
@@ -2862,6 +3029,754 @@ export default class Table extends HTMLElement {
   }
 
 
+  // ------------------------------------------------------- data & CRUD
+
+  /** Load the rows again (from `load`, or the store), or redraw them. */
+  reload() {
+    if (this._load) return this._fetch();
+    if (this._context) this._readContext();
+    else this.renderTable();
+    return Promise.resolve();
+  }
+
+  /** The row with this key (a `rowKey` value), or null. */
+  getRow(key) {
+    const id = this._idOf(key);
+    return this._rows.find((row, index) => this._keyOf(row, index) === id) ?? null;
+  }
+
+  /**
+   * Add a row. It shows at once; with `commit`, a failure takes it out again
+   * and says so. A returned object (with the server's id) replaces it.
+   * @param {any} row
+   * @param {{ position?: 'start' | 'end' | number, commit?: (row: any) => any, highlight?: boolean }} [options]
+   */
+  async addRow(row, { position = 'start', commit, highlight = true } = {}) {
+    const key = this._idOf(row);
+    this._writeRows((rows) => insertItem(rows, row, position));
+    if (highlight) this._highlightRow(key);
+    if (!commit) return true;
+    this._setRowBusy(key, true);
+    try {
+      const saved = await commit(row);
+      this._setRowBusy(key, false);
+      if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+        this._writeRows((rows) => rows.map((it) => (this._idOf(it) === key ? { ...it, ...saved } : it)));
+      }
+      return true;
+    } catch (error) {
+      this._setRowBusy(key, false);
+      this._writeRows((rows) => removeItems(rows, this._rowKeyFn(), [key]).list);
+      this._failed(error, 'add', row);
+      return false;
+    }
+  }
+
+  /**
+   * Change a row: `changes` are merged into it (or a function from the row to
+   * them). With `commit`, a failure puts it back as it was.
+   * @param {any} key  a rowKey value, or the row itself
+   * @param {object | ((row: any) => object)} changes
+   * @param {{ commit?: (after: any, before: any) => any }} [options]
+   */
+  async updateRow(key, changes, { commit } = {}) {
+    const id = this._idOf(key);
+    let result = null;
+    this._writeRows((rows) => {
+      result = patchItem(rows, this._rowKeyFn(), id, changes);
+      return result ? result.list : rows;
+    });
+    if (!result) return false;
+    if (!commit) return true;
+    const { before, after } = result;
+    this._setRowBusy(id, true);
+    try {
+      const saved = await commit(after, before);
+      this._setRowBusy(id, false);
+      if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+        this._writeRows((rows) => rows.map((it) => (this._idOf(it) === id ? { ...it, ...saved } : it)));
+      }
+      return true;
+    } catch (error) {
+      this._setRowBusy(id, false);
+      this._writeRows((rows) => revertItem(rows, this._rowKeyFn(), before));
+      this._failed(error, 'update', before);
+      return false;
+    }
+  }
+
+  /**
+   * Remove rows. They leave at once. With `undo`, a bar offers to bring them
+   * back for a few seconds, and `commit` runs when that time is over; without
+   * it, `commit` runs right away. A failed commit brings them back.
+   * @param {any | any[]} keys
+   * @param {{ commit?: (rows: any[]) => any, undo?: boolean }} [options]
+   */
+  async removeRow(keys, { commit, undo = false } = {}) {
+    const ids = (Array.isArray(keys) ? keys : [keys]).map((key) => this._idOf(key));
+    // A previous removal still waiting for its undo time: settle it first.
+    await this._flushNotice();
+    let removed = [];
+    this._writeRows((rows) => {
+      const result = removeItems(rows, this._rowKeyFn(), ids);
+      removed = result.removed;
+      return result.list;
+    });
+    if (!removed.length) return false;
+    let deselected = false;
+    for (const id of ids) deselected = this._selectedKeys.delete(id) || deselected;
+    if (deselected) this._emitSelection();
+    const gone = removed.map((entry) => entry.item);
+
+    const persist = async () => {
+      if (!commit) return true;
+      try {
+        await commit(gone);
+        return true;
+      } catch (error) {
+        this._writeRows((rows) => restoreItems(rows, removed));
+        this._failed(error, 'remove', gone);
+        return false;
+      }
+    };
+    if (!undo) return persist();
+
+    return new Promise((resolve) => {
+      this._showNotice({
+        text: gone.length === 1 ? this._text.removedOne : this._label('removed', { count: gone.length }),
+        actionLabel: this._text.undo,
+        action: () => {
+          this._writeRows((rows) => restoreItems(rows, removed));
+          this._hideNotice(false);
+          resolve(false);
+        },
+        timeout: UNDO_MS,
+        // When the time is over (or the bar is closed): make it final.
+        onExpire: async () => resolve(await persist())
+      });
+    });
+  }
+
+  // `key` may be a rowKey value or a row object.
+  _idOf(key) {
+    return key !== null && typeof key === 'object' ? this._keyOf(key, 0) : String(key);
+  }
+
+  _rowKeyFn() {
+    return (row) => this._keyOf(row, 0);
+  }
+
+  _contextRows() {
+    if (!slice.context?.has?.(this._context)) return null;
+    const state = slice.context.getState(this._context);
+    const value = readPath(state, Array.isArray(state) ? '' : this._contextPath);
+    return Array.isArray(value) ? value : [];
+  }
+
+  _readContext() {
+    const rows = this._contextRows();
+    if (rows) this._setRows(rows);
+  }
+
+  _watchContext() {
+    if (!slice.context?.watch || !slice.context.has?.(this._context)) {
+      slice.logger?.warn?.('Table', `The context "${this._context}" does not exist. Create it with slice.context.create().`);
+      return;
+    }
+    this._contextWatch = slice.context.watch(this._context, this, () => {
+      if (this._mounted) this._readContext();
+    }, (state) => readPath(state, Array.isArray(state) ? '' : this._contextPath));
+  }
+
+  // New rows from inside the table (CRUD, the store, the server). Unlike the
+  // `rows` setter, rows whose objects did not change keep their <tr>.
+  _setRows(rows) {
+    this._rows = rows;
+    this._panelStale = true;
+    if (!this._engine) return;
+    this._engine.setData(rows).setPageSize(this._effectivePageSize());
+    this._afterStateChange();
+  }
+
+  // Apply a change to wherever the rows live: the store (everyone sees it),
+  // or the table's own rows (`rows`, or the page `load` returned).
+  _writeRows(change) {
+    if (this._context && slice.context?.setState && slice.context.has?.(this._context)) {
+      slice.context.setState(this._context, (prev) => {
+        const path = Array.isArray(prev) ? '' : this._contextPath;
+        const current = readPath(prev, path);
+        return writePath(prev, path, change(Array.isArray(current) ? current : []));
+      });
+      if (!this._contextWatch) this._readContext();
+      return;
+    }
+    this._setRows(change(this._rows.slice()));
+  }
+
+  _queueFetch() {
+    if (!this._load || this._booting || !this._mounted || this._fetchQueued) return;
+    // One request for a burst of changes (a sort and a page reset together).
+    this._fetchQueued = true;
+    queueMicrotask(() => {
+      this._fetchQueued = false;
+      this._fetch();
+    });
+  }
+
+  async _fetch() {
+    if (!this._load || !this._engine || !this._mounted) return;
+    this._abort?.abort();
+    const abort = new AbortController();
+    this._abort = abort;
+    this.loading = true;
+    try {
+      const result = await this._load({
+        page: this._engine.page,
+        pageSize: this._engine.pageSize,
+        search: this._query,
+        filters: this._engine.filters,
+        sort: this._publicSort(this._engine.sort),
+        signal: abort.signal
+      });
+      if (abort.signal.aborted || !this._mounted) return;
+      const rows = Array.isArray(result) ? result : (result?.items ?? result?.rows ?? []);
+      const total = !Array.isArray(result) && Number.isFinite(result?.total) ? result.total : null;
+      this._fetchError = null;
+      this._totalItems = total;
+      this._engine.setTotalItems(total);
+      this._setRows(Array.isArray(rows) ? rows : []);
+    } catch (error) {
+      if (abort.signal.aborted || !this._mounted) return;
+      this._fetchError = error;
+      this._setRows([]);
+      this._onError?.(error, { type: 'load' });
+    } finally {
+      if (this._abort === abort) {
+        this._abort = null;
+        if (this._mounted) this.loading = false;
+      }
+    }
+  }
+
+  // The bar is an Alert (Visual/Alert). An undo becomes final when the time
+  // runs out or the bar is closed; using its action (Undo) does not make it.
+  /** @param {{ text: string, actionLabel?: string, action?: () => void, timeout?: number, tone?: 'info' | 'error', onExpire?: () => any }} notice */
+  _showNotice({ text, actionLabel, action, timeout = 0, tone = 'info', onExpire }) {
+    if (!this._alert) return;
+    this._noticeExpire = onExpire || null;
+    this._alert.show({
+      message: text,
+      tone: tone === 'error' ? 'danger' : 'neutral',
+      variant: 'filled',
+      dismissLabel: this._text.dismiss,
+      timeout,
+      actions: action ? [{ label: actionLabel || '', onClick: action }] : [],
+      onDismiss: ({ reason }) => {
+        const expire = this._noticeExpire;
+        this._noticeExpire = null;
+        if (reason !== 'action' && expire) return expire();
+        return undefined;
+      }
+    });
+  }
+
+  _hideNotice(expire) {
+    return this._alert?.hide(expire ? 'close' : 'action');
+  }
+
+  _flushNotice() {
+    if (this._noticeExpire) return Promise.resolve(this._hideNotice(true));
+    return Promise.resolve();
+  }
+
+  _failed(error, type, row) {
+    slice.logger?.warn?.('Table', `Could not ${type}`, error);
+    this._onError?.(error, { type, row });
+    const detail = error instanceof Error && error.message ? ` ${error.message}` : '';
+    this._showNotice({ text: `${this._text.saveError}${detail}`, tone: 'error', timeout: 6000 });
+  }
+
+  _setRowBusy(key, on) {
+    if (on) this._busyRows.add(key);
+    else this._busyRows.delete(key);
+    this._paintRowStates();
+  }
+
+  _highlightRow(key) {
+    this._freshRows.add(key);
+    this._paintRowStates();
+    const tr = this._trOf(key);
+    tr?.scrollIntoView?.({ block: 'nearest' });
+    const timer = window.setTimeout(() => {
+      this._timers.delete(timer);
+      this._freshRows.delete(key);
+      if (this._mounted) this._paintRowStates();
+    }, 1600);
+    this._timers.add(timer);
+  }
+
+  _trOf(key) {
+    return /** @type {HTMLTableRowElement | null} */ (this.$body.querySelector(`tr[data-row-key="${CSS.escape(String(key))}"]`));
+  }
+
+  // Busy and new rows, busy and failed cells: classes that survive a re-render.
+  _paintRowStates() {
+    for (const tr of this.$body.children) {
+      const key = /** @type {HTMLElement} */ (tr).dataset.rowKey;
+      if (key === undefined) continue;
+      const busy = this._busyRows.has(key);
+      tr.classList.toggle('table_row--saving', busy);
+      if (busy) tr.setAttribute('aria-busy', 'true');
+      else tr.removeAttribute('aria-busy');
+      tr.classList.toggle('table_row--new', this._freshRows.has(key));
+      if (!this._gridMode) continue;
+      for (const td of tr.querySelectorAll('td[data-cell]')) {
+        const id = this._cellId(key, this._columnOfCell(td)?.key);
+        td.classList.toggle('table_cell--saving', this._busyCells.has(id));
+        const message = this._cellErrors.get(id);
+        td.classList.toggle('table_cell--error', !!message);
+        if (message) {
+          td.title = message;
+          td.setAttribute('aria-invalid', 'true');
+        } else if (td.hasAttribute('aria-invalid')) {
+          td.removeAttribute('title');
+          td.removeAttribute('aria-invalid');
+        }
+      }
+    }
+  }
+
+  // ------------------------------------------------------- cell editing
+
+  _syncGridMode() {
+    this._gridMode = this._resolvedColumns.some((column) => column.edit);
+    this.classList.toggle('table--editable', this._gridMode);
+    // An editable table is a grid: the cells are what the keyboard moves through.
+    if (this._gridMode) this.$table.setAttribute('role', 'grid');
+    else this.$table.removeAttribute('role');
+  }
+
+  // The control a column edits with: what `edit` says, else guessed from
+  // its data (yes/no → a checkbox, numbers → a number field). Remembered per
+  // set of rows: it is asked for every cell.
+  _cellKind(column) {
+    if (!column.edit) return '';
+    if (!this._kindMemo || this._kindMemo.rows !== this._rows) this._kindMemo = { rows: this._rows, kinds: new Map() };
+    const memo = this._kindMemo.kinds;
+    const id = String(column.key);
+    if (!memo.has(id)) {
+      const sample = this._rows.map((row) => this._cellValue(row, column)).find((value) => value !== null && value !== undefined);
+      const type = typeof sample === 'boolean' ? 'boolean' : typeof sample === 'number' ? 'number' : '';
+      memo.set(id, editKind(column.edit, type));
+    }
+    return memo.get(id);
+  }
+
+  // What a cell shows: `render` first; an editable yes/no is a checkbox; a
+  // value from a list of options shows that option's label.
+  _displayCell(row, column) {
+    if (column.render) return column.render(row);
+    const value = this._cellValue(row, column);
+    if (!column.edit) return value;
+    const kind = this._cellKind(column);
+    if (kind === 'switch') {
+      const box = this._el('input', 'table_cell_check', { type: 'checkbox', tabindex: '-1', 'aria-label': String(column.label ?? '') });
+      box.checked = value === true;
+      return box;
+    }
+    if (Array.isArray(column.edit.options)) {
+      const label = optionLabel(column.edit.options, value);
+      if (label !== undefined) return label;
+    }
+    return value;
+  }
+
+  _cellId(rowKey, columnKey) {
+    return `${rowKey}|${columnKey}`;
+  }
+
+  _columnOfCell(td) {
+    return this._viewColumns[Number(td?.dataset?.columnIndex)];
+  }
+
+  _cellsOfRow(tr) {
+    return /** @type {HTMLElement[]} */ ([...tr.querySelectorAll('td[data-cell]')]);
+  }
+
+  _gridRows() {
+    return /** @type {HTMLTableRowElement[]} */ ([...this.$body.children].filter((tr) => /** @type {HTMLElement} */ (tr).dataset.rowKey !== undefined));
+  }
+
+  _cellAt(rowKey, columnKey) {
+    const tr = this._trOf(rowKey);
+    if (!tr) return null;
+    return this._cellsOfRow(tr).find((td) => String(this._columnOfCell(td)?.key) === String(columnKey)) || null;
+  }
+
+  /** Focus a cell (by row key and column key) and make it the active one. */
+  focusCell(rowKey, columnKey) {
+    const td = this._cellAt(this._idOf(rowKey), columnKey);
+    if (!td) return false;
+    this._setActiveCell(td, true);
+    return true;
+  }
+
+  /** The active cell: { rowKey, columnKey }, or null. */
+  get activeCell() { return this._activeCell ? { ...this._activeCell } : null; }
+
+  _setActiveCell(td, focus) {
+    for (const cell of this.$body.querySelectorAll('td[data-cell][tabindex="0"]')) {
+      if (cell !== td) /** @type {HTMLElement} */ (cell).tabIndex = -1;
+    }
+    td.tabIndex = 0;
+    const tr = td.closest('tr');
+    this._activeCell = { rowKey: tr.dataset.rowKey, columnKey: String(this._columnOfCell(td)?.key) };
+    if (focus) {
+      td.focus({ preventScroll: true });
+      td.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    }
+  }
+
+  // Exactly one cell is the grid's tab stop, after every render.
+  _syncActiveCell(refocus) {
+    const rows = this._gridRows();
+    if (!rows.length) return;
+    let td = this._activeCell ? this._cellAt(this._activeCell.rowKey, this._activeCell.columnKey) : null;
+    if (!td) td = this._cellsOfRow(rows[0])[0] || null;
+    if (!td) return;
+    this._setActiveCell(td, refocus);
+  }
+
+  // The cell to go to from `td`: 'up' | 'down' | 'left' | 'right' | 'next' |
+  // 'prev' | 'home' | 'end' | 'first' | 'last'. Null at an edge.
+  _cellFrom(td, direction) {
+    const tr = td.closest('tr');
+    const rows = this._gridRows();
+    const r = rows.indexOf(tr);
+    const cells = this._cellsOfRow(tr);
+    const c = cells.indexOf(td);
+    const columnKey = String(this._columnOfCell(td)?.key);
+    const inRow = (row, key) => this._cellsOfRow(row).find((cell) => String(this._columnOfCell(cell)?.key) === key) || null;
+    switch (direction) {
+      case 'up': return r > 0 ? inRow(rows[r - 1], columnKey) : null;
+      case 'down': return r < rows.length - 1 ? inRow(rows[r + 1], columnKey) : null;
+      case 'left': return cells[c - 1] || null;
+      case 'right': return cells[c + 1] || null;
+      case 'home': return cells[0] || null;
+      case 'end': return cells[cells.length - 1] || null;
+      case 'first': return this._cellsOfRow(rows[0])[0] || null;
+      case 'last': {
+        const lastCells = this._cellsOfRow(rows[rows.length - 1]);
+        return lastCells[lastCells.length - 1] || null;
+      }
+      case 'next': return cells[c + 1] || (rows[r + 1] ? this._cellsOfRow(rows[r + 1])[0] : null) || null;
+      case 'prev': {
+        if (cells[c - 1]) return cells[c - 1];
+        const above = rows[r - 1] ? this._cellsOfRow(rows[r - 1]) : [];
+        return above[above.length - 1] || null;
+      }
+      default: return null;
+    }
+  }
+
+  _printable(event) {
+    return event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
+  }
+
+  // Returns true when it handled the key.
+  _handleGridKeydown(event) {
+    const target = /** @type {HTMLElement} */ (event.target);
+    const editor = this._cellEditor;
+    if (editor && editor.box.contains(target)) {
+      if (event.key === 'Escape') {
+        // Inside a Modal, Escape closes the editor, not the dialog.
+        event.preventDefault();
+        event.stopPropagation();
+        this.cancelCellEdit();
+      } else if (event.key === 'Tab') {
+        event.preventDefault();
+        this.saveCellEdit({ move: event.shiftKey ? 'prev' : 'next' });
+      } else if (event.key === 'Enter' && event.altKey && editor.kind === 'textarea') {
+        event.preventDefault();
+        const area = /** @type {HTMLTextAreaElement} */ (target);
+        area.setRangeText?.('\n', area.selectionStart, area.selectionEnd, 'end');
+        area.dispatchEvent(new Event('input', { bubbles: true }));
+      } else if (event.key === 'Enter' && !event.shiftKey && !event.altKey && !['select', 'date'].includes(editor.kind)) {
+        event.preventDefault();
+        this.saveCellEdit({ move: 'down' });
+      }
+      return true;
+    }
+    // Keys pressed while the editor is still being built are kept for it.
+    if (editor && !editor.control) {
+      if (this._printable(event)) {
+        editor.typed += event.key;
+        event.preventDefault();
+      } else if (event.key === 'Enter' || event.key === 'Tab') {
+        editor.then = event.key === 'Tab' ? (event.shiftKey ? 'prev' : 'next') : 'down';
+        event.preventDefault();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        this.cancelCellEdit();
+      }
+      return true;
+    }
+
+    const td = /** @type {HTMLElement | null} */ (target.closest('td[data-cell]'));
+    if (!td || (target !== td && !target.classList.contains('table_cell_check'))) return false;
+    const column = this._columnOfCell(td);
+    const kind = column?.edit ? this._cellKind(column) : '';
+    const go = (direction) => {
+      const next = this._cellFrom(td, direction);
+      if (next) this._setActiveCell(next, true);
+      return next;
+    };
+    const key = event.key;
+    const ctrl = event.ctrlKey || event.metaKey;
+
+    if (key === 'ArrowDown' || key === 'ArrowUp' || key === 'ArrowLeft' || key === 'ArrowRight') {
+      event.preventDefault();
+      go({ ArrowDown: 'down', ArrowUp: 'up', ArrowLeft: 'left', ArrowRight: 'right' }[key]);
+    } else if (key === 'Home' || key === 'End') {
+      event.preventDefault();
+      go(key === 'Home' ? (ctrl ? 'first' : 'home') : (ctrl ? 'last' : 'end'));
+    } else if (key === 'Tab' && !event.altKey && !ctrl) {
+      // At the first or last cell, Tab leaves the table as usual.
+      if (go(event.shiftKey ? 'prev' : 'next')) event.preventDefault();
+    } else if ((key === ' ' || key === 'Enter') && kind === 'switch') {
+      event.preventDefault();
+      const box = /** @type {HTMLInputElement | null} */ (td.querySelector('.table_cell_check'));
+      if (box) {
+        box.checked = !box.checked;
+        this._saveCell(td, box.checked, { pending: false });
+      }
+    } else if ((key === 'Enter' || key === 'F2') && kind) {
+      event.preventDefault();
+      this._openCellEditor(td);
+    } else if (key === 'Enter') {
+      // A cell that does not edit opens its row, as a row click does.
+      if (this._activateRow(/** @type {HTMLTableRowElement} */ (td.closest('tr')), event)) event.preventDefault();
+    } else if (ctrl && key.toLowerCase() === 'c' && !String(window.getSelection?.() || '')) {
+      event.preventDefault();
+      this._copyCell(td);
+    } else if ((key === 'Delete' || key === 'Backspace') && kind && kind !== 'switch' && !column.edit.required) {
+      event.preventDefault();
+      this._saveCell(td, null);
+    } else if (this._printable(event) && TEXT_KINDS.includes(kind)) {
+      // Typing on a cell replaces its value, like a spreadsheet.
+      event.preventDefault();
+      this._openCellEditor(td, { initial: event.key });
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  _handleBodyDoubleClick(event) {
+    if (!this._gridMode) return;
+    const td = /** @type {HTMLElement | null} */ (event.target.closest('td.table_cell--editable'));
+    if (!td || event.target.closest(INTERACTIVE) || td.classList.contains('table_cell--editing')) return;
+    if (td.dataset.edit === 'switch') return;
+    this._openCellEditor(td);
+  }
+
+  // A text edit is saved when focus leaves its cell, as in a spreadsheet.
+  _handleBodyFocusOut(event) {
+    const editor = this._cellEditor;
+    if (!editor || !TEXT_KINDS.includes(editor.kind) || !editor.box.contains(event.target)) return;
+    const timer = window.setTimeout(() => {
+      this._timers.delete(timer);
+      if (this._cellEditor !== editor || !editor.control) return;
+      if (editor.box.contains(document.activeElement)) return;
+      this.saveCellEdit({ blur: true });
+    }, 0);
+    this._timers.add(timer);
+  }
+
+  /**
+   * Open the editor of a cell. `initial` starts it with that text instead of
+   * the value (as typing on a cell does).
+   * @param {any} rowKey
+   * @param {string | number} columnKey
+   * @param {{ initial?: any }} [options]
+   */
+  editCell(rowKey, columnKey, { initial } = {}) {
+    const td = this._cellAt(this._idOf(rowKey), columnKey);
+    if (!td || !td.classList.contains('table_cell--editable')) return Promise.resolve(false);
+    return this._openCellEditor(td, { initial });
+  }
+
+  /** @param {HTMLElement} td @param {{ initial?: any }} [options] */
+  async _openCellEditor(td, { initial } = {}) {
+    const column = this._columnOfCell(td);
+    const tr = /** @type {HTMLTableRowElement} */ (td.closest('tr'));
+    const rowKey = tr.dataset.rowKey;
+    const row = this._renderedRows.get(rowKey);
+    if (!column?.edit || row === undefined) return false;
+    const kind = this._cellKind(column);
+    if (kind === 'switch') return false;
+    this._closeCellEditor(false);
+    this._setActiveCell(td, false);
+    const id = this._cellId(rowKey, column.key);
+    this._cellErrors.delete(id);
+
+    const box = this._el('div', 'table_cell_editor');
+    td.classList.add('table_cell--editing');
+    td.classList.remove('table_cell--error');
+    this._releaseChildren(td, []);
+    td.replaceChildren(box);
+    const editor = { rowKey, columnKey: String(column.key), column, kind, td, box, control: null, typed: '', then: '' };
+    this._cellEditor = editor;
+
+    const value = initial !== undefined ? initial : this._cellValue(row, column);
+    const { name, props } = controlFor({
+      kind, value, edit: column.edit, label: String(column.label ?? ''), compact: true,
+      onPick: () => this.saveCellEdit({ move: '' })
+    });
+    const control = /** @type {any} */ (await slice.build(/** @type {any} */ (name), props));
+    if (!control) return false;
+    if (!this._mounted || this._cellEditor !== editor) {
+      slice.controller.destroyComponent(control);
+      return false;
+    }
+    editor.control = control;
+    box.appendChild(control);
+    if (kind === 'select') control.querySelector('input')?.setAttribute('aria-label', String(column.label ?? ''));
+    if (editor.typed && kind !== 'select' && 'value' in control) control.value = `${control.value ?? ''}${editor.typed}`;
+    const field = /** @type {HTMLInputElement | null} */ (box.querySelector('input:not([type="hidden"]), textarea'));
+    field?.focus();
+    if (field && ['text', 'search', 'url', 'tel', 'email', 'password', 'textarea'].includes(field.type || 'textarea')) {
+      try { field.setSelectionRange(field.value.length, field.value.length); } catch { /* not a text field */ }
+    }
+    if (editor.then) this.saveCellEdit({ move: editor.then });
+    return true;
+  }
+
+  /** Close the open cell editor without saving. */
+  cancelCellEdit() {
+    const editor = this._cellEditor;
+    if (!editor) return;
+    this._closeCellEditor(true);
+    const td = this._cellAt(editor.rowKey, editor.columnKey);
+    if (td) this._setActiveCell(td, true);
+  }
+
+  /**
+   * Save what is in the open cell editor; `move` then goes 'down', 'next' or
+   * 'prev'. Resolves to whether it was saved.
+   */
+  async saveCellEdit({ move = '', blur = false } = {}) {
+    const editor = this._cellEditor;
+    if (!editor || !editor.control) return false;
+    const row = this._renderedRows.get(editor.rowKey);
+    const value = readControl(editor.control, editor.kind, editor.column.edit);
+    const message = validateValue(editor.control, value, editor.column.edit, row);
+    if (message === null) return false;
+    if (message) {
+      this._showNotice({ text: message, tone: 'error', timeout: 4000 });
+      return false;
+    }
+    const target = move ? this._cellFrom(editor.td, move) : null;
+    const targetAt = target ? { rowKey: target.closest('tr').dataset.rowKey, columnKey: String(this._columnOfCell(target)?.key) } : null;
+    this._closeCellEditor(true);
+    const td = this._cellAt(editor.rowKey, editor.columnKey);
+    if (!td) return false;
+    const saving = this._saveCell(td, value);
+    if (!blur) {
+      const next = targetAt ? this._cellAt(targetAt.rowKey, targetAt.columnKey) : td;
+      if (next) this._setActiveCell(next, true);
+    }
+    return saving;
+  }
+
+  // redraw: put the row's real content back (cancel), not the editor's.
+  _closeCellEditor(redraw) {
+    const editor = this._cellEditor;
+    if (!editor) return;
+    this._cellEditor = null;
+    if (editor.control) slice.controller.destroyComponent(editor.control);
+    editor.td.classList.remove('table_cell--editing');
+    if (redraw && this._mounted) {
+      // The row kept its <tr> while editing: draw it again from its data.
+      this._rowCache.delete(editor.rowKey);
+      this._renderBody(true);
+    }
+  }
+
+  /**
+   * Save one cell. The cell shows the value at once (busy); `commit` runs; the
+   * row changes when it succeeds. A failure draws the old value back, red.
+   * @param {HTMLElement} td
+   * @param {any} value
+   * @param {{ pending?: boolean }} [options]
+   */
+  async _saveCell(td, value, { pending = true } = {}) {
+    const column = this._columnOfCell(td);
+    const rowKey = td.closest('tr')?.dataset.rowKey;
+    const before = this.getRow(rowKey);
+    if (!column || rowKey === undefined || !before) return false;
+    const key = String(column.key);
+    const previous = this._cellValue(before, column);
+    if (Object.is(previous, value)) return true;
+    const id = this._cellId(rowKey, key);
+    this._cellErrors.delete(id);
+    const next = writePath(before, key, value);
+
+    if (pending) {
+      // Show what was typed while the save runs.
+      this._releaseChildren(td, []);
+      td.replaceChildren();
+      this.renderCell(td, this._displayCell(next, column));
+    }
+    let saved = next;
+    if (this._commit) {
+      this._busyCells.add(id);
+      this._paintRowStates();
+      try {
+        const result = await this._commit({
+          row: next, before, key, value, previous,
+          column: { key: column.key, label: column.label }
+        });
+        if (result === false) throw new Error('');
+        // The server's version wins; otherwise apply the change to the row as
+        // it is NOW, so a save that finished meanwhile is not undone.
+        saved = result && typeof result === 'object' && !Array.isArray(result)
+          ? result
+          : writePath(this.getRow(rowKey) || before, key, value);
+      } catch (error) {
+        this._busyCells.delete(id);
+        if (!this._mounted) return false;
+        const detail = error instanceof Error && error.message ? ` ${error.message}` : '';
+        this._cellErrors.set(id, `${this._text.saveError}${detail}`);
+        this._onError?.(error, { type: 'edit', row: before, key });
+        this._showNotice({ text: `${this._text.saveError}${detail}`, tone: 'error', timeout: 6000 });
+        // Draw the row again from its (unchanged) data: the old value, in red.
+        this._rowCache.delete(rowKey);
+        this._renderBody(true);
+        return false;
+      }
+      this._busyCells.delete(id);
+      if (!this._mounted) return false;
+    }
+    this._writeRows((rows) => rows.map((row, index) => (this._keyOf(row, index) === rowKey ? saved : row)));
+    this._onCellChange?.({ row: saved, key, value, previous });
+    return true;
+  }
+
+  async _copyCell(td) {
+    const column = this._columnOfCell(td);
+    const row = this._renderedRows.get(td.closest('tr')?.dataset.rowKey);
+    if (!column || row === undefined) return;
+    const value = this._cellValue(row, column);
+    const text = value === null || value === undefined ? '' : (typeof value === 'object' ? td.textContent.trim() : String(value));
+    try {
+      await navigator.clipboard.writeText(text);
+      this._flash(this._text.copiedCell);
+    } catch {
+      this._flash(this._text.copyFailed);
+    }
+  }
+
   // ------------------------------------------------------------- selection
 
   // The rows "select all" acts on: every filtered row locally, the page in remote.
@@ -2914,6 +3829,12 @@ export default class Table extends HTMLElement {
 
   _handleBodyChange(event) {
     const box = event.target;
+    if (box.classList?.contains('table_cell_check')) {
+      // A yes/no cell saves the moment it is flipped.
+      const td = box.closest('td[data-cell]');
+      if (td) this._saveCell(td, box.checked, { pending: false });
+      return;
+    }
     if (!box.classList || !box.classList.contains('table_select_row')) return;
     const tr = box.closest('tr');
     const key = tr?.dataset.rowKey;
@@ -2962,12 +3883,21 @@ export default class Table extends HTMLElement {
       if (key !== undefined) this._toggleExpanded(key);
       return;
     }
+    if (this._gridMode) {
+      const td = event.target.closest('td[data-cell]');
+      if (td && !td.classList.contains('table_cell--editing')) {
+        this._setActiveCell(td, !event.target.closest(INTERACTIVE));
+        // A click on an editable cell picks it; a double click edits it.
+        if (td.classList.contains('table_cell--editable')) return;
+      }
+    }
     if (event.target.closest(INTERACTIVE)) return;
     const tr = event.target.closest('tr');
     this._activateRow(tr, event);
   }
 
   _handleBodyKeydown(event) {
+    if (this._gridMode && this._handleGridKeydown(event)) return;
     if (event.key !== 'Enter') return;
     const tr = event.target;
     if (!(tr instanceof HTMLTableRowElement)) return;

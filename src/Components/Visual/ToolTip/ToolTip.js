@@ -1,4 +1,4 @@
-import { TooltipCore, DEFAULTS, PLACEMENTS, VARIANTS, MODES, focusableInside, normalizeConfig } from '../../shared/tooltip-core.js';
+import { TooltipCore, DEFAULTS, PLACEMENTS, VARIANTS, MODES, focusableInside, normalizeConfig } from '../../shared/tooltip/tooltipCore.js';
 
 // ToolTip — wraps a control and explains it.
 //

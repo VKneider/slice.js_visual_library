@@ -3,8 +3,9 @@ export default class LinkDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"basic route-aware link","expected":"clicking navigates through the router, href stays in the DOM","kind":"script","content":"const link = await slice.build('Link', { text: 'Components', path: '/docs' });\nmount(link);"},{"label":"icon + subtitle","expected":"a labelled link with an icon chip and a secondary line","kind":"script","content":"const row = document.createElement('div');\nrow.style.cssText = 'display:flex;flex-direction:column;gap:12px;font-family:system-ui,sans-serif;';\n\nconst docs = await slice.build('Link', {\n  text: 'Components',\n  sub: '42 items',\n  icon: 'rocket',\n  path: '/docs'\n});\n\nconst plain = await slice.build('Link', { text: 'Plain link', path: '/docs' });\n\nrow.appendChild(docs);\nrow.appendChild(plain);\nreturn row;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"basic route-aware link","expected":"clicking navigates through the router, href stays in the DOM","kind":"script","content":"const link = await slice.build('Link', { text: 'Components', path: '/docs' });\nmount(link);"},{"label":"icon + subtitle","expected":"a labelled link with an icon chip and a secondary line","kind":"script","content":"const row = document.createElement('div');\nrow.style.cssText = 'display:flex;flex-direction:column;gap:12px;font-family:system-ui,sans-serif;';\n\nconst docs = await slice.build('Link', {\n  text: 'Components',\n  sub: '42 items',\n  icon: 'rocket',\n  path: '/docs'\n});\n\nconst plain = await slice.build('Link', { text: 'Plain link', path: '/docs' });\n\nrow.appendChild(docs);\nrow.appendChild(plain);\nreturn row;"}];
   }
 
   async init() {
@@ -21,9 +22,12 @@ export default class LinkDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

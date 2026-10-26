@@ -1,11 +1,11 @@
 <div class="documentation-content htmlservicedocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="htmlservice">
-    <span class="doc-title-text">HtmlService</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="htmlservice">
+     <span class="doc-title-text">HtmlService</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>HtmlService</code> is a <strong>Service</strong> component: a plain logic class (no DOM, no template) that makes it safe to turn an HTML <strong>string</strong> into real markup.</p>
 <p>Most of the library never needs it, and that is the point — every visual component here assigns <code>textContent</code>, so it cannot produce markup injection at all. Reach for this service only at the <strong>boundary where HTML you did not write enters your app</strong>: a CMS field, a markdown renderer, a template someone imports, a comment left by another user.</p>

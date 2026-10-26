@@ -35,6 +35,16 @@ const documentationRoutes = {
         path: '/docs/data/pagination',
         component: 'PaginationDocumentation'
       },
+      {
+        title: 'DataList',
+        path: '/docs/data/datalist',
+        component: 'DataListDocumentation'
+      },
+      {
+        title: 'DescriptionList',
+        path: '/docs/data/description-list',
+        component: 'DescriptionListDocumentation'
+      },
     ]
   },
   Display: {
@@ -47,9 +57,19 @@ const documentationRoutes = {
         component: 'IconDocumentation'
       },
       {
+        title: 'Avatar',
+        path: '/docs/display/avatar',
+        component: 'AvatarDocumentation'
+      },
+      {
         title: 'EmptyState',
         path: '/docs/display/empty-state',
         component: 'EmptyStateDocumentation'
+      },
+      {
+        title: 'AvatarGroup',
+        path: '/docs/display/avatar-group',
+        component: 'AvatarGroupDocumentation'
       },
       {
         title: 'Badge',
@@ -83,6 +103,16 @@ const documentationRoutes = {
     path: '/docs/feedback',
     items: [
       {
+        title: 'Alert',
+        path: '/docs/feedback/alert',
+        component: 'AlertDocumentation'
+      },
+      {
+        title: 'Toast',
+        path: '/docs/feedback/toast',
+        component: 'ToastDocumentation'
+      },
+      {
         title: 'Loading',
         path: '/docs/feedback/loading',
         component: 'LoadingDocumentation'
@@ -92,10 +122,21 @@ const documentationRoutes = {
         path: '/docs/feedback/modal',
         component: 'ModalDocumentation'
       },
+    ]
+  },
+  Guides: {
+    title: 'Guides',
+    path: '/docs/guides',
+    items: [
       {
-        title: 'Toast',
-        path: '/docs/feedback/toast',
-        component: 'ToastDocumentation'
+        title: 'Data components',
+        path: '/docs/guides/data-components',
+        component: 'DataComponentsDocumentation'
+      },
+      {
+        title: 'Data and loading',
+        path: '/docs/guides/data-and-loading',
+        component: 'DataAndLoadingDocumentation'
       },
     ]
   },
@@ -241,6 +282,11 @@ const documentationRoutes = {
         component: 'NotFoundDocumentation'
       },
       {
+        title: 'SideMenu',
+        path: '/docs/navigation/side-menu',
+        component: 'SideMenuDocumentation'
+      },
+      {
         title: 'TreeView',
         path: '/docs/navigation/treeview',
         component: 'TreeViewDocumentation'
@@ -287,6 +333,11 @@ const documentationRoutes = {
         title: 'DragDropService',
         path: '/docs/services/drag-drop',
         component: 'DragDropServiceDocumentation'
+      },
+      {
+        title: 'InfiniteScrollService',
+        path: '/docs/services/infinite-scroll',
+        component: 'InfiniteScrollServiceDocumentation'
       },
       {
         title: 'FetchManager',

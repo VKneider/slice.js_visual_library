@@ -1,0 +1,662 @@
+/* DescriptionList — one record as label → value pairs. */
+
+slice-description-list {
+  --slice-description-list-accent: var(--primary-color);
+  --slice-description-list-text: var(--font-primary-color);
+  --slice-description-list-muted: var(--font-secondary-color);
+  --slice-description-list-bg: var(--primary-background-color);
+  --slice-description-list-border: var(--slice-border-raised, var(--primary-color-shade));
+  --slice-description-list-line: color-mix(in srgb, var(--slice-description-list-text) 9%, transparent);
+  --slice-description-list-hover: color-mix(in srgb, var(--slice-description-list-text) 4%, transparent);
+  --slice-description-list-radius: 12px;
+  --slice-description-list-pad-y: 12px;
+  --slice-description-list-pad-x: 16px;
+  --slice-description-list-label: minmax(120px, 34%);
+  --slice-description-list-columns: 2;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  color: var(--slice-description-list-text);
+  font-family: var(--font-family, inherit);
+}
+
+slice-description-list[hidden],
+slice-description-list [hidden] {
+  display: none !important;
+}
+
+slice-description-list[data-density='compact'] {
+  --slice-description-list-pad-y: 7px;
+  --slice-description-list-pad-x: 12px;
+}
+
+slice-description-list[data-density='spacious'] {
+  --slice-description-list-pad-y: 16px;
+  --slice-description-list-pad-x: 20px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+
+slice-description-list .slice-description-list__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+slice-description-list .slice-description-list__heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+slice-description-list .slice-description-list__title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+slice-description-list .slice-description-list__description {
+  margin: 0;
+  color: var(--slice-description-list-muted);
+  font-size: 0.9rem;
+}
+
+slice-description-list .slice-description-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Sections ───────────────────────────────────────────────────── */
+
+slice-description-list .slice-description-list__body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+slice-description-list .slice-description-list__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+slice-description-list .slice-description-list__section-head {
+  display: grid;
+  gap: 2px;
+}
+
+slice-description-list .slice-description-list__section-title {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--slice-description-list-muted);
+}
+
+slice-description-list .slice-description-list__section-description {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--slice-description-list-muted);
+}
+
+slice-description-list .slice-description-list__section-toggle {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+slice-description-list .slice-description-list__section-toggle:focus-visible {
+  outline: 2px solid var(--slice-description-list-accent);
+  outline-offset: 2px;
+}
+
+slice-description-list .slice-description-list__chevron {
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform 160ms ease;
+}
+
+slice-description-list .slice-description-list__section-toggle[aria-expanded='false'] .slice-description-list__chevron {
+  transform: rotate(-45deg);
+}
+
+/* ── The list ───────────────────────────────────────────────────── */
+
+slice-description-list .slice-description-list__fields {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  min-width: 0;
+}
+
+slice-description-list[data-variant='outlined'] .slice-description-list__fields {
+  border: 1px solid var(--slice-description-list-border);
+  border-radius: var(--slice-description-list-radius);
+  background: var(--slice-description-list-bg);
+  overflow: hidden;
+}
+
+slice-description-list[data-variant='filled'] .slice-description-list__fields {
+  border-radius: var(--slice-description-list-radius);
+  background: color-mix(in srgb, var(--slice-description-list-text) 4%, var(--slice-description-list-bg));
+}
+
+slice-description-list .slice-description-list__field {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--slice-description-list-label) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: var(--slice-description-list-pad-y) var(--slice-description-list-pad-x);
+  min-width: 0;
+}
+
+slice-description-list[data-variant='ghost'] .slice-description-list__field,
+slice-description-list[data-variant='separated'] .slice-description-list__field {
+  padding-inline: 0;
+}
+
+/* Hairlines between rows (not around the first or a hidden one). */
+slice-description-list:not([data-variant='ghost']) .slice-description-list__field:not([hidden]) ~ .slice-description-list__field {
+  border-top: 1px solid var(--slice-description-list-line);
+}
+
+slice-description-list[data-layout='stacked'] .slice-description-list__field,
+slice-description-list.is-narrow .slice-description-list__field {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+/* Grid: fields side by side in columns, each with its label on top. */
+slice-description-list[data-layout='grid'] .slice-description-list__fields {
+  display: grid;
+  grid-template-columns: repeat(var(--slice-description-list-columns), minmax(0, 1fr));
+}
+
+slice-description-list[data-layout='grid'] .slice-description-list__field {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  border-top: 0 !important;
+  box-shadow: inset 0 1px 0 var(--slice-description-list-line);
+}
+
+slice-description-list[data-layout='grid'][data-variant='ghost'] .slice-description-list__field {
+  box-shadow: none;
+}
+
+slice-description-list[data-layout='grid'] .slice-description-list__field[data-span='2'] {
+  grid-column: span min(2, var(--slice-description-list-columns));
+}
+
+slice-description-list[data-layout='grid'] .slice-description-list__field[data-span='3'] {
+  grid-column: span min(3, var(--slice-description-list-columns));
+}
+
+slice-description-list[data-layout='grid'] .slice-description-list__field[data-span='full'] {
+  grid-column: 1 / -1;
+}
+
+slice-description-list[data-layout='grid'].is-narrow .slice-description-list__fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+slice-description-list[data-layout='grid'].is-narrow .slice-description-list__field {
+  grid-column: auto;
+}
+
+/* ── Label and value ────────────────────────────────────────────── */
+
+slice-description-list .slice-description-list__label {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  color: var(--slice-description-list-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  line-height: 1.4;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+slice-description-list .slice-description-list__help {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+slice-description-list .slice-description-list__value {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  min-width: 0;
+  font-size: 0.925rem;
+  line-height: 1.5;
+}
+
+slice-description-list .slice-description-list__main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 24px;
+}
+
+slice-description-list .slice-description-list__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+slice-description-list .slice-description-list__field.is-empty .slice-description-list__content {
+  color: var(--slice-description-list-muted);
+}
+
+slice-description-list .slice-description-list__text.is-multiline {
+  white-space: pre-line;
+}
+
+slice-description-list .slice-description-list__text.is-numeric {
+  font-variant-numeric: tabular-nums;
+}
+
+slice-description-list .slice-description-list__code {
+  font-family: var(--font-family-mono, ui-monospace, 'Cascadia Code', 'Fira Code', monospace);
+  font-size: 0.85em;
+  padding: 0.15em 0.45em;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--slice-description-list-text) 7%, transparent);
+}
+
+slice-description-list .slice-description-list__link {
+  color: var(--primary-color-readable, var(--slice-description-list-accent));
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  text-underline-offset: 0.18em;
+}
+
+slice-description-list .slice-description-list__link:hover {
+  text-decoration-color: currentColor;
+}
+
+slice-description-list .slice-description-list__person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+slice-description-list .slice-description-list__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+slice-description-list .slice-description-list__list {
+  margin: 0;
+  padding-inline-start: 1.1em;
+}
+
+/* An editable value looks it: a pointer and a soft hover. */
+slice-description-list .slice-description-list__field:has([data-tool='pen']) .slice-description-list__content {
+  cursor: text;
+}
+
+slice-description-list:is([data-variant='outlined'], [data-variant='filled']) .slice-description-list__field:has([data-tool='pen']):hover {
+  background: var(--slice-description-list-hover);
+}
+
+/* ── Tools: copy and edit ───────────────────────────────────────── */
+
+slice-description-list .slice-description-list__tools {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+slice-description-list .slice-description-list__tools:empty {
+  display: none;
+}
+
+slice-description-list .slice-description-list__field:hover .slice-description-list__tools,
+slice-description-list .slice-description-list__field:focus-within .slice-description-list__tools {
+  opacity: 1;
+}
+
+/* No hover on touch: the tools are always there. */
+@media (hover: none) {
+  slice-description-list .slice-description-list__tools {
+    opacity: 1;
+  }
+}
+
+slice-description-list .slice-description-list__tool {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--slice-description-list-muted);
+  cursor: pointer;
+}
+
+slice-description-list .slice-description-list__tool:hover {
+  background: color-mix(in srgb, var(--slice-description-list-text) 8%, transparent);
+  color: var(--slice-description-list-text);
+}
+
+slice-description-list .slice-description-list__tool:focus-visible {
+  outline: 2px solid var(--slice-description-list-accent);
+  outline-offset: 1px;
+}
+
+slice-description-list .slice-description-list__tool.is-done {
+  color: var(--success-color-readable, var(--success-color, #16a34a));
+}
+
+/* ── Editor ─────────────────────────────────────────────────────── */
+
+slice-description-list .slice-description-list__field.is-editing {
+  background: color-mix(in srgb, var(--slice-description-list-accent) 5%, transparent);
+}
+
+slice-description-list .slice-description-list__editor {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+slice-description-list .slice-description-list__control > * {
+  width: 100%;
+}
+
+slice-description-list .slice-description-list__editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+slice-description-list .slice-description-list__field.is-saving .slice-description-list__main,
+slice-description-list .slice-description-list__field.is-saving .slice-description-list__control {
+  opacity: 0.6;
+}
+
+slice-description-list .slice-description-list__field.is-saving::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--slice-description-list-accent), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: slice-description-list-saving 1s linear infinite;
+}
+
+@keyframes slice-description-list-saving {
+  from { background-position: -50% 0; }
+  to { background-position: 150% 0; }
+}
+
+slice-description-list .slice-description-list__error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--danger-color-readable, var(--danger-color, #dc2626));
+}
+
+/* ── Loading and errors ─────────────────────────────────────────── */
+
+slice-description-list .slice-description-list__skeleton {
+  display: block;
+  height: 0.9em;
+  margin-block: 0.3em;
+  border-radius: 6px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--slice-description-list-text) 7%, transparent) 0%,
+    color-mix(in srgb, var(--slice-description-list-text) 13%, transparent) 50%,
+    color-mix(in srgb, var(--slice-description-list-text) 7%, transparent) 100%);
+  background-size: 200% 100%;
+  animation: slice-description-list-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes slice-description-list-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-description-list .slice-description-list__skeleton,
+  slice-description-list .slice-description-list__field.is-saving::after {
+    animation: none;
+  }
+}
+
+slice-description-list .slice-description-list__state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--slice-description-list-radius);
+  border: 1px solid color-mix(in srgb, var(--danger-color, #dc2626) 35%, transparent);
+  background: color-mix(in srgb, var(--danger-color, #dc2626) 7%, transparent);
+}
+
+slice-description-list .slice-description-list__state-text {
+  margin: 0;
+}
+
+slice-description-list .slice-description-list__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Sheet: the spreadsheet look ────────────────────────────────────
+   A grid of cells with hairlines, the labels as shaded row headers, one
+   active cell with a strong outline, and edits made inside the cell. */
+
+slice-description-list[data-variant='sheet'] {
+  --slice-description-list-grid: color-mix(in srgb, var(--slice-description-list-text) 14%, transparent);
+  --slice-description-list-head: color-mix(in srgb, var(--slice-description-list-text) 5%, var(--slice-description-list-bg));
+  --slice-description-list-group: color-mix(in srgb, var(--slice-description-list-accent) 8%, var(--slice-description-list-bg));
+  --slice-description-list-cell-y: 6px;
+  --slice-description-list-cell-x: 10px;
+  --slice-description-list-label: minmax(110px, 32%);
+}
+
+slice-description-list[data-variant='sheet'][data-density='compact'] {
+  --slice-description-list-cell-y: 3px;
+  --slice-description-list-cell-x: 8px;
+}
+
+slice-description-list[data-variant='sheet'][data-density='spacious'] {
+  --slice-description-list-cell-y: 10px;
+  --slice-description-list-cell-x: 12px;
+}
+
+/* One frame around every section, like one worksheet. */
+slice-description-list[data-variant='sheet'] .slice-description-list__body {
+  gap: 0;
+  border: 1px solid var(--slice-description-list-grid);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--slice-description-list-bg);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__section {
+  gap: 0;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__section + .slice-description-list__section {
+  border-top: 1px solid var(--slice-description-list-grid);
+}
+
+/* A section heading is a group row across the sheet. */
+slice-description-list[data-variant='sheet'] .slice-description-list__section-head {
+  padding: 5px var(--slice-description-list-cell-x);
+  background: var(--slice-description-list-group);
+  border-bottom: 1px solid var(--slice-description-list-grid);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__section-title {
+  font-size: 0.75rem;
+  color: var(--slice-description-list-text);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__fields {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__field {
+  gap: 0;
+  padding: 0;
+  align-items: stretch;
+  border-top: 0 !important;
+  box-shadow: none;
+  font-size: 0.875rem;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__field:not([hidden]) ~ .slice-description-list__field {
+  border-top: 1px solid var(--slice-description-list-grid) !important;
+}
+
+/* The narrow and stacked layouts keep the row headers in the sheet: it is
+   a table, and a table reads across. */
+slice-description-list[data-variant='sheet'][data-layout='stacked'] .slice-description-list__field,
+slice-description-list[data-variant='sheet'].is-narrow .slice-description-list__field {
+  grid-template-columns: minmax(96px, 38%) minmax(0, 1fr);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--slice-description-list-cell-y) var(--slice-description-list-cell-x);
+  background: var(--slice-description-list-head);
+  border-inline-end: 1px solid var(--slice-description-list-grid);
+  color: var(--slice-description-list-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__value {
+  position: relative;
+  align-content: center;
+  gap: 2px;
+  padding: var(--slice-description-list-cell-y) var(--slice-description-list-cell-x);
+  min-height: 34px;
+  box-sizing: border-box;
+  outline: none;
+  font-size: 0.875rem;
+  cursor: cell;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__main {
+  min-height: 22px;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__text.is-numeric {
+  display: block;
+  text-align: end;
+}
+
+/* The active cell: a strong outline, drawn inside so neighbours never move. */
+slice-description-list[data-variant='sheet'] .slice-description-list__value.is-active {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slice-description-list-accent) 45%, transparent);
+}
+
+slice-description-list[data-variant='sheet']:focus-within .slice-description-list__value.is-active,
+slice-description-list[data-variant='sheet'] .slice-description-list__field.is-editing .slice-description-list__value {
+  box-shadow: inset 0 0 0 2px var(--slice-description-list-accent);
+  z-index: 1;
+}
+
+/* Its row header lights up too, as Excel's does. */
+slice-description-list[data-variant='sheet']:focus-within .slice-description-list__field:has(.is-active) .slice-description-list__label {
+  background: color-mix(in srgb, var(--slice-description-list-accent) 12%, var(--slice-description-list-bg));
+  color: var(--slice-description-list-text);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__value:not([data-editable]) {
+  cursor: default;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__field.is-editing {
+  background: none;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__value:hover {
+  background: color-mix(in srgb, var(--slice-description-list-text) 3%, transparent);
+}
+
+/* The editor fills the cell: no box of its own, no buttons. */
+slice-description-list[data-variant='sheet'] .slice-description-list__editor {
+  gap: 0;
+  margin: calc(var(--slice-description-list-cell-y) * -1) calc(var(--slice-description-list-cell-x) * -1);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__editor-actions {
+  display: none;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__value.is-copied {
+  background: color-mix(in srgb, var(--success-color, #16a34a) 10%, transparent);
+  transition: background 300ms ease;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__field.has-error .slice-description-list__value {
+  box-shadow: inset 0 0 0 2px var(--danger-color, #dc2626);
+  background: color-mix(in srgb, var(--danger-color, #dc2626) 6%, transparent);
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__error {
+  font-size: 0.75rem;
+}
+
+/* Grid layout in the sheet: cells side by side, each with its header on top. */
+slice-description-list[data-variant='sheet'][data-layout='grid']:not(.is-narrow) .slice-description-list__fields {
+  gap: 0;
+  /* The last column's and row's lines fall under the frame, not beside it. */
+  margin: 0 -1px -1px 0;
+}
+
+slice-description-list[data-variant='sheet'][data-layout='grid']:not(.is-narrow) .slice-description-list__field {
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 0 !important;
+  box-shadow: inset -1px -1px 0 var(--slice-description-list-grid);
+}
+
+slice-description-list[data-variant='sheet'][data-layout='grid']:not(.is-narrow) .slice-description-list__label {
+  border-inline-end: 0;
+  border-bottom: 1px solid var(--slice-description-list-grid);
+  padding-block: 3px;
+  font-size: 0.72rem;
+}
+
+slice-description-list[data-variant='sheet'] .slice-description-list__field.is-saving::after {
+  z-index: 2;
+}

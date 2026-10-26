@@ -32,8 +32,12 @@
 | Boolean props | adjective, **no** `is`/`has` prefix | `disabled`, `checked`, `open`, `loading`, `selected` |
 | Event handler props | `on` + PascalCase event | `onClick`, `onChange`, `onSelect`, `onClose` |
 | Custom element tag | `slice-<kebab-name>` | `slice-button`, `slice-floating-dock` |
-| CSS classes | `kebab_or_snake` scoped under the tag (§8) | `slice-button .slice_button` |
-| CSS keyframes | prefix with component to avoid global collision | `slice_input_shake` |
+| CSS classes (new components) | root class **identical to the component name**, parts in BEM, scoped under the tag (§8) | `slice-data-list`, `slice-data-list__item`, `slice-data-list__item.is-busy` |
+| CSS classes (legacy) | `snake_case` under the tag; keep them, do not mix styles in one component | `slice-button .slice_button` |
+| State classes | `is-*` / `has-*` on the element they describe | `is-loading`, `is-active`, `has-error` |
+| Variants, sizes, tones | `data-*` attributes on the host, styled with attribute selectors | `slice-badge[data-tone='danger']` |
+| CSS custom properties | `--slice-<name>-<thing>`, declared on the host | `--slice-alert-ink`, `--slice-data-list-radius` |
+| CSS keyframes | prefix with component to avoid global collision | `slice-badge-pulse`, `slice_input_shake` |
 | Internal backing field | `_<prop>` | `_onClick`, `_customColor` |
 
 ---
@@ -77,7 +81,8 @@ clickable, and would collide with any future `onClick` on the wrapper. So it is 
 | `value` | the component's current value (Button label text, Input value, Select selection) |
 | `checked` | boolean on/off (Checkbox, Switch) |
 | `disabled` | non-interactive state |
-| `loading` | async/busy state |
+| `loading` | async/busy state (a component that loads its own data drives it itself; see §13) |
+| `error` | an error text to show in place of the content |
 | `open` | expanded/visible state (prefer over `isOpen`) |
 | `items` | array of structured entries the component renders (see §4) |
 | `options` | array of selectable choices (Select, DropDown) |
@@ -86,7 +91,8 @@ clickable, and would collide with any future `onClick` on the wrapper. So it is 
 
 | Prop | Values |
 | --- | --- |
-| `variant` | enumerated visual style, declared via `allowedValues` (e.g. `'default' \| 'outlined' \| 'elevated' \| 'minimal'`). Include a `danger` value on any destructive action control |
+| `variant` | how **loud** it is, declared via `allowedValues`. Use Button's names where they fit: `'filled' \| 'outlined' \| 'ghost' \| 'soft'` (Badge, Alert, SideMenu follow them). Include a `danger` value on any destructive action control |
+| `tone` | what it **means**, separate from `variant`: `'neutral' \| 'accent' \| 'info' \| 'success' \| 'warning' \| 'danger'` (Badge, Alert). Never put meaning in `variant` |
 | `size` | `'md' \| 'sm'` — density modifier, declared via `allowedValues`. The class swap must be **idempotent**: remove the previous modifier before adding the next, and fall back to the default on an unknown value |
 | `position` | `'static' \| 'fixed'` |
 | `direction` | `'normal' \| 'reverse'` |
@@ -408,7 +414,91 @@ All deprecated forms continue to work and emit a one-time console warning.
 
 ---
 
-## 13. Checklist for a new/updated component
+## 13. Data-driven components: sources, states and loading
+
+Applies to every component that shows **records** (DataList, Table, DescriptionList) or loads
+anything over the network. The app-developer side of the same rules is the docs guide
+**Data and the first load** (`src/markdown/guide-data-and-loading.md`).
+
+### 13.1 Never await the network in `init()` or `update()`
+
+The router shows the app's loader (`slice.loading`) around **the whole build of the route**: it
+calls `loading.start()`, awaits `slice.build()` of the route component (which awaits its `init()`,
+and every `slice.build()` that `init()` awaits), or `update()` for a cached route, and only then
+`loading.stop()`. One `await fetch()` in an `init()` keeps the whole page behind the loader, and
+nested ones run **one after the other**.
+
+So: `init()` builds the structure and returns. Data is started **without** `await`
+(`this._fetch()`), and the component shows its own loading state until it arrives.
+
+### 13.2 Three sources, one vocabulary
+
+| Prop | Meaning |
+| --- | --- |
+| `items` (`rows` in Table) | an array the app owns; setting it again redraws |
+| `context` + `contextPath` | a `slice.context` context and the path of the data in it (`'items'` for lists, `''` when the state is the data). The component **watches** it, and **writes its changes back** to it |
+| `load` | `async ({ …query, signal }) => result`. Lists receive `{ page, pageSize, search, filters, sort, view, signal }` and return `{ items, total }` or an array; one record returns the record |
+
+- One request at a time: a new one **aborts** the previous (`AbortController`); `beforeDestroy()`
+  aborts too. A late answer to an aborted request is ignored.
+- A burst of query changes (sort + page reset) makes **one** request (queue it in a microtask).
+- `reload()` asks again; `update()` (a cached route that came back) calls it.
+- `onError(error, { type, … })` for every failure: `type` is `'load'`, `'add'`, `'update'`,
+  `'remove'`, `'edit'` or `'save'`.
+
+### 13.3 The states every data component shows
+
+| State | What the user sees |
+| --- | --- |
+| first load | a **skeleton** shaped like the content (never an empty box, never a spinner over nothing). The first paint is already the skeleton |
+| loading again | the old content stays, marked busy (`aria-busy`, a thin progress line or the component's overlay) |
+| empty | an EmptyState saying what would be here, with the action that fills it |
+| no results | "Nothing matches" and a way to clear the search and filters |
+| error | what failed and **Try again** (`role="alert"`). Never a blank area |
+| saving | the row / field / cell busy, the rest usable |
+
+### 13.4 Changing data: commit first, or optimistic with rollback
+
+- **CRUD methods** are `addItem` / `updateItem` / `removeItem` (`addRow` / `updateRow` /
+  `removeRow` in Table). Never `update()`: that name belongs to the framework (§9).
+- Options are always `{ commit, … }`. A **list change is optimistic**: it shows at once; if
+  `commit` throws, it is taken back and an error Alert says so. `removeItem(…, { undo: true })`
+  waits for the undo time before calling `commit`.
+- A **field or cell edit is commit-first**: `commit({ key, value, previous, … })` runs while the
+  field is busy, and the record changes when it resolves. If it throws or returns `false`, the
+  old value stays and the field shows the error's message. A returned object replaces the record.
+- Arrays and records are **never mutated**: every change makes a new one
+  (`shared/data/collection.js`, `writePath`), so a context sees it.
+- A component built from data must not lose what someone is typing when the context updates
+  elsewhere (keep the open editor; redraw it when it closes).
+
+### 13.5 Editing uses `edit`
+
+A field or column is editable with `edit: true | type | { type, options, required, min, max,
+step, validate(value, record), parse(value) }`. The control is chosen by
+`shared/editing/inlineControl.js`, so the same `edit` works in DescriptionList and Table.
+
+---
+
+## 14. Code organisation: component, part or shared
+
+| It… | It is a… | Where |
+| --- | --- | --- |
+| has markup of its own, and an app would use it alone with props | **component** | `Visual/<Name>/` (no markup but state: `Service/<Name>/`) |
+| is a piece of one component | **part** | `Visual/<Name>/parts/` |
+| is used by two or more components, and is neither | **shared** | `src/Components/shared/` |
+
+- `shared/README.md` lists every shared file and who uses it; update it when you add a user.
+- A component's own `.js` has **only** `export default` (named exports break the bundler);
+  parts and shared files may have named exports.
+- Class files are PascalCase (`parts/Selection.js`), function files camelCase by subject
+  (`data/dates.js`). Every file starts with what it is and who uses it.
+- When shared code starts drawing its own interface, make it a component (that is how DataList's
+  and Table's undo bar became `Alert`).
+
+---
+
+## 15. Checklist for a new/updated component
 
 - [ ] Props follow §3–§6 vocabulary; new aliases follow §7.
 - [ ] `static props` complete with defaults / `allowedValues` (§10).
@@ -427,3 +517,11 @@ All deprecated forms continue to work and emit a one-time console warning.
       render, props/setters, deprecated aliases (§7) if any, handlers, and a11y. `pnpm run
       test:e2e` passes. See `playwright/README.md`.
 - [ ] Markdown doc added/updated in `src/markdown/` using canonical names; run `docs:generate` + `docs:lint-md`.
+      The doc says **when to use it and when not**, and its examples are complete app scenarios that
+      use other components.
+- [ ] Root class identical to the component name (`slice-<name>`), parts in BEM, variants as
+      `data-*` (§2).
+- [ ] Loads data? Not awaited in `init()`/`update()`; `items`/`context`/`load`; skeleton, empty,
+      error with Try again; requests aborted on destroy (§13).
+- [ ] Changes data? `{ commit }` with rollback, never mutating the input (§13.4).
+- [ ] Code it shares lives in `shared/` (README updated), its private pieces in `parts/` (§14).

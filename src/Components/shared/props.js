@@ -1,4 +1,6 @@
 // Helpers for the props many components share: `size` and `className`.
+// Used by Button, Input, Textarea, Checkbox, ColorPicker, FileUpload, Card,
+// Details, Pagination, Loading and SideMenu.
 
 /** The sizes every control accepts. Use it as the prop's `allowedValues`. */
 export const SIZE_VALUES = ['sm', 'md', 'lg'];

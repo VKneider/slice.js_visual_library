@@ -410,10 +410,13 @@ export default class Details extends HTMLElement {
 
    _badgeProps(value) {
       if (value === null || value === undefined || value === '' || value === false) return null;
-      if (typeof value === 'number') return { value, variant: 'neutral' };
-      if (typeof value === 'string') return { label: value, variant: 'neutral' };
+      if (typeof value === 'number') return { value, tone: 'neutral' };
+      if (typeof value === 'string') return { label: value, tone: 'neutral' };
       if (typeof value === 'object') {
-         return { ...value, variant: BADGE_VARIANTS.includes(value.variant) ? value.variant : 'neutral' };
+         // `variant` used to carry the meaning; Badge now calls it `tone`.
+         const { variant, ...rest } = value;
+         const tone = BADGE_VARIANTS.includes(value.tone) ? value.tone : BADGE_VARIANTS.includes(variant) ? variant : 'neutral';
+         return { ...rest, tone, ...(variant && !BADGE_VARIANTS.includes(variant) ? { variant } : {}) };
       }
       return null;
    }

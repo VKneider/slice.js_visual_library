@@ -1,0 +1,61 @@
+<div class="documentation-content dataandloadingdocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="data-and-the-first-load">
+     <span class="doc-title-text">Data and the first load</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p>Almost every app shows data from a server. Where you ask for it decides how fast the app feels. This guide explains what Slice waits for before it shows a page, and five patterns that keep pages fast while the data is on its way.</p>
+<p>The short version: <strong>build the page, then bring the data. Never make the page wait for the network.</strong></p>
+<h2 id="what-slice-waits-for">What Slice waits for</h2>
+<p>With <code>"loading": { "enabled": true }</code> in <code>sliceConfig.json</code>, Slice shows its loader (<code>slice.loading</code>) while it prepares a page: on the first load of the app and on every route change. The router does this:</p>
+<ol><li><code>slice.loading.start()</code>;</li><li>builds the route's component with <code>await slice.build(...)</code>. That waits for its <code>init()</code>, and inside it, for every <code>slice.build()</code> that <code>init()</code> awaits, and their <code>init()</code>s, all the way down. A cached route that comes back waits for its <code>update()</code> instead;</li><li><code>slice.loading.stop()</code>.</li></ol>
+<p>So <strong>everything an <code>init()</code> awaits happens behind the loader</strong>. One <code>await fetch(...)</code> in an <code>init()</code> and the whole page waits for the network. In nested components it gets worse: the parent awaits the child, the child awaits its fetch, and the requests run <strong>one after another</strong> instead of together.</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<p>Building components is fast and stays awaited: <code>await slice.build()</code> is how a component comes to exist. What should not be awaited is <strong>the network</strong>.</p>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="pattern-1-let-the-component-load-its-data">Pattern 1 — Let the component load its data</h2>
+<p><span data-inline-link="0"></span>, <span data-inline-link="1"></span> and <span data-inline-link="2"></span> take a <code>load</code> function. They call it after they are on the page, and they handle every state for you:</p>
+<ul><li>a <strong>skeleton</strong> shaped like the content on the first load;</li><li>the old content kept, marked busy, when they load again (a new page, a search);</li><li>an <strong>error with Try again</strong>;</li><li>a new request <strong>cancels</strong> the previous one (<code>signal</code>), and so does leaving the page;</li><li><code>reload()</code> asks again, and a cached route that comes back reloads by itself.</li></ul>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<p>This is the default. Use it whenever one component shows one set of data.</p>
+<h2 id="pattern-2-share-data-through-a-context">Pattern 2 — Share data through a context</h2>
+<p>When several components show the same data (a list, a counter in the menu, a chart), ask for it <strong>once</strong> and keep it in a context (<code>slice.context.create(name, …)</code>). Every component watches the context, so a change anywhere shows everywhere, and nothing is asked twice.</p>
+<p>(To persist a context or create it from several places safely, <span data-inline-link="3"></span> is a thin layer over <code>slice.context</code>; the pattern is the same.)</p>
+<p>Keep the request's state in the context next to the data, so every component can show it. A helper like this one lives in a module of your app (for example <code>src/Components/AppComponents/resources.js</code>) and is imported with a relative path:</p>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<p>The states mean: <code>loading</code> (nothing yet: show a skeleton), <code>refreshing</code> (show what you have, quietly busy), <code>ready</code>, <code>error</code> (keep the old data if there is some, and offer Try again).</p>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="pattern-3-ask-early-in-parallel">Pattern 3 — Ask early, in parallel</h2>
+<p>Two things make data arrive sooner: asking <strong>before</strong> it is needed, and asking for everything <strong>at the same time</strong>.</p>
+<ul><li><strong>At the start of the app</strong>, ask for what most pages need (the user, their permissions, the menu), without awaiting it. When a page needs it, it is there or on its way.</li><li><strong>When a navigation is likely</strong>, ask then: on hover or focus of a link, <code>orders.load()</code>. With the resource above, a second <code>load()</code> shares the first request, so asking early costs nothing.</li><li><strong>In a route's component</strong>, start every request of the page together and let each part show its own state. Never chain them through nested <code>init()</code>s.</li></ul>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<h2 id="pattern-4-when-the-page-really-cannot-show-without-the-data">Pattern 4 — When the page really cannot show without the data</h2>
+<p>Some data decides <strong>what</strong> the page is: whether the user is signed in, whether they may see it, which plan they are on. Waiting for it is correct, but:</p>
+<ul><li>wait only for that, in <strong>one</strong> place (the route's component), with <code>Promise.all</code>, never one after another;</li><li>give it a <strong>time budget</strong>: after it, show the page with what you have and let the rest keep loading;</li><li>keep it small and cacheable (a session, not the user's whole history).</li></ul>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<h2 id="pattern-5-coming-back-to-a-page">Pattern 5 — Coming back to a page</h2>
+<p>A route kept in cache runs <code>update()</code> when it comes back, and the loader waits for it too. Show what you already have <strong>at once</strong>, and refresh behind it:</p>
+<div class="code-block" data-block-id="doc-block-9"></div>
+<h2 id="saving-changes">Saving changes</h2>
+<p>The same rule applies the other way: the page stays usable while a change is saved.</p>
+<ul><li><strong>List changes are optimistic.</strong> <code>addItem</code>, <code>updateItem</code> and <code>removeItem</code> (<code>addRow</code>… in Table) show the change at once and run your <code>commit</code>. If it fails, the change is taken back and an <span data-inline-link="4"></span> says so. <code>removeItem(keys, { undo: true, commit })</code> gives an Undo before the server is asked at all.</li><li><strong>Field and cell edits are commit-first.</strong> In DescriptionList and Table the edited value shows busy while <code>commit</code> runs, and the record changes when it succeeds. If it fails, the old value stays and the field shows the error.</li><li><strong>Throw with a message people can act on.</strong> "Prices over 1,000 need approval." shows on the field and on the bar; "Error 500" helps nobody.</li></ul>
+<div class="code-block" data-block-id="doc-block-10"></div>
+<h2 id="the-apps-own-loader">The app's own loader</h2>
+<p><code>sliceConfig.loading</code> sets how <span data-inline-link="5"></span> looks while a page is prepared:</p>
+<ul><li><code>delayMs</code>: work that ends before this shows nothing. Use 150–300 ms, so fast route changes do not flash.</li><li><code>minVisibleMs</code>: once shown, it stays at least this long, so it does not blink.</li><li><code>welcome</code>: a branded screen for the first load of the app.</li></ul>
+<p>None of this makes a slow <code>init()</code> fast. It only makes the wait look better. The real fix is the rule at the top.</p>
+<h2 id="checklist">Checklist</h2>
+<div class="callout callout-tip">- <code>init()</code> and <code>update()</code> build and return; they never <code>await</code> the network.
+- One set of data, one component: give it <code>load</code>.
+- Data several components show: a context with its state (<code>loading</code>, <code>refreshing</code>, <code>ready</code>, <code>error</code>), asked for once.
+- Requests start early and together; only what decides the page is awaited, with a time budget.
+- Every place that shows data has a skeleton, an empty state, and an error with Try again.
+- Changes: lists optimistic with rollback (and Undo for removals), fields commit-first; errors say what to do.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning"><code>Promise.all</code> over requests that do not depend on each other, not a <code>for</code> with an <code>await</code> inside: five requests of 300 ms take 300 ms together, and 1.5 s in a row.</div>
+<div class="callout callout-warning">Do not hide a slow request behind a longer <code>minVisibleMs</code> or a nicer welcome screen. Measure the first paint (as in the first example) and move the request out of <code>init()</code>.</div>
+</div>

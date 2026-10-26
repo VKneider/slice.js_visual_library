@@ -3,8 +3,9 @@ export default class LayoutDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Swap views","expected":"renders layout and replaces initial view","kind":"script","content":"const layout = await slice.build('Layout', {});\n\nconst initial = document.createElement('p');\ninitial.textContent = 'First view';\nawait layout.showing(initial);\n\nconst replacement = document.createElement('p');\nreplacement.textContent = 'Replaced view';\nawait layout.showing(replacement);\n\nreturn layout;"},{"label":"Layout with card view","expected":"renders layout containing a card","kind":"script","content":"const layout = await slice.build('Layout', {});\n\nconst card = await slice.build('Card', {\n  title: 'Layout Demo',\n  text: 'This card is mounted inside a Layout container.',\n  variant: 'outlined'\n});\n\nawait layout.showing(card);\n\nreturn layout;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Swap views","expected":"renders layout and replaces initial view","kind":"script","content":"const layout = await slice.build('Layout', {});\n\nconst initial = document.createElement('p');\ninitial.textContent = 'First view';\nawait layout.showing(initial);\n\nconst replacement = document.createElement('p');\nreplacement.textContent = 'Replaced view';\nawait layout.showing(replacement);\n\nreturn layout;"},{"label":"Layout with card view","expected":"renders layout containing a card","kind":"script","content":"const layout = await slice.build('Layout', {});\n\nconst card = await slice.build('Card', {\n  title: 'Layout Demo',\n  text: 'This card is mounted inside a Layout container.',\n  variant: 'outlined'\n});\n\nawait layout.showing(card);\n\nreturn layout;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class LayoutDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -35,9 +36,12 @@ export default class LayoutDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

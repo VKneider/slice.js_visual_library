@@ -3,8 +3,9 @@ export default class ThemeSwitcherDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"default button variant","expected":"compact pill showing the active theme name","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme'\n});\nreturn switcher;"},{"label":"menu-item variant","expected":"full-width row with caption on the left and value on the right","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Appearance',\n  variant: 'menu-item'\n});\n\nconst host = document.createElement('div');\nhost.style.maxWidth = '240px';\nhost.appendChild(switcher);\nreturn host;"},{"label":"custom theme list","expected":"cycles through the provided themes in order","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme',\n  themes: ['LIGHT', 'DARK']\n});\nreturn switcher;"},{"label":"onChange callback","expected":"status text updates each time the theme is switched","kind":"script","content":"const status = document.createElement('p');\nstatus.textContent = 'Click the switcher to change the theme';\n\nconst switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme',\n  onChange: (name) => {\n    status.textContent = `Active theme: ${name}`;\n  }\n});\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexDirection = 'column';\nhost.style.gap = '10px';\nhost.appendChild(switcher);\nhost.appendChild(status);\nreturn host;"},{"label":"display map","expected":"the pill reads 'Light' with a sun icon instead of 'LIGHT'","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme',\n  display: {\n    LIGHT: { label: 'Light', icon: 'sun' },\n    DARK: { label: 'Dark', icon: 'moon' }\n  }\n});\nreturn switcher;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"default button variant","expected":"compact pill showing the active theme name","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme'\n});\nreturn switcher;"},{"label":"menu-item variant","expected":"full-width row with caption on the left and value on the right","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Appearance',\n  variant: 'menu-item'\n});\n\nconst host = document.createElement('div');\nhost.style.maxWidth = '240px';\nhost.appendChild(switcher);\nreturn host;"},{"label":"custom theme list","expected":"cycles through the provided themes in order","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme',\n  themes: ['LIGHT', 'DARK']\n});\nreturn switcher;"},{"label":"onChange callback","expected":"status text updates each time the theme is switched","kind":"script","content":"const status = document.createElement('p');\nstatus.textContent = 'Click the switcher to change the theme';\n\nconst switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme',\n  onChange: (name) => {\n    status.textContent = `Active theme: ${name}`;\n  }\n});\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexDirection = 'column';\nhost.style.gap = '10px';\nhost.appendChild(switcher);\nhost.appendChild(status);\nreturn host;"},{"label":"display map","expected":"the pill reads 'Light' with a sun icon instead of 'LIGHT'","kind":"script","content":"const switcher = await slice.build('ThemeSwitcher', {\n  label: 'Theme',\n  display: {\n    LIGHT: { label: 'Light', icon: 'sun' },\n    DARK: { label: 'Dark', icon: 'moon' }\n  }\n});\nreturn switcher;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class ThemeSwitcherDocumentation extends HTMLElement {
             const component = await slice.build('ThemeSwitcher', props);
             container.appendChild(component);
          }
-      }
+       }
       {
          const container = this.querySelector('[data-block-id="doc-block-2"]');
          if (container) {
@@ -58,6 +59,16 @@ export default class ThemeSwitcherDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
+       }
+      {
+         const links = [{"text":"`ThemeSelector`","path":"/docs/input/theme-selector"}];
+         for (const [index, linkProps] of links.entries()) {
+            const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
+            if (!placeholder) continue;
+            const link = await slice.build('Link', linkProps);
+            placeholder.replaceWith(link);
+            this._inlineLinks.push(link);
+         }
       }
     await this.renderScriptScenarios();
   }
@@ -66,9 +77,12 @@ export default class ThemeSwitcherDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

@@ -1,23 +1,23 @@
 <div class="documentation-content detailsdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="details">
-    <span class="doc-title-text">Details</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="details">
+     <span class="doc-title-text">Details</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>Details</code> hides content until someone asks for it. It is one section with a title, or a group of sections (an <strong>accordion</strong>) where opening one closes the others.</p>
 <h3 id="when-to-use-it">When to use it</h3>
-<ul><li><strong>Questions and answers</strong> (a FAQ, a help page), where people look for one answer and skip the rest.</li><li><strong>Optional or advanced settings</strong> that most people never change.</li><li><strong>Long pages split into sections</strong> people open one at a time: a policy, release notes, a product's specs.</li><li><strong>Secondary information inside a [Card](/docs/layout/card) or a form</strong>, such as an order's line items or how a price was worked out.</li></ul>
+<ul><li><strong>Questions and answers</strong> (a FAQ, a help page), where people look for one answer and skip the rest.</li><li><strong>Optional or advanced settings</strong> that most people never change.</li><li><strong>Long pages split into sections</strong> people open one at a time: a policy, release notes, a product's specs.</li><li><strong>Secondary information inside a <span data-inline-link="0"></span> or a form</strong>, such as an order's line items or how a price was worked out.</li></ul>
 <h3 id="when-not-to-use-it">When not to use it</h3>
-<ul><li><strong>Content everyone needs</strong> should not be hidden. If people always open it, show it.</li><li><strong>Views at the same level that people switch between</strong> are [Tabs](/docs/navigation/tabs). Tabs show one view and keep the others' place. An accordion stacks them.</li><li><strong>Steps that must be done in order</strong> are a [Form](/docs/input/form) with steps.</li><li><strong>A message that needs an answer</strong> is a [Modal](/docs/feedback/modal).</li></ul>
+<ul><li><strong>Content everyone needs</strong> should not be hidden. If people always open it, show it.</li><li><strong>Views at the same level that people switch between</strong> are <span data-inline-link="1"></span>. Tabs show one view and keep the others' place. An accordion stacks them.</li><li><strong>Steps that must be done in order</strong> are a <span data-inline-link="2"></span> with steps.</li><li><strong>A message that needs an answer</strong> is a <span data-inline-link="3"></span>.</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
 <p>Each section is a native <code>&lt;details&gt;</code> with a <code>&lt;summary&gt;</code>, so the browser provides:</p>
 <ul><li>the button role, <code>aria-expanded</code>, and <strong>Enter</strong> / <strong>Space</strong> to toggle;</li><li>find-in-page (Ctrl+F) that opens the section holding the match.</li></ul>
 <p>On top of that, Details animates the height, keeps a group exclusive, adds arrow-key navigation, loads content on first open and remembers what was open.</p>
 <h3 id="one-section">One section</h3>
-<ul><li><code>title</code> and <code>subtitle</code> are the summary. <code>icon</code> puts a mark beside them, and <code>badge</code> adds a [Badge](/docs/display/badge) (text, a number, or <code>{ label, variant }</code>).</li><li><code>text</code> is the body text. <code>content</code> adds nodes or components after it.</li><li><code>open</code> sets the state. <code>onToggle(open, { details })</code> and the <code>details-toggle</code> event report changes.</li><li><code>disabled</code> keeps the section from opening.</li><li><code>name</code>: standalone sections with the same <code>name</code> close each other, like the native attribute. Several Details spread over a page can then act as one group.</li><li><code>addDetail(node)</code>, from the old API, still appends a node to the content.</li></ul>
+<ul><li><code>title</code> and <code>subtitle</code> are the summary. <code>icon</code> puts a mark beside them, and <code>badge</code> adds a <span data-inline-link="4"></span> (text, a number, or Badge props such as <code>{ label, tone }</code>).</li><li><code>text</code> is the body text. <code>content</code> adds nodes or components after it.</li><li><code>open</code> sets the state. <code>onToggle(open, { details })</code> and the <code>details-toggle</code> event report changes.</li><li><code>disabled</code> keeps the section from opening.</li><li><code>name</code>: standalone sections with the same <code>name</code> close each other, like the native attribute. Several Details spread over a page can then act as one group.</li><li><code>addDetail(node)</code>, from the old API, still appends a node to the content.</li></ul>
 <h3 id="an-accordion">An accordion</h3>
 <ul><li><code>items</code> is a list of sections: <code>{ id, title, subtitle, icon, badge, text, content, open, disabled }</code>.</li><li>By default <strong>one section is open at a time</strong>: opening one closes the one that was open. <code>multiple: true</code> lets several stay open.</li><li><code>collapsible: false</code> always keeps one section open, and the open one cannot be closed. It suits steps or a settings menu.</li><li><code>onToggle(id, open, { item, details })</code> reports every change, including the section that closed because another opened. <code>openIds</code> lists the open sections.</li><li><code>show(id)</code>, <code>hide(id)</code> and <code>toggle(id)</code> change a section from code. <code>showAll()</code> and <code>hideAll()</code> work on all of them (<code>showAll</code> only with <code>multiple</code>).</li><li><code>stateKey</code> remembers which sections were open, in the browser (localStorage), so they are still open after a reload.</li></ul>
 <h3 id="keyboard">Keyboard</h3>

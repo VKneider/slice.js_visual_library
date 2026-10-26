@@ -1,0 +1,78 @@
+<div class="documentation-content datalistdocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="datalist">
+     <span class="doc-title-text">DataList</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>DataList</code> shows the records an app works with: the people in a team, the orders of a shop, the tasks of a project, the files of a folder. Each record is a row (or a card) with a title, its details, a status and its actions, and the list adds what an app always needs around them:</p>
+<ul><li><strong>finding things</strong>: search, quick views ("Open 12 · Mine 5"), filters, sort and groups;</li><li><strong>acting on things</strong>: buttons and a ⋯ menu per item, selection, and actions on many items at once;</li><li><strong>changing things</strong>: <code>addItem</code>, <code>updateItem</code> and <code>removeItem</code>, shown at once and taken back if the server says no, with Undo for removals;</li><li><strong>a lot of things</strong>: pages, "Load more" or infinite scrolling, from memory or from a server.</li></ul>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>Records people scan and act on</strong>: a member list, an inbox, orders, tickets, files.</li><li><strong>Phones and narrow panels.</strong> A row carries a title, two lines of details and a status, so nothing scrolls sideways. On a narrow list the row buttons move into the ⋯ menu by themselves.</li><li><strong>CRUD screens</strong>: a list with "New", edit and delete.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Records people compare column by column</strong>, such as prices, dates and amounts side by side, or that they sort by any column. Use <span data-inline-link="0"></span>.</li><li><strong>A tree</strong> (folders inside folders): use <span data-inline-link="1"></span>.</li><li><strong>A short, fixed list of links or options</strong>: a <span data-inline-link="2"></span> or a <span data-inline-link="3"></span>.</li></ul>
+<h2 id="coming-from-react-or-vue">Coming from React or Vue</h2>
+<p>DataList is plain Slice: you build it with props, it calls you back with functions, and it destroys what it builds. The ideas map one to one:</p>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<h2 id="step-by-step">Step by step</h2>
+<h3 id="1-your-first-list">1. Your first list</h3>
+<p>Give it <code>items</code> and say what each item shows. Every part takes a <strong>key</strong> (<code>'name'</code>), a <strong>path</strong> (<code>'owner.name'</code>) or a <strong>function</strong> (<code>(item) =&gt; …</code>):</p>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<p>The parts an item can have:</p>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<h3 id="2-opening-an-item">2. Opening an item</h3>
+<ul><li><code>path: (item) =&gt; '/orders/' + item.id</code> makes the title a real link that goes through <code>slice.router</code>. The whole row is the link's hit area, and Ctrl/⌘-click opens a new tab.</li><li><code>href</code> does the same for addresses outside the app.</li><li><code>onItemClick(item, { event, list })</code> does anything else, such as opening a <span data-inline-link="4"></span>.</li></ul>
+<h3 id="3-finding-things">3. Finding things</h3>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<ul><li><strong>Search</strong> ignores case and accents ("jose" finds "José"), and every word must match. It looks at the title, description, meta and tags, or at <code>searchFields</code>.</li><li><strong>Views</strong> are quick filters with counts. Each has a <code>filter(item)</code>, or none for "All".</li><li><strong>Filters</strong> are menus: "City: Caracas ▾". Their options come from the data (with counts), or from <code>options</code>. <code>type: 'boolean'</code> gives Any / Yes / No, <code>multiple: false</code> allows one value, and <code>match(item, values)</code> decides for you.</li><li><strong>Sort</strong> is a menu of <code>sortOptions</code>. Each option has a <code>key</code> (or a path in <code>value</code>), a starting <code>direction</code>, or <code>compare(a, b)</code> of its own.</li><li><strong>Groups</strong>: <code>groupBy</code> takes a key, <code>{ key, by: 'letter' }</code> (A, B, C…) or <code>{ key, by: 'day' }</code>. Headings stay on top while scrolling. <code>collapsibleGroups</code> lets people fold them, and <code>groupLabel(key, items)</code> and <code>groupOrder</code> change the heading texts and their order.</li><li>When nothing matches, the list says so and offers to clear the search and filters.</li></ul>
+<h3 id="4-actions-and-selection">4. Actions and selection</h3>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<ul><li><code>inline: true</code> puts an action on the row as a button. The rest go in the ⋯ menu, and on a narrow list (under 520px) all of them do.</li><li><code>hidden</code> and <code>disabled</code> take <code>true</code> or a function of the item. <code>actions</code> itself can be a function of the item.</li><li><code>confirm</code> asks first, in a Modal: <code>true</code>, a question, or <code>{ title, text, confirmLabel }</code>.</li><li>Every <code>onClick</code> receives <code>{ item, items, keys, list, event }</code>.</li><li><code>selection: 'multiple'</code> adds a checkbox per row and a "Select all" bar. Shift+click selects a range, and "Select all" takes every item that passes the search and filters. When something is selected, the bar shows the <code>bulkActions</code>, which receive the selected <code>items</code>. A bulk action clears the selection afterwards, unless it has <code>keepSelection: true</code>.</li><li>A click on a row that opens nothing selects it. <strong>Space</strong> selects the focused row.</li><li>The selection is kept <strong>by key</strong> (<code>itemKey</code>, <code>'id'</code> by default), so it survives new data. <code>selected</code> sets it, <code>getSelectedItems()</code> reads it, and <code>onSelectionChange(keys, items)</code> reports it.</li></ul>
+<h3 id="5-create-edit-and-delete">5. Create, edit and delete</h3>
+<p>Three methods, the same three a store would have:</p>
+<div class="code-block" data-block-id="doc-block-6"></div>
+<ul><li><strong>The change shows at once.</strong> With <code>commit</code>, the item is marked busy (a line moves under it, its actions wait) until the promise settles.</li><li><strong>If <code>commit</code> fails, the change is taken back</strong>: the new item leaves, the edited one goes back as it was, and the removed ones return to their places. A bar says "The change could not be saved", and <code>onError(error, { type, item })</code> reports it.</li><li><strong><code>addItem</code></strong>: <code>position: 'start'</code> (default), <code>'end'</code> or an index. The new row is scrolled into view and flashes. If <code>commit</code> returns an object (the server's version, with its real id and dates), it is merged into the item.</li><li><strong><code>updateItem</code></strong>: <code>changes</code> is an object to merge, or a function from the item to one. Only that row is redrawn.</li><li><strong><code>removeItem</code></strong>: one key or an array. With <code>undo: true</code>, a bar says "“Buy milk” removed · Undo" for five seconds, and <code>commit</code> runs only when that time is over, or the bar is closed. Undo brings the items back and nothing reaches the server. Without <code>undo</code>, <code>commit</code> runs right away.</li><li><code>createAction: { label, icon, onClick }</code> adds a "New" button to the toolbar.</li></ul>
+<p>&gt; Why <code>addItem</code> and not <code>add</code>? Slice calls a component's <code>update()</code> when a cached route comes back, so the list keeps that name for the framework, and uses <code>addItem</code>, <code>updateItem</code> and <code>removeItem</code> for your data.</p>
+<h3 id="6-sharing-the-data-slicecontext">6. Sharing the data: <code>slice.context</code></h3>
+<p>With <code>context: 'tasks'</code>, the items live in a <code>slice.context</code> store (the framework's shared state) instead of the list:</p>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<ul><li>The list redraws whenever the store changes, whoever changed it.</li><li><code>addItem</code>, <code>updateItem</code> and <code>removeItem</code> write to the store, so the counter above follows the list without any wiring.</li><li><code>contextPath</code> is where the array sits in the state (<code>'items'</code> by default; a state that is an array is used as it is).</li></ul>
+<h3 id="7-lots-of-items">7. Lots of items</h3>
+<p><code>pagination</code> decides how many show at a time (<code>pageSize</code>, 20 by default):</p>
+<ul><li><code>{ pageSize: 20 }</code> (or <code>true</code>): pages, with a <span data-inline-link="5"></span> control and "21–40 of 342".</li><li><code>'load-more'</code>: a "Load more" button under the list.</li><li><code>'infinite'</code>: the next slice loads as the end comes into view, through <span data-inline-link="6"></span>. Give the list a <code>maxHeight</code> to scroll inside it, or it follows the page.</li></ul>
+<h3 id="8-data-from-a-server">8. Data from a server</h3>
+<p>Give <code>load</code> instead of <code>items</code>. It is called with the query, and returns the items of that page:</p>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<ul><li>It is called again when the search, a view, a filter, the sort or the page changes. The request in flight is aborted (<code>signal</code>), and a late answer is dropped.</li><li>While it loads, the list shows placeholders (the first time) or dims the rows. If it fails, the list says so, with a <strong>Try again</strong> button.</li><li>With <code>pagination: 'load-more'</code> or <code>'infinite'</code>, pages are added to the ones already shown. Return <code>done: true</code>, or fewer items than <code>pageSize</code>, at the end.</li><li><code>filters</code> arrive as <code>[{ key, values }]</code>, <code>sort</code> as <code>{ key, direction }</code> and <code>view</code> as the view's id.</li><li>Filter options cannot come from the data here: give them <code>options</code>. View counts appear when a view has a <code>count</code>.</li><li><code>refresh()</code> loads the current page again. <code>onQueryChange(query)</code> reports every change, for example to put it in the URL.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>layout</code>: <code>'list'</code> (default) or <code>'grid'</code>, cards in columns at least <code>minItemWidth</code> wide (260px).</li><li><code>variant</code>:</li></ul>
+<p>- <code>'outlined'</code> (default): one box with lines between the rows;   - <code>'separated'</code>: one card per row;   - <code>'filled'</code>: tinted rows;   - <code>'ghost'</code>: lines only.</p>
+<ul><li><code>density</code>: <code>'compact'</code>, <code>'comfortable'</code> (default) or <code>'spacious'</code>.</li><li><code>maxHeight</code> makes the list scroll inside itself, with group headings that stay on top.</li><li><code>loading</code> shows placeholders (or dims the rows) for data you load yourself. <code>error</code> shows a message.</li><li><code>emptyState: { icon, title, description, action: { label, onClick } }</code> is what shows when there is nothing yet.</li></ul>
+<h2 id="remembering-the-view">Remembering the view</h2>
+<p><code>stateKey: 'orders'</code> remembers the search, the view, the filters and the sort in this browser, and puts them back the next time the list is built. <code>clearSavedState()</code> forgets them.</p>
+<h2 id="language">Language</h2>
+<p><code>texts</code> replaces every word: <code>search</code>, <code>create</code>, <code>sortBy</code>, <code>selectAll</code>, <code>selected</code> (<code>{count}</code>), <code>loadMore</code>, <code>loading</code>, <code>error</code>, <code>retry</code>, <code>empty</code>, <code>noResults</code>, <code>clearFilters</code>, <code>removed</code> (<code>{count}</code>), <code>removedOne</code> (<code>{title}</code>), <code>undo</code>, <code>saveError</code>, <code>confirm</code>, <code>cancel</code>, the day groups (<code>day_today</code>, <code>day_yesterday</code>, <code>day_week</code>, <code>day_month</code>, <code>day_older</code>) and the rest listed in <code>DataList.js</code>. Relative times use the page's language (<code>&lt;html lang&gt;</code>).</p>
+<h2 id="methods-and-events">Methods and events</h2>
+<ul><li><code>addItem(item, options)</code>, <code>updateItem(key, changes, options)</code>, <code>removeItem(keys, options)</code>.</li><li><code>refresh()</code>, <code>clearQuery()</code>, <code>focusItem(key)</code>.</li><li><code>select(keys)</code>, <code>clearSelection()</code>, <code>getSelectedItems()</code>.</li><li><code>getItems()</code>, <code>getVisibleItems()</code>, <code>getItem(key)</code>, <code>query</code>, <code>page</code>, <code>totalItems</code>.</li><li>Callbacks: <code>onItemClick</code>, <code>onSelectionChange</code>, <code>onQueryChange</code> and <code>onError</code>. The <code>selection-change</code> event also reports the selection.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-9"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
+<div class="script-block" data-block-id="doc-block-13"></div>
+<div class="script-block" data-block-id="doc-block-14"></div>
+<div class="script-block" data-block-id="doc-block-15"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Give every item a stable key (<code>itemKey</code>, <code>'id'</code> by default). Selection, updates and removals find items by it, and rows that did not change are not redrawn.</div>
+<div class="callout callout-tip">Use <code>commit</code> for every change that goes to a server. People see the change at once, and a failure undoes it by itself, instead of leaving the list out of step with the server.</div>
+<div class="callout callout-tip">Prefer <code>removeItem(…, { undo: true })</code> to a confirmation for things that can be brought back. Undo is faster for the nine times people meant it, and safe for the tenth. Keep <code>confirm</code> for what cannot be undone.</div>
+<div class="callout callout-tip">Put the one or two actions people use most on the row (<code>inline: true</code>) and the rest in the menu. A row full of buttons is hard to scan.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">With <code>load</code>, filter options and view counts do not come from the data, because the list only holds one page. Give filters their <code>options</code>, and views a <code>count</code> if you want one.</div>
+<div class="callout callout-warning">Do not change item objects in place (<code>item.done = true</code>) and expect the list to notice. Use <code>updateItem</code>, or set <code>items</code> (or the context) to a new array, the way you would in React or Vue.</div>
+<div class="callout callout-warning">A list inside a flex or grid item needs <code>min-width: 0</code> on that item, or long titles push it wider than the screen.</div>
+<div class="component-block" data-block-id="doc-block-16"></div>
+</div>

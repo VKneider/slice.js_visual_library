@@ -1,4 +1,4 @@
-import { TooltipCore, DEFAULTS, focusableIn } from '../../shared/tooltip-core.js';
+import { TooltipCore, DEFAULTS, focusableIn } from '../../shared/tooltip/tooltipCore.js';
 
 // ToolTipProvider — tooltips for many elements, with one shared bubble and no
 // component per trigger.

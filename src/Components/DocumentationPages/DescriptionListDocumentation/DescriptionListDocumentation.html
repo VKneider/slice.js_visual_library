@@ -1,0 +1,57 @@
+<div class="documentation-content descriptionlistdocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="descriptionlist">
+     <span class="doc-title-text">DescriptionList</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>DescriptionList</code> shows <strong>one record</strong> with all its properties: the detail of an order, a customer's profile, the settings of a project. Each property is a row with a label and a value, and the value is shown the way it should be read: an amount as money, a date as a date, a status as a <span data-inline-link="0"></span>, a person with their <span data-inline-link="1"></span>, an email as a link you can copy.</p>
+<p>It is the other half of <span data-inline-link="2"></span>. DataList shows <strong>many records</strong> with a few properties each; DescriptionList shows one with all of them. DataList's <code>detail</code> option opens a DescriptionList in a drawer when you open an item.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>The detail page or drawer of a record</strong>: an order, an invoice, a ticket, a user.</li><li><strong>A profile or settings screen</strong> where each value can be changed on its own, without a whole form.</li><li><strong>A summary before confirming</strong>: "You are about to pay…" with the amount, the account and the date.</li><li><strong>Specifications</strong>: the properties of a product, a server or a file, in a grid of columns.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Many records.</strong> Use <span data-inline-link="3"></span> or <span data-inline-link="4"></span>.</li><li><strong>Creating a record, or changing many fields at once and saving them together.</strong> Use a <span data-inline-link="5"></span>; DescriptionList saves each field on its own.</li><li><strong>Two or three values.</strong> A line of text or a <span data-inline-link="6"></span> says it with less.</li><li><strong>Free text with headings.</strong> That is a document, not a record.</li></ul>
+<h2 id="coming-from-react-or-vue">Coming from React or Vue</h2>
+<p>It is the component you would write as a <code>&lt;dl&gt;</code> with a <code>map</code> over a list of fields, and then keep extending with formatting, copy buttons and an "edit" state per field. Here the fields are data:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p><code>view.item = nextOrder</code> re-renders only the values that changed. With <code>context: 'order'</code> it follows a <code>slice.context</code> store instead, the way a component follows a store in Vue or a selector in React.</p>
+<h2 id="core-behavior">Core Behavior</h2>
+<h3 id="where-the-record-comes-from">Where the record comes from</h3>
+<ul><li><code>item</code>: an object you own. Set it again to show another one. It is never changed in place: a saved edit makes a new object.</li><li><code>context</code> and <code>contextPath</code>: a <code>slice.context</code> store and the path of the record inside it (<code>''</code> is the whole state). The list follows the store, and saved edits are written back to it, so every component that reads it sees them.</li><li><code>load: async ({ signal }) =&gt; record</code>: a server. While it loads, every value is a skeleton; if it fails, a message with <strong>Try again</strong>. <code>reload()</code> asks again, and a cached route that comes back reloads it.</li></ul>
+<h3 id="fields">Fields</h3>
+<p>A field is a key (<code>'email'</code>) or an object:</p>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<h3 id="types">Types</h3>
+<p><code>text</code>, <code>number</code> (with <code>digits</code> and <code>unit</code>), <code>currency</code> (with <code>currency</code>), <code>percent</code> (a fraction: <code>0.25</code> is 25%), <code>date</code>, <code>datetime</code>, <code>relative</code> ("3 days ago", the full date on hover), <code>boolean</code> (Yes / No), <code>email</code>, <code>url</code>, <code>phone</code> (links), <code>badge</code>, <code>avatar</code>, <code>tags</code> (a Badge for each), <code>list</code>, <code>code</code> and <code>multiline</code>. Numbers and dates use the page's language, or <code>locale</code>.</p>
+<h3 id="editing-in-place">Editing in place</h3>
+<p>A field with <code>edit</code> gets a pencil. Clicking it, or the value, opens the right control: an <span data-inline-link="7"></span> of the right type, a <span data-inline-link="8"></span> for <code>multiline</code>, a <span data-inline-link="9"></span> for dates, a <span data-inline-link="10"></span> when <code>edit.options</code> is given, and a <span data-inline-link="11"></span> for a <code>boolean</code> that saves the moment it is flipped.</p>
+<ul><li><code>edit: true</code>, or <code>{ type, options, required, min, max, step, placeholder, validate(value, item), parse(value) }</code>.</li><li><strong>Enter</strong> saves (<strong>Ctrl/⌘ + Enter</strong> in a textarea), <strong>Escape</strong> cancels, and focus goes back to the pencil.</li><li><strong>The record changes when the save succeeds.</strong> <code>commit({ key, value, previous, item, before, field })</code> runs first, with the field busy. If it throws, or returns <code>false</code>, the editor stays open with what was typed and says it could not be saved (with the error's message). If it returns an object, that is the record from now on (with the server's dates, say). Without <code>commit</code>, the value is written at once.</li><li><code>onChange({ key, value, previous, item })</code> runs after each saved change.</li><li><code>readonly: true</code> turns every pencil off.</li><li>An update to the store while someone is typing in one field never wipes that editor.</li></ul>
+<h3 id="methods">Methods</h3>
+<ul><li><code>edit(key)</code>, <code>save()</code>, <code>cancelEdit()</code>, <code>editing</code> (the field being edited).</li><li><code>setValue(key, value)</code>: a change from code, through <code>commit</code> like an edit. Resolves to whether it was saved.</li><li><code>getValue(key)</code>, <code>item</code>, <code>reload()</code>, <code>focusField(key)</code>.</li></ul>
+<h3 id="the-sheet-like-a-spreadsheet">The sheet: like a spreadsheet</h3>
+<p><code>variant: 'sheet'</code> shows the record the way Excel would: a grid of cells, the labels as shaded row headers, the sections as group rows, numbers aligned to the right. It is for people who work through many values at the keyboard: an operations panel, the properties of an item in an editor, a record checked line by line.</p>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<p>A save shows the new value at once, busy while <code>commit</code> runs, and the active cell moves on without waiting. If <code>commit</code> fails, the cell goes back to the old value, outlined in red with the message. The sheet is one tab stop: Tab enters it at the active cell and leaves it from the edges. <code>activeField</code> and <code>activate(key)</code> read and move the active cell from code.</p>
+<h2 id="looks">Looks</h2>
+<ul><li><code>layout</code>: <code>'horizontal'</code> (label beside the value, the default), <code>'stacked'</code> (label above), or <code>'grid'</code> with <code>columns</code> (2 by default). Below 480px every layout puts the label above the value, in one column.</li><li><code>variant</code>: <code>'outlined'</code> (a box, the default), <code>'separated'</code> (lines between rows, no box), <code>'filled'</code>, <code>'ghost'</code>, or <code>'sheet'</code>, the spreadsheet look (below).</li><li><code>density</code>: <code>'compact'</code>, <code>'comfortable'</code> (default) or <code>'spacious'</code>.</li><li><code>labelWidth</code>: the width of the label column in the horizontal layout (<code>'200px'</code>, <code>'40%'</code>).</li><li><code>title</code>, <code>description</code> and <code>actions</code> (Buttons on the right: <code>{ label, icon, variant, danger, onClick({ item, list, event }) }</code>) make a header.</li><li><code>sections: [{ title, description, fields, collapsible, collapsed }]</code> groups the fields under headings.</li><li><code>hideEmpty</code> leaves out the rows with nothing in them.</li><li><code>texts</code> translates every word it shows (<code>empty</code>, <code>yes</code>, <code>no</code>, <code>edit</code>, <code>copy</code>, <code>copied</code>, <code>save</code>, <code>cancel</code>, <code>saving</code>, <code>saved</code>, <code>saveError</code>, <code>error</code>, <code>retry</code>…).</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-4"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<div class="script-block" data-block-id="doc-block-10"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Keep the order people read in: what it is (number, status), who it belongs to, then the details. Put the two or three things people look for first in the first rows.</div>
+<div class="callout callout-tip">Use <code>sections</code> once there are more than eight or nine fields. A heading every few rows makes a long record scannable; <code>collapsible</code> hides the parts people rarely open.</div>
+<div class="callout callout-tip">Save each field through <code>commit</code> and let it throw on failure. The editor keeps what was typed and shows the message, so nothing is lost and nobody has to read a toast to know what failed.</div>
+<div class="callout callout-tip">Choose <code>variant: 'sheet'</code> when people will edit many values in a row at the keyboard. For a record people mostly read, the default looks are calmer and show the copy and edit buttons a mouse user expects.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not use it as a form to create a record. It edits the fields of a record that exists, one at a time; a new record needs a <span data-inline-link="12"></span> that validates and saves everything together.</div>
+<div class="callout callout-warning"><code>percent</code> takes a fraction: <code>0.25</code> shows as 25%. Pass <code>25</code> and it shows 2,500%. If your data is already in percent, use <code>type: 'number'</code> with <code>unit: '%'</code>.</div>
+<div class="component-block" data-block-id="doc-block-11"></div>
+</div>

@@ -3,8 +3,9 @@ export default class EmptyStateDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"With an action","expected":"an icon, a title, a sentence and a button that logs the click","kind":"script","content":"const note = document.createElement('p');\nnote.style.cssText = 'font-family:system-ui,sans-serif;font-size:.8rem;color:var(--font-secondary-color);margin-top:10px;';\nnote.textContent = 'Click the button, then watch this line.';\n\nconst empty = await slice.build('EmptyState', {\n  icon: 'inbox-full',\n  title: 'No messages yet',\n  description: 'Replies from your team will show up here.',\n  buttonLabel: 'Invite a teammate',\n  buttonOnClick: () => { note.textContent = 'Teammate invited.'; },\n});\n\nmount(empty);\nmount(note);"},{"label":"Read-only","expected":"just the title and sentence","kind":"script","content":"return await slice.build('EmptyState', {\n  icon: 'search',\n  title: 'No results',\n  description: 'Try a different search term.',\n});"},{"label":"Minimal","expected":"a title with nothing else","kind":"script","content":"return await slice.build('EmptyState', { title: 'Nothing to show' });"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"With an action","expected":"an icon, a title, a sentence and a button that logs the click","kind":"script","content":"const note = document.createElement('p');\nnote.style.cssText = 'font-family:system-ui,sans-serif;font-size:.8rem;color:var(--font-secondary-color);margin-top:10px;';\nnote.textContent = 'Click the button, then watch this line.';\n\nconst empty = await slice.build('EmptyState', {\n  icon: 'inbox-full',\n  title: 'No messages yet',\n  description: 'Replies from your team will show up here.',\n  buttonLabel: 'Invite a teammate',\n  buttonOnClick: () => { note.textContent = 'Teammate invited.'; },\n});\n\nmount(empty);\nmount(note);"},{"label":"Read-only","expected":"just the title and sentence","kind":"script","content":"return await slice.build('EmptyState', {\n  icon: 'search',\n  title: 'No results',\n  description: 'Try a different search term.',\n});"},{"label":"Minimal","expected":"a title with nothing else","kind":"script","content":"return await slice.build('EmptyState', { title: 'Nothing to show' });"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class EmptyStateDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -35,9 +36,12 @@ export default class EmptyStateDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

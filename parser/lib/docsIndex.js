@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { writeFileIfChanged } from './fileUtils.js';
 
 const escapeValue = (value) => {
   if (value === null || value === undefined) return '';
@@ -81,7 +81,7 @@ const buildDocsIndex = (entries) => {
 
 const writeDocsIndex = (entries, outputPath) => {
   const content = buildDocsIndex(entries);
-  fs.writeFileSync(outputPath, content, 'utf8');
+  writeFileIfChanged(outputPath, content);
 };
 
 export { writeDocsIndex };

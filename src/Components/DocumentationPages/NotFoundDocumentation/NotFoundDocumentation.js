@@ -3,8 +3,9 @@ export default class NotFoundDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Default 404 view","expected":"renders not found message","kind":"script","content":"const notFound = await slice.build('NotFound', {});\nreturn notFound;"},{"label":"Route fallback usage","expected":"renders not found inside route container","kind":"script","content":"const notFound = await slice.build('NotFound', {});\n\nconst route = await slice.build('Route', {\n  path: '/does-not-exist',\n  view: notFound\n});\n\nconst host = document.createElement('div');\nconst label = document.createElement('p');\nlabel.textContent = 'Route /does-not-exist mapped to NotFound:';\nhost.appendChild(label);\nhost.appendChild(route);\nreturn host;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Default 404 view","expected":"renders not found message","kind":"script","content":"const notFound = await slice.build('NotFound', {});\nreturn notFound;"},{"label":"Route fallback usage","expected":"renders not found inside route container","kind":"script","content":"const notFound = await slice.build('NotFound', {});\n\nconst route = await slice.build('Route', {\n  path: '/does-not-exist',\n  view: notFound\n});\n\nconst host = document.createElement('div');\nconst label = document.createElement('p');\nlabel.textContent = 'Route /does-not-exist mapped to NotFound:';\nhost.appendChild(label);\nhost.appendChild(route);\nreturn host;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class NotFoundDocumentation extends HTMLElement {
             const component = await slice.build('NotFound', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -35,9 +36,12 @@ export default class NotFoundDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

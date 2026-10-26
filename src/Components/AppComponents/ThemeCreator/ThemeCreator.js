@@ -17,7 +17,7 @@
 // (ThemeCreator.html) — headings and sections, which is static page structure
 // rather than an interactive primitive.
 
-import { normalizeHex, hexToRgb, readableOn, hexToHsv } from '../../shared/color.js';
+import { normalizeHex, hexToRgb, readableOn, hexToHsv } from '../../shared/color/hex.js';
 import ThemeOverride from './ThemeOverride.js';
 import { generatePalette } from './palette.js';
 

@@ -2,7 +2,7 @@ import { applySize, applyClassName, SIZE_VALUES } from '../../shared/props.js';
 import {
    fieldId, validationMessage, compileConditions, countText,
    VALIDATE_ON, FIELD_VARIANTS, LABEL_PLACEMENTS,
-} from '../../shared/field.js';
+} from '../../shared/validation/fieldRules.js';
 
 // A single-line text field.
 //
@@ -17,7 +17,7 @@ import {
 //   icon / prefix / suffix, a clear button, the password reveal toggle
 //   help / error under the field, and a character counter
 //
-// Validation is shared with Textarea (shared/field.js): required, the native
+// Validation is shared with Textarea (shared/validation/fieldRules.js): required, the native
 // formats (email, url, number ranges, pattern), lengths, the legacy
 // `conditions`, and your own `validator`. An error shows when the person
 // leaves the field (or when validate() is called), and from then on it updates

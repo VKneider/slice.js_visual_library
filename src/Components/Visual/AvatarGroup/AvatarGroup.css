@@ -1,0 +1,64 @@
+/* AvatarGroup — overlapping faces and "+N". */
+
+slice-avatar-group {
+  --slice-avatar-group-size: 32px;
+  --slice-avatar-group-overlap: calc(var(--slice-avatar-group-size) * -0.28);
+  --slice-avatar-group-ring: var(--primary-background-color, #fff);
+
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+slice-avatar-group[hidden] {
+  display: none;
+}
+
+slice-avatar-group .slice-avatar-group__stack {
+  display: inline-flex;
+  align-items: center;
+  padding-inline-start: calc(var(--slice-avatar-group-overlap) * -1);
+}
+
+slice-avatar-group .slice-avatar-group__stack > * {
+  margin-inline-start: var(--slice-avatar-group-overlap);
+  /* A ring in the page colour separates the faces. */
+  box-shadow: 0 0 0 2px var(--slice-avatar-group-ring);
+}
+
+slice-avatar-group .slice-avatar-group__stack > slice-avatar:hover,
+slice-avatar-group .slice-avatar-group__stack > slice-avatar:focus-visible {
+  z-index: 1;
+}
+
+slice-avatar-group .slice-avatar-group__more {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--slice-avatar-group-size);
+  height: var(--slice-avatar-group-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--font-primary-color, #1d1b29) 10%, var(--slice-avatar-group-ring));
+  color: var(--font-primary-color, #1d1b29);
+  font: inherit;
+  font-size: calc(var(--slice-avatar-group-size) * 0.36);
+  font-weight: 650;
+}
+
+slice-avatar-group[data-shape='rounded'] .slice-avatar-group__more {
+  border-radius: calc(var(--slice-avatar-group-size) * 0.24);
+}
+
+slice-avatar-group button.slice-avatar-group__more {
+  cursor: pointer;
+}
+
+slice-avatar-group button.slice-avatar-group__more:hover {
+  background: color-mix(in srgb, var(--font-primary-color, #1d1b29) 16%, var(--slice-avatar-group-ring));
+}
+
+slice-avatar-group button.slice-avatar-group__more:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}

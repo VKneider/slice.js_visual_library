@@ -1,19 +1,19 @@
 <div class="documentation-content textareadocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="textarea">
-    <span class="doc-title-text">Textarea</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="textarea">
+     <span class="doc-title-text">Textarea</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
-<p><code>Textarea</code> is the multi-line sibling of [Input](/docs/input/input), and the two are built to be one family. They share:</p>
+<p><code>Textarea</code> is the multi-line sibling of <span data-inline-link="0"></span>, and the two are built to be one family. They share:</p>
 <ul><li>the label: floating, or above the field;</li><li>the variants and sizes;</li><li>the help / error line and the counter;</li><li>the validation rules and when errors show;</li><li>the floating-label animation and the error shake, which are the same rules in both stylesheets.</li></ul>
 <p>On top of that, Textarea adds what multi-line text needs: auto-grow with a ceiling, resize control and Ctrl+Enter to submit.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>value</code> reads and sets the text. <code>onChange(value)</code> fires on every keystroke, or once after a pause with <code>debounce</code>.</li><li><code>rows</code> is the starting height in lines.</li><li><code>autoGrow</code> makes the field grow with its content. <code>maxRows</code> stops it growing at that many lines; past that, it scrolls.</li><li><code>resize</code>: <code>'vertical'</code> (default), <code>'none'</code>, <code>'both'</code> or <code>'horizontal'</code>. Auto-grow turns the handle off.</li><li><code>onSubmit(value, event)</code> fires on Ctrl+Enter (⌘+Enter on a Mac). That is the usual "send" shortcut for a comment or a message, and plain Enter still makes a new line.</li><li><code>name</code> makes it part of a native <code>&lt;form&gt;</code>.</li><li><code>readonly</code> shows text people can select and copy but not edit, such as generated code or an ID. <code>disabled</code> would also take it out of the tab order and stop selection.</li><li><code>focus()</code>, <code>blur()</code>, <code>select()</code> and <code>clear()</code> work as on Input.</li></ul>
 <h2 id="shared-with-input">Shared with Input</h2>
-<p>These work exactly as they do on [Input](/docs/input/input):</p>
+<p>These work exactly as they do on <span data-inline-link="1"></span>:</p>
 <ul><li><code>label</code>, <code>labelPlacement</code>, <code>placeholder</code>, <code>required</code> and <code>ariaLabel</code>;</li><li><code>variant</code> (<code>outlined</code>, <code>filled</code>, <code>ghost</code>) and <code>size</code> (<code>sm</code>, <code>md</code>, <code>lg</code>);</li><li><code>help</code>, <code>error</code>, <code>invalid</code>, <code>showCount</code>, <code>minlength</code> and <code>maxlength</code>;</li><li><code>validator</code>, <code>conditions</code>, <code>messages</code>, <code>validateOn</code>, <code>validate()</code>, <code>validationMessage</code> and <code>isValid</code>.</li></ul>
 <p>An error shows when the person leaves the field and then follows the value live, so it goes away as soon as the text is fixed. An empty field is never turned red on its own: <code>required</code> and <code>minlength</code> wait for <code>validate()</code> (a submit).</p>
 <h2 id="live-preview">Live Preview</h2>

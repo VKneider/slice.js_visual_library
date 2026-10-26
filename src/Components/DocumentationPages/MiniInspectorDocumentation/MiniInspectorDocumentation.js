@@ -3,8 +3,9 @@ export default class MiniInspectorDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"renders one control per editable prop","expected":"three rows for DemoButton (label, clicks, disabled)","kind":"script","content":"const target = await slice.build('DemoButton', { label: 'A' });\nconst inspector = await slice.build('MiniInspector', { target, title: 'DemoButton' });\n\nconst rows = inspector.querySelectorAll('.mini-inspector__row').length;\nif (rows !== 3) {\n  throw new Error('Expected 3 editable rows, got ' + rows);\n}\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.style.alignItems = 'flex-start';\nhost.appendChild(target);\nhost.appendChild(inspector);\nreturn host;"},{"label":"edits flow to the target through its setter","expected":"editing the label field updates the button text","kind":"script","content":"const target = await slice.build('DemoButton', { label: 'Before' });\nconst inspector = await slice.build('MiniInspector', { target });\n\n// The first text input is the string prop (label). Simulate a user edit.\nconst input = inspector.querySelector('input[type=\"text\"]');\ninput.value = 'After';\ninput.dispatchEvent(new Event('input'));\n\nconst shown = target.querySelector('.demo-button__label').textContent;\nif (shown !== 'After') {\n  throw new Error('Setter did not update the target. Got: ' + shown);\n}\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.appendChild(target);\nhost.appendChild(inspector);\nreturn host;"},{"label":"accepts a sliceId string as target","expected":"resolves the live component by sliceId","kind":"script","content":"const counter = await slice.build('DemoCounter', { sliceId: 'demo-counter-mi', label: 'Items' });\nconst inspector = await slice.build('MiniInspector', { target: 'demo-counter-mi', title: 'By sliceId' });\n\nconst rows = inspector.querySelectorAll('.mini-inspector__row').length;\nif (rows === 0) {\n  throw new Error('Inspector did not resolve the component from its sliceId');\n}\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.appendChild(counter);\nhost.appendChild(inspector);\nreturn host;"},{"label":"boolean prop toggling","expected":"DemoToggle inspected by MiniInspector","kind":"script","content":"const toggle = await slice.build('DemoToggle', { on: false, onText: 'Enabled', offText: 'Disabled' });\nconst inspector = await slice.build('MiniInspector', { target: toggle, title: 'DemoToggle' });\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.appendChild(toggle);\nhost.appendChild(inspector);\nreturn host;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"renders one control per editable prop","expected":"three rows for DemoButton (label, clicks, disabled)","kind":"script","content":"const target = await slice.build('DemoButton', { label: 'A' });\nconst inspector = await slice.build('MiniInspector', { target, title: 'DemoButton' });\n\nconst rows = inspector.querySelectorAll('.mini-inspector__row').length;\nif (rows !== 3) {\n  throw new Error('Expected 3 editable rows, got ' + rows);\n}\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.style.alignItems = 'flex-start';\nhost.appendChild(target);\nhost.appendChild(inspector);\nreturn host;"},{"label":"edits flow to the target through its setter","expected":"editing the label field updates the button text","kind":"script","content":"const target = await slice.build('DemoButton', { label: 'Before' });\nconst inspector = await slice.build('MiniInspector', { target });\n\n// The first text input is the string prop (label). Simulate a user edit.\nconst input = inspector.querySelector('input[type=\"text\"]');\ninput.value = 'After';\ninput.dispatchEvent(new Event('input'));\n\nconst shown = target.querySelector('.demo-button__label').textContent;\nif (shown !== 'After') {\n  throw new Error('Setter did not update the target. Got: ' + shown);\n}\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.appendChild(target);\nhost.appendChild(inspector);\nreturn host;"},{"label":"accepts a sliceId string as target","expected":"resolves the live component by sliceId","kind":"script","content":"const counter = await slice.build('DemoCounter', { sliceId: 'demo-counter-mi', label: 'Items' });\nconst inspector = await slice.build('MiniInspector', { target: 'demo-counter-mi', title: 'By sliceId' });\n\nconst rows = inspector.querySelectorAll('.mini-inspector__row').length;\nif (rows === 0) {\n  throw new Error('Inspector did not resolve the component from its sliceId');\n}\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.appendChild(counter);\nhost.appendChild(inspector);\nreturn host;"},{"label":"boolean prop toggling","expected":"DemoToggle inspected by MiniInspector","kind":"script","content":"const toggle = await slice.build('DemoToggle', { on: false, onText: 'Enabled', offText: 'Disabled' });\nconst inspector = await slice.build('MiniInspector', { target: toggle, title: 'DemoToggle' });\n\nconst host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.gap = '20px';\nhost.appendChild(toggle);\nhost.appendChild(inspector);\nreturn host;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class MiniInspectorDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -35,9 +36,12 @@ export default class MiniInspectorDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

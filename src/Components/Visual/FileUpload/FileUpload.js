@@ -1,5 +1,5 @@
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
-import { fieldId } from '../../shared/field.js';
+import { fieldId } from '../../shared/validation/fieldRules.js';
 
 // Pick or drop files, see what was picked, fix it, and (optionally) upload it.
 //

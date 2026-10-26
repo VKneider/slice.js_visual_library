@@ -1,0 +1,36 @@
+<div class="documentation-content infinitescrollservicedocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="infinitescrollservice">
+     <span class="doc-title-text">InfiniteScrollService</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>InfiniteScrollService</code> loads the next page of a list when its end comes into view, the way a social feed does. It is <strong>headless</strong>: it draws nothing and knows nothing about your items. You decide what the list looks like; it decides <strong>when</strong> to ask for more, and makes sure the answers arrive in order.</p>
+<p>You put an element at the end of your list (the *sentinel*), attach it, and give the service a <code>load</code> function:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p>If you know React, it does the work of an <code>useEffect</code> with an <code>IntersectionObserver</code>, an <code>AbortController</code> and a "loading" flag, written once and tested.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>Feeds and timelines</strong> people scroll through without looking for something in particular: posts, activity, photos.</li><li><strong>Long lists from a server</strong> where a pager would interrupt reading.</li><li><strong>Inside your own components.</strong> DataList uses it for <code>pagination: 'infinite'</code>, and any list of yours can too.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Results people come back to</strong> ("it was on page 3") or compare: use <span data-inline-link="0"></span>.</li><li><strong>Pages with a footer people need</strong> (contact, terms): it is never reached. Use <code>autoLimit</code> so a "Load more" button takes over after a few pages, or use Pagination.</li><li><strong>A list that fits in memory and on screen</strong>: render it whole.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<h3 id="loading">Loading</h3>
+<ul><li><code>load({ page, cursor, pageSize, signal, feed })</code> returns the next page: an array of items, or <code>{ items, done, hasMore, cursor }</code>. It can be async.</li><li><code>onItems(items, { page, cursor, first })</code> receives each page. <code>first</code> is true for the first page after an <code>attach</code> or a <code>reset</code>, which is when your list should start over.</li><li>The page number starts at <code>startPage</code> (1) and goes up by one. With a cursor API, return <code>cursor</code> and it is sent back with the next request.</li></ul>
+<h3 id="what-it-takes-care-of">What it takes care of</h3>
+<ul><li><strong>One request at a time.</strong> Scrolling up and down at the end never asks for the same page twice.</li><li><strong>Filling the screen.</strong> When a page is not enough to fill the box, it asks for the next one, until the box can scroll or there is nothing more.</li><li><strong>The end.</strong> It stops in <code>'done'</code> when the answer says <code>done: true</code> or <code>hasMore: false</code>, when <code>cursor</code> comes back <code>null</code>, when a page is empty, or when a page has fewer items than <code>pageSize</code>.</li><li><strong>Errors.</strong> A failed <code>load</code> stops it in <code>'error'</code> (<code>feed.error</code> holds it, and <code>onError</code> gets it) until <code>feed.retry()</code>.</li><li><strong>Changing the query.</strong> <code>feed.reset()</code> aborts the request in flight through its <code>signal</code>, drops a late answer to the old query, and loads page 1 again. Call it when the search or a filter changes.</li></ul>
+<h3 id="controlling-it">Controlling it</h3>
+<ul><li><code>feed.loadMore()</code> loads the next page now, for a "Load more" button.</li><li><code>autoLimit</code>: after this many pages loaded by scrolling, only <code>loadMore()</code> loads. Use it to keep a footer reachable.</li><li><code>auto: false</code>: never load on scroll, only through <code>loadMore()</code>.</li><li><code>feed.pause()</code> and <code>feed.resume()</code>; <code>feed.configure({ ... })</code> changes options later.</li><li><code>feed.state</code>, <code>feed.page</code>, <code>feed.cursor</code>, <code>feed.loading</code>, <code>feed.done</code> and <code>feed.error</code> say where it is.</li><li><code>rootMargin</code> (<code>'600px'</code> by default) is how early it loads, before the end is actually visible.</li></ul>
+<h3 id="cleaning-up">Cleaning up</h3>
+<p><code>scroller.detach(sentinel)</code> (or <code>feed.destroy()</code>) stops watching and aborts the request in flight. Call it in your component's <code>beforeDestroy()</code>.</p>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Call <code>feed.reset()</code> whenever the query changes (search, filters, sort). It cancels the old request, so results of two queries never mix.</div>
+<div class="callout callout-tip">Pass the <code>signal</code> to <code>fetch</code>. A reset then cancels the network request itself, not only its answer.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Detach the sentinel when your component is destroyed (<code>beforeDestroy</code>), or the service keeps watching an element that is gone.</div>
+<div class="callout callout-warning">Infinite scrolling hides the footer. If the page has one, set <code>autoLimit</code> so a "Load more" button appears after a few pages.</div>
+</div>

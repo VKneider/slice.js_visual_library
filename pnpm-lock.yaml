@@ -21,11 +21,11 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       slicejs-cli:
-        specifier: ^4.0.1
-        version: 4.0.1
+        specifier: ^4.3.0
+        version: 4.3.0
       slicejs-web-framework:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.0.2
+        version: 4.0.2
       three:
         specifier: ^0.185.1
         version: 0.185.1
@@ -1030,17 +1030,17 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  slicejs-cli@4.0.1:
-    resolution: {integrity: sha512-fArqCGgjhwE0L3SYpKKGu352kw8o6XmqvhEXc834jbWEtqyO4rFRZrO9cEFhgbT+7C+N4DOgNy1nyGg2LRLXTw==}
+  slicejs-cli@4.3.0:
+    resolution: {integrity: sha512-o/e44w0bZJM5sDuV360xklmUgflVtDx8IRO83hjuChbYgnJVDHHMveA87mS8LgpIq1NIWrYxrsmDCE1aI+v7Fg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  slicejs-web-framework@3.5.1:
-    resolution: {integrity: sha512-eeY2nF6vnRV1kRk47wrGV66G4aiP+XvdZA+ESMKDBSl9wqHl2zHix/EAR7009WLkyl2zKnwX9bE08V4hnzHQMg==}
+  slicejs-web-framework@3.5.4:
+    resolution: {integrity: sha512-tP9Y0R5lWOWCi+ggnzlwpJvwTMj4zZAZX59LfBZU3Vy0iLdIVArIcLQdglzurhR9iv9MeRJpxijeRmyFw13L+A==}
     engines: {node: '>=20'}
 
-  slicejs-web-framework@4.0.0:
-    resolution: {integrity: sha512-FM9jPhpkrEmk1mksJ29BI6nqdLZbAEtK0d9G9QXpoxqJYri8dRXNTrAy73zsJ2SUD+PpojENoeproeKXAqOJTw==}
+  slicejs-web-framework@4.0.2:
+    resolution: {integrity: sha512-homVktLSEDQMBnDShGGsD1KdGHFc1A4SrB74G9DthKneZgYaA5pit2+83fRYTbFhGXpH/cn6I/HCpiXHZibhcQ==}
     engines: {node: '>=20'}
 
   source-map-support@0.5.21:
@@ -2104,7 +2104,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  slicejs-cli@4.0.1:
+  slicejs-cli@4.3.0:
     dependencies:
       '@babel/parser': 7.29.7
       '@babel/traverse': 7.29.7
@@ -2118,20 +2118,20 @@ snapshots:
       html-minifier-terser: 7.2.0
       inquirer: 12.11.1
       ora: 8.2.0
-      slicejs-web-framework: 3.5.1
+      slicejs-web-framework: 3.5.4
       terser: 5.48.0
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
 
-  slicejs-web-framework@3.5.1:
+  slicejs-web-framework@3.5.4:
     dependencies:
       compression: 1.8.1
       express: 4.22.2
     transitivePeerDependencies:
       - supports-color
 
-  slicejs-web-framework@4.0.0:
+  slicejs-web-framework@4.0.2:
     dependencies:
       compression: 1.8.1
       es-module-lexer: 2.3.1

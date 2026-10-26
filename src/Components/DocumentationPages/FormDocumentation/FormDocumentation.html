@@ -1,11 +1,11 @@
 <div class="documentation-content formdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="form">
-    <span class="doc-title-text">Form</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="form">
+     <span class="doc-title-text">Form</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>Form</code> builds a form from a <strong>schema</strong> and composes the library's own components (<code>Input</code>, <code>Select</code>, <code>Checkbox</code>, <code>Switch</code>, …). It renders sections, separators, per-field labels/descriptions and validation errors, reads the values back, and validates on submit. It is a plain Visual — drop it in a view or a <code>Modal</code> body.</p>
 <h2 id="schema">Schema</h2>
@@ -79,7 +79,7 @@ disappears from the payload. If a field is required, the usual validation is wha
 <div class="callout callout-warning">The Form <strong>builds</strong> its field + button components with <code>slice.build</code> and destroys them in
 <code>beforeDestroy()</code>. Components built with <code>slice.build</code> are not auto-destroyed by a parent — so destroy
 the <code>Form</code> itself through <code>slice.controller.destroyComponent(form)</code> / <code>destroyByContainer(node)</code> when you
-tear down whatever hosts it (a view). A [Modal](/docs/feedback/modal) destroys what is in its body when
+tear down whatever hosts it (a view). A <span data-inline-link="0"></span> destroys what is in its body when
 it is destroyed, so a Form in a Modal with <code>destroyOnClose: true</code> is taken care of.</div>
 <div class="component-block" data-block-id="doc-block-15"></div>
 </div>

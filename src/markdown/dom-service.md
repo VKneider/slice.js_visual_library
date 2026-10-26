@@ -118,7 +118,7 @@ list.style.cssText = 'display:flex;flex-direction:column;gap:8px;align-items:fle
 const render = () => dom.reconcile(list, store, {
   keyOf: (item) => `demo-chip-${item.id}`,
   component: 'Badge',
-  props: (item) => ({ label: item.label, variant: 'accent' }),
+  props: (item) => ({ label: item.label, tone: 'accent' }),
 });
 
 const controls = document.createElement('div');

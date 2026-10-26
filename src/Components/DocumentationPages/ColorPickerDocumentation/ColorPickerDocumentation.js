@@ -3,8 +3,9 @@ export default class ColorPickerDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"plain picker","expected":"a labelled swatch showing its hex value","kind":"script","content":"const picker = await slice.build('ColorPicker', {\n  label: 'Primary color',\n  value: '#9333ea'\n});\nreturn picker;"},{"label":"with a CSS variable hint","expected":"the variable name under the control","kind":"script","content":"const picker = await slice.build('ColorPicker', {\n  label: 'Danger',\n  value: '#dc2626',\n  hint: '--danger-color'\n});\n\nconst host = document.createElement('div');\nhost.style.maxWidth = '280px';\nhost.appendChild(picker);\nreturn host;"},{"label":"colour table","expected":"a row of independent swatches, each with its own value","kind":"script","content":"const tokens = [\n  { label: 'Primary', value: '#9333ea' },\n  { label: 'Secondary', value: '#0891b2' },\n  { label: 'Success', value: '#059669' },\n  { label: 'Warning', value: '#d97706' },\n  { label: 'Danger', value: '#dc2626' }\n];\n\nconst host = document.createElement('div');\nhost.style.display = 'grid';\nhost.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';\nhost.style.gap = '0.75rem';\n\nfor (const token of tokens) {\n  host.appendChild(await slice.build('ColorPicker', {\n    label: token.label,\n    value: token.value,\n    hint: '--' + token.label.toLowerCase() + '-color'\n  }));\n}\nreturn host;"},{"label":"onChange on every edit","expected":"the swatch updates as the value is dragged","kind":"script","content":"const readout = document.createElement('p');\nreadout.style.fontFamily = 'var(--font-family-code, monospace)';\nreadout.style.marginTop = '0.5rem';\n\nconst picker = await slice.build('ColorPicker', {\n  label: 'Pick a colour',\n  value: '#059669',\n  onChange: (hex) => {\n    readout.textContent = 'onChange -> ' + hex;\n  }\n});\n\nconst host = document.createElement('div');\nhost.style.maxWidth = '280px';\nhost.appendChild(picker);\nhost.appendChild(readout);\nreturn host;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"plain picker","expected":"a labelled swatch showing its hex value","kind":"script","content":"const picker = await slice.build('ColorPicker', {\n  label: 'Primary color',\n  value: '#9333ea'\n});\nreturn picker;"},{"label":"with a CSS variable hint","expected":"the variable name under the control","kind":"script","content":"const picker = await slice.build('ColorPicker', {\n  label: 'Danger',\n  value: '#dc2626',\n  hint: '--danger-color'\n});\n\nconst host = document.createElement('div');\nhost.style.maxWidth = '280px';\nhost.appendChild(picker);\nreturn host;"},{"label":"colour table","expected":"a row of independent swatches, each with its own value","kind":"script","content":"const tokens = [\n  { label: 'Primary', value: '#9333ea' },\n  { label: 'Secondary', value: '#0891b2' },\n  { label: 'Success', value: '#059669' },\n  { label: 'Warning', value: '#d97706' },\n  { label: 'Danger', value: '#dc2626' }\n];\n\nconst host = document.createElement('div');\nhost.style.display = 'grid';\nhost.style.gridTemplateColumns = 'repeat(auto-fit, minmax(200px, 1fr))';\nhost.style.gap = '0.75rem';\n\nfor (const token of tokens) {\n  host.appendChild(await slice.build('ColorPicker', {\n    label: token.label,\n    value: token.value,\n    hint: '--' + token.label.toLowerCase() + '-color'\n  }));\n}\nreturn host;"},{"label":"onChange on every edit","expected":"the swatch updates as the value is dragged","kind":"script","content":"const readout = document.createElement('p');\nreadout.style.fontFamily = 'var(--font-family-code, monospace)';\nreadout.style.marginTop = '0.5rem';\n\nconst picker = await slice.build('ColorPicker', {\n  label: 'Pick a colour',\n  value: '#059669',\n  onChange: (hex) => {\n    readout.textContent = 'onChange -> ' + hex;\n  }\n});\n\nconst host = document.createElement('div');\nhost.style.maxWidth = '280px';\nhost.appendChild(picker);\nhost.appendChild(readout);\nreturn host;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class ColorPickerDocumentation extends HTMLElement {
             const component = await slice.build('ColorPicker', props);
             container.appendChild(component);
          }
-      }
+       }
       {
          const container = this.querySelector('[data-block-id="doc-block-6"]');
          if (container) {
@@ -104,7 +105,7 @@ export default class ColorPickerDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -112,9 +113,12 @@ export default class ColorPickerDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

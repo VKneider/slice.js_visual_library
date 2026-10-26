@@ -45,7 +45,7 @@ export default class Card extends HTMLElement {
       image: { type: 'string', default: '' },
       imageAlt: { type: 'string', default: '' },
       mediaRatio: { type: 'string', default: '16 / 9' },
-      // 'New', 12, or { label, value, variant, dot }.
+      // 'New', 12, or Badge props: { label, value, tone, variant, icon, dot }.
       badge: { type: 'any', default: null },
       actions: { type: 'array', default: [] },
       actionsAlign: { type: 'string', default: 'start', allowedValues: ALIGNS },
@@ -478,11 +478,13 @@ export default class Card extends HTMLElement {
 
    _badgeProps(value) {
       if (value === null || value === undefined || value === '') return null;
-      if (typeof value === 'number') return { value, variant: 'accent' };
-      if (typeof value === 'string') return { label: value, variant: 'accent' };
+      if (typeof value === 'number') return { value, tone: 'accent' };
+      if (typeof value === 'string') return { label: value, tone: 'accent' };
       if (typeof value === 'object') {
-         const variant = BADGE_VARIANTS.includes(value.variant) ? value.variant : 'accent';
-         return { ...value, variant };
+         // `variant` used to carry the meaning; Badge now calls it `tone`.
+         const { variant, ...rest } = value;
+         const tone = BADGE_VARIANTS.includes(value.tone) ? value.tone : BADGE_VARIANTS.includes(variant) ? variant : 'accent';
+         return { ...rest, tone, ...(variant && !BADGE_VARIANTS.includes(variant) ? { variant } : {}) };
       }
       return null;
    }

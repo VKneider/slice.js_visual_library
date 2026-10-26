@@ -2,13 +2,13 @@ import { applySize, SIZE_VALUES } from '../../shared/props.js';
 import {
    fieldId, validationMessage, compileConditions, countText,
    VALIDATE_ON, FIELD_VARIANTS, LABEL_PLACEMENTS,
-} from '../../shared/field.js';
+} from '../../shared/validation/fieldRules.js';
 
 // A multi-line text field: Input's sibling.
 //
 // It shares Input's field system on purpose: the same label (floating or
 // above), variants, sizes, help / error line, counter, and the same
-// validation (shared/field.js), so a form of Inputs and Textareas reads and
+// validation (shared/validation/fieldRules.js), so a form of Inputs and Textareas reads and
 // behaves as one. The floating label and the error shake use the same rules
 // as Input, value for value (Textarea.spec.js holds them together).
 //

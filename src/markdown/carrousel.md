@@ -128,7 +128,7 @@ info.innerHTML = `<div style="font-size:.8rem;opacity:.7">Audio · Headphones</d
   <h3 style="margin:0">Aria wireless headphones</h3>
   <div style="font-size:1.4rem;font-weight:700">$149</div>
   <p style="margin:0;opacity:.8">40 hours of battery, noise cancelling, and a case that folds flat.</p>`;
-info.prepend(await slice.build('Badge', { label: 'In stock', variant: 'success' }));
+info.prepend(await slice.build('Badge', { label: 'In stock', tone: 'success' }));
 
 const colors = ['Navy', 'Sunset', 'Forest'];
 const picker = document.createElement('div');
@@ -164,7 +164,7 @@ const cards = await Promise.all(courses.map((course) => slice.build('Card', {
   title: course.title,
   subtitle: `${course.teacher} · ${course.hours} h`,
   headerIcon: course.icon,
-  badge: { label: course.level, variant: tone[course.level] },
+  badge: { label: course.level, tone: tone[course.level] },
   text: 'Short videos, exercises and a final project you can show.',
   actions: [{
     value: 'Enrol', size: 'sm',

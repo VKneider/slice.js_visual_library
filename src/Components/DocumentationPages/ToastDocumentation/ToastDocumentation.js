@@ -3,8 +3,9 @@ export default class ToastDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Type variants","expected":"five toasts with different type icons and colors","kind":"script","content":"const container = document.createElement('div');\ncontainer.style.display = 'flex';\ncontainer.style.flexDirection = 'column';\ncontainer.style.gap = '0.5rem';\nconst types = ['success', 'error', 'warning', 'info', 'default'];\nconst labels = ['File saved', 'Connection lost', 'Low disk space', 'Update available', 'No icon variant'];\nfor (let i = 0; i < types.length; i++) {\n  container.appendChild(await slice.build('Toast', { message: labels[i], type: types[i], duration: 0 }));\n}\nreturn container;"},{"label":"Sticky toast (duration 0)","expected":"toast stays visible until closed","kind":"script","content":"return await slice.build('Toast', { message: 'This toast stays until you close it', type: 'warning', duration: 0 });"},{"label":"Custom color","expected":"toast with dark blue background and light blue accent","kind":"script","content":"return await slice.build('Toast', {\n  message: 'Custom-styled toast',\n  type: 'info',\n  duration: 0,\n  customColor: { background: '#1e3a5f', text: '#e0f2fe', accent: '#38bdf8' }\n});"},{"label":"Non-dismissable","expected":"toast with no close button","kind":"script","content":"return await slice.build('Toast', { message: 'Auto-dismiss only', dismissable: false });"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Type variants","expected":"five toasts with different type icons and colors","kind":"script","content":"const container = document.createElement('div');\ncontainer.style.display = 'flex';\ncontainer.style.flexDirection = 'column';\ncontainer.style.gap = '0.5rem';\nconst types = ['success', 'error', 'warning', 'info', 'default'];\nconst labels = ['File saved', 'Connection lost', 'Low disk space', 'Update available', 'No icon variant'];\nfor (let i = 0; i < types.length; i++) {\n  container.appendChild(await slice.build('Toast', { message: labels[i], type: types[i], duration: 0 }));\n}\nreturn container;"},{"label":"Sticky toast (duration 0)","expected":"toast stays visible until closed","kind":"script","content":"return await slice.build('Toast', { message: 'This toast stays until you close it', type: 'warning', duration: 0 });"},{"label":"Custom color","expected":"toast with dark blue background and light blue accent","kind":"script","content":"return await slice.build('Toast', {\n  message: 'Custom-styled toast',\n  type: 'info',\n  duration: 0,\n  customColor: { background: '#1e3a5f', text: '#e0f2fe', accent: '#38bdf8' }\n});"},{"label":"Non-dismissable","expected":"toast with no close button","kind":"script","content":"return await slice.build('Toast', { message: 'Auto-dismiss only', dismissable: false });"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class ToastDocumentation extends HTMLElement {
             const component = await slice.build('Toast', props);
             container.appendChild(component);
          }
-      }
+       }
       {
          const container = this.querySelector('[data-block-id="doc-block-2"]');
          if (container) {
@@ -166,6 +167,16 @@ export default class ToastDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
+       }
+      {
+         const links = [{"text":"ToastProvider","path":"/docs/services/toast-provider"},{"text":"ToastProvider","path":"/docs/services/toast-provider"}];
+         for (const [index, linkProps] of links.entries()) {
+            const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
+            if (!placeholder) continue;
+            const link = await slice.build('Link', linkProps);
+            placeholder.replaceWith(link);
+            this._inlineLinks.push(link);
+         }
       }
     await this.renderScriptScenarios();
   }
@@ -174,9 +185,12 @@ export default class ToastDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

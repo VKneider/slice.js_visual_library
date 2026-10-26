@@ -2,8 +2,8 @@ import {
    normalize, todayISO, parseISO, toISO, addDays, addMonths, addYears, compare, clamp,
    startOfWeek, monthGrid, weekStartFor, numericPattern, formatNumeric, formatDate,
    parseTyped, parseTypedRange, monthNames, weekdayNames, daysBetween,
-} from "./dates.js";
-import { DEFAULT_MESSAGES } from '../../shared/field.js';
+} from './dates.js';
+import { DEFAULT_MESSAGES } from '../../shared/validation/fieldRules.js';
 
 // A date field with a calendar.
 //

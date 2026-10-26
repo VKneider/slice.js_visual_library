@@ -3,8 +3,9 @@ export default class CodeVisualizerDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"JavaScript highlighting","expected":"renders JS code with keyword and string colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: `function greet(name) {\n  const message = \"Hello, \" + name;\n  console.log(message);\n  return message;\n}\n\ngreet(\"World\");`,\n  language: 'javascript'\n});\n\nreturn code;"},{"label":"HTML highlighting","expected":"renders HTML code with tag and attribute colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: `<div class=\"container\">\n  <h1>Title</h1>\n  <p>Description here</p>\n</div>`,\n  language: 'html'\n});\n\nreturn code;"},{"label":"CSS highlighting","expected":"renders CSS with selector and property colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: `.container {\n  display: flex;\n  gap: 1rem;\n  padding: 2rem;\n  background: #f9fafb;\n  border-radius: 8px;\n}`,\n  language: 'css'\n});\n\nreturn code;"},{"label":"Unknown language fallback","expected":"renders plain escaped code without colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: 'some raw text without highlighting',\n  language: 'text'\n});\n\nreturn code;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"JavaScript highlighting","expected":"renders JS code with keyword and string colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: `function greet(name) {\n  const message = \"Hello, \" + name;\n  console.log(message);\n  return message;\n}\n\ngreet(\"World\");`,\n  language: 'javascript'\n});\n\nreturn code;"},{"label":"HTML highlighting","expected":"renders HTML code with tag and attribute colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: `<div class=\"container\">\n  <h1>Title</h1>\n  <p>Description here</p>\n</div>`,\n  language: 'html'\n});\n\nreturn code;"},{"label":"CSS highlighting","expected":"renders CSS with selector and property colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: `.container {\n  display: flex;\n  gap: 1rem;\n  padding: 2rem;\n  background: #f9fafb;\n  border-radius: 8px;\n}`,\n  language: 'css'\n});\n\nreturn code;"},{"label":"Unknown language fallback","expected":"renders plain escaped code without colors","kind":"script","content":"const code = await slice.build('CodeVisualizer', {\n  value: 'some raw text without highlighting',\n  language: 'text'\n});\n\nreturn code;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class CodeVisualizerDocumentation extends HTMLElement {
             const component = await slice.build('CodeVisualizer', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -35,9 +36,12 @@ export default class CodeVisualizerDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

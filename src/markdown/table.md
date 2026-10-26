@@ -5,16 +5,26 @@ navLabel: Table
 section: Data
 group: Tables
 order: 10
-description: Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling.
+description: Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling; rows from a slice.context store or a server, add / change / remove with rollback and undo, and cells edited in place like a spreadsheet.
 component: TableDocumentation
 generate: true
-tags: [table, data, display, filter, search, selection, virtual, export, totals, menu]
+tags: [table, data, display, filter, search, selection, virtual, export, totals, menu, crud, editable, grid, spreadsheet, context]
 ---
 
 # Table
 
 ## Overview
 `Table` renders a structured HTML table from `headers` and `rows` arrays. Responsive by default: on phones it scrolls sideways with the first column pinned, or turns into cards (`mobileLayout: 'cards'`).
+
+### When to use it
+- **Records compared across the same columns**: orders, invoices, users, stock, logs. People scan down a column, sort it and filter it.
+- **Data people work in at the keyboard**: prices, quantities, statuses edited cell by cell, like a spreadsheet.
+- **Many rows**: thousands, with virtual scrolling, or a server that pages them (`load`).
+
+### When not to use it
+- **Records with a picture, a status and actions, read one by one**: a [DataList](/docs/data/datalist) shows them better, and on a phone.
+- **One record with many properties**: a [DescriptionList](/docs/data/description-list).
+- **Layout.** A table is for data; for arranging things on a page use [Grid](/docs/layout/grid).
 
 ## API and Behavior
 - `headers` (array of strings) defines the table header row (rendered as `<th scope="col">`).
@@ -61,6 +71,151 @@ Sortable headers are keyboard-operable: they are focusable (`tabindex="0"`) and 
   so you can fetch the next slice. Provide `totalItems` so the pager can compute the page count.
 
 In remote mode the table never re-orders or slices your rows — supplying the next page is your job.
+
+## Rows from a store or a server
+The same three sources as [DataList](/docs/data/datalist), with the same names:
+
+- `rows`: an array you own.
+- `context` and `contextPath`: a `slice.context` store and the path of the array in it (`'items'` by default; `''` when the state is the array). The table follows the store, and every change below is written back to it, so a counter, a chart or a DataList reading the same store sees it at once.
+- `load: async ({ page, pageSize, search, filters, sort, signal }) => ({ items, total })`: a server. The table becomes remote and asks again on every sort, page, search or filter (one request for a burst of changes, the previous one cancelled), shows its loading overlay, and on a failure says so with **Try again**. `reload()` asks again. Set `load` when building the table.
+
+## Add, change and remove rows
+With `rowKey` set, the table has the CRUD methods DataList has, under the table's own words:
+
+- `addRow(row, { position, commit, highlight })`: the row shows at once, highlighted. With `commit`, a failure takes it out again; a returned object (the server's id, its dates) replaces it.
+- `updateRow(key, changes, { commit })`: `changes` are merged into the row (or a function from the row to them). A failed commit puts the row back as it was.
+- `removeRow(keys, { commit, undo })`: the rows leave at once. With `undo: true` a bar says "2 rows removed · Undo" for five seconds, and `commit` runs only when that time is over (or the bar is closed). A failed commit brings the rows back where they were.
+- `getRow(key)`, and `onError(error, { type, row })` for every failure. Failures also show on the bar, in red.
+
+The arrays are never changed in place: every change makes a new one, the way a store expects, and rows that did not change keep their `<tr>`.
+
+## Editing cells like a spreadsheet
+A column with `edit` makes the table a grid of cells: `edit: true`, a control type, or `{ type, options, required, min, max, step, validate(value, row), parse(value) }`, the same options as [DescriptionList](/docs/data/description-list). The control follows the data: a checkbox for yes/no, a number field for numbers, a Select when there are `options` (and the cell shows the option's label), a DatePicker for `type: 'date'`.
+
+| Key | What it does |
+| --- | --- |
+| Arrows, Home, End | Move the active cell (Ctrl+Home / Ctrl+End: the first and the last). |
+| Tab, Shift+Tab | The next or the previous cell; at the edges, Tab leaves the table. |
+| Typing | Starts editing and replaces the value. |
+| Enter, F2, a double click | Edit with the value there, the caret at the end. On a cell that does not edit, Enter opens the row. |
+| Enter while editing | Save and go down. **Tab** saves and goes on; a click elsewhere saves too. |
+| Escape | Cancel the edit. |
+| Space on a checkbox | Flip it (saved at once). A choice from a list is saved the moment it is made. |
+| Delete, Backspace | Empty the cell (not a `required` one). |
+| Ctrl/⌘+C | Copy the value. |
+
+Saving: the cell shows the new value at once, busy, and `commit({ row, before, key, value, previous, column })` runs. The row changes when it resolves (a returned object replaces the row); if it throws or returns `false`, the old value is drawn back, the cell outlined in red with the message, and the bar says why. `onCellChange({ row, key, value, previous })` runs after every saved edit. From code: `editCell(rowKey, columnKey)`, `saveCellEdit()`, `cancelCellEdit()`, `focusCell(rowKey, columnKey)`, `activeCell`.
+
+The whole grid is one tab stop: Tab enters it at the active cell, the arrows move inside.
+
+:::script label="Stock you edit like a spreadsheet" expected="a stock table with Product, Category (a list), Stock, Price and Active (a checkbox); click a cell and use the arrows; type to replace a value, Enter saves and goes down, Tab goes on; a price over 1,000 is refused by the pretend server and the cell turns red; the line below shows the stock value, updated after each save; New product adds a row at the top, Delete selected removes the checked rows with Undo"
+const products = [
+  { id: 1, name: 'Cat6 cable 3 m', category: 'cables', stock: 120, price: 4.5, active: true },
+  { id: 2, name: 'USB-C hub', category: 'adapters', stock: 34, price: 39, active: true },
+  { id: 3, name: '24-port switch', category: 'network', stock: 6, price: 389, active: true },
+  { id: 4, name: 'HDMI cable 2 m', category: 'cables', stock: 0, price: 7.9, active: false },
+  { id: 5, name: 'Rack shelf 1U', category: 'racks', stock: 12, price: 54, active: true }
+];
+if (!slice.context.has('docsStock')) slice.context.create('docsStock', { items: products });
+const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+const summary = document.createElement('p');
+summary.style.cssText = 'margin:0;font-variant-numeric:tabular-nums;opacity:.8';
+const paint = (items) => {
+  const value = items.reduce((sum, p) => sum + p.stock * p.price, 0);
+  summary.textContent = `${items.length} products · stock value ${money.format(value)}`;
+};
+paint(slice.context.getState('docsStock').items);
+
+const stock = await slice.build('Table', {
+  context: 'docsStock',
+  rowKey: 'id',
+  selection: 'multiple',
+  sortable: true,
+  columns: [
+    { key: 'name', label: 'Product', edit: { required: true } },
+    { key: 'category', label: 'Category', edit: { options: [
+      { value: 'cables', label: 'Cables' }, { value: 'adapters', label: 'Adapters' },
+      { value: 'network', label: 'Network' }, { value: 'racks', label: 'Racks' }
+    ] } },
+    { key: 'stock', label: 'Stock', edit: { min: 0, step: 1 } },
+    { key: 'price', label: 'Price', edit: { min: 0, step: 0.01 } },
+    { key: 'active', label: 'Active', edit: true }
+  ],
+  // A pretend server: a short wait, and no price over 1,000.
+  commit: async ({ key, value }) => {
+    await new Promise((r) => setTimeout(r, 300));
+    if (key === 'price' && value > 1000) throw new Error('Prices over 1,000 need approval.');
+  },
+  onCellChange: () => paint(slice.context.getState('docsStock').items)
+});
+
+let next = 100;
+const add = await slice.build('Button', {
+  value: 'New product', icon: 'plus', variant: 'filled', size: 'sm',
+  onClick: async () => {
+    await stock.addRow({ id: next++, name: 'New product', category: 'cables', stock: 0, price: 0, active: false });
+    stock.editCell(next - 1, 'name');
+  }
+});
+const remove = await slice.build('Button', {
+  value: 'Delete selected', icon: 'trash-bin', variant: 'outlined', size: 'sm',
+  onClick: () => {
+    const keys = stock.getSelectedRows().map((p) => p.id);
+    if (keys.length) stock.removeRow(keys, { undo: true });
+  }
+});
+slice.context.watch('docsStock', stock, (items) => paint(items), (state) => state.items);
+
+const bar = document.createElement('div');
+bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap';
+bar.append(add, remove);
+const box = document.createElement('div');
+box.style.cssText = 'display:grid;gap:10px;width:100%';
+box.append(bar, stock, summary);
+return box;
+:::
+
+:::script label="Orders from a server with load" expected="orders loaded from a pretend server ten at a time, with the loading overlay each time; sorting, searching and changing the page ask the server again; the 'Fail next request' button makes the next load fail and shows Try again"
+const statuses = ['Paid', 'Pending', 'Shipped', 'Refunded'];
+const all = Array.from({ length: 64 }, (_, i) => ({
+  id: 1000 + i,
+  customer: ['Ana López', 'Luis Galué', 'María Ruiz', 'Andrés Bello', 'Sofía Rey'][i % 5],
+  status: statuses[i % 4],
+  total: Math.round((20 + ((i * 37) % 900)) * 100) / 100
+}));
+let failNext = false;
+
+const orders = await slice.build('Table', {
+  rowKey: 'id',
+  searchable: true,
+  sortable: true,
+  pagination: { pageSize: 10 },
+  columns: [
+    { key: 'id', label: 'Order' },
+    { key: 'customer', label: 'Customer' },
+    { key: 'status', label: 'Status' },
+    { key: 'total', label: 'Total' }
+  ],
+  load: async ({ page, pageSize, search, sort, signal }) => {
+    await new Promise((r) => setTimeout(r, 500));
+    if (signal.aborted) return [];
+    if (failNext) { failNext = false; throw new Error('Server unavailable'); }
+    const q = search.toLowerCase();
+    let list = all.filter((o) => !q || `${o.id} ${o.customer} ${o.status}`.toLowerCase().includes(q));
+    if (sort) list = [...list].sort((a, b) => (a[sort.key] > b[sort.key] ? 1 : -1) * (sort.direction === 'asc' ? 1 : -1));
+    return { items: list.slice((page - 1) * pageSize, page * pageSize), total: list.length };
+  }
+});
+const fail = await slice.build('Button', {
+  value: 'Fail next request', variant: 'outlined', size: 'sm',
+  onClick: () => { failNext = true; orders.reload(); }
+});
+const box = document.createElement('div');
+box.style.cssText = 'display:grid;gap:10px;width:100%';
+box.append(fail, orders);
+return box;
+:::
 
 ## Live Preview
 :::component name="Table"
@@ -578,6 +733,10 @@ return table;
 :::
 
 ## Best Practices
+:::tip
+Editable tables save each cell on its own. Let `commit` throw with a message people can act on ("Prices over 1,000 need approval."): it shows on the cell and on the bar.
+:::
+
 :::tip
 Keep row data uniform in length. Mismatched columns may produce uneven layout.
 :::

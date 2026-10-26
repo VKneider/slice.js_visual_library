@@ -1,18 +1,18 @@
 <div class="documentation-content elementcarrouseldocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="elementcarrousel">
-    <span class="doc-title-text">ElementCarrousel</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="elementcarrousel">
+     <span class="doc-title-text">ElementCarrousel</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
-<p><code>ElementCarrousel</code> shows a row of slides that moves one position at a time. A slide can hold anything: a picture, a [Card](/docs/layout/card), a testimonial, or any other component.</p>
+<p><code>ElementCarrousel</code> shows a row of slides that moves one position at a time. A slide can hold anything: a picture, a <span data-inline-link="0"></span>, a testimonial, or any other component.</p>
 <p>The row is a native scroll container with scroll snapping. A swipe on a phone, a trackpad flick and Shift+wheel all move it the way the platform does, and a mouse can drag it. Arrows, dots, the keyboard and autoplay move the same scroll.</p>
 <h3 id="when-to-use-it">When to use it</h3>
 <ul><li><strong>A product gallery</strong>: several photos of one thing, with thumbnails.</li><li><strong>A row of related items</strong> that does not need to be seen all at once: "Recommended for you", "Recently viewed", courses or articles. Use several slides per view and a peek.</li><li><strong>Testimonials or quotes</strong>: one at a time, moving by itself.</li></ul>
 <h3 id="when-not-to-use-it">When not to use it</h3>
-<ul><li><strong>Content everyone must see</strong>, such as prices, terms or a main call to action. Few people look past the second slide, so put it on the page.</li><li><strong>Items people compare side by side.</strong> Use a [Grid](/docs/layout/grid) or a [Table](/docs/data/table), which show them all at once.</li><li><strong>Steps of a process</strong> that have to be done in order. Use a form with steps, or [Pagination](/docs/data/pagination) with <code>mode: 'dots'</code> under one Card.</li><li><strong>A long list.</strong> Past about 10 slides a carousel is hard to browse. Use a grid with [Pagination](/docs/data/pagination).</li></ul>
+<ul><li><strong>Content everyone must see</strong>, such as prices, terms or a main call to action. Few people look past the second slide, so put it on the page.</li><li><strong>Items people compare side by side.</strong> Use a <span data-inline-link="1"></span> or a <span data-inline-link="2"></span>, which show them all at once.</li><li><strong>Steps of a process</strong> that have to be done in order. Use a form with steps, or <span data-inline-link="3"></span> with <code>mode: 'dots'</code> under one Card.</li><li><strong>A long list.</strong> Past about 10 slides a carousel is hard to browse. Use a grid with <span data-inline-link="4"></span>.</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
 <h3 id="slides">Slides</h3>
 <ul><li><code>elements</code> is an array of nodes (built components or plain elements) or strings. Each one becomes a slide.</li><li>Setting <code>elements</code> again replaces the slides. Components in slides that were dropped are destroyed. Elements passed again are kept as they are, with their state.</li><li>Every slide is announced as "Slide 2 of 5". Slides out of view are <code>inert</code>, so Tab never lands on something that cannot be seen.</li></ul>
@@ -26,7 +26,7 @@
 <ul><li><code>arrows</code>:</li></ul>
 <p>- <code>'overlay'</code> (default): round buttons over the edges of the slides, hidden at the ends;   - <code>'outside'</code>: beside the row, for cards that should not be covered. Under 480px they move over the slides, so a phone keeps the width for the slides;   - <code>'none'</code>: no arrows, for a row moved by swiping or by the dots.</p>
 <ul><li><code>indicators</code>:</li></ul>
-<p>- <code>'dots'</code> (default): one dot per position, built with [Pagination](/docs/data/pagination);   - <code>'count'</code>: "2 / 5";   - <code>'thumbnails'</code>: small buttons built by <code>thumbnail(slide, index)</code>, for galleries;   - <code>'none'</code>.</p>
+<p>- <code>'dots'</code> (default): one dot per position, built with <span data-inline-link="5"></span>;   - <code>'count'</code>: "2 / 5";   - <code>'thumbnails'</code>: small buttons built by <code>thumbnail(slide, index)</code>, for galleries;   - <code>'none'</code>.</p>
 <ul><li>The CSS variables <code>--element-carrousel-accent</code> and <code>--element-carrousel-radius</code> adjust the current thumbnail, the focus ring and the corners.</li></ul>
 <h2 id="language">Language</h2>
 <ul><li><code>label</code> names the carousel ("Product photos"). Give every carousel one.</li><li><code>texts</code> replaces the other words:</li></ul>

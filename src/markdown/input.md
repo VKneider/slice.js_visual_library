@@ -126,7 +126,7 @@ const table = await slice.build('Table', {
   rows: people
 });
 table.style.width = '100%';
-const count = await slice.build('Badge', { label: `${people.length} people`, variant: 'accent' });
+const count = await slice.build('Badge', { label: `${people.length} people`, tone: 'accent' });
 
 const search = await slice.build('Input', {
   ariaLabel: 'Search people',

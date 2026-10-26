@@ -1378,3 +1378,110 @@ slice-table .table_cards_direction {
     background: none;
   }
 }
+
+/* ----------------------------------------------------------------- notice bar
+   "2 rows removed · Undo", or a save that failed: an Alert placed here. */
+
+slice-table .table_notice:has(slice-alert:not([hidden])) {
+  margin-bottom: 10px;
+}
+
+/* ----------------------------------------------------------------- row states */
+
+slice-table .table_row--new > td {
+  animation: slice-table-new 1.6s ease-out;
+}
+
+@keyframes slice-table-new {
+  from { background: color-mix(in srgb, var(--primary-color) 16%, transparent); }
+  to { background: transparent; }
+}
+
+slice-table .table_row--saving > td {
+  opacity: 0.6;
+}
+
+slice-table .table_empty--error {
+  color: var(--danger-color, #dc2626);
+}
+
+/* ----------------------------------------------------------------- editable grid
+   A table with editable columns is a grid of cells: one active cell, moved
+   with the arrows; Enter, F2, a double click or typing edits it in place. */
+
+slice-table.table--editable td[data-cell] {
+  position: relative;
+  outline: none;
+}
+
+slice-table.table--editable td.table_cell--editable {
+  cursor: cell;
+}
+
+slice-table.table--editable td.table_cell--editable:hover {
+  background: color-mix(in srgb, var(--primary-color) 5%, transparent);
+}
+
+/* The active cell: drawn inside, so the neighbours never move. */
+slice-table.table--editable td[data-cell][tabindex='0'] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-color) 40%, transparent);
+}
+
+slice-table.table--editable td[data-cell]:focus-visible,
+slice-table.table--editable td[data-cell]:focus,
+slice-table.table--editable td.table_cell--editing {
+  box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+
+slice-table.table--editable td.table_cell--editing {
+  padding: 0;
+  background: var(--primary-background-color);
+}
+
+slice-table .table_cell_editor {
+  min-width: 120px;
+}
+
+slice-table .table_cell_editor > * {
+  width: 100%;
+}
+
+slice-table td.table_cell--saving {
+  color: color-mix(in srgb, currentColor 60%, transparent);
+}
+
+slice-table td.table_cell--saving::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: slice-table-saving 1s linear infinite;
+}
+
+@keyframes slice-table-saving {
+  from { background-position: -50% 0; }
+  to { background-position: 150% 0; }
+}
+
+slice-table td.table_cell--error {
+  box-shadow: inset 0 0 0 2px var(--danger-color, #dc2626) !important;
+  background: color-mix(in srgb, var(--danger-color, #dc2626) 7%, transparent);
+}
+
+slice-table .table_cell_check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-table .table_row--new > td,
+  slice-table td.table_cell--saving::after {
+    animation: none;
+  }
+}

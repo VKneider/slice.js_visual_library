@@ -1,16 +1,16 @@
 <div class="documentation-content bottomnavdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="bottomnav">
-    <span class="doc-title-text">BottomNav</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="bottomnav">
+     <span class="doc-title-text">BottomNav</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>BottomNav</code> is an app-style tab bar. On wide screens it floats as a capsule; on phones it docks to the bottom edge, leaving room for the home indicator. It shares <code>Navbar</code>'s API (<code>logo</code>, <code>items</code>, <code>buttons</code>, <code>position</code>, <code>direction</code>), so the two are interchangeable, and adds what a bottom bar needs: badges, a raised centre action, label modes and hiding while you scroll.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>items</code> are the tabs:</li></ul>
-<p>- <code>{ text, path }</code> is a route tab, navigated through <code>slice.router</code>.   - <code>{ text, href }</code> is a plain link.   - <code>{ text, items: [...] }</code> is a [DropDown](/docs/navigation/dropdown) tab, and its menu opens upwards. <code>type: 'dropdown'</code> with <code>options</code> is the older form and still works.</p>
+<p>- <code>{ text, path }</code> is a route tab, navigated through <code>slice.router</code>.   - <code>{ text, href }</code> is a plain link.   - <code>{ text, items: [...] }</code> is a <span data-inline-link="0"></span> tab, and its menu opens upwards. <code>type: 'dropdown'</code> with <code>options</code> is the older form and still works.</p>
 <ul><li>Any tab can also take:</li></ul>
 <p>- <code>icon</code>, any <code>Icon</code> name, shown above the label.   - <code>badge</code>, a number (over 99 shows "99+"), some text, or <code>true</code> for a dot.   - <code>exact</code>, <code>hidden</code>, and <code>onClick(item, event)</code>.</p>
 <ul><li>Each tab is a real link. It works with the keyboard (<strong>← →</strong> move between tabs, <strong>Home / End</strong> jump to the ends), with middle-click and with screen readers. The current tab carries <code>aria-current="page"</code>.</li><li>The current tab follows the URL: an exact match wins, otherwise the longest matching prefix. It keeps up with <code>slice.router</code> navigations and back / forward. <code>setActivePath(path)</code> sets it by hand, and <code>onChange(item)</code> tells you when a click changed it.</li><li><code>setBadge(pathOrIndex, value)</code> updates a badge without rebuilding the bar; <code>null</code> removes it.</li><li><code>brand</code> (<code>{ logo, text, path }</code>) or the older <code>logo</code> adds a brand on the start side. It is hidden when the bar is docked.</li><li><code>buttons</code> add actions on the end side, drawn as the bar's own round pills (not <code>Button</code>): <code>{ value, icon, onClick, path }</code>. The emphasised one is filled; <code>variant: 'ghost'</code> gives a quiet one, and an icon without text makes a round icon button (name it with <code>ariaLabel</code>). <code>actions</code> takes the same configs or any node of your own. The tabs stay optically centred between the brand and the actions.</li><li>Every prop is reactive.</li></ul>

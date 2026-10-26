@@ -7,6 +7,7 @@ import { writeComponentFiles } from './lib/generator.js';
 import { collectDocCandidates } from './lib/report.js';
 import { writeDocsIndex } from './lib/docsIndex.js';
 import { generateMainRoutesFile } from './lib/routesSync.js';
+import { writeFileIfChanged, copyFileIfChanged } from './lib/fileUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -313,7 +314,7 @@ const syncComponentsRegistry = (generatedComponents) => {
   const existingRegistry = parseRegistryObject(registryContent);
   const mergedRegistry = mergeComponentsRegistry(existingRegistry, generatedComponents);
   const output = serializeRegistryObject(mergedRegistry);
-  fs.writeFileSync(COMPONENTS_REGISTRY_PATH, output, 'utf8');
+  writeFileIfChanged(COMPONENTS_REGISTRY_PATH, output);
 };
 
 const syncCopyMarkdownMenu = () => {
@@ -323,14 +324,14 @@ const syncCopyMarkdownMenu = () => {
   ensureDir(targetPath);
   const files = ['CopyMarkdownMenu.js', 'CopyMarkdownMenu.html', 'CopyMarkdownMenu.css'];
   for (const fileName of files) {
-    fs.copyFileSync(path.join(sourcePath, fileName), path.join(targetPath, fileName));
+    copyFileIfChanged(path.join(sourcePath, fileName), path.join(targetPath, fileName));
   }
 };
 
 const syncGlobalStyles = () => {
   const sourceFile = path.join(ROOT, 'parser', 'templates', 'DocumentationBase.css');
   const targetFile = path.join(ROOT, 'src', 'public', 'Styles', 'DocumentationBase.css');
-  fs.copyFileSync(sourceFile, targetFile);
+  copyFileIfChanged(sourceFile, targetFile);
 };
 
 const run = () => {
@@ -401,7 +402,7 @@ const run = () => {
       markdownCandidates: [],
       requiresCustomBlocks: []
     };
-    fs.writeFileSync(REPORT_PATH, JSON.stringify(reportPayload, null, 2), 'utf8');
+    writeFileIfChanged(REPORT_PATH, JSON.stringify(reportPayload, null, 2));
     process.exit(1);
   }
 
@@ -412,13 +413,13 @@ const run = () => {
     writeDocsIndex(indexEntries, DOCS_INDEX_PATH);
 
     const routesContent = generateDocumentationRoutesFile(indexEntries);
-    fs.writeFileSync(DOCUMENTATION_ROUTES_PATH, routesContent, 'utf8');
+    writeFileIfChanged(DOCUMENTATION_ROUTES_PATH, routesContent);
 
     const flatRoutesContent = generateFlatDocRoutesFile(indexEntries);
-    fs.writeFileSync(FLAT_DOC_ROUTES_PATH, flatRoutesContent, 'utf8');
+    writeFileIfChanged(FLAT_DOC_ROUTES_PATH, flatRoutesContent);
 
     const mainRoutesContent = generateMainRoutesFile(indexEntries);
-    fs.writeFileSync(MAIN_ROUTES_PATH, mainRoutesContent, 'utf8');
+    writeFileIfChanged(MAIN_ROUTES_PATH, mainRoutesContent);
 
     const generatedComponentNames = generated.map((entry) => entry.component);
     syncComponentsRegistry(generatedComponentNames);
@@ -431,7 +432,7 @@ const run = () => {
     validationErrors,
     ...report
   };
-  fs.writeFileSync(REPORT_PATH, JSON.stringify(reportPayload, null, 2), 'utf8');
+  writeFileIfChanged(REPORT_PATH, JSON.stringify(reportPayload, null, 2));
 
   if (options.lintOnly) {
     console.log('Markdown lint completed successfully.');

@@ -3,8 +3,9 @@ export default class ThemeSelectorDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class ThemeSelectorDocumentation extends HTMLElement {
             const component = await slice.build('ThemeSelector', props);
             container.appendChild(component);
          }
-      }
+       }
       {
          const container = this.querySelector('[data-block-id="doc-block-2"]');
          if (container) {
@@ -44,6 +45,16 @@ export default class ThemeSelectorDocumentation extends HTMLElement {
             container.appendChild(code);
          }
       }
+      {
+         const links = [{"text":"`ThemeSwitcher`","path":"/docs/input/theme-switcher"},{"text":"`ThemeSwitcher`","path":"/docs/input/theme-switcher"}];
+         for (const [index, linkProps] of links.entries()) {
+            const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
+            if (!placeholder) continue;
+            const link = await slice.build('Link', linkProps);
+            placeholder.replaceWith(link);
+            this._inlineLinks.push(link);
+         }
+      }
     await this.renderScriptScenarios();
   }
 
@@ -51,9 +62,12 @@ export default class ThemeSelectorDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

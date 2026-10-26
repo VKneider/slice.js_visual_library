@@ -1,15 +1,15 @@
 <div class="documentation-content datepickerdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="datepicker">
-    <span class="doc-title-text">DatePicker</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="datepicker">
+     <span class="doc-title-text">DatePicker</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>DatePicker</code> is a date field with a calendar. People can do either of two things:</p>
 <ul><li><strong>type the date</strong> in the order their locale writes it (<code>21/10/2026</code> in <code>es-VE</code>, <code>10/21/2026</code> in <code>en-US</code>) or as ISO (<code>2026-10-21</code>);</li><li><strong>pick it</strong> from a calendar that opens under the field.</li></ul>
-<p>It is the same field as [Input](/docs/input/input): the same label (floating or above), variants, sizes, help, errors and ✕ to clear, and the same rule for errors. An empty field is never flagged on its own; <code>required</code> waits for <code>validate()</code> or the Form's submit.</p>
+<p>It is the same field as <span data-inline-link="0"></span>: the same label (floating or above), variants, sizes, help, errors and ✕ to clear, and the same rule for errors. An empty field is never flagged on its own; <code>required</code> waits for <code>validate()</code> or the Form's submit.</p>
 <p>The value is <strong>ISO text</strong> (<code>'2026-10-21'</code>), never a <code>Date</code>. A picked day is a day on a calendar, not an instant in time, and turning it into one is how pickers end up showing the day before. When you do need a <code>Date</code>, <code>valueAsDate</code> gives you one at local midnight.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>value</code>: <code>'2026-10-21'</code>, a <code>Date</code>, or <code>''</code> for none. In range mode (<code>mode: 'range'</code>), it is <code>{ start, end }</code>. Reading <code>value</code> always gives ISO text back.</li><li><code>onChange(value, { valueAsDate })</code> and the <code>date-change</code> event (<code>detail: { value, valueAsDate }</code>) report every change, including ✕ (which reports <code>''</code>).</li><li><code>name</code> puts a hidden input in the field, so a plain <code>&lt;form&gt;</code> posts it. Its value is the ISO date, or <code>start/end</code> for a range (the ISO 8601 interval).</li><li><code>onOpenChange(open)</code> tells you when the calendar opens and closes.</li></ul>
@@ -34,7 +34,7 @@
 <h2 id="language">Language</h2>
 <ul><li><code>locale</code> sets the language and the date order. By default it is the page's <code>lang</code>, then the browser's.</li><li><code>messages</code> replaces the error texts: <code>required</code>, <code>invalid</code>, <code>min</code>, <code>max</code>, <code>disabled</code>, <code>incomplete</code> and <code>order</code>.</li><li><code>texts</code> replaces every word the calendar shows or reads out: <code>today</code>, <code>clear</code>, <code>chooseDate</code>, <code>clearDate</code>, <code>calendar</code>, <code>previousMonth</code>, <code>nextMonth</code>, <code>previousYear</code>, <code>nextYear</code>, <code>previousYears</code>, <code>nextYears</code>, <code>chooseMonth</code> (<code>{month}</code>), <code>chooseYear</code> (<code>{year}</code>), <code>pickStart</code>, <code>pickEnd</code>, <code>days</code> (<code>{n}</code>) and <code>quickPicks</code>.</li></ul>
 <h2 id="inside-a-form">Inside a Form</h2>
-<p>In a [Form](/docs/input/form) schema, use <code>component: 'DatePicker'</code>. The Form puts the label above and shows the error under the field. It also sets <code>required</code> and checks the field on submit, as it does for Input. <code>getValues()</code> returns the ISO date, or <code>{ start, end }</code> for a range.</p>
+<p>In a <span data-inline-link="1"></span> schema, use <code>component: 'DatePicker'</code>. The Form puts the label above and shows the error under the field. It also sets <code>required</code> and checks the field on submit, as it does for Input. <code>getValues()</code> returns the ISO date, or <code>{ start, end }</code> for a range.</p>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-1"></div>
 <h2 id="examples">Examples</h2>

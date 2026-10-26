@@ -3,8 +3,9 @@ export default class StoreServiceDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Create, read, write","expected":"a counter that survives a reload","kind":"script","content":"const store = await slice.build('StoreService', { singleton: true });\n\n// Only the FIRST call creates; calling again is a no-op, so a service can\n// `ensure` its own context from init() without knowing who ran first.\nstore.ensure('demo-counter', { count: 0 });\n\nconst wrap = document.createElement('div');\nwrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;align-items:flex-start;font-family:system-ui,sans-serif;';\n\nconst readout = document.createElement('p');\nreadout.style.cssText = 'font-size:1.1rem;font-weight:700;margin:0;';\nconst paint = () => { readout.textContent = `count: ${store.get('demo-counter').count}`; };\n\nconst inc = await slice.build('Button', {\n  value: '+1',\n  onClick: () => { store.set('demo-counter', (prev) => ({ ...prev, count: prev.count + 1 })); paint(); },\n});\n\nconst reset = await slice.build('Button', {\n  value: 'Reset',\n  size: 'sm',\n  variant: 'outlined',\n  onClick: () => { store.set('demo-counter', { count: 0 }); paint(); },\n});\n\npaint();\nwrap.appendChild(readout);\nwrap.appendChild(inc);\nwrap.appendChild(reset);\n\nconst note = document.createElement('p');\nnote.textContent = 'Persisted: reload the page and the count survives.';\nnote.style.cssText = 'font-size:.75rem;color:var(--font-secondary-color);margin:0;';\nwrap.appendChild(note);\n\nmount(wrap);"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Create, read, write","expected":"a counter that survives a reload","kind":"script","content":"const store = await slice.build('StoreService', { singleton: true });\n\n// Only the FIRST call creates; calling again is a no-op, so a service can\n// `ensure` its own context from init() without knowing who ran first.\nstore.ensure('demo-counter', { count: 0 });\n\nconst wrap = document.createElement('div');\nwrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;align-items:flex-start;font-family:system-ui,sans-serif;';\n\nconst readout = document.createElement('p');\nreadout.style.cssText = 'font-size:1.1rem;font-weight:700;margin:0;';\nconst paint = () => { readout.textContent = `count: ${store.get('demo-counter').count}`; };\n\nconst inc = await slice.build('Button', {\n  value: '+1',\n  onClick: () => { store.set('demo-counter', (prev) => ({ ...prev, count: prev.count + 1 })); paint(); },\n});\n\nconst reset = await slice.build('Button', {\n  value: 'Reset',\n  size: 'sm',\n  variant: 'outlined',\n  onClick: () => { store.set('demo-counter', { count: 0 }); paint(); },\n});\n\npaint();\nwrap.appendChild(readout);\nwrap.appendChild(inc);\nwrap.appendChild(reset);\n\nconst note = document.createElement('p');\nnote.textContent = 'Persisted: reload the page and the count survives.';\nnote.style.cssText = 'font-size:.75rem;color:var(--font-secondary-color);margin:0;';\nwrap.appendChild(note);\n\nmount(wrap);"}];
   }
 
   async init() {
@@ -21,9 +22,12 @@ export default class StoreServiceDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

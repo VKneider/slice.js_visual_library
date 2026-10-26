@@ -1,0 +1,207 @@
+/* Alert — a message inside the page. Tone = meaning, variant = loudness. */
+
+slice-alert {
+  /* Per tone: the colour, its readable shade (text on a tint, and the fill
+     of `filled`), how strong the tint is. Same tokens and fallbacks as Badge,
+     so a theme that tunes one tunes both. */
+  --slice-alert-color: var(--primary-color, #7c3aed);
+  --slice-alert-ink: var(--primary-color-readable, color-mix(in srgb, var(--primary-color, #7c3aed) 88%, #000));
+  --slice-alert-tint: 9%;
+  --slice-alert-radius: 12px;
+  --slice-alert-pad-y: 12px;
+  --slice-alert-pad-x: 14px;
+  --slice-alert-gap: 12px;
+
+  display: block;
+  min-width: 0;
+  font-family: var(--font-family, inherit);
+}
+
+slice-alert[hidden] {
+  display: none;
+}
+
+slice-alert[data-size='sm'] {
+  --slice-alert-pad-y: 8px;
+  --slice-alert-pad-x: 12px;
+  --slice-alert-gap: 10px;
+  --slice-alert-radius: 10px;
+}
+
+slice-alert[data-tone='neutral'] {
+  --slice-alert-color: var(--medium-color, #8a8799);
+  --slice-alert-ink: var(--font-primary-color, #1d1b29);
+  --slice-alert-tint: 7%;
+}
+
+slice-alert[data-tone='success'] {
+  --slice-alert-color: var(--success-color, #16a34a);
+  --slice-alert-ink: var(--success-color-readable, color-mix(in srgb, var(--success-color, #16a34a) 72%, #000));
+  --slice-alert-tint: 10%;
+}
+
+slice-alert[data-tone='warning'] {
+  --slice-alert-color: var(--warning-color, #d97706);
+  --slice-alert-ink: var(--warning-color-readable, color-mix(in srgb, var(--warning-color, #d97706) 66%, #000));
+  --slice-alert-tint: 13%;
+}
+
+slice-alert[data-tone='danger'] {
+  --slice-alert-color: var(--danger-color, #dc2626);
+  --slice-alert-ink: var(--danger-color-readable, color-mix(in srgb, var(--danger-color, #dc2626) 84%, #000));
+}
+
+slice-alert[data-tone='info'] {
+  --slice-alert-color: var(--info-color, #0284c7);
+  --slice-alert-ink: var(--info-color-readable, color-mix(in srgb, var(--info-color, #0284c7) 64%, #000));
+  --slice-alert-tint: 10%;
+}
+
+/* ── The box ────────────────────────────────────────────────────── */
+
+slice-alert .slice-alert__box {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px var(--slice-alert-gap);
+  box-sizing: border-box;
+  padding: var(--slice-alert-pad-y) var(--slice-alert-pad-x);
+  border: 1px solid transparent;
+  border-radius: var(--slice-alert-radius);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  animation: slice-alert-in 0.18s ease-out;
+}
+
+/* soft (default): a tint of the tone, a hairline of it; the body text stays
+   the page's text, the title takes the tone's readable shade. */
+slice-alert[data-variant='soft'] .slice-alert__box {
+  background: color-mix(in srgb, var(--slice-alert-color) var(--slice-alert-tint), var(--primary-background-color, #fff));
+  border-color: color-mix(in srgb, var(--slice-alert-color) 32%, transparent);
+  color: var(--font-primary-color, #1d1b29);
+}
+
+/* filled: the readable shade as the fill, the page colour as the text. The
+   shade is tuned against the page, so the pair stays above AA in both themes. */
+slice-alert[data-variant='filled'] .slice-alert__box {
+  background: var(--slice-alert-ink);
+  color: var(--primary-background-color, #fff);
+}
+
+slice-alert[data-variant='outlined'] .slice-alert__box {
+  background: var(--primary-background-color, #fff);
+  border-color: color-mix(in srgb, var(--slice-alert-color) 55%, transparent);
+  color: var(--font-primary-color, #1d1b29);
+}
+
+/* ── Parts ──────────────────────────────────────────────────────── */
+
+slice-alert .slice-alert__icon {
+  display: inline-flex;
+  flex: none;
+  /* One line of text tall, so the icon sits on the first line. */
+  height: 1.45em;
+  align-items: center;
+  color: var(--slice-alert-ink);
+}
+
+slice-alert[data-variant='filled'] .slice-alert__icon {
+  color: inherit;
+}
+
+slice-alert .slice-alert__body {
+  display: grid;
+  gap: 2px;
+  /* Beside the icon always; the actions go below when there is no room for
+     both them and a readable line. */
+  flex: 1 1 0;
+  min-width: min(200px, calc(100% - 2.5em));
+  /* Centred on the icon and buttons when it is one line. */
+  align-self: center;
+}
+
+slice-alert .slice-alert__title,
+slice-alert .slice-alert__message {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+slice-alert .slice-alert__title {
+  font-weight: 650;
+  color: var(--slice-alert-ink);
+}
+
+slice-alert[data-variant='filled'] .slice-alert__title {
+  color: inherit;
+}
+
+slice-alert .slice-alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-inline-start: auto;
+}
+
+/* Buttons in a filled alert take its colours. */
+slice-alert[data-variant='filled'] .slice-alert__actions button {
+  color: inherit !important;
+  border-color: color-mix(in srgb, currentColor 45%, transparent) !important;
+}
+
+slice-alert[data-variant='filled'] .slice-alert__actions button:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent) !important;
+}
+
+/* The ✕ stays in the top corner, wherever the actions wrap to. */
+slice-alert.is-dismissible .slice-alert__box {
+  padding-inline-end: calc(var(--slice-alert-pad-x) + 28px);
+}
+
+slice-alert .slice-alert__close {
+  position: absolute;
+  top: calc(var(--slice-alert-pad-y) - 5px);
+  inset-inline-end: 8px;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+slice-alert .slice-alert__close:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+slice-alert .slice-alert__close:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+  opacity: 1;
+}
+
+slice-alert .slice-alert__close[hidden],
+slice-alert .slice-alert__actions[hidden],
+slice-alert .slice-alert__icon[hidden],
+slice-alert .slice-alert__title[hidden],
+slice-alert .slice-alert__message[hidden] {
+  display: none;
+}
+
+@keyframes slice-alert-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  slice-alert .slice-alert__box {
+    animation: none;
+  }
+}

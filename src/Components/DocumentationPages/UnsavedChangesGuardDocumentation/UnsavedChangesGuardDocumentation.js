@@ -3,8 +3,9 @@ export default class UnsavedChangesGuardDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Try to leave with pending work","expected":"arm the guard, then use the back button, a link, or reload — each one asks","kind":"script","content":"const guard = await slice.build('UnsavedChangesGuard', { singleton: true });\nguard.setDialog((message, done) => {\n   done(window.confirm(message));\n});\n\nconst log = document.createElement('p');\nlog.style.cssText = 'font-family:system-ui,sans-serif;font-size:.85rem;color:var(--font-secondary-color);margin:0 0 10px;';\n\nconst draft = document.createElement('textarea');\ndraft.placeholder = 'Type something, then try to leave the page…';\ndraft.style.cssText = 'width:100%;min-height:80px;padding:8px;font-family:system-ui,sans-serif;font-size:.85rem;border:1px solid var(--medium-color);border-radius:6px;box-sizing:border-box;';\n\nconst setLog = () => {\n   const pending = draft.value.trim().length > 0;\n   log.textContent = pending\n      ? 'Armed — the browser will warn you before you leave.'\n      : 'Not armed — nothing to lose.';\n};\n\ndraft.addEventListener('input', () => {\n   // A form component would do this around its own state.\n   if (draft.value.trim()) guard.arm('demo', { message: 'Your draft has not been saved.' });\n   else guard.disarm('demo');\n   setLog();\n});\n\nconst row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;';\n\nrow.appendChild(await slice.build('Button', {\n   value: 'Save (disarms)',\n   onClick: () => { draft.value = ''; guard.disarm('demo'); setLog(); draft.blur(); },\n}));\nrow.appendChild(await slice.build('Button', {\n   value: 'Go to the Button docs',\n   variant: 'outlined',\n   onClick: () => slice.router.navigate('/docs/input/button'),\n}));\n\nconst wrap = document.createElement('div');\nwrap.appendChild(log);\nwrap.appendChild(row);\nwrap.appendChild(draft);\n\nsetLog();\nmount(wrap);"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Try to leave with pending work","expected":"arm the guard, then use the back button, a link, or reload — each one asks","kind":"script","content":"const guard = await slice.build('UnsavedChangesGuard', { singleton: true });\nguard.setDialog((message, done) => {\n   done(window.confirm(message));\n});\n\nconst log = document.createElement('p');\nlog.style.cssText = 'font-family:system-ui,sans-serif;font-size:.85rem;color:var(--font-secondary-color);margin:0 0 10px;';\n\nconst draft = document.createElement('textarea');\ndraft.placeholder = 'Type something, then try to leave the page…';\ndraft.style.cssText = 'width:100%;min-height:80px;padding:8px;font-family:system-ui,sans-serif;font-size:.85rem;border:1px solid var(--medium-color);border-radius:6px;box-sizing:border-box;';\n\nconst setLog = () => {\n   const pending = draft.value.trim().length > 0;\n   log.textContent = pending\n      ? 'Armed — the browser will warn you before you leave.'\n      : 'Not armed — nothing to lose.';\n};\n\ndraft.addEventListener('input', () => {\n   // A form component would do this around its own state.\n   if (draft.value.trim()) guard.arm('demo', { message: 'Your draft has not been saved.' });\n   else guard.disarm('demo');\n   setLog();\n});\n\nconst row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;';\n\nrow.appendChild(await slice.build('Button', {\n   value: 'Save (disarms)',\n   onClick: () => { draft.value = ''; guard.disarm('demo'); setLog(); draft.blur(); },\n}));\nrow.appendChild(await slice.build('Button', {\n   value: 'Go to the Button docs',\n   variant: 'outlined',\n   onClick: () => slice.router.navigate('/docs/input/button'),\n}));\n\nconst wrap = document.createElement('div');\nwrap.appendChild(log);\nwrap.appendChild(row);\nwrap.appendChild(draft);\n\nsetLog();\nmount(wrap);"}];
   }
 
   async init() {
@@ -130,9 +131,12 @@ export default class UnsavedChangesGuardDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

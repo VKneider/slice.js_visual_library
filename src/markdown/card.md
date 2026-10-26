@@ -68,7 +68,7 @@ Every part is optional, and nothing is drawn unless you ask for it:
 `badge` is a [Badge](/docs/display/badge):
 - a text (`'New'`);
 - a number (`12`, over 99 shows "99+");
-- or a full config (`{ label: 'Blocked', variant: 'danger' }`).
+- or any [Badge](/docs/display/badge) props (`{ label: 'Blocked', tone: 'danger' }`, `{ value: 3, tone: 'danger', variant: 'filled' }`).
 
 It shows in the header's corner, with or without media.
 
@@ -144,7 +144,7 @@ async function cardFor(project) {
     title: project.name,
     subtitle: `${project.team} · due ${project.due}`,
     headerIcon: project.icon,
-    badge: { label: project.status, variant: tone[project.status] },
+    badge: { label: project.status, tone: tone[project.status] },
     content: progress(project.done),
     onClick: () => openDetails(project),
     actions: [{
@@ -241,7 +241,7 @@ const stays = [
 ];
 const saved = new Set();
 
-const counter = await slice.build('Badge', { variant: 'accent', value: 0 });
+const counter = await slice.build('Badge', { tone: 'accent', value: 0 });
 const container = document.createElement('div');
 
 const cards = [];
@@ -335,7 +335,7 @@ async function load() {
     const good = metric.lowerIsBetter ? change < 0 : change > 0;
     const shown = metric.unit === '$' ? `$${raw}k` : metric.unit === '%' ? `${(raw / 400).toFixed(2)}%` : metric.unit ? `${raw} ${metric.unit}` : raw.toLocaleString();
     card.content = value(shown);
-    card.badge = { label: `${change > 0 ? '+' : ''}${change}%`, variant: good ? 'success' : 'danger' };
+    card.badge = { label: `${change > 0 ? '+' : ''}${change}%`, tone: good ? 'success' : 'danger' };
     card.subtitle = 'vs. last week';
     card.loading = false;
   }));

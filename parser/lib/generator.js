@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { writeFileIfChanged } from './fileUtils.js';
 
 const pascalCase = (value) => {
   return value
@@ -89,6 +90,18 @@ const generateJs = (componentClass, jsBlocks, tagName, markdownPath = '', markdo
             const component = await slice.build('${block.component}', props);
             container.appendChild(component);
          }
+       }`;
+      }
+      if (block.type === 'inline-links') {
+        return `      {
+         const links = ${JSON.stringify(block.links)};
+         for (const [index, linkProps] of links.entries()) {
+            const placeholder = this.querySelector('[data-inline-link="' + index + '"]');
+            if (!placeholder) continue;
+            const link = await slice.build('Link', linkProps);
+            placeholder.replaceWith(link);
+            this._inlineLinks.push(link);
+         }
       }`;
       }
       if (block.type === 'table') {
@@ -165,8 +178,9 @@ const generateJs = (componentClass, jsBlocks, tagName, markdownPath = '', markdo
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = ${JSON.stringify(scriptScenarios)};
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = ${JSON.stringify(scriptScenarios)};
   }
 
   async init() {
@@ -183,9 +197,12 @@ ${buildCodeBlocks || '    // No dynamic blocks'}
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');
@@ -350,12 +367,12 @@ const writeComponentFiles = ({ frontMatter, html, jsBlocks }, outputDir, markdow
   const jsContent = generateJs(componentClass, jsBlocks, tagName, markdownPath, markdownContent, enableCopy);
   const cssContent = defaultCss(tagName);
 
-  fs.writeFileSync(path.join(folderPath, `${componentClass}.html`), htmlContent, 'utf8');
-  fs.writeFileSync(path.join(folderPath, `${componentClass}.js`), jsContent, 'utf8');
+  writeFileIfChanged(path.join(folderPath, `${componentClass}.html`), htmlContent);
+  writeFileIfChanged(path.join(folderPath, `${componentClass}.js`), jsContent);
 
   const cssPath = path.join(folderPath, `${componentClass}.css`);
   if (!fs.existsSync(cssPath)) {
-    fs.writeFileSync(cssPath, cssContent, 'utf8');
+    writeFileIfChanged(cssPath, cssContent);
   }
 
   return { componentClass, tagName, folderPath };

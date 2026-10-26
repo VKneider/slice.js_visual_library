@@ -1,0 +1,26 @@
+<div class="documentation-content avatargroupdocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="avatargroup">
+     <span class="doc-title-text">AvatarGroup</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>AvatarGroup</code> shows who is involved in something: the members of a project, the people assigned to a task, who has seen a message. It shows the first faces, overlapped, and sums up the rest as "+N".</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>Members or assignees</strong> on a card or a list row, where there is room for a few faces.</li><li><strong>"Who is here"</strong>: people viewing a document, attending a meeting.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>When each person matters on their own</strong>, with a name and actions: use a list of <span data-inline-link="0"></span>s with their names.</li><li><strong>One person</strong>: use <span data-inline-link="1"></span>.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>items</code>: one object per person, with <span data-inline-link="2"></span>'s props (<code>{ name, src, status, … }</code>).</li><li><code>max</code> (4 by default) is how many places it uses. With more people, the last place becomes "+N". With exactly <code>max</code> people, every face shows: never "+1".</li><li>Each face shows its name in a tooltip on hover, and "+N" lists the names it stands for. They come from the app's <span data-inline-link="3"></span>. <code>tooltips: false</code> turns them off.</li><li>Screen readers hear the group once: "6 people: Ana López, Luis Galué, María Ruiz and 3 more". The faces are not separate tab stops.</li><li><code>onMoreClick({ items, group, event })</code> makes "+N" a button that gets the people it stands for, for example to open the full list.</li><li><code>size</code> and <code>shape</code> apply to every face. <code>texts</code> translates the group's name.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Keep <code>max</code> small (3 to 5). The group says "these people and some more"; the full list belongs in a click on "+N".</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Give every person a <code>name</code>. Without one, the face has no tooltip and the group's name cannot list them.</div>
+<div class="component-block" data-block-id="doc-block-3"></div>
+</div>

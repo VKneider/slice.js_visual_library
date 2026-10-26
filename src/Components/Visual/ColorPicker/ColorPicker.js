@@ -17,7 +17,7 @@
 // readout.
 
 import { applySize, applyClassName, SIZE_VALUES } from '../../shared/props.js';
-import { normalizeHex } from '../../shared/color.js';
+import { normalizeHex } from '../../shared/color/hex.js';
 
 const DEFAULT_COLOR = '#000000';
 

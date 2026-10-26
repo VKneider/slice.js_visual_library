@@ -1,16 +1,16 @@
 <div class="documentation-content modaldocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="modal">
-    <span class="doc-title-text">Modal</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="modal">
+     <span class="doc-title-text">Modal</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>Modal</code> is a dialog built on the native <code>&lt;dialog&gt;</code> element. The browser handles the hard parts: the dialog sits above everything (no <code>z-index</code> to fight, and no ancestor with <code>overflow: hidden</code> can clip it), the page behind becomes inert, and focus stays inside. On top of that, <code>Modal</code> gives you:</p>
 <ul><li>five layouts: centred, near the top, a drawer from any side, a bottom sheet and fullscreen;</li><li>sizes and tones;</li><li>content and buttons straight from props;</li><li>one close path you can guard ("you have unsaved changes");</li><li>a promise for the answer;</li><li>animations both in and out.</li></ul>
 <h2 id="core-behavior">Core Behavior</h2>
-<ul><li><code>open</code> shows or hides it. <code>show()</code> opens it and returns a promise that resolves with <code>{ returnValue, reason }</code> when it closes.</li><li><code>title</code> and <code>description</code> fill the header. They also name and describe the dialog for screen readers (<code>aria-labelledby</code> and <code>aria-describedby</code>). A modal with no title should get an <code>ariaLabel</code>.</li><li><code>icon</code> is any <code>Icon</code> name, shown in a tinted circle before the title.</li><li><code>content</code> fills the body. It takes text (shown as a paragraph, never parsed as HTML), a node, or a list mixing both. Setting it again replaces only what it put there before. <code>appendBody(node)</code> and <code>appendFooter(node)</code> still work and leave that alone.</li><li><code>actions</code> are the footer buttons. See [Actions](#actions).</li><li>Focus:</li></ul>
+<ul><li><code>open</code> shows or hides it. <code>show()</code> opens it and returns a promise that resolves with <code>{ returnValue, reason }</code> when it closes.</li><li><code>title</code> and <code>description</code> fill the header. They also name and describe the dialog for screen readers (<code>aria-labelledby</code> and <code>aria-describedby</code>). A modal with no title should get an <code>ariaLabel</code>.</li><li><code>icon</code> is any <code>Icon</code> name, shown in a tinted circle before the title.</li><li><code>content</code> fills the body. It takes text (shown as a paragraph, never parsed as HTML), a node, or a list mixing both. Setting it again replaces only what it put there before. <code>appendBody(node)</code> and <code>appendFooter(node)</code> still work and leave that alone.</li><li><code>actions</code> are the footer buttons. See <a href="#actions">Actions</a>.</li><li>Focus:</li></ul>
 <p>- When the modal opens, focus goes to the element marked <code>autofocus</code> if there is one. Otherwise it goes to the dialog itself, so it does not land on the ✕.   - <code>initialFocus</code> chooses the element instead: a CSS selector, <code>'first'</code> for the first field or button, or <code>'dialog'</code>.   - When the modal closes, focus returns to whatever had it before. <code>returnFocus: false</code> turns that off.</p>
 <ul><li>The page behind stops scrolling while the modal is open. Stacked modals share the lock, so it is released only when the last one closes. <code>scrollLock: false</code> leaves the page scrollable.</li><li>An empty footer is hidden. A header with no title, description or icon shrinks to a ✕ in the corner. With <code>dismissable: false</code> as well, the header disappears.</li></ul>
 <h2 id="looks">Looks</h2>
@@ -46,7 +46,7 @@
 <p>The dialog is at most <code>min(85vh, 640px)</code> tall. Past that, only the body scrolls: the header and footer stay in view, and a scroll that reaches the end of the body does not carry on into the page on touch screens. To change the cap:</p>
 <div class="code-block" data-block-id="doc-block-9"></div>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">For a plain "are you sure?", use [ConfirmActionModal](/docs/display/confirm-action-modal): it is this modal with the question, the two buttons and the promise already wired up. Reach for <code>Modal</code> when the content is your own.</div>
+<div class="callout callout-tip">For a plain "are you sure?", use <span data-inline-link="0"></span>: it is this modal with the question, the two buttons and the promise already wired up. Reach for <code>Modal</code> when the content is your own.</div>
 <div class="callout callout-tip">Put <code>autofocus</code> on the safe action of a destructive dialog ("Cancel"), not on "Delete". A stray Enter should never destroy anything.</div>
 <div class="callout callout-tip">Use <code>mobileLayout: 'sheet'</code> for modals people open on phones. A sheet sits where the thumb is, and it can be closed with a swipe.</div>
 <h2 id="pitfalls">Pitfalls</h2>

@@ -3,8 +3,9 @@ export default class SwitchDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"settings switch","expected":"switch renders with label and initial checked state","kind":"script","content":"const sw = await slice.build('Switch', {\n  label: 'Dark mode',\n  checked: true\n});\n\nreturn sw;"},{"label":"switch with callback","expected":"onChange runs on interaction and updates the status text","kind":"script","content":"const status = document.createElement('p');\nstatus.textContent = 'State: off';\n\nconst sw = await slice.build('Switch', {\n  label: 'Auto-save',\n  checked: false,\n  onChange: () => {\n    status.textContent = `State: ${sw.checked ? 'on' : 'off'}`;\n  }\n});\n\nconst host = document.createElement('div');\nhost.appendChild(sw);\nhost.appendChild(status);\nreturn host;"},{"label":"disabled switch","expected":"disabled switch keeps value but blocks changes","kind":"script","content":"const sw = await slice.build('Switch', {\n  label: 'Controlled by admin',\n  checked: true,\n  disabled: true\n});\n\nreturn sw;"},{"label":"switch with custom color","expected":"customColor updates active visual accent","kind":"script","content":"const sw = await slice.build('Switch', {\n  label: 'Deploy protection',\n  checked: true,\n  customColor: { accent: '#16a34a' }\n});\n\nreturn sw;"},{"label":"labelPlacement variations","expected":"left/right/top/bottom placements render correctly","kind":"script","content":"const placements = ['left', 'right', 'top', 'bottom'];\nconst host = document.createElement('div');\nhost.style.display = 'grid';\nhost.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';\nhost.style.gap = '8px';\n\nfor (const placement of placements) {\n  const item = await slice.build('Switch', {\n    label: `Placement ${placement}`,\n    checked: placement === 'left' || placement === 'top',\n    labelPlacement: placement\n  });\n  host.appendChild(item);\n}\n\nreturn host;"},{"label":"checked state variations","expected":"shows both checked=true and checked=false states","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexWrap = 'wrap';\nhost.style.gap = '10px';\n\nconst onState = await slice.build('Switch', {\n  label: 'Checked true',\n  checked: true\n});\n\nconst offState = await slice.build('Switch', {\n  label: 'Checked false',\n  checked: false\n});\n\nhost.appendChild(onState);\nhost.appendChild(offState);\nreturn host;"},{"label":"variant variations","expected":"default, outlined, soft, danger and plain styles","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexWrap = 'wrap';\nhost.style.gap = '10px';\n\nfor (const variant of ['default', 'outlined', 'soft', 'danger', 'plain']) {\n  host.appendChild(await slice.build('Switch', {\n    label: variant,\n    checked: true,\n    variant\n  }));\n}\n\nreturn host;"},{"label":"size variations","expected":"sm, md and lg render at increasing sizes","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.alignItems = 'center';\nhost.style.gap = '10px';\n\nfor (const size of ['sm', 'md', 'lg']) {\n  host.appendChild(await slice.build('Switch', {\n    label: size,\n    checked: true,\n    size\n  }));\n}\n\nreturn host;"},{"label":"Switch and Checkbox side by side","expected":"same variant and size read as one family","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexWrap = 'wrap';\nhost.style.alignItems = 'center';\nhost.style.gap = '10px';\n\nhost.appendChild(await slice.build('Switch', { label: 'Sync', checked: true, variant: 'outlined', size: 'sm' }));\nhost.appendChild(await slice.build('Checkbox', { label: 'Remember me', checked: true, variant: 'outlined', size: 'sm' }));\n\nreturn host;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"settings switch","expected":"switch renders with label and initial checked state","kind":"script","content":"const sw = await slice.build('Switch', {\n  label: 'Dark mode',\n  checked: true\n});\n\nreturn sw;"},{"label":"switch with callback","expected":"onChange runs on interaction and updates the status text","kind":"script","content":"const status = document.createElement('p');\nstatus.textContent = 'State: off';\n\nconst sw = await slice.build('Switch', {\n  label: 'Auto-save',\n  checked: false,\n  onChange: () => {\n    status.textContent = `State: ${sw.checked ? 'on' : 'off'}`;\n  }\n});\n\nconst host = document.createElement('div');\nhost.appendChild(sw);\nhost.appendChild(status);\nreturn host;"},{"label":"disabled switch","expected":"disabled switch keeps value but blocks changes","kind":"script","content":"const sw = await slice.build('Switch', {\n  label: 'Controlled by admin',\n  checked: true,\n  disabled: true\n});\n\nreturn sw;"},{"label":"switch with custom color","expected":"customColor updates active visual accent","kind":"script","content":"const sw = await slice.build('Switch', {\n  label: 'Deploy protection',\n  checked: true,\n  customColor: { accent: '#16a34a' }\n});\n\nreturn sw;"},{"label":"labelPlacement variations","expected":"left/right/top/bottom placements render correctly","kind":"script","content":"const placements = ['left', 'right', 'top', 'bottom'];\nconst host = document.createElement('div');\nhost.style.display = 'grid';\nhost.style.gridTemplateColumns = 'repeat(auto-fit, minmax(180px, 1fr))';\nhost.style.gap = '8px';\n\nfor (const placement of placements) {\n  const item = await slice.build('Switch', {\n    label: `Placement ${placement}`,\n    checked: placement === 'left' || placement === 'top',\n    labelPlacement: placement\n  });\n  host.appendChild(item);\n}\n\nreturn host;"},{"label":"checked state variations","expected":"shows both checked=true and checked=false states","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexWrap = 'wrap';\nhost.style.gap = '10px';\n\nconst onState = await slice.build('Switch', {\n  label: 'Checked true',\n  checked: true\n});\n\nconst offState = await slice.build('Switch', {\n  label: 'Checked false',\n  checked: false\n});\n\nhost.appendChild(onState);\nhost.appendChild(offState);\nreturn host;"},{"label":"variant variations","expected":"default, outlined, soft, danger and plain styles","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexWrap = 'wrap';\nhost.style.gap = '10px';\n\nfor (const variant of ['default', 'outlined', 'soft', 'danger', 'plain']) {\n  host.appendChild(await slice.build('Switch', {\n    label: variant,\n    checked: true,\n    variant\n  }));\n}\n\nreturn host;"},{"label":"size variations","expected":"sm, md and lg render at increasing sizes","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.alignItems = 'center';\nhost.style.gap = '10px';\n\nfor (const size of ['sm', 'md', 'lg']) {\n  host.appendChild(await slice.build('Switch', {\n    label: size,\n    checked: true,\n    size\n  }));\n}\n\nreturn host;"},{"label":"Switch and Checkbox side by side","expected":"same variant and size read as one family","kind":"script","content":"const host = document.createElement('div');\nhost.style.display = 'flex';\nhost.style.flexWrap = 'wrap';\nhost.style.alignItems = 'center';\nhost.style.gap = '10px';\n\nhost.appendChild(await slice.build('Switch', { label: 'Sync', checked: true, variant: 'outlined', size: 'sm' }));\nhost.appendChild(await slice.build('Checkbox', { label: 'Remember me', checked: true, variant: 'outlined', size: 'sm' }));\n\nreturn host;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class SwitchDocumentation extends HTMLElement {
             const component = await slice.build('Switch', props);
             container.appendChild(component);
          }
-      }
+       }
       {
          const container = this.querySelector('[data-block-id="doc-block-11"]');
          if (container) {
@@ -42,7 +43,7 @@ export default class SwitchDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -50,9 +51,12 @@ export default class SwitchDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

@@ -1,13 +1,17 @@
 <div class="documentation-content tabledocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="table">
-    <span class="doc-title-text">Table</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="table">
+     <span class="doc-title-text">Table</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>Table</code> renders a structured HTML table from <code>headers</code> and <code>rows</code> arrays. Responsive by default: on phones it scrolls sideways with the first column pinned, or turns into cards (<code>mobileLayout: 'cards'</code>).</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>Records compared across the same columns</strong>: orders, invoices, users, stock, logs. People scan down a column, sort it and filter it.</li><li><strong>Data people work in at the keyboard</strong>: prices, quantities, statuses edited cell by cell, like a spreadsheet.</li><li><strong>Many rows</strong>: thousands, with virtual scrolling, or a server that pages them (<code>load</code>).</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Records with a picture, a status and actions, read one by one</strong>: a <span data-inline-link="0"></span> shows them better, and on a phone.</li><li><strong>One record with many properties</strong>: a <span data-inline-link="1"></span>.</li><li><strong>Layout.</strong> A table is for data; for arranging things on a page use <span data-inline-link="2"></span>.</li></ul>
 <h2 id="api-and-behavior">API and Behavior</h2>
 <ul><li><code>headers</code> (array of strings) defines the table header row (rendered as <code>&lt;th scope="col"&gt;</code>).</li><li><code>rows</code> (array of arrays) defines data rows. Each cell can be:</li></ul>
 <p>- a <strong>string / number</strong> → rendered as text (escaped, safe by default),   - a <strong>DOM node</strong> (e.g. a built component) → appended as-is,   - <code>{ html: '&lt;...&gt;' }</code> → explicit opt-in for <strong>trusted</strong> raw HTML.</p>
@@ -28,43 +32,57 @@
 <ul><li><strong><code>'local'</code></strong> (default): you give the table <strong>all</strong> the rows; it sorts and paginates them itself.</li><li><strong><code>'remote'</code></strong>: <code>rows</code> is just the <strong>current page</strong> (already sorted/sliced upstream, e.g. by a server).</li></ul>
 <p>The table renders it as-is, tracks the page/sort state, and <strong>emits</strong> <code>onSortChange</code> / <code>onPageChange</code>   so you can fetch the next slice. Provide <code>totalItems</code> so the pager can compute the page count.</p>
 <p>In remote mode the table never re-orders or slices your rows — supplying the next page is your job.</p>
-<h2 id="live-preview">Live Preview</h2>
-<div class="component-block" data-block-id="doc-block-1"></div>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
+<h2 id="rows-from-a-store-or-a-server">Rows from a store or a server</h2>
+<p>The same three sources as <span data-inline-link="3"></span>, with the same names:</p>
+<ul><li><code>rows</code>: an array you own.</li><li><code>context</code> and <code>contextPath</code>: a <code>slice.context</code> store and the path of the array in it (<code>'items'</code> by default; <code>''</code> when the state is the array). The table follows the store, and every change below is written back to it, so a counter, a chart or a DataList reading the same store sees it at once.</li><li><code>load: async ({ page, pageSize, search, filters, sort, signal }) =&gt; ({ items, total })</code>: a server. The table becomes remote and asks again on every sort, page, search or filter (one request for a burst of changes, the previous one cancelled), shows its loading overlay, and on a failure says so with <strong>Try again</strong>. <code>reload()</code> asks again. Set <code>load</code> when building the table.</li></ul>
+<h2 id="add-change-and-remove-rows">Add, change and remove rows</h2>
+<p>With <code>rowKey</code> set, the table has the CRUD methods DataList has, under the table's own words:</p>
+<ul><li><code>addRow(row, { position, commit, highlight })</code>: the row shows at once, highlighted. With <code>commit</code>, a failure takes it out again; a returned object (the server's id, its dates) replaces it.</li><li><code>updateRow(key, changes, { commit })</code>: <code>changes</code> are merged into the row (or a function from the row to them). A failed commit puts the row back as it was.</li><li><code>removeRow(keys, { commit, undo })</code>: the rows leave at once. With <code>undo: true</code> a bar says "2 rows removed · Undo" for five seconds, and <code>commit</code> runs only when that time is over (or the bar is closed). A failed commit brings the rows back where they were.</li><li><code>getRow(key)</code>, and <code>onError(error, { type, row })</code> for every failure. Failures also show on the bar, in red.</li></ul>
+<p>The arrays are never changed in place: every change makes a new one, the way a store expects, and rows that did not change keep their <code>&lt;tr&gt;</code>.</p>
+<h2 id="editing-cells-like-a-spreadsheet">Editing cells like a spreadsheet</h2>
+<p>A column with <code>edit</code> makes the table a grid of cells: <code>edit: true</code>, a control type, or <code>{ type, options, required, min, max, step, validate(value, row), parse(value) }</code>, the same options as <span data-inline-link="4"></span>. The control follows the data: a checkbox for yes/no, a number field for numbers, a Select when there are <code>options</code> (and the cell shows the option's label), a DatePicker for <code>type: 'date'</code>.</p>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<p>Saving: the cell shows the new value at once, busy, and <code>commit({ row, before, key, value, previous, column })</code> runs. The row changes when it resolves (a returned object replaces the row); if it throws or returns <code>false</code>, the old value is drawn back, the cell outlined in red with the message, and the bar says why. <code>onCellChange({ row, key, value, previous })</code> runs after every saved edit. From code: <code>editCell(rowKey, columnKey)</code>, <code>saveCellEdit()</code>, <code>cancelCellEdit()</code>, <code>focusCell(rowKey, columnKey)</code>, <code>activeCell</code>.</p>
+<p>The whole grid is one tab stop: Tab enters it at the active cell, the arrows move inside.</p>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
-<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-4"></div>
+<h2 id="prop-scenarios">Prop Scenarios</h2>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-7"></div>
 <div class="callout callout-tip">Cells holding a built component are <strong>owned by the table</strong>. A re-render — sorting, paging, or new <code>rows</code>
 — destroys the components it replaces, so they never pile up in memory. The table never destroys a node
 it is about to show again, so re-passing the same node on every render is safe too.</div>
 <h2 id="header-style">Header style</h2>
 <p>The header is a quiet tint by default, so it does not compete with the page's primary actions. <code>headerVariant: 'solid'</code> restores the older saturated fill, <code>'none'</code> removes the fill entirely:</p>
-<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-8"></div>
 <h2 id="match-the-column-not-just-the-cell">Match the column, not just the cell</h2>
 <p>A numeric column right-aligns and uses tabular figures on its own, header included:</p>
-<div class="script-block" data-block-id="doc-block-6"></div>
+<div class="script-block" data-block-id="doc-block-9"></div>
 <h2 id="search">Search</h2>
 <p><code>searchable: true</code> adds a search box above the table.</p>
 <ul><li>It matches every column whose <code>searchable</code> is not <code>false</code>, ignoring case and accents: "jose" finds "José".</li><li>Several words must all match, each in any column: "ana caracas" finds Ana in Caracas.</li><li>The search reads the <strong>data</strong> (<code>row[key]</code>), not what <code>render</code> draws. Give a column <code>searchValue</code> (a function or a path such as <code>'user.name'</code>) to search something else.</li><li>Typing is debounced; <strong>Enter</strong> applies at once and <strong>Escape</strong> clears the box.</li><li><code>search</code> sets the query from code. That does not fire <code>onFilterChange</code>.</li></ul>
 <h2 id="filters">Filters</h2>
 <p><code>filterable: true</code> adds a <strong>Filters</strong> button that opens a panel with one editor per column. The editor's type comes from the column's <code>filter</code>, or is inferred from the data:</p>
-<div class="table-block" data-block-id="doc-block-7"></div>
+<div class="table-block" data-block-id="doc-block-10"></div>
 <ul><li>Inference: all numbers → <code>number</code>, all booleans → <code>boolean</code>, all <code>Date</code>s or <code>YYYY-MM-DD</code> strings → <code>date</code>, a few repeated strings → <code>select</code>, anything else → <code>text</code>.</li><li>A column sets its own: <code>filter: 'number'</code>, or <code>filter: { type: 'select', options: [{ value, label }], label }</code>. <code>filter: false</code> removes its editor. Without <code>filterable</code>, only columns that declare <code>filter</code> get one.</li><li><code>filterValue</code> (function or path) reads a different value than <code>row[key]</code>, e.g. a nested field.</li><li>Every active filter, and the search, combine with AND.</li><li>Active filters show as <strong>chips</strong> under the toolbar; × removes one and <strong>Clear all</strong> removes everything. The button shows how many filters are active, filtered columns get a dot in their header, and the toolbar reads "12 of 200 rows".</li><li>When nothing matches, the table says so and offers a button to clear the filters.</li><li>Dates are compared by local calendar day, so a <code>Date</code> at 23:30 and the string <code>'2024-03-10'</code> are the same day.</li><li>A half-typed filter (an empty value, a <code>between</code> with no bounds) is ignored instead of emptying the table.</li><li><code>filters</code> sets them from code (<code>[{ key, type, op, value }]</code>). Methods: <code>setFilter(key, filter | null)</code>, <code>clearFilters()</code>, <code>getFilteredRows()</code>. <code>el.filters</code> returns the active ones.</li><li><code>onFilterChange({ search, filters })</code> fires on every user change. With <code>dataSource: 'remote'</code> nothing is filtered locally: use it to fetch the matching page.</li><li><code>labels</code> translates every string, partially: <code>{ filters: 'Filtros', showing: '{shown} de {total}', operators: { gt: 'mayor que' } }</code>.</li></ul>
 <h2 id="selection-and-row-clicks">Selection and row clicks</h2>
 <ul><li><code>selection: 'multiple'</code> adds a checkbox per row and a select-all checkbox (indeterminate when some are selected). Select-all takes every row that passes the filters, across pages (only the current page in remote mode). <strong>Shift+click</strong> selects a range.</li><li><code>selection: 'single'</code> uses radio buttons.</li><li>Give <code>rowKey</code> (a key, a path or a function) so the selection survives new data. Without it, row objects are identified by reference.</li><li><code>selected</code> sets the selected keys from code; <code>el.selected</code> and <code>getSelectedRows()</code> read them. <code>onSelectionChange(keys, rows)</code> fires on user changes.</li><li><code>onRowClick(row, event)</code> fires on a click anywhere in the row, except on links, buttons and inputs inside it. Rows become focusable, and <strong>Enter</strong> activates them.</li></ul>
 <h2 id="sticky-header-sticky-columns-and-virtual-scrolling">Sticky header, sticky columns and virtual scrolling</h2>
 <ul><li><code>maxHeight</code> ('420px', '60vh') bounds the table and scrolls it inside; add <code>stickyHeader: true</code> to keep the header visible.</li><li><code>sticky: true</code> on the leading columns pins them while the table scrolls sideways (the selection column pins with them). Their offsets are measured, so they follow the content.</li><li><code>virtual: true</code> renders only the rows in view plus a few around them, so 100,000 rows scroll smoothly. Rows get a fixed <code>rowHeight</code> (44 by default) and long text is truncated, the viewport is <code>maxHeight</code> (480px by default), the header is sticky and <code>pagination</code> is ignored. Virtual tables keep the table layout on phones instead of switching to cards.</li></ul>
-<div class="script-block" data-block-id="doc-block-8"></div>
-<div class="script-block" data-block-id="doc-block-9"></div>
-<div class="script-block" data-block-id="doc-block-10"></div>
 <div class="script-block" data-block-id="doc-block-11"></div>
+<div class="script-block" data-block-id="doc-block-12"></div>
+<div class="script-block" data-block-id="doc-block-13"></div>
+<div class="script-block" data-block-id="doc-block-14"></div>
 <h2 id="export">Export</h2>
 <p><code>exportable: true</code> adds an <strong>Export</strong> menu: <strong>Download CSV</strong>, <strong>Download JSON</strong> or <strong>Copy to clipboard</strong>.</p>
 <ul><li>It exports the rows that pass the current search and filters, in the current sort order. When rows are selected, the menu also offers <strong>Selected rows</strong>.</li><li>Values come from the row <strong>data</strong> (<code>exportValue</code> → <code>filterValue</code> → <code>row[key]</code>), never from what <code>render</code> draws, so a badge exports its text value and a link its URL field. Give a column <code>exportValue</code> (a function or a path) to export something else, or <code>exportable: false</code> to leave it out.</li><li>The CSV follows RFC 4180: quotes, commas and line breaks are quoted correctly, lines end in CRLF and the file starts with a UTF-8 BOM, so Excel shows "José" and not "JosÃ©". Dates become <code>YYYY-MM-DD</code> and arrays are joined with commas.</li><li>A text that starts with <code>=</code>, <code>+</code>, <code>-</code> or <code>@</code> gets an apostrophe in front, so a spreadsheet does not run it as a formula ("CSV injection"). Real numbers are left alone.</li><li><strong>Copy to clipboard</strong> copies tab-separated text: pasted into Excel or Google Sheets, it lands in cells.</li><li>From code: <code>exportData({ format, scope, columns, delimiter, headers })</code> returns the text, <code>downloadData({ format, scope, filename })</code> saves a file and <code>copyToClipboard({ scope })</code> copies. <code>scope</code> is <code>'filtered'</code> (default), <code>'selected'</code>, <code>'all'</code> or <code>'page'</code>. Use <code>delimiter: ';'</code> for Excel set to a Spanish locale.</li><li><code>exportFilename</code> names the file. <code>onExport({ format, scope, count })</code> fires after every export.</li><li>In remote mode only the rows the table holds can be exported; for a full export, use <code>onFilterChange</code> state to ask your server for the file.</li></ul>
 <h2 id="mobile">Mobile</h2>
 <p>Below 640px, <code>mobileLayout</code> decides how the table adapts:</p>
 <ul><li><code>'scroll'</code> (default): the real table, scrolling sideways. Cells do not wrap and the first column (with the selection column) is pinned, so a row stays identifiable. Sorting, select-all and every header affordance keep working.</li><li><code>'cards'</code>: one card per row. The first column is the card's title, next to its checkbox, and every other field is a "label … value" line. Since the header is hidden, a bar above the cards offers <strong>Sort by</strong>, the direction and <strong>Select all</strong>.</li><li>Virtual tables always keep the table layout (their rows need a fixed height).</li><li>A table inside a flex row shrinks and scrolls instead of widening the page. If you wrap it in your own flex item, give that wrapper <code>min-width: 0</code>.</li></ul>
-<div class="script-block" data-block-id="doc-block-12"></div>
+<div class="script-block" data-block-id="doc-block-15"></div>
 <h2 id="view-columns-and-density">View: columns and density</h2>
 <p><code>columnToggle: true</code> and <code>densityToggle: true</code> add a <strong>View</strong> menu to the toolbar.</p>
 <ul><li><strong>Columns</strong>: one checkbox per column. Hiding a column takes it out of the table, the search, the cards and the default export; the detail view still shows it. The last visible column cannot be hidden, and <code>hideable: false</code> pins a column.</li><li><code>hidden: true</code> on a column starts it hidden. <code>hiddenColumns</code> (array of keys) sets the whole list and wins over <code>hidden</code>. <code>setColumnVisible(key, visible)</code> does it from code. <code>onColumnsChange(hiddenKeys)</code> fires on every change.</li><li><strong>Density</strong>: <code>density</code> is <code>'compact'</code>, <code>'comfortable'</code> (default) or <code>'spacious'</code>. It changes padding and, in virtual mode, the row height (36 / 44 / 54px). An explicit <code>rowHeight</code> still wins.</li></ul>
@@ -74,7 +92,7 @@ it is about to show again, so re-passing the same node on every render is safe t
 <h2 id="totals">Totals</h2>
 <p>Give a column <code>aggregate</code> and the table gets a totals row (<code>&lt;tfoot&gt;</code>), with <strong>Total</strong> in the first column.</p>
 <ul><li><code>aggregate</code>: <code>'sum'</code>, <code>'avg'</code>, <code>'count'</code>, <code>'min'</code>, <code>'max'</code>, or <code>fn(values, rows)</code> for anything else.</li><li>It is computed over <strong>every row that passes the search and filters</strong>, not just the current page.</li><li>Numbers are formatted with <code>Intl.NumberFormat</code>. <code>aggregateFormat(value, rows)</code> formats it your way (currency, units).</li><li>When the body scrolls (<code>maxHeight</code>), the totals row stays at the bottom. On mobile cards it is a card of its own.</li></ul>
-<div class="script-block" data-block-id="doc-block-13"></div>
+<div class="script-block" data-block-id="doc-block-16"></div>
 <h2 id="row-detail">Row detail</h2>
 <p><code>rowDetail</code> decides what a click (or <strong>Enter</strong>) on a row does:</p>
 <ul><li><code>'modal'</code>: opens a <code>Modal</code> with the row. Its title is the first column (<code>detailTitle(row)</code> to change it), and focus returns to the row when it closes.</li><li><code>'expand'</code>: a chevron column opens the detail right under the row, inside the table. It stays open across sorting and paging. Not available in virtual mode (rows there need one height).</li><li>The default content is a list of <strong>every</strong> column, hidden ones included, with their rendered values. <code>renderDetail(row)</code> replaces it: return a string, a DOM node, a component or a Promise of one.</li><li><code>openDetail(rowOrKey)</code> opens it from code. <code>onRowClick</code> still fires on each click.</li></ul>
@@ -84,13 +102,14 @@ it is about to show again, so re-passing the same node on every render is safe t
 <p>Every <code>ctx</code> also has <code>close()</code>, so your item can close the menu itself (after saving a form, say).</p>
 <p>The menus are real menus: arrows, Home/End, Enter, Escape (focus goes back to the button) and a click outside all work.</p>
 <ul><li><strong><code>rowActions</code></strong> adds a ⋯ button at the end of each row. <code>true</code> gives the default menu (<code>['details', 'copy', 'select']</code>), an array builds your own, and a function <code>row =&gt; items</code> gives each row its own. Built-ins: <code>'details'</code> (opens the detail), <code>'copy'</code> (copies the row as tab-separated text) and <code>'select'</code> (toggles the row's selection; needs <code>selection</code>). <code>onClick</code> receives <code>{ row, key, table }</code>.</li><li><strong><code>exportMenu</code></strong> replaces the Export menu: pick from <code>'scope'</code>, <code>'csv'</code>, <code>'json'</code>, <code>'copy'</code> and add your own items. <code>onClick</code> receives <code>{ table, scope, rows }</code>, the rows the user chose to export. That is how to plug in an Excel export from your server.</li></ul>
-<div class="script-block" data-block-id="doc-block-14"></div>
+<div class="script-block" data-block-id="doc-block-17"></div>
 <h3 id="your-own-menu-onrowmenu">Your own menu (<code>onRowMenu</code>)</h3>
 <p>To draw the menu yourself (your Dropdown, a popover, a modal), give <code>onRowMenu({ row, key, anchor, table, close })</code>. The ⋯ button then calls it instead of opening the table's menu.</p>
 <ul><li><code>anchor</code> is the ⋯ button, to position your popup. Call <code>close()</code> when your menu closes: the table resets <code>aria-expanded</code> and returns focus to the button.</li><li>Return a cleanup function and the table runs it whenever it closes your menu for you: the ⋯ button pressed again, another row's menu opened, the row filtered or scrolled away, or the table destroyed.</li><li><code>onRowMenu</code> alone is enough to show the ⋯ column; it wins over <code>rowActions</code>.</li></ul>
-<div class="script-block" data-block-id="doc-block-15"></div>
-<div class="script-block" data-block-id="doc-block-16"></div>
+<div class="script-block" data-block-id="doc-block-18"></div>
+<div class="script-block" data-block-id="doc-block-19"></div>
 <h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Editable tables save each cell on its own. Let <code>commit</code> throw with a message people can act on ("Prices over 1,000 need approval."): it shows on the cell and on the bar.</div>
 <div class="callout callout-tip">Keep row data uniform in length. Mismatched columns may produce uneven layout.</div>
 <div class="callout callout-tip">Give <code>rowKey</code> whenever rows have an id: selection, expanded rows and the row menu follow the row through sorting and filtering instead of its position.</div>
 <h2 id="pitfalls">Pitfalls</h2>
@@ -101,5 +120,5 @@ re-render: the table destroys what it replaces. Build a fresh node per render in
 <div class="callout callout-warning">In <code>virtual</code> mode every row has the same height (<code>rowHeight</code>, or the one <code>density</code> gives). Cells that need to wrap, or rich components taller than the row, belong in a paginated table instead.</div>
 <div class="callout callout-warning"><code>stateKey</code> state lives in the user's browser. Change the key when you rename or remove columns, or the saved state may hide a column under its old meaning.</div>
 <div class="callout callout-warning">Filters and search read the row DATA. A column whose <code>render</code> shows something different from <code>row[key]</code> (a formatted date, a label for a code) should give <code>filterValue</code> / <code>searchValue</code>, or the filter will compare against the raw value.</div>
-<div class="component-block" data-block-id="doc-block-17"></div>
+<div class="component-block" data-block-id="doc-block-20"></div>
 </div>

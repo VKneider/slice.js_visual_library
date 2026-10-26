@@ -1,0 +1,47 @@
+<div class="documentation-content datacomponentsdocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="writing-a-component-that-loads-data">
+     <span class="doc-title-text">Writing a component that loads data</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p>DataList, Table and DescriptionList load, show and save data the same way, with the same names. This page is that standard, for anyone writing a component (in the library or in an app) that does the same: a profile card, a dashboard tile, an order summary.</p>
+<p>Follow it and your component behaves like the library's: it never keeps the page behind the loader, it always shows what is happening, and an app developer already knows its API. The rules are also in <code>COMPONENT_API_STANDARDS.md</code> §13, the checklist for library contributions.</p>
+<h3 id="when-it-applies">When it applies</h3>
+<ul><li>The component shows data it does not receive whole as a prop: from a server, or from a <code>slice.context</code>.</li><li>It changes that data (saves, deletes) and has to say whether that worked.</li></ul>
+<h3 id="when-it-does-not">When it does not</h3>
+<ul><li>The data is a prop the app already has. Take it as a prop (<code>item</code>, <code>items</code>) and redraw when it changes. Nothing to load.</li><li>Many components show the same data. Then the app keeps it in a context (<span data-inline-link="0"></span>, pattern 2), and your component takes <code>context</code>.</li></ul>
+<h2 id="the-rules">The rules</h2>
+<h3 id="1-init-never-awaits-the-network">1. <code>init()</code> never awaits the network</h3>
+<p>The app's loader waits for every <code>init()</code> the page awaits (see <span data-inline-link="1"></span>). Build the structure, start the request <strong>without</strong> <code>await</code>, return.</p>
+<h3 id="2-three-sources-the-same-names">2. Three sources, the same names</h3>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<p>Plus <code>reload()</code> (ask again), <code>update()</code> calling it (a cached route came back), and <code>onError(error, { type })</code>.</p>
+<h3 id="3-every-state-is-shown">3. Every state is shown</h3>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<h3 id="4-one-request-at-a-time-cancelled-when-not-needed">4. One request at a time, cancelled when not needed</h3>
+<p>A new request aborts the previous one (<code>AbortController</code>). <code>beforeDestroy()</code> aborts too. An answer that arrives for an aborted request is ignored, so a slow old answer never overwrites a new one.</p>
+<h3 id="5-changes-optimistic-lists-commit-first-fields-never-mutate">5. Changes: optimistic lists, commit-first fields, never mutate</h3>
+<ul><li>Add, change and remove are <code>addItem</code>, <code>updateItem</code>, <code>removeItem</code> with <code>{ commit }</code>. They show at once and are taken back if <code>commit</code> throws. Never call one <code>update()</code>: that name is the framework's.</li><li>A single value edited in place is saved first (<code>commit</code>), written after.</li><li>Make new arrays and objects; never change the ones you were given. <code>shared/data/collection.js</code> and <code>writePath</code> in <code>shared/data/paths.js</code> do it for you inside the library.</li></ul>
+<h2 id="a-complete-example">A complete example</h2>
+<p><code>UserCard</code> shows one user. It follows every rule above: it takes <code>item</code>, <code>context</code> or <code>load</code>; it shows a skeleton, an error with Try again, and a busy state while it saves; it cancels what it does not need; and its one action (follow) is optimistic with rollback.</p>
+<div class="code-block" data-block-id="doc-block-3"></div>
+<div class="code-block" data-block-id="doc-block-4"></div>
+<p>Used three ways, with the same names as the library's components:</p>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<h2 id="how-the-library-does-it">How the library does it</h2>
+<p>Read these when your component grows:</p>
+<ul><li><code>Visual/DescriptionList/DescriptionList.js</code>: one record from <code>item</code>, <code>context</code> or <code>load</code>; skeleton, error with Try again; fields edited with <code>commit</code> first.</li><li><code>Visual/DataList/DataList.js</code>: many records; queries (page, search, filters, sort) sent to <code>load</code>; optimistic <code>addItem</code>, <code>updateItem</code>, <code>removeItem</code> with Undo.</li><li><code>Visual/Table/Table.js</code>: the same for rows, with cells edited in place.</li><li><code>shared/README.md</code>: the helpers they share (<code>data/paths.js</code>, <code>data/collection.js</code>, <code>editing/inlineControl.js</code>).</li></ul>
+<h2 id="checklist">Checklist</h2>
+<div class="callout callout-tip">- <code>init()</code> / <code>update()</code> do not await the network; the first paint is the skeleton.
+- <code>item(s)</code> / <code>context</code> + <code>contextPath</code> / <code>load</code>, <code>reload()</code>, <code>onError(error, { type })</code>.
+- States: skeleton, busy, empty, error with Try again, saving.
+- <code>AbortController</code>: a new request and <code>beforeDestroy()</code> abort the previous one; late answers are ignored.
+- Changes with <code>{ commit }</code>: lists optimistic with rollback, fields commit-first; nothing mutated.
+- Every component built with <code>slice.build</code> after <code>init()</code> is destroyed in <code>beforeDestroy()</code>.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">A <code>_fetch()</code> that does not check <code>signal.aborted</code> after its <code>await</code> lets a slow, old answer overwrite a fast, new one: the user searches "ana", then "anabel", and sees the results for "ana".</div>
+<div class="callout callout-warning">Do not name internal state after a prop (<code>this._items</code> for loaded data when <code>items</code> is a prop): Slice resets <code>_&lt;prop&gt;</code> when the component is built, and the data disappears. Use <code>_loaded</code>, <code>_status</code>.</div>
+</div>

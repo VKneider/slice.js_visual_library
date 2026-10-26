@@ -1,0 +1,56 @@
+<div class="documentation-content sidemenudocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="sidemenu">
+     <span class="doc-title-text">SideMenu</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>SideMenu</code> is the menu of an app's sidebar or drawer. Its items go to a page, run an action, or open a submenu, and a submenu's items can open more submenus, as deep as the app needs.</p>
+<p>It shows the levels in one of two ways, with the same items:</p>
+<ul><li><strong><code>mode: 'drill'</code></strong> (default): a submenu <strong>replaces</strong> the panel and slides in, with a back button named after the level. Every level gets the whole width, so deep menus fit on a phone. This is the menu of a store app or of iOS Settings.</li><li><strong><code>mode: 'tree'</code></strong>: a submenu opens <strong>under</strong> its item, indented, and several can be open at once. People see where they are in the whole menu, which suits a desktop sidebar.</li><li><strong><code>mode: 'auto'</code></strong>: a tree when the menu is at least <code>breakpoint</code> pixels wide (480 by default), and a drill menu when it is narrower. The menu's own width is used, not the window's, so the same menu works in a wide sidebar and in a phone drawer.</li></ul>
+<p>The mode can change at any time, and the menu stays where it was: an open drill level becomes open branches, and the other way round.</p>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>An app's main navigation</strong> with sections inside sections: an admin panel, a store's categories, a settings area.</li><li><strong>A mobile menu or drawer</strong> where a deep menu has to fit a narrow screen (drill).</li><li><strong>A menu that mixes pages and actions</strong>: "Profile" goes to a page, "Log out" runs an action.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>A few destinations at the top of a page</strong>: use <span data-inline-link="0"></span>, or <span data-inline-link="1"></span> for views of one page.</li><li><strong>A menu of actions opened from a button</strong> ("⋯", "Export"): use <span data-inline-link="2"></span>. It floats over the page and closes after a choice.</li><li><strong>Data shaped as a tree</strong>: files, categories to check, an org chart. Use <span data-inline-link="3"></span>, which adds search, checkboxes, drag and drop and virtual scrolling.</li><li><strong>The path to the current page</strong> at the top of the content: use <span data-inline-link="4"></span>.</li></ul>
+<h2 id="items">Items</h2>
+<p>Each entry in <code>items</code> is an object. What it does depends on what it has:</p>
+<ul><li><code>path</code>: goes to that route with <code>slice.router</code>. It is a real link, so Ctrl/⌘-click or a middle click opens it in a new tab.</li><li><code>href</code> (and <code>target</code>): a link outside the app.</li><li><code>onClick({ item, menu, event })</code>: an action, such as "Log out" or "Switch theme".</li><li><code>items</code> (or <code>children</code>): opens a submenu. It can be an array, or a function that returns one, even an async function. A function runs the first time the submenu opens, with a loading row in the meantime and a "Try again" button if it fails. <code>reload(id)</code> runs it again.</li><li><code>type: 'group'</code> with <code>label</code> and <code>items</code>: a small heading over items <strong>at the same level</strong>, not a submenu.</li><li><code>type: 'separator'</code>: a line.</li></ul>
+<p>And, on any item:</p>
+<ul><li><code>label</code>, <code>icon</code> (an <span data-inline-link="5"></span> name, or <code>{ name, color }</code>), <code>description</code> (a quieter second line) and <code>badge</code> (a number, a word, or <span data-inline-link="6"></span> props).</li><li><code>id</code>: how <code>open(id)</code>, <code>close(id)</code> and <code>reload(id)</code> find it. Without one, the <code>path</code> is used.</li><li><code>disabled</code>, <code>hidden</code>, and <code>danger</code> (red, for something that cannot be undone).</li></ul>
+<p>An item with both <code>items</code> and a <code>path</code> opens its submenu, and the page is still reachable:</p>
+<ul><li>in drill mode, the submenu starts with an "All Settings" link;</li><li>in tree mode, the label is the link and the chevron beside it opens the submenu.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<h3 id="moving">Moving</h3>
+<ul><li>A click on a link calls <code>onSelect(item, { event, menu })</code>, marks the item as the current page, and navigates. <code>onSelect</code> can return <code>false</code> to stop the navigation, for example to close a drawer first or to show the page some other way.</li><li>The <code>side-menu-select</code> event reports every choice too.</li><li><code>onOpenChange(item, open)</code> reports every submenu that opens or closes.</li><li><code>open(id)</code>, <code>close(id)</code>, <code>back()</code> and <code>reset()</code> do the same from code. <code>level</code> and <code>openItems</code> say where the menu is.</li></ul>
+<h3 id="the-current-page">The current page</h3>
+<ul><li><code>activePath</code> marks the item with that <code>path</code> (<code>aria-current="page"</code>). The menu opens where it is: on its level in drill mode, and with every branch above it open in tree mode.</li><li>The submenus that hold the current page are marked as well, so a closed section still shows that the page is inside it.</li><li>With <code>followRoute</code> (on by default), <code>activePath</code> follows the URL as the router moves, including back and forward.</li></ul>
+<h3 id="keyboard">Keyboard</h3>
+<ul><li>↑ and ↓ move between items; Home and End go to the first and the last.</li><li>→ opens a submenu. In tree mode, a second → goes into it.</li><li>← goes back a level (drill), or closes the submenu and then goes up to the item that holds it (tree).</li><li>Enter and Space do what a click does.</li></ul>
+<h3 id="focus-and-screen-readers">Focus and screen readers</h3>
+<ul><li>When a level slides in, the focus goes to its first item. When it slides out, the focus goes back to the item that opened it, so people never lose their place.</li><li>Each new level is announced, for example "Products, 4 items".</li><li>Tree branches use <code>aria-expanded</code>. The menu is a <code>&lt;nav&gt;</code> with a name (<code>label</code>, or <code>title</code>).</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>title</code>: the name of the first level, shown above it in drill mode. Deeper levels show the back button instead.</li><li><code>variant</code>: how the current page is marked:</li></ul>
+<p>- <code>'soft'</code> (default): a tint and the accent colour;   - <code>'filled'</code>: the accent colour as the background;   - <code>'ghost'</code>: a bar at the start and the accent colour, for busy sidebars.</p>
+<ul><li><code>size</code>: <code>'sm'</code>, <code>'md'</code> (default) or <code>'lg'</code>. Use <code>'lg'</code> for touch-first drawers.</li><li><code>multiple: false</code> (tree) keeps one submenu open per level.</li><li>The CSS variables <code>--slice-side-menu-accent</code>, <code>--slice-side-menu-row-height</code>, <code>--slice-side-menu-indent</code> and <code>--slice-side-menu-radius</code> adjust it further.</li></ul>
+<h2 id="language">Language</h2>
+<p><code>texts</code> replaces every word:</p>
+<ul><li><code>label</code>;</li><li><code>back</code> (<code>{label}</code>) and <code>overview</code> (<code>{label}</code>);</li><li><code>level</code> (<code>{label}</code>, <code>{count}</code>);</li><li><code>loading</code>, <code>error</code>, <code>retry</code>, <code>empty</code>;</li><li><code>expand</code> (<code>{label}</code>).</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Keep each level short (about 7 items) and give it a clear name: in drill mode the name is all people see of where they are. Use <code>type: 'group'</code> headings to split a long level instead of adding another one.</div>
+<div class="callout callout-tip">Give a submenu a <code>path</code> when its section has a page of its own. People can then reach the page in one click ("All Settings") and still browse inside the section.</div>
+<div class="callout callout-tip">Load big submenus on demand with a function in <code>items</code>. The first level shows at once, and each department or project loads only when someone opens it.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not put the same item in two places. The current page is marked once, and people stop trusting a menu where the same page lives in two sections.</div>
+<div class="callout callout-warning">In drill mode, an action that stays in the menu (such as choosing a language) should go back a level, or show a result, so people see that it worked. <code>onClick</code> receives the menu, so it can call <code>menu.back()</code>.</div>
+<div class="callout callout-warning">Inside a drawer, close the drawer in <code>onSelect</code> after a link is chosen, or people are left looking at the menu over the new page.</div>
+</div>

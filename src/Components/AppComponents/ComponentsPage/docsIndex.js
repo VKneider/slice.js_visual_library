@@ -2,13 +2,13 @@ const docsIndex = [
   {
     title: 'Table',
     route: '/docs/data/table',
-    description: 'Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling.',
+    description: 'Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling; rows from a slice.context store or a server, add / change / remove with rollback and undo, and cells edited in place like a spreadsheet.',
     section: 'Data',
     group: 'Tables',
     order: 10,
     navLabel: 'Table',
     component: 'TableDocumentation',
-    tags: ['table', 'data', 'display', 'filter', 'search', 'selection', 'virtual', 'export', 'totals', 'menu']
+    tags: ['table', 'data', 'display', 'filter', 'search', 'selection', 'virtual', 'export', 'totals', 'menu', 'crud', 'editable', 'grid', 'spreadsheet', 'context']
   },
   {
     title: 'Pagination',
@@ -22,6 +22,28 @@ const docsIndex = [
     tags: ['pagination', 'pager', 'pages', 'navigation', 'data']
   },
   {
+    title: 'DataList',
+    route: '/docs/data/datalist',
+    description: 'The list of records an app works with — people, orders, tasks, files. Rows or cards with avatars, details, status and actions; search, views, filters, sort and groups; selection with bulk actions; create, edit and delete with undo and rollback; pages, load more or infinite scrolling; local data, a slice.context store or a server.',
+    section: 'Data',
+    group: 'Tables',
+    order: 12,
+    navLabel: 'DataList',
+    component: 'DataListDocumentation',
+    tags: ['datalist', 'list', 'crud', 'records', 'actions', 'selection', 'infinite', 'pagination', 'context']
+  },
+  {
+    title: 'DescriptionList',
+    route: '/docs/data/description-list',
+    description: 'One record as label → value pairs — the detail of an order, a profile, the settings of a project. Values formatted by type and shown with components (Badge, Avatar), sections, copy buttons, edit in place with commit and rollback, a store or a server as the source, and a skeleton while it loads.',
+    section: 'Data',
+    group: 'Tables',
+    order: 13,
+    navLabel: 'DescriptionList',
+    component: 'DescriptionListDocumentation',
+    tags: ['description list', 'detail', 'record', 'key value', 'properties', 'profile', 'inline edit', 'dl']
+  },
+  {
     title: 'Icon',
     route: '/docs/display/icon',
     description: 'Complete icon reference with all 291 symbols, usage patterns, and style variants.',
@@ -31,6 +53,17 @@ const docsIndex = [
     navLabel: 'Icon',
     component: 'IconDocumentation',
     tags: ['icon', 'display', 'reference']
+  },
+  {
+    title: 'Avatar',
+    route: '/docs/display/avatar',
+    description: 'A person, a team or a project as a small picture. Falls back to initials on a colour of their own, then to an icon; status dot, badge, sizes, shapes, and clickable.',
+    section: 'Display',
+    group: 'Basic',
+    order: 24,
+    navLabel: 'Avatar',
+    component: 'AvatarDocumentation',
+    tags: ['avatar', 'user', 'profile', 'photo', 'initials', 'status']
   },
   {
     title: 'EmptyState',
@@ -44,15 +77,26 @@ const docsIndex = [
     tags: ['empty', 'placeholder', 'zero-state', 'onboarding']
   },
   {
+    title: 'AvatarGroup',
+    route: '/docs/display/avatar-group',
+    description: 'A few people as overlapping avatars and "+N" for the rest, with each name on hover and one accessible name for the group.',
+    section: 'Display',
+    group: 'Basic',
+    order: 24.5,
+    navLabel: 'AvatarGroup',
+    component: 'AvatarGroupDocumentation',
+    tags: ['avatar', 'group', 'people', 'members', 'assignees']
+  },
+  {
     title: 'Badge',
     route: '/docs/display/badge',
-    description: 'Small status pill or count, with semantic variants that follow the theme.',
+    description: 'A status, a count or a mark next to what it describes. Tone for the meaning, variant for the loudness; icon, live indicator, dot, sizes and colours of your own.',
     section: 'Display',
     group: 'Basic',
     order: 25,
     navLabel: 'Badge',
     component: 'BadgeDocumentation',
-    tags: ['badge', 'pill', 'status', 'count', 'dot']
+    tags: ['badge', 'pill', 'status', 'count', 'dot', 'tag', 'label']
   },
   {
     title: 'Chip',
@@ -99,6 +143,17 @@ const docsIndex = [
     tags: ['tooltip', 'toggletip', 'hint', 'overlay', 'display']
   },
   {
+    title: 'Alert',
+    route: '/docs/feedback/alert',
+    description: 'A message inside the page, next to what it is about. Tone for the meaning, variant for the loudness; a title, actions such as Undo or Try again, a close button, and a timeout that waits while you point at it.',
+    section: 'Feedback',
+    group: 'Notifications',
+    order: 9,
+    navLabel: 'Alert',
+    component: 'AlertDocumentation',
+    tags: ['alert', 'notice', 'banner', 'callout', 'message', 'undo', 'feedback']
+  },
+  {
     title: 'Toast',
     route: '/docs/feedback/toast',
     description: 'Toast notification component with type-based styling, auto-dismiss, and dismissable modes.',
@@ -123,13 +178,35 @@ const docsIndex = [
   {
     title: 'Loading',
     route: '/docs/feedback/loading',
-    description: 'Loading component documentation with activation and container usage scenarios.',
+    description: 'Shows that the app is busy, over the whole page or one part of it. Four indicators (the Slice logo, a ring, dots, a top bar), backdrops, a label, a delay and a minimum time, and a welcome screen for the first load of the app, built in or your own.',
     section: 'Feedback',
     group: 'Status',
     order: 40,
     navLabel: 'Loading',
     component: 'LoadingDocumentation',
-    tags: ['loading', 'feedback']
+    tags: ['loading', 'spinner', 'progress', 'splash', 'welcome', 'feedback']
+  },
+  {
+    title: 'Data and the first load',
+    route: '/docs/guides/data-and-loading',
+    description: 'How to bring data from a server into a Slice app without keeping the page behind the loader. Why an awaited fetch in init() slows the first load, and the patterns that avoid it — data that arrives after the structure, a slice.context shared between components, critical data in parallel, refresh in the background, and saving changes.',
+    section: 'Guides',
+    group: 'Applications',
+    order: 1,
+    navLabel: 'Data and loading',
+    component: 'DataAndLoadingDocumentation',
+    tags: ['guide', 'data', 'fetch', 'server', 'loading', 'first load', 'context', 'skeleton', 'performance', 'stale-while-revalidate']
+  },
+  {
+    title: 'Writing a component that loads data',
+    route: '/docs/guides/data-components',
+    description: 'The standard every Slice component that shows server data follows — three sources with the same names, the states it must show, requests that never block the page and are cancelled when they are not needed, and how changes are saved and taken back. With a complete component to copy.',
+    section: 'Guides',
+    group: 'Components',
+    order: 2,
+    navLabel: 'Data components',
+    component: 'DataComponentsDocumentation',
+    tags: ['guide', 'component', 'data', 'load', 'context', 'states', 'skeleton', 'abort', 'commit', 'rollback', 'standards']
   },
   {
     title: 'Form',
@@ -429,6 +506,17 @@ const docsIndex = [
     tags: ['not-found', '404', 'navigation', 'routing']
   },
   {
+    title: 'SideMenu',
+    route: '/docs/navigation/side-menu',
+    description: 'A navigation menu whose items open more items, as deep as needed. Submenus slide in with a back button (drill) or open in place, indented (tree). Links, actions, lazy submenus, groups, badges and the current page.',
+    section: 'Navigation',
+    group: 'Navigation',
+    order: 49,
+    navLabel: 'SideMenu',
+    component: 'SideMenuDocumentation',
+    tags: ['sidemenu', 'menu', 'sidebar', 'navigation', 'drilldown', 'submenu', 'nested']
+  },
+  {
     title: 'TreeView',
     route: '/docs/navigation/treeview',
     description: 'Hierarchical list with full keyboard support, search, checkboxes, lazy branches, virtual scrolling, drag and drop and row menus.',
@@ -493,6 +581,17 @@ const docsIndex = [
     navLabel: 'DragDropService',
     component: 'DragDropServiceDocumentation',
     tags: ['drag', 'drop', 'resize', 'dnd', 'sortable', 'reorder', 'service']
+  },
+  {
+    title: 'InfiniteScrollService',
+    route: '/docs/services/infinite-scroll',
+    description: 'Headless infinite scrolling. Watches the end of a list and loads the next page, one request at a time, with abort on reset, fill-the-screen, errors with retry, and page or cursor APIs.',
+    section: 'Services',
+    group: 'Interaction',
+    order: 61,
+    navLabel: 'InfiniteScrollService',
+    component: 'InfiniteScrollServiceDocumentation',
+    tags: ['infinite', 'scroll', 'pagination', 'feed', 'load more', 'service']
   },
   {
     title: 'FetchManager',

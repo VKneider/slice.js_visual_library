@@ -6,6 +6,8 @@ import path from 'node:path';
 
 import { validateFrontMatter, mergeComponentsRegistry, lintMarkdownSourceForManualPropsTable } from '../index.js';
 import { buildStaticPropsSectionForFrontMatter } from '../lib/staticPropsDocs.js';
+import { parseMarkdownFile } from '../lib/markdownParser.js';
+import { writeFileIfChanged } from '../lib/fileUtils.js';
 
 test('validateFrontMatter reports missing required fields', () => {
   const errors = validateFrontMatter({ title: 'Button' }, 'button.md');
@@ -28,6 +30,61 @@ test('validateFrontMatter accepts valid front matter', () => {
   );
 
   assert.deepEqual(errors, []);
+});
+
+test('parseMarkdownFile normalizes Windows line endings in generated source', () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-line-endings-'));
+  const markdownPath = path.join(tmpRoot, 'example.md');
+  fs.writeFileSync(
+    markdownPath,
+    '---\r\ntitle: Example\r\nroute: /docs/example\r\nsection: General\r\ngroup: Basic\r\norder: 1\r\ncomponent: ExampleDocumentation\r\n---\r\n\r\n# Example\r\n\r\nText.\r\n',
+    'utf8'
+  );
+
+  const parsed = parseMarkdownFile(markdownPath);
+
+  assert.equal(parsed.frontMatter.markdownSource.includes('\r'), false);
+  assert.equal(parsed.frontMatter.markdownSource.includes('\n'), true);
+});
+
+test('parseMarkdownFile renders internal inline links as Link placeholders', () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-inline-link-'));
+  const markdownPath = path.join(tmpRoot, 'example.md');
+  fs.writeFileSync(
+    markdownPath,
+    `---
+title: Example
+route: /docs/example
+section: General
+group: Basic
+order: 1
+component: ExampleDocumentation
+---
+
+Use [Avatar](/docs/display/avatar)s and [details](#details).
+`,
+    'utf8'
+  );
+
+  const parsed = parseMarkdownFile(markdownPath);
+
+  assert.match(parsed.html, /<span data-inline-link="0"><\/span>s/);
+  assert.match(parsed.html, /<a href="#details">details<\/a>/);
+  assert.deepEqual(parsed.jsBlocks.at(-1), {
+    type: 'inline-links',
+    links: [{ text: 'Avatar', path: '/docs/display/avatar' }]
+  });
+});
+
+test('writeFileIfChanged does not rewrite identical generated output', () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-write-'));
+  const outputPath = path.join(tmpRoot, 'generated.js');
+  const content = 'export default [];\n';
+
+  assert.equal(writeFileIfChanged(outputPath, content), true);
+  const firstStat = fs.statSync(outputPath);
+  assert.equal(writeFileIfChanged(outputPath, content), false);
+  assert.equal(fs.statSync(outputPath).mtimeMs, firstStat.mtimeMs);
 });
 
 test('mergeComponentsRegistry injects documentation components and copy menu', () => {

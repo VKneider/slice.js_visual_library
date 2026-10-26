@@ -222,7 +222,7 @@ const table = await slice.build('Table', {
 });
 table.style.width = '100%';
 
-const count = await slice.build('Badge', { variant: 'accent', value: orders.length });
+const count = await slice.build('Badge', { tone: 'accent', value: orders.length });
 const total = document.createElement('strong');
 
 const period = await slice.build('DatePicker', {

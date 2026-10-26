@@ -1,0 +1,31 @@
+<div class="documentation-content avatardocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="avatar">
+     <span class="doc-title-text">Avatar</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>Avatar</code> shows who something belongs to: the person next to a comment, the owner of a task, the account in the top bar. It never shows a broken picture:</p>
+<ol><li>the picture (<code>src</code>);</li><li>if there is none, or it fails to load, the <strong>initials</strong> of <code>name</code> ("Ana María López" → "AL") on a colour that comes from the name, so the same person always has the same colour;</li><li>without a name either, an icon (<code>icon</code>, <code>'user'</code> by default).</li></ol>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>People in lists and feeds</strong>: comments, messages, members, assignees.</li><li><strong>The signed-in account</strong> in a Navbar or a SideMenu.</li><li><strong>Things with a face of their own</strong>: teams, projects, companies (<code>shape: 'rounded'</code>).</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>A large profile picture or a product photo.</strong> Use an <code>&lt;img&gt;</code> or a <span data-inline-link="0"></span> with <code>image</code>; an avatar is small and cropped.</li><li><strong>Several people in a row.</strong> Use <span data-inline-link="1"></span>, which overlaps them and sums up the rest.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>src</code>, <code>name</code> and <code>alt</code>. Screen readers hear <code>alt</code>, or the name, or "Unknown user", plus the status: "Ana López, Online".</li><li>While the picture loads, the initials are already there, so the place is never empty.</li><li><code>status</code>: <code>'online'</code>, <code>'away'</code>, <code>'busy'</code> or <code>'offline'</code>. It shows as a dot on the corner.</li><li><code>badge</code>: a number (3) or a word, or <span data-inline-link="2"></span> props (<code>{ value: 12, tone: 'accent' }</code>), on the top corner.</li><li><code>onClick({ avatar, event })</code> makes it a button, and <code>path</code> (through <code>slice.router</code>) or <code>href</code> makes it a link. Either way it can be reached with Tab and used with Enter.</li><li><code>color</code> replaces the colour that comes from the name.</li><li><code>initials</code> and <code>showing</code> (<code>'image'</code>, <code>'initials'</code> or <code>'icon'</code>) say what it shows.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>size</code>: <code>'xs'</code> (24px), <code>'sm'</code> (32), <code>'md'</code> (40, default), <code>'lg'</code> (56), <code>'xl'</code> (80), or a number of pixels.</li><li><code>shape</code>: <code>'circle'</code> (default) or <code>'rounded'</code>, for teams and projects.</li><li><code>texts</code> translates the status names and "Unknown user".</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-2"></div>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Always pass <code>name</code>, even with a picture. It is what screen readers hear, and what shows when the picture fails.</div>
+<div class="callout callout-tip">Use <code>shape: 'rounded'</code> for teams, companies and projects, and circles for people. The shape tells them apart at a glance.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not pass a status the app cannot keep up to date. A green dot that stays green after the person left is worse than no dot.</div>
+</div>

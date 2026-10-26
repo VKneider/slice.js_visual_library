@@ -1,50 +1,42 @@
 <div class="documentation-content badgedocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="badge">
-    <span class="doc-title-text">Badge</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="badge">
+     <span class="doc-title-text">Badge</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
-<p>A <code>Badge</code> is a small status pill: a count, a label, or a bare dot. It answers "what state is this thing in" at a glance, next to a list item, a tab, an avatar or a button.</p>
-<p>Variants are <strong>semantic</strong> (<code>success</code>, <code>danger</code>, <code>warning</code>, <code>info</code>, <code>accent</code>), not decorative, and each derives from its own theme token — <code>--success-color</code>, <code>--danger-color</code>, <code>--warning-color</code>, <code>--info-color</code>, <code>--primary-color</code> — so a badge means the same thing in light and dark without you picking a colour.</p>
-<p>The five coloured variants were separated by measurement, not by eye: all ten pairs clear a CIE ΔE of 36 or more, so none of them reads as another. The hues sit in distinct bands — danger 0°, warning 32°, success 161°, info 213°, brand 271°.</p>
-<p>Variants are <strong>tinted</strong>, not solid: a soft wash of the status colour, a hairline border, and text in a readable shade of that same colour. A solid fill was measured at 3.19–3.77:1 for white text on the lighter status colours, under the 4.5:1 AA bar for 12px text, and five saturated fills in a row read as a traffic light rather than as badges.</p>
-<h2 id="api">API</h2>
-<ul><li><code>variant</code> (<code>neutral</code> | <code>accent</code> | <code>success</code> | <code>warning</code> | <code>danger</code> | <code>info</code>, default <code>neutral</code>)</li><li><code>label</code> (string) — the text. Doubles as the accessible name when <code>dot</code> is set.</li><li><code>value</code> (number | null) — a count. Wins over <code>label</code>, and is capped by <code>max</code> (<code>99</code> → <code>99+</code>).</li><li><code>max</code> (number, default <code>99</code>) — the cap for <code>value</code>.</li><li><code>dot</code> (boolean) — render a bare dot instead of text.</li><li><code>size</code> (<code>sm</code> | <code>md</code>, default <code>md</code>)</li></ul>
-<h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-1"></div>
+<p><code>Badge</code> says, in one or two words, what state something is in: an order that is <strong>Paid</strong>, a server that is <strong>Down</strong>, <strong>12</strong> unread messages, a feature that is <strong>New</strong>. It sits next to the thing it describes: a row, a tab, a title, a button, an avatar.</p>
+<p>Two separate choices, as everywhere else in the library:</p>
+<ul><li><strong><code>tone</code></strong> is what it <strong>means</strong>: <code>neutral</code>, <code>accent</code>, <code>success</code>, <code>warning</code>, <code>danger</code>, <code>info</code>. Each one follows its theme colour, so it means the same in any theme.</li><li><strong><code>variant</code></strong> is how <strong>loud</strong> it is, with <span data-inline-link="0"></span>'s names: <code>soft</code> (a tint, the default), <code>filled</code> (the colour itself, for what must be seen) or <code>outlined</code> (just a line, for many badges side by side).</li></ul>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>Statuses</strong> of records in lists and tables: Paid / Pending / Overdue, Active / Away, Draft / Published.</li><li><strong>Counts</strong> that ask for attention: unread messages, pending reviews, items in a cart.</li><li><strong>Live states</strong>: "● Live", "● Online", "● Deploying", with <code>indicator</code> and <code>pulse</code>.</li><li><strong>Short marks</strong>: New, Beta, Pro, a version number (<code>shape: 'rounded'</code>).</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Something the user can click or remove.</strong> A badge is not a button. Use a <span data-inline-link="1"></span>, or a chip/tag input when tags are edited.</li><li><strong>A message with a sentence in it.</strong> Use a <span data-inline-link="2"></span> or an inline alert; a badge is one or two words.</li><li><strong>A person.</strong> Use <span data-inline-link="3"></span>, which already has <code>status</code> and its own <code>badge</code>.</li><li><strong>Many colours with no meaning.</strong> Seven coloured pills in one row is noise. Keep <code>neutral</code> for the ordinary state and save colour for what needs noticing.</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><strong><code>label</code></strong>: the text. <strong><code>value</code></strong>: a number, which wins over <code>label</code> and is capped by <strong><code>max</code></strong> (99 by default, so 120 shows "99+").</li><li>A count of <code>0</code> hides the badge, so a "0 unread" bubble never shows. <strong><code>showZero: true</code></strong> keeps it.</li><li>With nothing to show (no label, no value, no icon), the badge hides itself.</li><li><strong><code>icon</code></strong>: an <span data-inline-link="4"></span> name before the text. It is built and destroyed with the badge.</li><li><strong><code>indicator</code></strong>: a small dot before the text, for a state that is live. <strong><code>pulse</code></strong> makes it breathe; with reduced motion it stays still.</li><li><strong><code>dot</code></strong>: only a dot, no text. <code>label</code> becomes what screen readers hear ("New" if there is none).</li><li><strong><code>color</code></strong>: a colour of your own (a category, a team, a project) instead of a tone. The text is mixed toward the page's text colour so it stays readable.</li><li>Every prop can change after building: <code>badge.value = 13</code>, <code>badge.tone = 'success'</code>.</li></ul>
+<h2 id="looks">Looks</h2>
+<ul><li><code>size</code>: <code>'sm'</code> (20px), <code>'md'</code> (24px, default), <code>'lg'</code> (30px).</li><li><code>shape</code>: <code>'pill'</code> (default) for states and counts, <code>'rounded'</code> for labels that are not states (versions, categories, keys).</li><li>In a line of text, the badge sits on the text's optical centre at any font size.</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-1"></div>
+<h2 id="examples">Examples</h2>
 <div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
 <div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
 <h2 id="theming">Theming</h2>
-<p><code>Badge</code> needs one token per status colour beyond the standard palette: a <strong>readable shade</strong>, the version of that colour that clears 4.5:1 against its own tint on the current theme's surface.</p>
-<p>The shade has to move in opposite directions per theme. Light darkens the status colour toward black; dark <strong>lightens it toward white</strong>, because a dark theme's status colours are already light and darkening them produces a mid-tone with no contrast on a dark surface. Getting this wrong is not subtle — measured on the wrong direction, five of six variants land between 3.00:1 and 4.05:1 in dark mode.</p>
-<p>Declare the shades on <code>:root</code>, derived from the status colours you already have:</p>
-<div class="code-block" data-block-id="doc-block-5"></div>
-<div class="callout callout-tip">The <code>-readable</code> tokens are <strong>optional for a light theme</strong>. Each <code>color</code> in <code>Badge.css</code> carries the
-light-tuned value as a fallback, so a theme with only the standard tokens still renders between
-4.89:1 and 5.38:1. They are <strong>effectively required for a dark theme</strong>: without them, dark badges fall
-to 3.00–4.05:1.
-
-That fallback is not belt-and-braces. <code>slice init</code> copies the <strong>framework's</strong> <code>src/</code>, themes included,
-so a new app's theme is <code>slicejs-web-framework</code>'s <code>Light.css</code> — 21 tokens, and its only shade is
-<code>--primary-color-shade</code>, a *border* tone. None of the five above are in it.</div>
-<div class="callout callout-warning"><strong><code>--primary-color-shade</code> is a different token.</strong> It is a border/surface tone of the brand, used in
-~40 declarations across 15 components and Required by the component standards.
-<code>--primary-color-readable</code> is the *text* tone, for text sitting on a tint. The <code>-readable</code> suffix
-exists to keep the two apart.
-
-<strong>There is no <code>--accent-color</code>.</strong> It measured at 3° of hue and 1.52:1 from <code>--secondary-color</code> — a
-duplicate rather than a third colour — and in the wild "accent" already means *the brand*, which is
-<code>--primary-color</code> here. The <code>accent</code> <strong>variant</strong> survives and is purple; only the redundant token is
-gone.</div>
+<p>Each tone uses its theme colour (<code>--primary-color</code> for <code>accent</code>, <code>--success-color</code>, <code>--warning-color</code>, <code>--danger-color</code>, <code>--info-color</code>, <code>--medium-color</code> for <code>neutral</code>) and a <strong>readable shade</strong> of it for the text: the version of the colour that clears 4.5:1 against its own tint, and that <code>filled</code> uses as its fill.</p>
+<p>The shade has to move in opposite directions per theme. Light darkens the colour toward black; dark <strong>lightens it toward white</strong>, because a dark theme's status colours are already light. Declare the shades on <code>:root</code>:</p>
+<div class="code-block" data-block-id="doc-block-6"></div>
+<div class="callout callout-tip">The <code>-readable</code> tokens are <strong>optional for a light theme</strong>: <code>Badge.css</code> carries the light values as fallbacks, so a fresh app's theme already passes. They are <strong>needed for a dark theme</strong>, where the fallbacks would be too dark. The specs measure every tone in every variant, in both themes, against 4.5:1.</div>
+<div class="callout callout-warning"><code>--primary-color-shade</code> is a different token: a border and surface tone of the brand. <code>--primary-color-readable</code> is the text tone. The <code>-readable</code> suffix keeps the two apart.</div>
+<p>To restyle one badge or all of them, the per-badge variables are <code>--slice-badge-color</code>, <code>--slice-badge-ink</code> (text and fill), <code>--slice-badge-tint</code> (how strong the soft background is), <code>--slice-badge-height</code>, <code>--slice-badge-font</code>, <code>--slice-badge-pad</code> and <code>--slice-badge-dot</code>.</p>
 <h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">Overlaid on a button or an avatar, keep the badge <code>absolute</code> in your own layout — <code>Badge</code> only
-styles itself, not its position relative to a sibling.</div>
+<div class="callout callout-tip">Map your statuses to badges in one place (<code>const STATUS = { paid: { label, tone, icon } }</code>) and pass <code>STATUS[row.status]</code>. Every screen then shows the same state the same way.</div>
+<div class="callout callout-tip">Use <code>filled</code> only for what must be seen before anything else (Overdue, Down, a count of unread messages). If everything is filled, nothing stands out.</div>
+<div class="callout callout-tip">On top of a button or an avatar, position the badge in your own layout (<code>position: absolute</code>). <code>Badge</code> styles itself, not its place next to a sibling. <span data-inline-link="5"></span> already does it with its <code>badge</code> prop.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">Colour alone is not enough of a signal. A <code>danger</code> badge next to a <code>success</code> one reads differently to
-everyone, but only the text tells a colourblind user which is which — keep <code>label</code> or <code>value</code> set.</div>
-<div class="component-block" data-block-id="doc-block-6"></div>
+<div class="callout callout-warning">Colour alone is not enough. Keep a <code>label</code> or a <code>value</code>: red and green look different to most people, but only the word tells a colour-blind user which is which. A <code>dot</code> needs a <code>label</code> too, for screen readers.</div>
+<div class="callout callout-warning">Do not show a live <code>pulse</code> the app cannot keep up to date. A green "● Online" that stays on after the server went down is worse than no badge.</div>
 </div>

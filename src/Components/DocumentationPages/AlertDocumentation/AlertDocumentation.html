@@ -1,0 +1,38 @@
+<div class="documentation-content alertdocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="alert">
+     <span class="doc-title-text">Alert</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>Alert</code> is a message that sits in the page, next to what it talks about: "Changes saved" above a form, "Your trial ends in 3 days" at the top of the billing page, "2 rows removed · Undo" over a list, "The report could not be loaded · Try again" where the report should be.</p>
+<p>Two choices, as in <span data-inline-link="0"></span> and <span data-inline-link="1"></span>:</p>
+<ul><li><strong><code>tone</code></strong> is what it <strong>means</strong>: <code>neutral</code>, <code>info</code> (the default), <code>success</code>, <code>warning</code>, <code>danger</code>.</li><li><strong><code>variant</code></strong> is how <strong>loud</strong> it is: <code>soft</code> (a tint, the default), <code>filled</code> (for what must be seen now) or <code>outlined</code>.</li></ul>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li><strong>The result of something done on this page</strong>: saved, sent, failed, with what to do next.</li><li><strong>A state of the page or the account</strong>: a trial ending, a read-only record, a sync in progress.</li><li><strong>An undo</strong>: "Row removed · Undo" for a few seconds. <span data-inline-link="2"></span> and <span data-inline-link="3"></span> use an Alert for exactly this.</li><li><strong>An error with a way out</strong>: "Could not load · Try again".</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Something that happened elsewhere, or that should not move the layout</strong>: a <span data-inline-link="4"></span> floats over the app and goes away.</li><li><strong>A question that needs an answer before going on</strong>: a <span data-inline-link="5"></span> or <span data-inline-link="6"></span>.</li><li><strong>A status in a row or next to a title</strong>: a <span data-inline-link="7"></span>.</li><li><strong>A field's error</strong>: the field shows it (<span data-inline-link="8"></span> <code>error</code>).</li></ul>
+<h2 id="core-behavior">Core Behavior</h2>
+<ul><li><code>title</code> and <code>message</code>. Either can be left out.</li><li><code>icon</code>: the tone gives one (<code>neutral</code> has none); an Icon name replaces it; <code>false</code> removes it.</li><li><code>actions: [{ label, onClick({ alert, event }), variant, icon, keepOpen }]</code>: <span data-inline-link="9"></span>s on the right. Using one closes the alert, unless it says <code>keepOpen</code>.</li><li><code>dismissible</code>: a ✕ to close it (<code>dismissLabel</code> is what screen readers hear).</li><li><code>timeout</code>: milliseconds until it closes by itself. The time <strong>stops while the pointer or the focus is on it</strong>, so nobody loses an Undo in the middle of reaching for it.</li><li><code>onDismiss({ reason })</code>: why it closed: <code>'close'</code> (the ✕), <code>'timeout'</code>, <code>'action'</code> or <code>'api'</code> (<code>hide()</code> from code).</li><li><code>danger</code> and <code>warning</code> interrupt a screen reader (<code>role="alert"</code>); the others wait their turn (<code>role="status"</code>).</li></ul>
+<h3 id="one-alert-many-messages">One alert, many messages</h3>
+<p>An alert can be placed once and reused: <code>open: false</code> starts it hidden, <code>show({ … })</code> shows it with new content, <code>hide()</code> takes it away. The <code>onDismiss</code> given to <code>show()</code> is for that showing only, which is what an undo needs:</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h2 id="looks">Looks</h2>
+<ul><li><code>size</code>: <code>'md'</code> (default) or <code>'sm'</code>.</li><li>Every tone, in every variant, is measured against WCAG AA in the light and the dark theme. It uses the same tokens as Badge (<code>--success-color-readable</code> and the rest; see <span data-inline-link="10"></span>).</li></ul>
+<h2 id="live-preview">Live Preview</h2>
+<div class="component-block" data-block-id="doc-block-2"></div>
+<h2 id="examples">Examples</h2>
+<div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h2 id="best-practices">Best Practices</h2>
+<div class="callout callout-tip">Say what happened and what to do next, in that order: "The report could not be loaded · Try again". An alert with no way out leaves people stuck.</div>
+<div class="callout callout-tip">Keep <code>filled</code> for what must be seen now (a failed payment, an undo). A page with several filled alerts has no priority left.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not put a <code>timeout</code> on an error. A problem that disappears before it was read is a problem nobody fixes.</div>
+<div class="callout callout-warning">Colour is not the message. Keep the words clear enough that the alert makes sense in grey.</div>
+<div class="component-block" data-block-id="doc-block-7"></div>
+</div>

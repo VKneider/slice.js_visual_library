@@ -1,6 +1,18 @@
 {
   "generated": [
     {
+      "filePath": "src/markdown/alert.md",
+      "component": "AlertDocumentation"
+    },
+    {
+      "filePath": "src/markdown/avatar-group.md",
+      "component": "AvatarGroupDocumentation"
+    },
+    {
+      "filePath": "src/markdown/avatar.md",
+      "component": "AvatarDocumentation"
+    },
+    {
       "filePath": "src/markdown/badge.md",
       "component": "BadgeDocumentation"
     },
@@ -49,8 +61,16 @@
       "component": "CssConventionsDocumentation"
     },
     {
+      "filePath": "src/markdown/datalist.md",
+      "component": "DataListDocumentation"
+    },
+    {
       "filePath": "src/markdown/datepicker.md",
       "component": "DatePickerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/description-list.md",
+      "component": "DescriptionListDocumentation"
     },
     {
       "filePath": "src/markdown/details.md",
@@ -93,6 +113,14 @@
       "component": "GridDocumentation"
     },
     {
+      "filePath": "src/markdown/guide-data-components.md",
+      "component": "DataComponentsDocumentation"
+    },
+    {
+      "filePath": "src/markdown/guide-data-loading.md",
+      "component": "DataAndLoadingDocumentation"
+    },
+    {
       "filePath": "src/markdown/html-service.md",
       "component": "HtmlServiceDocumentation"
     },
@@ -103,6 +131,10 @@
     {
       "filePath": "src/markdown/indexed-db-manager.md",
       "component": "IndexedDbManagerDocumentation"
+    },
+    {
+      "filePath": "src/markdown/infinite-scroll-service.md",
+      "component": "InfiniteScrollServiceDocumentation"
     },
     {
       "filePath": "src/markdown/input.md",
@@ -165,6 +197,10 @@
       "component": "SelectDocumentation"
     },
     {
+      "filePath": "src/markdown/Sidemenu.md",
+      "component": "SideMenuDocumentation"
+    },
+    {
       "filePath": "src/markdown/slider.md",
       "component": "SliderDocumentation"
     },
@@ -224,7 +260,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\victo\\Desktop\\SPIKE-PWA-SLICE\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "C:\\Users\\vkneider\\Desktop\\asdasd\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

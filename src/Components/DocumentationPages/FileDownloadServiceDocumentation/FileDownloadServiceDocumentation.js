@@ -3,8 +3,9 @@ export default class FileDownloadServiceDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Save a file","expected":"clicking either button saves a file to your device","kind":"script","content":"const downloads = await slice.build('FileDownloadService', { singleton: true });\n\nconst wrap = document.createElement('div');\nwrap.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-family:system-ui,sans-serif;';\n\nconst rows = [\n  { id: 1, name: 'Ada' },\n  { id: 2, name: 'Grace' },\n  { id: 3, name: 'Katherine' },\n];\n\nwrap.appendChild(await slice.build('Button', {\n  value: 'Download .json',\n  onClick: () => downloads.download('people.json', JSON.stringify(rows, null, 2), 'application/json'),\n}));\n\nwrap.appendChild(await slice.build('Button', {\n  value: 'Download .csv',\n  variant: 'outlined',\n  onClick: () => downloads.download(\n    'people.csv',\n    ['id,name', ...rows.map((r) => `${r.id},${r.name}`)].join('\\n'),\n    'text/csv'\n  ),\n}));\n\nmount(wrap);"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Save a file","expected":"clicking either button saves a file to your device","kind":"script","content":"const downloads = await slice.build('FileDownloadService', { singleton: true });\n\nconst wrap = document.createElement('div');\nwrap.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-family:system-ui,sans-serif;';\n\nconst rows = [\n  { id: 1, name: 'Ada' },\n  { id: 2, name: 'Grace' },\n  { id: 3, name: 'Katherine' },\n];\n\nwrap.appendChild(await slice.build('Button', {\n  value: 'Download .json',\n  onClick: () => downloads.download('people.json', JSON.stringify(rows, null, 2), 'application/json'),\n}));\n\nwrap.appendChild(await slice.build('Button', {\n  value: 'Download .csv',\n  variant: 'outlined',\n  onClick: () => downloads.download(\n    'people.csv',\n    ['id,name', ...rows.map((r) => `${r.id},${r.name}`)].join('\\n'),\n    'text/csv'\n  ),\n}));\n\nmount(wrap);"}];
   }
 
   async init() {
@@ -84,9 +85,12 @@ export default class FileDownloadServiceDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

@@ -1,13 +1,13 @@
 <div class="documentation-content paginationdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="pagination">
-    <span class="doc-title-text">Pagination</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="pagination">
+     <span class="doc-title-text">Pagination</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
-<p><code>Pagination</code> splits a long list into pages and moves between them. It works on its own (search results, a product grid, a feed) and inside a [Table](/docs/data/table), which builds one for you with <code>pagination: true</code>.</p>
+<p><code>Pagination</code> splits a long list into pages and moves between them. It works on its own (search results, a product grid, a feed) and inside a <span data-inline-link="0"></span>, which builds one for you with <code>pagination: true</code>.</p>
 <h3 id="when-to-use-it">When to use it</h3>
 <ul><li>Results people scan page by page and come back to ("it was on page 3").</li><li>Long lists where the total matters: "41–60 of 342".</li><li>Steps of a carousel or an onboarding, with <code>mode: 'dots'</code>.</li></ul>
 <h3 id="when-not-to-use-it">When not to use it</h3>
@@ -18,7 +18,7 @@
 <h3 id="moving">Moving</h3>
 <ul><li>A click moves to the page and calls <code>onPageChange(page, { previous, event })</code>. The <code>page-change</code> event also reports it.</li><li><code>goTo(page)</code>, <code>next()</code> and <code>previous()</code> do the same from code, and the page is clamped to the range.</li><li><code>controlled: true</code> only reports the click, and waits for you to set <code>currentPage</code>. Use it when the page lives elsewhere: a router, a store, or a request that has to succeed first. Table uses it this way.</li><li>When Next or Previous re-renders the pages, the focus stays on the button that was pressed, so the keyboard can keep paging.</li></ul>
 <h3 id="range-page-size-and-jump">Range, page size and jump</h3>
-<ul><li><code>showInfo</code> shows the range on screen ("41–60 of 342"), or "Page 3 of 18" without <code>totalItems</code>.</li><li><code>pageSizes: [10, 20, 50]</code> adds a "Rows per page" [Select](/docs/input/select).</li></ul>
+<ul><li><code>showInfo</code> shows the range on screen ("41–60 of 342"), or "Page 3 of 18" without <code>totalItems</code>.</li><li><code>pageSizes: [10, 20, 50]</code> adds a "Rows per page" <span data-inline-link="1"></span>.</li></ul>
 <p>- <code>onPageSizeChange(size)</code> reports a new size.   - The page changes with the size, so the first item that was on screen stays in view.</p>
 <ul><li><code>showJump</code> adds a box to type a page number and press <strong>Enter</strong>.</li></ul>
 <h3 id="modes">Modes</h3>

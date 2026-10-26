@@ -94,3 +94,32 @@ test('generated script scenarios pass a safe slice builder to scripts', () => {
   assert.match(generatedJs, /safeSlice\.build = async \(name, props\) =>/);
   assert.match(generatedJs, /const result = await fn\(this, safeSlice, document, mount\);/);
 });
+
+test('generated documentation builds internal markdown links with Link', () => {
+  const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'slice-docs-generator-links-'));
+  const outputDir = path.join(tmpRoot, 'DocumentationPages');
+
+  writeComponentFiles({
+    frontMatter: {
+      title: 'Links',
+      route: '/docs/test/links',
+      section: 'Test',
+      group: 'Parser',
+      order: 3,
+      component: 'LinksDocumentation',
+      markdownSource: '# Links'
+    },
+    html: '<p><span data-inline-link="0"></span></p>',
+    jsBlocks: [{ type: 'inline-links', links: [{ text: 'Avatar', path: '/docs/display/avatar' }] }]
+  }, outputDir, 'links.md');
+
+  const generatedJs = fs.readFileSync(
+    path.join(outputDir, 'LinksDocumentation', 'LinksDocumentation.js'),
+    'utf8'
+  );
+
+  assert.match(generatedJs, /slice\.build\('Link', linkProps\)/);
+  assert.match(generatedJs, /links\.entries\(\)/);
+  assert.match(generatedJs, /data-inline-link/);
+  assert.match(generatedJs, /destroyComponent\(link\)/);
+});

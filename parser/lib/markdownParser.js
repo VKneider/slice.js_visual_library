@@ -51,10 +51,33 @@ const escapeHtml = (text) => {
     .replace(/>/g, '&gt;');
 };
 
-const inlineMarkdown = (text) => {
-  let output = escapeHtml(text);
+const escapeHtmlAttribute = (text) => {
+  return escapeHtml(text)
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
+const isSafeMarkdownHref = (href) => /^(?:https?:\/\/|\/|#|mailto:)/i.test(href);
+const isInternalMarkdownHref = (href) => /^\/(?!\/)/.test(href);
+
+const inlineMarkdown = (text, inlineLinks = []) => {
+  const tokenized = text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (match, label, href) => {
+    if (!isInternalMarkdownHref(href)) return match;
+    const token = `SLICE_INLINE_LINK_${inlineLinks.length}_TOKEN`;
+    inlineLinks.push({ text: label, path: href });
+    return token;
+  });
+
+  let output = escapeHtml(tokenized);
   output = output.replace(/`([^`]+)`/g, '<code>$1</code>');
   output = output.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  output = output.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (match, label, href) => {
+    if (!isSafeMarkdownHref(href)) return label;
+    return `<a href="${escapeHtmlAttribute(href)}">${label}</a>`;
+  });
+  output = output.replace(/SLICE_INLINE_LINK_(\d+)_TOKEN/g, (_, index) => {
+    return `<span data-inline-link="${index}"></span>`;
+  });
   return output;
 };
 
@@ -202,6 +225,7 @@ const parseBlocks = (body) => {
 const renderBlocks = (blocks) => {
   const htmlParts = [];
   const jsBlocks = [];
+  const inlineLinks = [];
   let blockId = 0;
   const usedIds = new Set();
   let hasTitle = false;
@@ -220,33 +244,33 @@ const renderBlocks = (blocks) => {
       }
       usedIds.add(unique);
       if (!hasTitle && block.level === 1) {
-        htmlParts.push(`
-<div class="doc-title-bar">
-  <h1 id="${unique}">
-    <span class="doc-title-text">${inlineMarkdown(block.text)}</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>`);
+     htmlParts.push(`
+ <div class="doc-title-bar">
+   <h1 id="${unique}">
+     <span class="doc-title-text">${inlineMarkdown(block.text, inlineLinks)}</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>`);
         hasTitle = true;
       } else {
-        htmlParts.push(`<h${block.level} id="${unique}">${inlineMarkdown(block.text)}</h${block.level}>`);
+         htmlParts.push(`<h${block.level} id="${unique}">${inlineMarkdown(block.text, inlineLinks)}</h${block.level}>`);
       }
       continue;
     }
 
     if (block.type === 'paragraph') {
-      htmlParts.push(`<p>${inlineMarkdown(block.text)}</p>`);
+       htmlParts.push(`<p>${inlineMarkdown(block.text, inlineLinks)}</p>`);
       continue;
     }
 
     if (block.type === 'ul') {
-      const items = block.items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join('');
+       const items = block.items.map((item) => `<li>${inlineMarkdown(item, inlineLinks)}</li>`).join('');
       htmlParts.push(`<ul>${items}</ul>`);
       continue;
     }
 
     if (block.type === 'ol') {
-      const items = block.items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join('');
+       const items = block.items.map((item) => `<li>${inlineMarkdown(item, inlineLinks)}</li>`).join('');
       htmlParts.push(`<ol>${items}</ol>`);
       continue;
     }
@@ -276,7 +300,7 @@ const renderBlocks = (blocks) => {
       }
 
       if (name === 'tip' || name === 'warning') {
-        htmlParts.push(`<div class="callout callout-${name}">${inlineMarkdown(block.content)}</div>`);
+         htmlParts.push(`<div class="callout callout-${name}">${inlineMarkdown(block.content, inlineLinks)}</div>`);
         continue;
       }
 
@@ -285,7 +309,7 @@ const renderBlocks = (blocks) => {
           .split('\n')
           .map((line) => line.replace(/^\d+\.\s/, '').trim())
           .filter(Boolean);
-        const list = items.map((item) => `<li>${inlineMarkdown(item)}</li>`).join('');
+         const list = items.map((item) => `<li>${inlineMarkdown(item, inlineLinks)}</li>`).join('');
         htmlParts.push(`<ol class="steps">${list}</ol>`);
         continue;
       }
@@ -321,6 +345,10 @@ const renderBlocks = (blocks) => {
     }
   }
 
+  if (inlineLinks.length > 0) {
+    jsBlocks.push({ type: 'inline-links', links: inlineLinks });
+  }
+
   return { html: htmlParts.join('\n'), jsBlocks };
 };
 
@@ -328,7 +356,9 @@ const parseMarkdownFile = (filePath, options = {}) => {
   const projectRoot = options.projectRoot;
   // Strip a UTF-8 BOM: Windows editors can save one, and it sits before the
   // opening `---`, so the front matter would not be found at all.
-  const content = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
+  const content = fs.readFileSync(filePath, 'utf8')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n?/g, '\n');
   const { data, body } = parseFrontMatter(content);
 
   let enrichedBody = body;

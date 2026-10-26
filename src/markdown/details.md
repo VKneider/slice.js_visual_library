@@ -36,7 +36,7 @@ Each section is a native `<details>` with a `<summary>`, so the browser provides
 On top of that, Details animates the height, keeps a group exclusive, adds arrow-key navigation, loads content on first open and remembers what was open.
 
 ### One section
-- `title` and `subtitle` are the summary. `icon` puts a mark beside them, and `badge` adds a [Badge](/docs/display/badge) (text, a number, or `{ label, variant }`).
+- `title` and `subtitle` are the summary. `icon` puts a mark beside them, and `badge` adds a [Badge](/docs/display/badge) (text, a number, or Badge props such as `{ label, tone }`).
 - `text` is the body text. `content` adds nodes or components after it.
 - `open` sets the state. `onToggle(open, { details })` and the `details-toggle` event report changes.
 - `disabled` keeps the section from opening.
@@ -166,7 +166,7 @@ const card = await slice.build('Card', {
   title: 'Order #1042',
   subtitle: 'Placed today · ships tomorrow',
   headerIcon: 'shopping-bag',
-  badge: { label: 'Paid', variant: 'success' },
+  badge: { label: 'Paid', tone: 'success' },
   content: [total, more],
   actions: [{ value: 'Track order', variant: 'filled' }, { value: 'Invoice', variant: 'ghost', icon: 'download' }]
 });
@@ -184,7 +184,7 @@ const form = (schema, label) => async () => slice.build('Form', {
   schema,
   onSubmit: () => {
     toasts.show(`${label} saved`, { type: 'success' });
-    const items = settings.items.map((i) => (i.title === label ? { ...i, badge: { label: 'Saved', variant: 'success' } } : i));
+    const items = settings.items.map((i) => (i.title === label ? { ...i, badge: { label: 'Saved', tone: 'success' } } : i));
     settings.items = items;
   }
 });
@@ -213,9 +213,9 @@ return settings;
 
 :::script label="Release notes" expected="versions as a ghost accordion with a plus marker; several can be open; Expand all and Collapse all work on every version"
 const releases = [
-  { id: '3.2', title: 'v3.2.0', subtitle: 'October 2026', badge: { label: 'Latest', variant: 'accent' }, open: true, notes: ['DatePicker, with ranges and presets', 'Card rebuilt: actions, selectable, loading', 'Details groups into an accordion'] },
+  { id: '3.2', title: 'v3.2.0', subtitle: 'October 2026', badge: { label: 'Latest', tone: 'accent' }, open: true, notes: ['DatePicker, with ranges and presets', 'Card rebuilt: actions, selectable, loading', 'Details groups into an accordion'] },
   { id: '3.1', title: 'v3.1.0', subtitle: 'September 2026', notes: ['Tabs: four variants, lazy panels', 'Modal: drawer and sheet layouts'] },
-  { id: '3.0', title: 'v3.0.0', subtitle: 'August 2026', badge: { label: 'Breaking', variant: 'danger' }, notes: ['Lucide icons replace the icon font', 'Themes moved to CSS variables'] }
+  { id: '3.0', title: 'v3.0.0', subtitle: 'August 2026', badge: { label: 'Breaking', tone: 'danger' }, notes: ['Lucide icons replace the icon font', 'Themes moved to CSS variables'] }
 ];
 const list = (notes) => {
   const ul = document.createElement('ul');

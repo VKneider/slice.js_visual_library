@@ -1,16 +1,16 @@
 <div class="documentation-content navbardocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="navbar">
-    <span class="doc-title-text">Navbar</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="navbar">
+     <span class="doc-title-text">Navbar</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>Navbar</code> is the top navigation bar. It has a brand, links (dropdowns with submenus included) and actions, comes in five looks, marks the page you are on, and below a breakpoint turns into a mobile menu that behaves like one: a drawer, a full screen or a sheet.</p>
 <h2 id="core-behavior">Core Behavior</h2>
 <ul><li><code>brand</code> is <code>{ logo, text, path, alt }</code>: an image, a name, or both. <code>logo</code> (<code>{ src, path }</code>) is the older form and still works.</li><li><code>items</code> are the links:</li></ul>
-<p>- <code>{ text, path }</code> is a route link, navigated through <code>slice.router</code>.   - <code>{ text, href, target }</code> is a plain or external link.   - <code>{ text, items: [...] }</code> is a <code>DropDown</code> with submenus as deep as you like. The bar shows it as plain text that opens on hover; click and keyboard work too. See [DropDown](/docs/navigation/dropdown) for what its items can be. <code>type: 'dropdown'</code> with <code>options</code> is the older form and still works.   - Any item can also take <code>icon</code>, <code>exact</code> (see below) or <code>hidden</code>.</p>
+<p>- <code>{ text, path }</code> is a route link, navigated through <code>slice.router</code>.   - <code>{ text, href, target }</code> is a plain or external link.   - <code>{ text, items: [...] }</code> is a <code>DropDown</code> with submenus as deep as you like. The bar shows it as plain text that opens on hover; click and keyboard work too. See <span data-inline-link="0"></span> for what its items can be. <code>type: 'dropdown'</code> with <code>options</code> is the older form and still works.   - Any item can also take <code>icon</code>, <code>exact</code> (see below) or <code>hidden</code>.</p>
 <ul><li><code>buttons</code> are Button configs (<code>{ value, onClick, icon, variant, color }</code>). <code>actions</code> takes the same configs or any node: a ThemeSwitcher, a search box, an avatar <code>DropDown</code>. They render in the order you give them.</li><li>Every prop is reactive: set <code>items</code>, <code>buttons</code>, <code>variant</code> or anything else at any time and the bar updates.</li></ul>
 <h2 id="looks">Looks</h2>
 <ul><li><code>variant</code>:</li></ul>

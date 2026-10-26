@@ -3,8 +3,9 @@ export default class CssConventionsDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Scoping demo","expected":"two buttons where only the scoped card has styles","kind":"script","content":"const btn = await slice.build('Button', { value: 'Show scoping demo' });\nbtn.onClick = async () => {\n  // Build a component to show how scoping works\n  const card = await slice.build('Card', {\n    title: 'Scoped',\n    value: 'Only <slice-card> styles apply here'\n  });\n  card.style.margin = '0';\n  const container = document.createElement('div');\n  container.style.display = 'flex';\n  container.style.flexDirection = 'column';\n  container.style.gap = '0.75rem';\n  container.style.padding = '1rem';\n  container.style.border = '1px dashed #ccc';\n  container.style.borderRadius = '0.5rem';\n\n  const p = document.createElement('p');\n  p.style.fontSize = '0.8rem';\n  p.style.margin = '0 0 0.5rem';\n  p.textContent = 'The Card below uses scoped selectors — its .slice_card styles cannot leak out or be overridden by global CSS:';\n  container.appendChild(p);\n  container.appendChild(card);\n  document.body.appendChild(container);\n  // Clean up after 5 seconds\n  setTimeout(() => container.remove(), 5000);\n};\nreturn btn;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Scoping demo","expected":"two buttons where only the scoped card has styles","kind":"script","content":"const btn = await slice.build('Button', { value: 'Show scoping demo' });\nbtn.onClick = async () => {\n  // Build a component to show how scoping works\n  const card = await slice.build('Card', {\n    title: 'Scoped',\n    value: 'Only <slice-card> styles apply here'\n  });\n  card.style.margin = '0';\n  const container = document.createElement('div');\n  container.style.display = 'flex';\n  container.style.flexDirection = 'column';\n  container.style.gap = '0.75rem';\n  container.style.padding = '1rem';\n  container.style.border = '1px dashed #ccc';\n  container.style.borderRadius = '0.5rem';\n\n  const p = document.createElement('p');\n  p.style.fontSize = '0.8rem';\n  p.style.margin = '0 0 0.5rem';\n  p.textContent = 'The Card below uses scoped selectors — its .slice_card styles cannot leak out or be overridden by global CSS:';\n  container.appendChild(p);\n  container.appendChild(card);\n  document.body.appendChild(container);\n  // Clean up after 5 seconds\n  setTimeout(() => container.remove(), 5000);\n};\nreturn btn;"}];
   }
 
   async init() {
@@ -130,9 +131,12 @@ export default class CssConventionsDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');

@@ -1,14 +1,14 @@
 <div class="documentation-content tooltipproviderdocumentation">
 
-<div class="doc-title-bar">
-  <h1 id="tooltipprovider">
-    <span class="doc-title-text">ToolTipProvider</span>
-    <span class="copy-md-slot" data-copy-md></span>
-  </h1>
-</div>
+ <div class="doc-title-bar">
+   <h1 id="tooltipprovider">
+     <span class="doc-title-text">ToolTipProvider</span>
+     <span class="copy-md-slot" data-copy-md></span>
+   </h1>
+ </div>
 <h2 id="overview">Overview</h2>
 <p><code>ToolTipProvider</code> is a Service that gives tooltips to many elements with <strong>one shared bubble</strong> and <strong>one set of listeners on the document</strong>. Nothing is built per trigger: a toolbar of twenty buttons or a table of a thousand cells costs one bubble.</p>
-<p>It behaves exactly like [ToolTip](/docs/display/tooltip), because both run on the same code:</p>
+<p>It behaves exactly like <span data-inline-link="0"></span>, because both run on the same code:</p>
 <ul><li>the delay and warm-up;</li><li>the top layer above Modals;</li><li>Escape, hovering the bubble, a long press on touch;</li><li>title and shortcut, twelve placements, the variants, and toggletips.</li></ul>
 <div class="code-block" data-block-id="doc-block-1"></div>
 <p><code>{ singleton: true }</code> makes every build return the same provider, so the whole app shares one. A second provider logs a warning.</p>

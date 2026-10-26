@@ -3,8 +3,9 @@ export default class ChipDocumentation extends HTMLElement {
     super();
     slice.attachTemplate(this);
     slice.controller.setComponentProps(this, props);
-    this.debuggerProps = [];
-    this.scriptScenarios = [{"label":"Chips","expected":"plain, accent and warning chips in a row","kind":"script","content":"const row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';\n\nrow.appendChild(await slice.build('Chip', { label: 'All' }));\nrow.appendChild(await slice.build('Chip', { label: 'Active', variant: 'accent', icon: 'check' }));\nrow.appendChild(await slice.build('Chip', { label: 'Deprecated', variant: 'warning' }));\nrow.appendChild(await slice.build('Chip', { label: 'Archived', variant: 'neutral', size: 'sm' }));\nreturn row;"},{"label":"Removable chips","expected":"clicking the x reports which chip was removed","kind":"script","content":"const log = document.createElement('p');\nlog.textContent = 'Nothing removed yet';\nlog.style.cssText = 'font-family:system-ui,sans-serif;font-size:.8rem;color:var(--font-secondary-color);margin-top:10px;';\n\nconst row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';\n\nfor (const label of ['Vue', 'React', 'Svelte']) {\n   row.appendChild(await slice.build('Chip', {\n      label,\n      removable: true,\n      onRemove: (removed) => { log.textContent = `Removed: ${removed}`; },\n   }));\n}\n\nconst wrap = document.createElement('div');\nwrap.appendChild(row);\nwrap.appendChild(log);\nreturn wrap;"}];
+     this.debuggerProps = [];
+     this._inlineLinks = [];
+     this.scriptScenarios = [{"label":"Chips","expected":"plain, accent and warning chips in a row","kind":"script","content":"const row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';\n\nrow.appendChild(await slice.build('Chip', { label: 'All' }));\nrow.appendChild(await slice.build('Chip', { label: 'Active', variant: 'accent', icon: 'check' }));\nrow.appendChild(await slice.build('Chip', { label: 'Deprecated', variant: 'warning' }));\nrow.appendChild(await slice.build('Chip', { label: 'Archived', variant: 'neutral', size: 'sm' }));\nreturn row;"},{"label":"Removable chips","expected":"clicking the x reports which chip was removed","kind":"script","content":"const log = document.createElement('p');\nlog.textContent = 'Nothing removed yet';\nlog.style.cssText = 'font-family:system-ui,sans-serif;font-size:.8rem;color:var(--font-secondary-color);margin-top:10px;';\n\nconst row = document.createElement('div');\nrow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';\n\nfor (const label of ['Vue', 'React', 'Svelte']) {\n   row.appendChild(await slice.build('Chip', {\n      label,\n      removable: true,\n      onRemove: (removed) => { log.textContent = `Removed: ${removed}`; },\n   }));\n}\n\nconst wrap = document.createElement('div');\nwrap.appendChild(row);\nwrap.appendChild(log);\nreturn wrap;"}];
   }
 
   async init() {
@@ -27,7 +28,7 @@ export default class ChipDocumentation extends HTMLElement {
             const component = await slice.build('PropsTable', props);
             container.appendChild(component);
          }
-      }
+       }
     await this.renderScriptScenarios();
   }
 
@@ -35,9 +36,12 @@ export default class ChipDocumentation extends HTMLElement {
     // Refresh dynamic content here if needed
   }
 
-  beforeDestroy() {
-    // Cleanup timers, listeners, or pending work here
-  }
+   beforeDestroy() {
+     for (const link of this._inlineLinks) {
+       slice.controller.destroyComponent(link);
+     }
+     this._inlineLinks = [];
+   }
 
   async setupCopyButton() {
     const container = this.querySelector('[data-copy-md]');
