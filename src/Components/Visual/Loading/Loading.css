@@ -290,9 +290,33 @@ slice-loading .slice-loading__welcome-custom {
   position: relative;
 }
 
-/* The welcome fades out when the app is ready. */
+/* ── Leaving: the handover to the page ──────────────────────────── */
+
+/* stop(): the overlay fades where it is, so what is underneath crossfades in
+   instead of appearing in one frame. It stops blocking at once — the page is
+   already ready when stop() is called. Durations match EXIT_MS and
+   WELCOME_EXIT_MS in Loading.js. */
+slice-loading.is-leaving {
+  pointer-events: none;
+}
+
 slice-loading.is-leaving .slice-loading__overlay {
-  animation: slice-loading-fade-out 0.32s ease-in forwards;
+  animation: slice-loading-fade-out 0.22s ease-out forwards;
+}
+
+/* The indicator lifts a touch while it fades: the eye follows it out instead
+   of landing on the page that appeared under it. */
+slice-loading.is-leaving .slice-loading__indicator {
+  animation: slice-loading-indicator-out 0.22s ease-out forwards;
+}
+
+slice-loading.is-leaving.is-welcome .slice-loading__overlay {
+  animation-duration: 0.32s;
+}
+
+/* The welcome card steps back and out, under the same fade. */
+slice-loading.is-leaving.is-welcome .slice-loading__card {
+  animation: slice-loading-card-out 0.32s ease-in forwards;
 }
 
 /* ── Motion ─────────────────────────────────────────────────────── */
@@ -321,6 +345,14 @@ slice-loading.is-leaving .slice-loading__overlay {
   to { opacity: 0; }
 }
 
+@keyframes slice-loading-indicator-out {
+  to { opacity: 0; transform: translateY(-6px) scale(0.94); }
+}
+
+@keyframes slice-loading-card-out {
+  to { opacity: 0; transform: translateY(-10px) scale(1.03); }
+}
+
 @keyframes slice-loading-burst {
   0% { transform: translate(-50%, -50%) scale(0.25); opacity: 0; }
   55% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
@@ -343,8 +375,13 @@ slice-loading.is-leaving .slice-loading__overlay {
     animation: slice-loading-pulse 2s ease-in-out infinite;
   }
 
-  slice-loading .slice-loading__overlay,
+  /* Entrances are dropped, and nothing moves on the way out. The fade itself
+     stays (opacity only, no displacement): without it the page would appear
+     in one frame, which is the harder thing to read. */
+  slice-loading:not(.is-leaving) .slice-loading__overlay,
   slice-loading .slice-loading__card,
+  slice-loading.is-leaving.is-welcome .slice-loading__card,
+  slice-loading.is-leaving .slice-loading__indicator,
   slice-loading .slice-loading__burst-dot {
     animation: none;
   }

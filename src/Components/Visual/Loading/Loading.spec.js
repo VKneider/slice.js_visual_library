@@ -42,8 +42,56 @@ test.describe('Loading — start and stop', () => {
       expect(await page.evaluate(() => document.body.getAttribute('aria-busy'))).toBe('true');
       await expect(t.$('.slice-loading__status')).toHaveText('Loading…');
       await t.run((el) => el.stop());
-      expect(await t.run((el) => el.isConnected)).toBe(false);
+      // The way out is a fade, not a cut: still there, already out of the way.
+      await expect(t.host).toHaveClass(/is-leaving/);
+      expect(await t.run((el) => getComputedStyle(el).pointerEvents)).toBe('none');
+      await expect.poll(() => t.run((el) => el.isConnected)).toBe(false);
       expect(await page.evaluate(() => document.body.hasAttribute('aria-busy'))).toBe(false);
+   });
+
+   test('stop() fades the page in instead of cutting to it', async ({ mount, page }) => {
+      const t = await setup(mount, page);
+      await t.run((el) => el.start());
+      // A measurable fade, not the old one-frame disappearance.
+      const during = await t.run((el) => {
+         el.stop();
+         const overlay = el.querySelector('.slice-loading__overlay');
+         return {
+            leaving: el.classList.contains('is-leaving'),
+            animation: getComputedStyle(overlay).animationName,
+            duration: parseFloat(getComputedStyle(overlay).animationDuration) * 1000,
+         };
+      });
+      expect(during.leaving).toBe(true);
+      expect(during.animation).toBe('slice-loading-fade-out');
+      expect(during.duration).toBeGreaterThan(120);
+      // Long enough to be seen, short enough to feel like a handover.
+      expect(during.duration).toBeLessThan(400);
+      expect(await t.run((el) => el.isConnected)).toBe(true);
+      expect(await t.run((el) => el.active)).toBe(false);
+      await expect.poll(() => t.run((el) => el.isConnected), { timeout: 1500 }).toBe(false);
+   });
+
+   test('a start() during the fade-out takes the same overlay back', async ({ mount, page }) => {
+      const t = await setup(mount, page);
+      await t.run((el) => el.start());
+      const back = await t.run(async (el) => {
+         el.stop();
+         const mid = { leaving: el.classList.contains('is-leaving'), connected: el.isConnected };
+         // Halfway through the 220 ms fade, the app turns busy again.
+         await new Promise((resolve) => setTimeout(resolve, 60));
+         el.start();
+         return {
+            mid,
+            after: { leaving: el.classList.contains('is-leaving'), active: el.active, visible: el.visible, parent: el.parentElement === document.body },
+         };
+      });
+      expect(back.mid).toEqual({ leaving: true, connected: true });
+      // The same overlay, still where it was: no teardown, no second entrance.
+      expect(back.after).toEqual({ leaving: false, active: true, visible: true, parent: true });
+      await expect(t.host).not.toHaveClass(/is-leaving/);
+      await expect(t.$('.slice-loading__indicator')).toBeVisible();
+      await stop(t);
    });
 
    test('over a container: it covers only that box, and gives its styles back', async ({ mount, page }) => {
@@ -62,8 +110,10 @@ test.describe('Loading — start and stop', () => {
       await expect(t.$('.slice-loading__label')).toHaveText('Saving…');
       await expect(t.$('.slice-loading__status')).toHaveText('Saving…');
       await t.run((el) => el.stop());
-      expect(await page.evaluate(() => { const box = document.getElementById('box'); const out = [box.style.position, box.style.overflow, box.hasAttribute('aria-busy')]; box.remove(); return out; }))
+      // The box keeps its own styles until the fade ends.
+      await expect.poll(() => page.evaluate(() => { const box = document.getElementById('box'); return [box.style.position, box.style.overflow, box.hasAttribute('aria-busy')]; }))
          .toEqual(['', '', false]);
+      await page.evaluate(() => document.getElementById('box')?.remove());
    });
 
    test('a container not in the page yet still holds the overlay', async ({ mount, page }) => {
@@ -85,7 +135,9 @@ test.describe('Loading — start and stop', () => {
       await t.run((el) => { el.active = true; });
       expect(await t.run((el) => el.active && el.parentElement === document.body)).toBe(true);
       await t.run((el) => { el.active = false; });
-      expect(await t.run((el) => el.isConnected)).toBe(false);
+      // Stopped at once, even though the overlay is still fading out.
+      expect(await t.run((el) => el.active)).toBe(false);
+      await expect.poll(() => t.run((el) => el.isConnected)).toBe(false);
       await t.run((el) => { el.isActive = true; });
       expect(await t.run((el) => el.active)).toBe(true);
       expect(c.consoleMessages().some((m) => m.text.includes('"isActive" is deprecated'))).toBe(true);
@@ -166,6 +218,29 @@ test.describe('Loading — looks', () => {
       await stop(t);
    });
 
+   test('reduce motion: no entrance and no movement out, but the fade stays', async ({ mount, page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      const t = await setup(mount, page, { variant: 'spinner' });
+      await t.run((el) => el.start());
+      const motion = await t.run((el) => ({
+         entrance: getComputedStyle(el.querySelector('.slice-loading__overlay')).animationName,
+         spinner: getComputedStyle(el.querySelector('.slice-loading__mark--spinner')).animationName,
+      }));
+      expect(motion.entrance).toBe('none');
+      expect(motion.spinner).toBe('slice-loading-pulse');
+      const out = await t.run((el) => {
+         el.stop();
+         return {
+            overlay: getComputedStyle(el.querySelector('.slice-loading__overlay')).animationName,
+            indicator: getComputedStyle(el.querySelector('.slice-loading__indicator')).animationName,
+         };
+      });
+      // Opacity only: the overlay still hands the page over instead of cutting.
+      expect(out.overlay).toBe('slice-loading-fade-out');
+      expect(out.indicator).toBe('none');
+      await expect.poll(() => t.run((el) => el.isConnected)).toBe(false);
+   });
+
    test('sliceConfig.loading sets the defaults, and props win over it', async ({ mount, page }) => {
       const t = await setup(mount, page);
       const { c } = t;
@@ -224,6 +299,11 @@ test.describe('Loading — welcome', () => {
       await t.run((el) => el.start(null, { welcome: true }));
       await t.run((el) => el.stop());
       await expect(t.host).toHaveClass(/is-leaving/);
+      // The card steps back under the fade, not with the page.
+      expect(await t.run((el) => [
+         getComputedStyle(el.querySelector('.slice-loading__overlay')).animationName,
+         getComputedStyle(el.querySelector('.slice-loading__card')).animationName,
+      ])).toEqual(['slice-loading-fade-out', 'slice-loading-card-out']);
       await page.waitForTimeout(450);
       expect(await t.run((el) => el.isConnected)).toBe(false);
       await t.run((el) => el.start());
@@ -261,6 +341,26 @@ test.describe('Loading — welcome', () => {
       expect(await t.run((el) => el.welcome)).toBe(null);
       await t.run((el) => el.start(null, { welcome: false }));
       await expect(t.host).not.toHaveClass(/is-welcome/);
+      await stop(t);
+   });
+
+   test('an explicit welcome during a fade-out rebuilds the overlay as the welcome', async ({ mount, page }) => {
+      const t = await setup(mount, page, { welcome: { title: 'Conclave', minVisibleMs: 0 } });
+      await t.run((el) => el.start(null, { welcome: false }));
+      const shown = await t.run(async (el) => {
+         el.stop();
+         // Mid-fade, the app asks for the welcome (e.g. after a sign-in).
+         await new Promise((resolve) => setTimeout(resolve, 40));
+         el.start(null, { welcome: true });
+         return {
+            welcome: el.classList.contains('is-welcome'),
+            leaving: el.classList.contains('is-leaving'),
+            connected: el.isConnected,
+            title: el.querySelector('.slice-loading__title').textContent,
+         };
+      });
+      expect(shown).toEqual({ welcome: true, leaving: false, connected: true, title: 'Conclave' });
+      await expect(t.$('.slice-loading__title')).toBeVisible();
       await stop(t);
    });
 });

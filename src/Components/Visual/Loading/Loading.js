@@ -34,6 +34,10 @@ import { SIZE_VALUES } from '../../shared/props.js';
 const VARIANTS = ['slice', 'spinner', 'dots', 'bar'];
 const BACKDROPS = ['dim', 'blur', 'solid', 'none'];
 const WELCOME_MIN_MS = 1200;
+// The way out: the overlay fades instead of vanishing, so the page underneath
+// crossfades in rather than appearing in one frame. Matched by Loading.css
+// (.is-leaving); change both together.
+const EXIT_MS = 220;
 const WELCOME_EXIT_MS = 320;
 
 // Warns once per deprecated prop name.
@@ -42,10 +46,6 @@ function deprecate(oldName, newName) {
    if (deprecated.has(oldName)) return;
    deprecated.add(oldName);
    console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
-}
-
-function reducedMotion() {
-   return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
 function appConfig() {
@@ -102,8 +102,9 @@ export default class Loading extends HTMLElement {
       /** @type {Record<string, any>} values given as props; the rest come from sliceConfig */
       this._given = {};
       this._container = null;
-      this._running = false;     // between start() and the end of stop()
+      this._running = false;     // between start() and stop()
       this._visible = false;     // on screen (after delayMs)
+      this._leaving = false;     // stopped, but still fading out
       this._currentContainer = null;
       this._showTimer = null;
       this._pendingStopTimeout = null;
@@ -196,6 +197,12 @@ export default class Loading extends HTMLElement {
    /** Whether it is on screen now (false while waiting for delayMs). */
    get visible() { return this._visible; }
 
+   // How long it must stay once shown (the welcome has its own, longer floor).
+   _floor(welcome = this._welcomeShown) {
+      if (!welcome) return this.minVisibleMs;
+      return Math.max(0, Number(this.welcome?.minVisibleMs ?? WELCOME_MIN_MS) || 0);
+   }
+
    // ── Start and stop ─────────────────────────────────────────────
 
    /**
@@ -207,18 +214,33 @@ export default class Loading extends HTMLElement {
    start(container = null, { welcome } = {}) {
       const target = container || this._container || document.body;
 
-      // Busy again: a stop that was waiting (for the minimum time, or for the
-      // welcome to fade out) is called off.
+      // Busy again: a stop that was waiting (for the minimum time) and any
+      // fade-out already playing are called off.
       clearTimeout(this._pendingStopTimeout);
       this._pendingStopTimeout = null;
+      const wasLeaving = this._leaving;
       if (this._exitTimer) {
          clearTimeout(this._exitTimer);
          this._exitTimer = null;
+      }
+      if (wasLeaving) {
+         this._leaving = false;
          this.classList.remove('is-leaving');
       }
 
       if (this._running && this._currentContainer === target) return;
-      if (this._running) this._teardown();
+
+      // It is still on screen over the same box, halfway out: nothing to
+      // rebuild and nothing to re-fade in. It only has to be busy again. An
+      // explicit welcome choice is a different screen, so it rebuilds below.
+      if (welcome === undefined && wasLeaving && this._currentContainer === target) {
+         this._running = true;
+         this._visible = true;
+         this._minimumVisibleUntil = Date.now() + this._floor(this._welcomeShown);
+         return;
+      }
+
+      if (this._currentContainer) this._teardown();
 
       this._running = true;
       this._currentContainer = target;
@@ -263,17 +285,22 @@ export default class Loading extends HTMLElement {
          return;
       }
 
-      // The welcome fades out instead of vanishing.
-      if (this._welcomeShown && !reducedMotion()) {
-         if (this._exitTimer) return;
-         this.classList.add('is-leaving');
-         this._exitTimer = setTimeout(() => {
-            this._exitTimer = null;
-            this._teardown();
-         }, WELCOME_EXIT_MS);
-         return;
-      }
-      this._teardown();
+      // Done now, whatever the overlay does on its way out: `active` is false
+      // from here on, even while the fade is still playing.
+      this._running = false;
+      this._leave();
+   }
+
+   // The handover to the page: the overlay fades where it is (and lets clicks
+   // through), so the content underneath is not a jump from covered to there.
+   _leave() {
+      if (this._leaving) return;
+      this._leaving = true;
+      this.classList.add('is-leaving');
+      this._exitTimer = setTimeout(() => {
+         this._exitTimer = null;
+         this._teardown();
+      }, this._welcomeShown ? WELCOME_EXIT_MS : EXIT_MS);
    }
 
    beforeDestroy() {
@@ -281,7 +308,8 @@ export default class Loading extends HTMLElement {
       clearTimeout(this._pendingStopTimeout);
       clearTimeout(this._exitTimer);
       this._showTimer = this._pendingStopTimeout = this._exitTimer = null;
-      if (this._running) this._teardown();
+      this._leaving = false;
+      if (this._running || this._visible) this._teardown();
       this._destroyWelcomeComponent();
    }
 
@@ -312,13 +340,13 @@ export default class Loading extends HTMLElement {
 
       target.appendChild(this);
       this._visible = true;
-      const floor = welcome ? Math.max(0, Number(this.welcome?.minVisibleMs ?? WELCOME_MIN_MS) || 0) : this.minVisibleMs;
-      this._minimumVisibleUntil = Date.now() + floor;
+      this._minimumVisibleUntil = Date.now() + this._floor(welcome);
    }
 
    _teardown() {
       clearTimeout(this._showTimer);
-      this._showTimer = null;
+      clearTimeout(this._exitTimer);
+      this._showTimer = this._exitTimer = null;
       const target = this._currentContainer;
       if (target && target !== document.body) {
          if (this._originalPosition !== undefined) target.style.position = this._originalPosition;
@@ -330,6 +358,7 @@ export default class Loading extends HTMLElement {
       this._clearWelcome();
       this._running = false;
       this._visible = false;
+      this._leaving = false;
       this._currentContainer = null;
       this._originalPosition = undefined;
       this._originalOverflow = undefined;

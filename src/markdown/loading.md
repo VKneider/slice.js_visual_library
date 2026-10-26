@@ -33,7 +33,7 @@ Slice also uses it for the app itself. With `"loading": { "enabled": true }` in 
 
 ### Starting and stopping
 - `start(container?)` shows it: over `container`, the `container` prop, or the whole page. Over a container, the overlay covers only that box and blocks only it.
-- `stop()` hides it and gives the container back its styles.
+- `stop()` fades it out and gives the container back its styles (see "The way out" below).
 - `active` does the same as a property: `true` starts, `false` stops.
 - While it shows, the container (or `<body>`) has `aria-busy="true"`, and screen readers hear `label` (or "Loading…") once.
 
@@ -41,6 +41,14 @@ Slice also uses it for the app itself. With `"loading": { "enabled": true }` in 
 - `delayMs`: work that ends before this does not show anything. 150–300 ms suits route changes and quick saves.
 - `minVisibleMs`: once shown, it stays at least this long, so it never blinks on and off.
 - A `start()` while a stop is waiting keeps it on screen, so back-to-back requests show one steady overlay.
+
+### The way out
+`stop()` does not cut to the page. The overlay **fades out where it is** — 220 ms, 320 ms for the welcome — so the content underneath comes in as a crossfade instead of appearing in one frame. That is what keeps a first load or a route change from reading as a jump. Only when the fade ends is the overlay removed and the container given back its styles.
+
+- The page is usable immediately: the fading overlay lets clicks through, and `active` turns `false` when the stop is applied, not when the fade ends.
+- A `start()` during the fade takes the same overlay back — no second entrance, no blink.
+- Nothing animates the page itself, so a page with its own entrance (a [Card](/docs/layout/card), a list) keeps it.
+- With **reduce motion** on, the fade stays (it only changes opacity); what goes away is the movement: the indicator does not lift, the welcome card does not step back.
 
 ### Variants
 - `variant`:
@@ -51,7 +59,7 @@ Slice also uses it for the app itself. With `"loading": { "enabled": true }` in 
 - `label`: a short text under the indicator, such as "Saving…" or "Signing you in…".
 - `backdrop`: `'dim'` (default), `'blur'`, `'solid'` (hides what is underneath) or `'none'`.
 - `size`: `'sm'`, `'md'` (default) or `'lg'`.
-- With *reduce motion* on in the system, the indicators pulse slowly instead of spinning, and the welcome screen does not animate.
+- With **reduce motion** on in the system, the indicators pulse slowly instead of spinning, entrances are off, and the fade out stays (it only changes opacity).
 
 ## The app's loading screen
 `sliceConfig.json` configures the loader Slice builds for the app. Props passed to a `Loading` win over it, so the same keys work in both places.
@@ -72,7 +80,7 @@ Slice also uses it for the app itself. With `"loading": { "enabled": true }` in 
 }
 ```
 
-`welcome` is shown **once**, on the first load of the page. It covers the page with the theme's background and shows the logo, the texts and the indicator. It stays at least `welcome.minVisibleMs` (1200 ms by default), and fades out when the first page is ready. After that, route changes show the normal indicator.
+`welcome` is shown **once**, on the first load of the page. It covers the page with the theme's background and shows the logo, the texts and the indicator. It stays at least `welcome.minVisibleMs` (1200 ms by default), and fades out when the first page is ready — the card steps back under the fade, so the app's first screen is already there as the brand goes. After that, route changes show the normal indicator.
 
 ### Changing the welcome screen
 The welcome screen is ordinary markup in `Loading.html`, styled in `Loading.css`. Your app has its own copy of the component, so you change the welcome screen the way you change any of your components:
