@@ -185,6 +185,10 @@
       "component": "MarkdownParserRulesDocumentation"
     },
     {
+      "filePath": "src/markdown/query-service.md",
+      "component": "QueryServiceDocumentation"
+    },
+    {
       "filePath": "src/markdown/radio-group.md",
       "component": "RadioGroupDocumentation"
     },

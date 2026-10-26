@@ -90,4 +90,31 @@ test.describe('Link', () => {
       await expect(c.locator('a img')).toHaveCount(0);
       await expect(c.locator('a')).toHaveText('<img src=x onerror=alert(1)>');
    });
+   test('a #section in the path: the router gets the page, then the section is scrolled to', async ({ mountHtml }) => {
+      const h = await mountHtml('<div style="height:3000px"></div><h2 id="far-section">Far</h2><div style="height:3000px"></div>');
+      const out = await h.page.evaluate(async () => {
+         const calls = [];
+         const original = slice.router.navigate;
+         slice.router.navigate = async (path) => { calls.push(path); };
+         const link = await slice.build('Link', { text: 'Far', path: '/docs/page#far-section' });
+         const here = await slice.build('Link', { text: 'Here', path: '#far-section' });
+         document.body.prepend(link, here);
+         try {
+            link.querySelector('a').click();
+            await new Promise((r) => setTimeout(r, 100));
+            const top = Math.round(document.getElementById('far-section').getBoundingClientRect().top);
+            window.scrollTo(0, 0);
+            here.querySelector('a').click();
+            await new Promise((r) => setTimeout(r, 100));
+            return { calls, top, hereTop: Math.round(document.getElementById('far-section').getBoundingClientRect().top) };
+         } finally {
+            slice.router.navigate = original;
+            slice.controller.destroyComponent(link);
+            slice.controller.destroyComponent(here);
+         }
+      });
+      expect(out.calls).toEqual(['/docs/page']);   // '#far-section' alone does not navigate
+      expect(out.top).toBeLessThan(50);
+      expect(out.hereTop).toBeLessThan(50);
+   });
 });

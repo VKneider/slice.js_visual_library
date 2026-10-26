@@ -18,8 +18,16 @@ export default class Link extends HTMLElement {
 
    async onClick(event) {
       event.preventDefault();
-      const path = this.querySelector('a')?.getAttribute('href');
-      if (path) slice.router.navigate(path);
+      const href = this.querySelector('a')?.getAttribute('href');
+      if (!href) return;
+      // /page#section: the router gets the page, then the section is scrolled
+      // to. #section alone stays on this page.
+      const [path, hash] = href.split('#');
+      if (path) await slice.router.navigate(path);
+      if (!hash) return;
+      requestAnimationFrame(() => {
+         document.getElementById(decodeURIComponent(hash))?.scrollIntoView({ block: 'start' });
+      });
    }
 
    /** The Icon child is a real component, so the framework will not cascade to it. */

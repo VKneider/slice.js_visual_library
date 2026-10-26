@@ -254,6 +254,7 @@ export default class DataList extends HTMLElement {
       this._feedDone = false;
       this._lastResult = null;
       this._abort = null;
+      this._loadWatch = null;   // unsubscribe from a QueryService load
       this._alert = null;          // the undo / error bar (an Alert)
       this._noticeExpire = null;   // what makes the current undo final
       /** @type {WeakMap<Element, any>} row element → item key */
@@ -332,6 +333,9 @@ export default class DataList extends HTMLElement {
       if (this._context) this._watchContext();
       this._toolbar = new Toolbar(this);
       await this._renderToolbar();
+      // A `load` from QueryService says when its data went stale (after a
+      // change somewhere else): ask again, keeping what is on screen.
+      if (typeof this._load?.subscribe === 'function') this._loadWatch = this._load.subscribe(() => this.refresh());
       this._query({ reason: 'init' });
       // After the first rows are on screen, so "is the end in view?" is
       // asked of the real list.
@@ -347,6 +351,8 @@ export default class DataList extends HTMLElement {
 
    beforeDestroy() {
       this._ready = false;
+      this._loadWatch?.();
+      this._loadWatch = null;
       this.closeDetail();
       this._resize?.disconnect();
       this._abort?.abort();

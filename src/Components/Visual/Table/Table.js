@@ -384,6 +384,7 @@ export default class Table extends HTMLElement {
     this._onError = null;
     this._contextWatch = null;
     this._abort = null;
+    this._loadWatch = null;   // unsubscribe from a QueryService load
     this._fetchError = null;
     this._fetchQueued = false;
     this._busyRows = new Set();
@@ -900,6 +901,9 @@ export default class Table extends HTMLElement {
     }
     await this._applyPagination(); // builds the pager if paginating + renders
     this._booting = false;
+    // A `load` from QueryService says when its data went stale (after a
+    // change somewhere else): ask again, keeping what is on screen.
+    if (typeof this._load?.subscribe === 'function') this._loadWatch = this._load.subscribe(() => this.reload());
     if (this._load) this._fetch();
   }
 
@@ -917,6 +921,8 @@ export default class Table extends HTMLElement {
     }
     if (this._scrollFrame) cancelAnimationFrame(this._scrollFrame);
     this._mounted = false;
+    this._loadWatch?.();
+    this._loadWatch = null;
     this._abort?.abort();
     this._closeCellEditor(false);
     for (const timer of this._timers) clearTimeout(timer);
