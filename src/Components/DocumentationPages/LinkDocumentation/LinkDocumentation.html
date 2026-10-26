@@ -12,6 +12,7 @@
 <h2 id="api-and-behavior">API and Behavior</h2>
 <ul><li><code>path</code> — the route to navigate to. Also the anchor's <code>href</code>. Defaults to <code>'#'</code>.</li><li><code>text</code> — the link label.</li><li><code>classes</code> — extra class names applied to the <code>&lt;a&gt;</code>.</li><li><code>icon</code> — an <code>Icon</code> name rendered before the label, <code>aria-hidden</code> (the label is the accessible name).</li><li><code>iconSize</code> / <code>iconColor</code> — passed through to the <code>Icon</code>.</li><li><code>sub</code> — a secondary line under the label (a count, a description).</li></ul>
 <p>The anchor is an inline flex row with a gap, <code>text-decoration: none</code> and <code>color: inherit</code>, so a link reads as part of its layout instead of fighting the UA's default link styling. Pass <code>classes</code> to add your own hover/underline treatment.</p>
+<p><code>path</code> may carry a <code>#section</code>: the router goes to the page and then the section is scrolled into view below the fixed navbar. <code>#section</code> alone stays on the current page. A hash that is not valid percent-encoding (<code>#100%</code>) is used as written instead of throwing.</p>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
 <div class="script-block" data-block-id="doc-block-1"></div>
 <div class="script-block" data-block-id="doc-block-2"></div>

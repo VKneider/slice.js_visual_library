@@ -64,7 +64,7 @@ const http = await slice.build('FetchManager', {
 | `timeout` | `number` | `10000` | Ms before a request fails with `kind: 'timeout'`. Per request: `{ timeout }`. |
 | `headers` | `object` | `{}` | Sent with every request. `setDefaultHeaders()` adds more later. |
 | `credentials` | `'omit' \| 'same-origin' \| 'include'` | — | As in `fetch`. |
-| `retry` | `number \| { attempts, delay, statuses }` | `0` | Retries for GET and HEAD: on a network error, or on 408, 429, 500, 502, 503, 504. Waits `delay` (300 ms), then twice that…, or what `Retry-After` says. |
+| `retry` | `number \| { attempts, delay, statuses }` | `0` | Retries for GET and HEAD: on a network error, or on 408, 429, 500, 502, 503, 504. Waits `delay` (300 ms), then twice that…, ±20 % so many clients do not retry in lockstep; or what `Retry-After` says, when the server sends it. |
 | `onRequest` | `(request) => void \| request` | — | Before each request. Change `request.headers`, `request.url`…, or return a new one. |
 | `onResponse` | `(response, request) => void` | — | After each good answer (logging, reading a header). |
 | `onResponseError` | `(error, request) => void` | — | Once for each failed request, after its retries. The error is still thrown to the caller. |
@@ -106,6 +106,11 @@ A request that does not get a good answer **throws** an `HttpError`. Nothing to 
 | `url`, `method`, `response` | What was asked, and the raw `Response`. |
 
 Cancelling with your own `signal` is **not** an `HttpError`: it rejects with an `AbortError`, as `fetch` does. Components that take `load` already ignore it.
+
+Two more cases worth knowing:
+
+- **An answer with no body** (`204`, `205`, a `HEAD`, or a `200` that sends nothing) resolves with `null`, not with an error.
+- **An answer that says it is JSON and is not** throws `kind: 'parse'`. A 200 with half a document, or an HTML error page a proxy sent with a 200, is a broken server; showing it as “no data” hides the bug.
 
 ```js
 try {

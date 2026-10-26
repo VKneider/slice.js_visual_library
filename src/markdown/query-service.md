@@ -65,7 +65,9 @@ const queries = await slice.build('QueryService', {
 ## A query
 `queries.query(key, fn, options?)` returns the query's **handle**. The same key always gives the same handle, from anywhere in the app.
 
-- **The key** is an array: `['orders']`, `['orders', 42]`, `['orders', 'list', { page: 2, status: 'open' }]`. Objects in it are compared by value, in any order. Keys are a hierarchy: `['orders']` is the prefix of all the others, and invalidating it reaches them all.
+- **The key** is an array: `['orders']`, `['orders', 42]`, `['orders', 'list', { page: 2, status: 'open' }]`. Keys are a hierarchy: `['orders']` is the prefix of all the others, and invalidating it reaches them all.
+
+  Two keys are the same query when they describe the same thing: objects compare by value in any order (`{ page: 2, status: 'open' }` = `{ status: 'open', page: 2 }`), arrays by order, `Date` by its instant, `Map` and `Set` by their entries, `Blob` by name, size and type. Anything else — a `URL`, an instance of your own class — compares by its type and its text, so **key by an id** when it has one: two different instances of the same class with the same `toString()` are the same query.
 - **The function** receives `{ signal, key }`. Pass `signal` on, so a cancelled query stops its request.
 - **Options:** `staleTime` and `retry` for this query, and `initialData` (shown at once, as `ready`).
 
@@ -90,7 +92,7 @@ Show it like this: `loading` → a skeleton; `ready` + `fetching` → the data, 
 | `invalidate()` | Stale now; asks again if someone watches it. |
 | `setData(dataOrUpdater)` | Changes its data without asking the server. |
 
-`watch` is the Slice version of a hook: it ties the subscription to the component, as `slice.context.watch` does, so there is nothing to clean up. Only the watchers of **that** query are called, with a new state object each time.
+`watch` is the Slice version of a hook: it ties the subscription to the component, as `slice.context.watch` does, so there is nothing to clean up. Only the watchers of **that** query are called, with a new state object each time. If a watcher publishes from its callback (a `setData`, say), the others still receive the newest state in the same pass — nobody is left showing the old one.
 
 ## The service
 | Method | Description |
@@ -104,6 +106,8 @@ Show it like this: `loading` → a skeleton; `ready` + `fetching` → the data, 
 | `getData(key)` / `setData(key, dataOrUpdater)` | Read or change a query's data directly. |
 | `remove(prefix?)` | Forgets data (a sign-out). Watchers see `idle`. |
 | `inspect()` | Every query with its state and number of watchers, for debugging. |
+
+`loader(prefix, fn, { base })`: the listener that an invalidation wakes sits at `prefix`. When `prefix` is a key function that does not put the params last (`(p) => [p, 'orders']`), pass `base: ['orders']` — otherwise the pages are cached as usual but an invalidation never reaches the list. With an array prefix, or a function that appends the params (`(p) => ['orders', 'list', p]`), it is inferred and you can leave it out.
 
 ## Examples
 

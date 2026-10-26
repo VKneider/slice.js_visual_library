@@ -35,6 +35,10 @@ The anchor is an inline flex row with a gap, `text-decoration: none` and `color:
 reads as part of its layout instead of fighting the UA's default link styling. Pass `classes` to add
 your own hover/underline treatment.
 
+`path` may carry a `#section`: the router goes to the page and then the section is scrolled into view
+below the fixed navbar. `#section` alone stays on the current page. A hash that is not valid
+percent-encoding (`#100%`) is used as written instead of throwing.
+
 ## Prop Scenarios
 
 :::script label="basic route-aware link" expected="clicking navigates through the router, href stays in the DOM"

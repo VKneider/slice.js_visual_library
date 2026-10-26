@@ -27,6 +27,8 @@
 <p>A request that does not get a good answer <strong>throws</strong> an <code>HttpError</code>. Nothing to check after <code>await</code>: if the line after it runs, the data is good.</p>
 <div class="table-block" data-block-id="doc-block-6"></div>
 <p>Cancelling with your own <code>signal</code> is <strong>not</strong> an <code>HttpError</code>: it rejects with an <code>AbortError</code>, as <code>fetch</code> does. Components that take <code>load</code> already ignore it.</p>
+<p>Two more cases worth knowing:</p>
+<ul><li><strong>An answer with no body</strong> (<code>204</code>, <code>205</code>, a <code>HEAD</code>, or a <code>200</code> that sends nothing) resolves with <code>null</code>, not with an error.</li><li><strong>An answer that says it is JSON and is not</strong> throws <code>kind: 'parse'</code>. A 200 with half a document, or an HTML error page a proxy sent with a 200, is a broken server; showing it as “no data” hides the bug.</li></ul>
 <div class="code-block" data-block-id="doc-block-7"></div>
 <h2 id="examples">Examples</h2>
 <h3 id="a-domain-service">A domain Service</h3>
