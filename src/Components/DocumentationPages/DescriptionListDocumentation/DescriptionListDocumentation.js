@@ -42,7 +42,19 @@ export default class DescriptionListDocumentation extends HTMLElement {
                if (value.endsWith('|')) {
                   value = value.slice(0, -1);
                }
-               return value.split('|').map((cell) => cell.trim());
+               // An escaped pipe (|) is a character inside the cell - a union
+               // type, a value in prose - not a column break. Splitting on it
+               // dropped every column after it (the description, usually).
+               // (No regex here: this code lives in a template string, so every
+               // backslash would have to be doubled, and a missed one shipped a
+               // broken regex that killed the whole page.)
+               const ESCAPED_PIPE = String.fromCharCode(92) + '|';
+               const MARK = String.fromCharCode(1);
+               return value
+                  .split(ESCAPED_PIPE)
+                  .join(MARK)
+                  .split('|')
+                  .map((cell) => cell.split(MARK).join('|').trim());
             };
 
             const formatCell = (text) => {
@@ -104,7 +116,19 @@ export default class DescriptionListDocumentation extends HTMLElement {
                if (value.endsWith('|')) {
                   value = value.slice(0, -1);
                }
-               return value.split('|').map((cell) => cell.trim());
+               // An escaped pipe (|) is a character inside the cell - a union
+               // type, a value in prose - not a column break. Splitting on it
+               // dropped every column after it (the description, usually).
+               // (No regex here: this code lives in a template string, so every
+               // backslash would have to be doubled, and a missed one shipped a
+               // broken regex that killed the whole page.)
+               const ESCAPED_PIPE = String.fromCharCode(92) + '|';
+               const MARK = String.fromCharCode(1);
+               return value
+                  .split(ESCAPED_PIPE)
+                  .join(MARK)
+                  .split('|')
+                  .map((cell) => cell.split(MARK).join('|').trim());
             };
 
             const formatCell = (text) => {
@@ -215,7 +239,7 @@ export default class DescriptionListDocumentation extends HTMLElement {
     const copyMenu = await slice.build('CopyMarkdownMenu', {
       markdownPath: this.markdownPath,
       markdownContent: this.markdownContent,
-      label: 'â'
+      label: 'Copy as markdown'
     });
 
     container.appendChild(copyMenu);

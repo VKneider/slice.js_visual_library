@@ -76,7 +76,7 @@ export default class ToolTipDocumentation extends HTMLElement {
     const copyMenu = await slice.build('CopyMarkdownMenu', {
       markdownPath: this.markdownPath,
       markdownContent: this.markdownContent,
-      label: 'â'
+      label: 'Copy as markdown'
     });
 
     container.appendChild(copyMenu);

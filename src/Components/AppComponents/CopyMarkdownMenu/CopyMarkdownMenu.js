@@ -10,9 +10,10 @@ export default class CopyMarkdownMenu extends HTMLElement {
       default: '',
       required: false
     },
+    // The accessible name of the icon-only button (it shows no text).
     label: {
       type: 'string',
-      default: '❐',
+      default: 'Copy as markdown',
       required: false
     }
   };
@@ -52,7 +53,7 @@ export default class CopyMarkdownMenu extends HTMLElement {
   set label(value) {
     this._label = value;
     if (this.$button) {
-      this.$button.value = value;
+      this.$button.ariaLabel = value || 'Copy as markdown';
     }
   }
 
@@ -61,8 +62,12 @@ export default class CopyMarkdownMenu extends HTMLElement {
   }
 
   async renderButton() {
+    // An Icon, not a text glyph: '❐' and '✓' are not in the bundled fonts, so
+    // they were drawn as tofu boxes.
     this.$button = await slice.build('Button', {
-      value: this.label || '❐',
+      value: '',
+      icon: 'clipboard',
+      ariaLabel: this.label || 'Copy as markdown',
       onClick: () => this.toggleMenu()
     });
 
@@ -104,10 +109,11 @@ export default class CopyMarkdownMenu extends HTMLElement {
 
   showCopySuccess() {
     if (!this.$button) return;
-    const original = this.$button.value || '❐';
-    this.$button.value = '✓';
+    this.$button.icon = 'check';
+    this.$button.ariaLabel = 'Copied';
     setTimeout(() => {
-      this.$button.value = original;
+      this.$button.icon = 'clipboard';
+      this.$button.ariaLabel = this.label || 'Copy as markdown';
     }, 1500);
   }
 }

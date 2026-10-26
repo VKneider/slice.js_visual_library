@@ -67,7 +67,6 @@ slice-copymarkdownmenu .copy-md-button-slot .slice_button {
   padding: 4px;
 }
 
-slice-copymarkdownmenu .copy-md-button-slot .slice_button_value {
-  font-size: 18px;
-  line-height: 1;
+slice-copymarkdownmenu .copy-md-button-slot .slice_button_value:empty {
+  display: none;
 }
