@@ -17,6 +17,13 @@ const meta = (html) => ({
   ogUrl: (html.match(/<meta\s+property="og:url"\s+content="([^"]*)"/i) || [])[1] ?? null,
   ogDescription:
     (html.match(/<meta\s+property="og:description"\s+content="([^"]*)"/i) || [])[1] ?? null,
+  ogImage: (html.match(/<meta\s+property="og:image"\s+content="([^"]*)"/i) || [])[1] ?? null,
+  ogImageWidth: (html.match(/<meta\s+property="og:image:width"\s+content="([^"]*)"/i) || [])[1] ?? null,
+  ogImageHeight:
+    (html.match(/<meta\s+property="og:image:height"\s+content="([^"]*)"/i) || [])[1] ?? null,
+  ogImageType: (html.match(/<meta\s+property="og:image:type"\s+content="([^"]*)"/i) || [])[1] ?? null,
+  ogImageAlt: (html.match(/<meta\s+property="og:image:alt"\s+content="([^"]*)"/i) || [])[1] ?? null,
+  twitterImage: (html.match(/<meta\s+name="twitter:image"\s+content="([^"]*)"/i) || [])[1] ?? null,
   robots: (html.match(/<meta\s+name="robots"\s+content="([^"]*)"/i) || [])[1] ?? null,
   jsonLd: [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(
     (match) => {
@@ -99,8 +106,68 @@ test.describe('Per-route metadata @server', () => {
   });
 });
 
-test.describe('Real 404 for routes that are not pages @server', () => {
-  test('an unknown docs path answers 404 with the app shell', async ({ page }) => {
+// The social card is the one piece of metadata that cannot be computed at
+// request time: it is a real image produced by `pnpm run og:generate`. These
+// assertions cover the seam — the HTML points at a hashed file that is actually
+// served, every indexable route has one, and noindex routes keep the banner.
+test.describe('Per-route social cards @server', () => {
+  test('a doc page points at its own hashed card', async ({ page }) => {
+    const tags = meta(await (await page.request.get('/docs/input/button')).text());
+
+    expect(tags.ogImage).toMatch(
+      /^https:\/\/components\.slicejs\.com\/og\/docs-input-button-[0-9a-f]{10}\.(png|jpg)$/
+    );
+    expect(tags.ogImageWidth).toBe('1200');
+    expect(tags.ogImageHeight).toBe('630');
+    expect(['image/png', 'image/jpeg']).toContain(tags.ogImageType);
+    expect(tags.ogImageAlt).toBe('Button | Slice.js');
+    expect(tags.twitterImage).toBe(tags.ogImage);
+  });
+
+  test('the card the page advertises is actually served', async ({ page }) => {
+    const tags = meta(await (await page.request.get('/docs/input/button')).text());
+    const response = await page.request.get(tags.ogImage.replace(ORIGIN, ''));
+
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-type']).toContain(tags.ogImageType);
+    // A budget guard, not pixel trivia: a card over ~120 KB is a regression.
+    expect((await response.body()).length).toBeLessThan(120 * 1024);
+  });
+
+  test('two components do not share a card', async ({ page }) => {
+    const button = meta(await (await page.request.get('/docs/input/button')).text());
+    const card = meta(await (await page.request.get('/docs/layout/card')).text());
+
+    expect(button.ogImage).toBeTruthy();
+    expect(card.ogImage).toBeTruthy();
+    expect(button.ogImage).not.toBe(card.ogImage);
+  });
+
+  test('every page in the sitemap advertises a card that exists', async ({ page }) => {
+    const sitemap = await (await page.request.get('/sitemap.xml')).text();
+    const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
+
+    for (const url of urls) {
+      const path = url.replace(ORIGIN, '') || '/';
+      const tags = meta(await (await page.request.get(path)).text());
+      expect(tags.ogImage, `${path} needs og:image`).toMatch(
+        /^https:\/\/components\.slicejs\.com\/(og|images)\//
+      );
+      const response = await page.request.get(tags.ogImage.replace(ORIGIN, ''));
+      expect(response.status(), `${path}: ${tags.ogImage} should be served`).toBe(200);
+    }
+  });
+
+  test('a noindex route keeps the generic banner', async ({ page }) => {
+    const tags = meta(await (await page.request.get('/__test')).text());
+
+    expect(tags.ogImage).toBe(`${ORIGIN}/images/og-image.png`);
+    expect(tags.ogImageType).toBe('image/png');
+    expect(tags.ogImageWidth).toBe('1893');
+  });
+});
+
+test.describe('Real 404 for routes that are not pages @server', () => {  test('an unknown docs path answers 404 with the app shell', async ({ page }) => {
     const response = await page.request.get('/docs/xyz/nope');
     expect(response.status()).toBe(404);
 

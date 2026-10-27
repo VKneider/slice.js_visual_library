@@ -81,6 +81,25 @@ already hit:
 `tests/seo.spec.js` (`@server`) covers all of it: per-route meta, real 404, `noindex`, every sitemap
 URL answering 200 with its own canonical, and every script the shell references resolving to JS.
 
+### 4c) Social cards (`og:image`) — generated, never per request
+Every indexable route ships its own 1200×630 card in `src/public/og/`, selected by `api/index.js`
+from `src/public/og/manifest.json` (a separate file because the parser owns `seo-manifest.json`
+and rewrites it on every `docs:generate`).
+
+- `pnpm run og:generate` (`scripts/og/generate.mjs`) boots the app server, screenshots the real
+  `:::script` demo (`.demobox-preview`) at DSF 2 on a pinned light-theme context, composes the card
+  in Chromium and writes `<slug>-<contentHash>.png`. Routes without a demo get a page slice.
+- **Never hand-edit `src/public/og/`.** It is output, exactly like the sitemap.
+- The hash is in the filename because platforms cache previews per URL; it is over the final bytes,
+  so an unchanged route produces no diff. A failed route leaves the manifest untouched.
+- `pnpm run og:check` (in `test:gate`) is the drift guard: every indexable route has an entry, the
+  file exists, is 1200×630, under the 120 KB budget, and no orphan PNG/JPEG is left behind.
+- Run `og:generate` after `docs:generate` and before `build` (the build copies `src/public/og` to
+  `dist/public/og`). Regenerate locally and commit: the card uses the site's font stack, which is
+  not bundled, so bytes are stable per machine — CI runs `og:check`, not `og:generate`.
+- Broken demos degrade to a page slice with a warning instead of blocking a deploy. `mini-inspector`
+  and `breadcrumbs` are in that state today (their scenarios throw); fix those pages, then rerun.
+
 ### 5) Live examples pattern
 - `:::script` blocks in markdown are rendered as:
   1. Code block (`CodeVisualizer`)

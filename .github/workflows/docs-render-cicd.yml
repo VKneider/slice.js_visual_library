@@ -38,11 +38,14 @@ jobs:
       - name: Generate agent catalog
         run: npm run docs:agent
 
+      - name: Check social cards
+        run: npm run og:check
+
       - name: Check generated changes (PR)
         if: github.event_name == 'pull_request'
         run: |
           if ! git diff --quiet; then
-            echo "Generated files are out of date. Run 'npm run docs:generate' and 'npm run docs:agent', then commit changes."
+            echo "Generated files are out of date. Run 'npm run docs:generate', 'npm run docs:agent' and 'npm run og:generate', then commit changes."
             git status --short
             exit 1
           fi

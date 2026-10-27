@@ -140,6 +140,62 @@ say "this is gone". No fake title, no fabricated canonical. Internal routes (`/_
   `express.static(dist)` in production. Before, the SPA fallback answered a `<script>` with
   `index.html`.
 
+### 3.5 Social cards (`og:image`) — `scripts/og/`
+
+Every indexable route gets its own 1200×630 card. This is the one asset that cannot be produced
+at request time (a crawler hitting every route would turn into CPU load), so it is generated ahead
+of time and committed.
+
+```
+pnpm run og:generate      # scripts/og/generate.mjs — needs a browser, ~40 s for 70 routes
+pnpm run og:check         # manifest ↔ routes ↔ files, no browser; runs in `test:gate`
+```
+
+**Pipeline, per route:** boot the app server on a free port (`PORT=<free>`, dev mode, so the
+source is what gets captured), open the real page with a pinned context — `deviceScaleFactor: 2`,
+`colorScheme: 'light'`, `reducedMotion: 'reduce'`, `locale: 'en-US'`, `timezoneId: 'UTC'`,
+`page.clock.setFixedTime()` — wait for `.documentation-content` and then for the `:::script`
+`DemoBox` to fill (`.demobox-preview`), screenshot **that element**, trim 1 CSS px off every edge,
+then compose the card in Chromium and write `src/public/og/<slug>-<hash>.png`.
+
+- **Demo vs page.** A route with a demo → `kind: demo`, PNG (flat UI + text stays crisp, 17–55 KB).
+  A route without one (`/`, `/docs`, guides, `/theme-creator`) → `kind: page`, a 1200×630 slice of
+  the page, JPEG q86 (gradients and photos are 3× heavier as PNG for no gain).
+  A demo that throws still produces a card: the generator warns and falls back to the page slice.
+- **Hash in the filename.** Platforms cache a preview *per URL* for weeks, so the image URL has to
+  change when the image changes. The hash is over the final bytes, which also means "nothing
+  changed" is "no diff" — running it on every deploy only writes what actually moved.
+- **Failure is not destructive.** If a route fails, the manifest and the images are left untouched
+  (`og:check` would otherwise report the route as *gone* instead of *broken*).
+- **Orphans are deleted**, so the folder cannot grow with every design tweak.
+- **Budget:** 120 KB per image (enforced by `og:check`). Today: 70 routes, **2.8 MB total**,
+  average 40 KB, max 86 KB.
+
+**Selection at runtime.** `api/index.js` reads `public/og/manifest.json` once at startup (separate
+from `seo-manifest.json` on purpose: the parser owns that one and rewrites it on every
+`docs:generate`). `injectMeta()` replaces `og:image`, `og:image:width/height/type/alt` and
+`twitter:image` with the absolute URL for the route; routes without an entry — everything
+`noindex`, the 404 shell — keep the generic `images/og-image.png` banner that ships in
+`App/index.html` (1893×932, declared with its real size so crawlers reserve the right box).
+
+**Traps, all of them measured:**
+
+- Element screenshots round outward at fractional coordinates: the capture picked up ~1 device px
+  of the `DemoBox` border above and on the left, which painted a purple hairline across the top of
+  every card. Fixed by trimming 1 CSS px in the page's own canvas (no image library needed).
+- Demos that print `new Date()` made the hash change on every run. `page.clock.setFixedTime()`
+  freezes `Date` without freezing timers, so async demos still build.
+- `/docs` changed pixels under 4 concurrent pages: the shell mounts in stages and a fixed delay
+  caught it mid-build. `waitForStableDom()` polls until the DOM size stops changing — it is used
+  inside demos too, because `query-service` waits 400 ms for a pretend server and a fixed 200 ms
+  delay captured a different loading frame on every run.
+- Two demos are genuinely broken (they throw in the console): `mini-inspector` asserts
+  "Expected 3 editable rows, got 0" and `breadcrumbs` passes a non-Node to `appendChild`. They get
+  the page-slice fallback and a warning; the fix belongs to those pages, not to this script.
+- The card is composed from the site's own font stack (`Source Sans 3` → system fallback), which
+  is not bundled. Images are therefore byte-stable on one machine, not across OSes — generate
+  locally and commit; let CI run `og:check`, not `og:generate`.
+
 ---
 
 ## 4. Routing: `routes.js` lists every page
@@ -206,6 +262,8 @@ These are measured, not guesses. They are the next levers for the docs page.
 ```bash
 pnpm run docs:generate     # pages, routes, sitemap, manifest
 pnpm run docs:lint-md      # markdown contract only
+pnpm run og:generate       # social cards (needs a browser; run after docs:generate)
+pnpm run og:check          # cards ↔ routes ↔ files, no browser
 pnpm test                  # node tests, includes parser/tests/seo.test.js and routes-sync.test.js
 pnpm exec playwright test tests/seo.spec.js --project=server-chrome   # @server, needs a server
 pnpm run build             # production bundle; run it before calling a change done
@@ -225,6 +283,10 @@ parser/tests/seo.test.js                            drift guard (sitemap ↔ rou
 parser/tests/routes-sync.test.js                    no /docs/${...} wildcards
 parser/tests/index.test.js                          title bar, table links
 api/index.js                                        prerender, injectMeta, 404, compression
+scripts/og/generate.mjs                             social cards: capture, compose, manifest, --check
+scripts/og/card.mjs                                 the 1200×630 card (HTML + CSS, pure)
+src/public/og/                                      generated: one card per indexable route
+src/public/og/manifest.json                         generated: route → { path, width, height, type }
 src/public/seo-manifest.json                        generated
 src/public/sitemap.xml                              generated
 src/App/index.html                                  home metadata (source of truth for /)

@@ -1,0 +1,571 @@
+{
+  "version": 1,
+  "generator": "1",
+  "origin": "https://components.slicejs.com",
+  "card": {
+    "width": 1200,
+    "height": 630
+  },
+  "images": {
+    "/": {
+      "path": "/og/home-b05069b481.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 46122,
+      "kind": "page"
+    },
+    "/docs": {
+      "path": "/og/docs-ca8e218972.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 57009,
+      "kind": "page"
+    },
+    "/docs/data/datalist": {
+      "path": "/og/docs-data-datalist-4815dd5592.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 43757,
+      "kind": "demo"
+    },
+    "/docs/data/description-list": {
+      "path": "/og/docs-data-description-list-348432b6b7.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 38466,
+      "kind": "demo"
+    },
+    "/docs/data/pagination": {
+      "path": "/og/docs-data-pagination-5c3849e537.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 42161,
+      "kind": "demo"
+    },
+    "/docs/data/table": {
+      "path": "/og/docs-data-table-7612771b70.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 50113,
+      "kind": "demo"
+    },
+    "/docs/developer/mini-inspector": {
+      "path": "/og/docs-developer-mini-inspector-8230c69de5.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 80878,
+      "kind": "page"
+    },
+    "/docs/display/avatar": {
+      "path": "/og/docs-display-avatar-7ffbc81b99.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 46810,
+      "kind": "demo"
+    },
+    "/docs/display/avatar-group": {
+      "path": "/og/docs-display-avatar-group-a2c5a58418.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 43506,
+      "kind": "demo"
+    },
+    "/docs/display/badge": {
+      "path": "/og/docs-display-badge-228f9a53ca.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 38789,
+      "kind": "demo"
+    },
+    "/docs/display/chip": {
+      "path": "/og/docs-display-chip-6dcc6808c9.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 24488,
+      "kind": "demo"
+    },
+    "/docs/display/code-visualizer": {
+      "path": "/og/docs-display-code-visualizer-350064d341.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 38186,
+      "kind": "demo"
+    },
+    "/docs/display/confirm-action-modal": {
+      "path": "/og/docs-display-confirm-action-modal-82f267b18d.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 33721,
+      "kind": "demo"
+    },
+    "/docs/display/empty-state": {
+      "path": "/og/docs-display-empty-state-95f558aa38.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 35558,
+      "kind": "demo"
+    },
+    "/docs/display/icon": {
+      "path": "/og/docs-display-icon-6107459cca.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 24797,
+      "kind": "demo"
+    },
+    "/docs/display/tooltip": {
+      "path": "/og/docs-display-tooltip-a132321fe8.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 20367,
+      "kind": "demo"
+    },
+    "/docs/feedback/alert": {
+      "path": "/og/docs-feedback-alert-f8c19f0af5.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 25106,
+      "kind": "demo"
+    },
+    "/docs/feedback/loading": {
+      "path": "/og/docs-feedback-loading-31036276ee.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 30447,
+      "kind": "demo"
+    },
+    "/docs/feedback/modal": {
+      "path": "/og/docs-feedback-modal-fddeec83a1.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 44956,
+      "kind": "demo"
+    },
+    "/docs/feedback/toast": {
+      "path": "/og/docs-feedback-toast-85dd4aebe6.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 44568,
+      "kind": "demo"
+    },
+    "/docs/guides/data-and-loading": {
+      "path": "/og/docs-guides-data-and-loading-9c89af9584.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 30429,
+      "kind": "demo"
+    },
+    "/docs/guides/data-components": {
+      "path": "/og/docs-guides-data-components-3be02de956.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 88008,
+      "kind": "page"
+    },
+    "/docs/input/button": {
+      "path": "/og/docs-input-button-ee62ff75d5.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 22295,
+      "kind": "demo"
+    },
+    "/docs/input/checkbox": {
+      "path": "/og/docs-input-checkbox-7305479ef9.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 25009,
+      "kind": "demo"
+    },
+    "/docs/input/color-picker": {
+      "path": "/og/docs-input-color-picker-c3465d7bea.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 25794,
+      "kind": "demo"
+    },
+    "/docs/input/datepicker": {
+      "path": "/og/docs-input-datepicker-768bd68ea4.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 34647,
+      "kind": "demo"
+    },
+    "/docs/input/file-upload": {
+      "path": "/og/docs-input-file-upload-9136814ccc.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 32672,
+      "kind": "demo"
+    },
+    "/docs/input/form": {
+      "path": "/og/docs-input-form-964bb1b817.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 17114,
+      "kind": "demo"
+    },
+    "/docs/input/input": {
+      "path": "/og/docs-input-input-c4444e47ef.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 27935,
+      "kind": "demo"
+    },
+    "/docs/input/radio-group": {
+      "path": "/og/docs-input-radio-group-d43aa37b42.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 27290,
+      "kind": "demo"
+    },
+    "/docs/input/select": {
+      "path": "/og/docs-input-select-395d8e1318.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 22043,
+      "kind": "demo"
+    },
+    "/docs/input/slider": {
+      "path": "/og/docs-input-slider-77a8f1782b.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 22718,
+      "kind": "demo"
+    },
+    "/docs/input/switch": {
+      "path": "/og/docs-input-switch-325b54bf58.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 23323,
+      "kind": "demo"
+    },
+    "/docs/input/textarea": {
+      "path": "/og/docs-input-textarea-0615591196.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 23955,
+      "kind": "demo"
+    },
+    "/docs/input/theme-selector": {
+      "path": "/og/docs-input-theme-selector-b6e5e58c08.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 79022,
+      "kind": "page"
+    },
+    "/docs/input/theme-switcher": {
+      "path": "/og/docs-input-theme-switcher-a03ba523c0.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 23726,
+      "kind": "demo"
+    },
+    "/docs/internal/css-conventions": {
+      "path": "/og/docs-internal-css-conventions-710a6bc928.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 27315,
+      "kind": "demo"
+    },
+    "/docs/internal/markdown-parser-rules": {
+      "path": "/og/docs-internal-markdown-parser-rules-8d85c9efd8.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 68402,
+      "kind": "page"
+    },
+    "/docs/layout/card": {
+      "path": "/og/docs-layout-card-049c9e77e1.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 50776,
+      "kind": "demo"
+    },
+    "/docs/layout/details": {
+      "path": "/og/docs-layout-details-0eb51f6fff.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 41217,
+      "kind": "demo"
+    },
+    "/docs/layout/element-carrousel": {
+      "path": "/og/docs-layout-element-carrousel-0eac593322.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 79678,
+      "kind": "demo"
+    },
+    "/docs/layout/grid": {
+      "path": "/og/docs-layout-grid-3ffdbeaf3c.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 52687,
+      "kind": "demo"
+    },
+    "/docs/layout/layout": {
+      "path": "/og/docs-layout-layout-7bef8028db.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 19291,
+      "kind": "demo"
+    },
+    "/docs/navigation/bottom-nav": {
+      "path": "/og/docs-navigation-bottom-nav-c11181c19d.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 68824,
+      "kind": "demo"
+    },
+    "/docs/navigation/breadcrumbs": {
+      "path": "/og/docs-navigation-breadcrumbs-0c64520e93.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 72107,
+      "kind": "page"
+    },
+    "/docs/navigation/dropdown": {
+      "path": "/og/docs-navigation-dropdown-c1168d84e3.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 24424,
+      "kind": "demo"
+    },
+    "/docs/navigation/link": {
+      "path": "/og/docs-navigation-link-8936d11e1a.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 19545,
+      "kind": "demo"
+    },
+    "/docs/navigation/navbar": {
+      "path": "/og/docs-navigation-navbar-1bad5a73ea.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 57336,
+      "kind": "demo"
+    },
+    "/docs/navigation/not-found": {
+      "path": "/og/docs-navigation-not-found-436100fe1a.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 25919,
+      "kind": "demo"
+    },
+    "/docs/navigation/side-menu": {
+      "path": "/og/docs-navigation-side-menu-fc4c431ca8.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 42126,
+      "kind": "demo"
+    },
+    "/docs/navigation/tabs": {
+      "path": "/og/docs-navigation-tabs-8c380b8dfc.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 34791,
+      "kind": "demo"
+    },
+    "/docs/navigation/treeview": {
+      "path": "/og/docs-navigation-treeview-faf3b5fa41.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 38294,
+      "kind": "demo"
+    },
+    "/docs/routing/multi-route": {
+      "path": "/og/docs-routing-multi-route-f07825eb53.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 23753,
+      "kind": "demo"
+    },
+    "/docs/routing/route": {
+      "path": "/og/docs-routing-route-9b87d66803.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 22617,
+      "kind": "demo"
+    },
+    "/docs/services/dom-service": {
+      "path": "/og/docs-services-dom-service-e637251e34.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 29893,
+      "kind": "demo"
+    },
+    "/docs/services/drag-drop": {
+      "path": "/og/docs-services-drag-drop-39667e90d8.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 26005,
+      "kind": "demo"
+    },
+    "/docs/services/fetch-manager": {
+      "path": "/og/docs-services-fetch-manager-34d2488637.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 80433,
+      "kind": "page"
+    },
+    "/docs/services/file-download-service": {
+      "path": "/og/docs-services-file-download-service-bef9b12409.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 30833,
+      "kind": "demo"
+    },
+    "/docs/services/html-service": {
+      "path": "/og/docs-services-html-service-02d73cd899.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 55566,
+      "kind": "demo"
+    },
+    "/docs/services/indexed-db-manager": {
+      "path": "/og/docs-services-indexed-db-manager-35d873e9f8.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 49318,
+      "kind": "demo"
+    },
+    "/docs/services/infinite-scroll": {
+      "path": "/og/docs-services-infinite-scroll-bc0447ac76.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 40698,
+      "kind": "demo"
+    },
+    "/docs/services/local-storage-manager": {
+      "path": "/og/docs-services-local-storage-manager-18c709464b.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 73809,
+      "kind": "page"
+    },
+    "/docs/services/query-service": {
+      "path": "/og/docs-services-query-service-099788f401.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 48184,
+      "kind": "demo"
+    },
+    "/docs/services/realtime-service": {
+      "path": "/og/docs-services-realtime-service-703e72f21c.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 66740,
+      "kind": "page"
+    },
+    "/docs/services/shortcut-service": {
+      "path": "/og/docs-services-shortcut-service-b44e4fa29e.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 55181,
+      "kind": "demo"
+    },
+    "/docs/services/storage-service": {
+      "path": "/og/docs-services-storage-service-0e97b65dbd.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 37297,
+      "kind": "demo"
+    },
+    "/docs/services/toast-provider": {
+      "path": "/og/docs-services-toast-provider-4fd487af21.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 24793,
+      "kind": "demo"
+    },
+    "/docs/services/tooltip-provider": {
+      "path": "/og/docs-services-tooltip-provider-fa6b6c77e5.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 25879,
+      "kind": "demo"
+    },
+    "/docs/services/unsaved-changes-guard": {
+      "path": "/og/docs-services-unsaved-changes-guard-405da007f8.png",
+      "width": 1200,
+      "height": 630,
+      "type": "image/png",
+      "bytes": 41606,
+      "kind": "demo"
+    },
+    "/theme-creator": {
+      "path": "/og/theme-creator-b1ce5f1738.jpg",
+      "width": 1200,
+      "height": 630,
+      "type": "image/jpeg",
+      "bytes": 64387,
+      "kind": "page"
+    }
+  }
+}
