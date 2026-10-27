@@ -1,4 +1,3 @@
-import docsIndex from '../ComponentsPage/docsIndex.js';
 import ThemeOverride from '../ThemeCreator/ThemeOverride.js';
 
 export default class App extends HTMLElement {
@@ -6,44 +5,13 @@ export default class App extends HTMLElement {
       super();
       slice.attachTemplate(this);
       this._mainRouter = null;
-      this._titleGuardRegistered = false;
-      this._titleByRoute = new Map(docsIndex.map((doc) => [doc.route, doc.title]));
-      this._titleByRoute.set('/', 'Slice.js Components');
-      this._titleByRoute.set('/docs', 'Components Library');
-      // The routes outside the docs area. The server already sends these titles
-      // (src/public/seo-manifest.json is the source of truth); this map only
-      // keeps the client from downgrading them to "Slice.js" after a navigation.
-      this._titleByRoute.set('/theme-creator', 'Theme Creator');
-      this._titleByRoute.set('/playground', 'Playground');
-      this._titleByRoute.set('/game', 'Game');
-      this._titleByRoute.set('/__test', 'Test Harness');
-      this._titleByRoute.set('/404', 'Not Found');
-   }
-
-   _resolveDocumentTitle(pathname) {
-      const exactTitle = this._titleByRoute.get(pathname);
-      if (exactTitle) {
-         return `${exactTitle} | Slice.js`;
-      }
-
-      if (pathname.startsWith('/docs/')) {
-         return 'Components Library | Slice.js';
-      }
-
-      return 'Slice.js';
+      // Titles are not handled here: each route carries `metadata.title` in
+      // routes.js and the Router applies it on every navigation (including the
+      // first). That map used to live in this component, which meant a route
+      // added to routes.js but forgotten here silently degraded to "Slice.js".
    }
 
    async init() {
-      if (!this._titleGuardRegistered && typeof slice.router?.beforeEach === 'function') {
-         this._titleGuardRegistered = true;
-         slice.router.beforeEach((to, from, next) => {
-            document.title = this._resolveDocumentTitle(to?.path || '/');
-            return next();
-         });
-      }
-
-      document.title = this._resolveDocumentTitle(window.location.pathname || '/');
-
       // Re-apply a custom theme saved by a previous visit to the Theme Creator.
       // It has to happen HERE rather than only inside ThemeCreator: this is the
       // shell for `/` and every `/docs*` route, so without it a saved theme

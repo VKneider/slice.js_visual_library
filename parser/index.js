@@ -431,18 +431,24 @@ const run = () => {
     const flatRoutesContent = generateFlatDocRoutesFile(indexEntries);
     writeFileIfChanged(FLAT_DOC_ROUTES_PATH, flatRoutesContent);
 
-    const mainRoutesContent = generateMainRoutesFile(indexEntries);
-    writeFileIfChanged(MAIN_ROUTES_PATH, mainRoutesContent);
-
-    const generatedComponentNames = generated.map((entry) => entry.component);
-    syncComponentsRegistry(generatedComponentNames);
-
     // Crawler-facing output, derived from the same entries as the pages: the
     // sitemap and the per-route manifest the server injects into the shell.
+    // Written BEFORE routes.js because each route line carries the same title
+    // the server prerenders, so the client and the server cannot disagree.
     const seo = writeSeoArtifacts({ root: ROOT, publicDir: PUBLIC_DIR, entries: seoEntries });
     if (seo.changed.length > 0) {
       console.log(`SEO artifacts updated: ${seo.changed.join(', ')}`);
     }
+
+    const mainRoutesContent = generateMainRoutesFile(indexEntries, {
+      titles: Object.fromEntries(
+        Object.entries(seo.manifest.routes).map(([route, meta]) => [route, meta.title])
+      )
+    });
+    writeFileIfChanged(MAIN_ROUTES_PATH, mainRoutesContent);
+
+    const generatedComponentNames = generated.map((entry) => entry.component);
+    syncComponentsRegistry(generatedComponentNames);
   }
 
   const docs = readAllGeneratedDocs(OUTPUT_DIR);

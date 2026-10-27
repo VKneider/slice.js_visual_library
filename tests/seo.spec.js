@@ -226,6 +226,24 @@ test.describe('The SPA is untouched by the metadata injection @server', () => {
     expect(errors).toEqual([]);
   });
 
+  test('the client keeps the title in sync on navigation, from routes.js metadata', async ({ page }) => {
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    await page.goto('/docs/input/button');
+    await expect(page).toHaveTitle('Button | Slice.js');
+    await page.waitForFunction(
+      () => Boolean(window.slice?.router && typeof window.slice.router.navigate === 'function')
+    );
+
+    await page.evaluate(() => window.slice.router.navigate('/docs/layout/card'));
+    await expect(page).toHaveTitle('Card | Slice.js');
+
+    // The description is server-side on purpose: crawlers do not run this code,
+    // so rewriting canonical/description here would only desync the SPA.
+    expect(errors).toEqual([]);
+  });
+
   test('generated runtime files are served as modules, not as the shell', async ({ page }) => {
     // These live at the deploy root and used to be answered by the SPA fallback
     // with index.html, so the browser loaded a page where it expected a module.

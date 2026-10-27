@@ -662,7 +662,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": null
+      "lastmod": "2026-10-26"
     },
     "/docs/services/shortcut-service": {
       "title": "ShortcutService | Slice.js",

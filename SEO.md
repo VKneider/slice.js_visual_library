@@ -246,7 +246,7 @@ started answering 404 when you arrived from a docs page. It is the right tool fo
 | Internal links inside table cells | `parser/lib/markdownParser.js` | `tokenizeInternalLinks()` is shared by the text and by table rows, so `[Avatar](/docs/display/avatar)` inside a table becomes a real `Link` instead of literal markdown. |
 | Escaped pipes in table cells | `parser/lib/generator.js` | A cell with `number \| { attempts, … }` was split on that pipe and every later column was dropped (the fetch-manager props table lost its `retry` description; three other pages too). The splitter treats `\|` as a character inside the cell. |
 | `Link` with `#section` | `src/Components/Visual/Link/Link.js` | The router gets the page, then the section is scrolled into view; a malformed hash (`#100%`) is used as written instead of throwing inside the frame callback. |
-| Client titles | `src/Components/AppComponents/App/App.js` | The client's title map only knew the docs routes, so navigating to `/theme-creator`, `/playground` or `/game` replaced the server's title with a bare `Slice.js`. They are in the map now; the manifest stays the source of truth. |
+| Client titles | `parser/lib/routesSync.js` + the Router | Titles used to live in an `App._titleByRoute` map plus a `beforeEach` guard, so a route added to `routes.js` but missing from the map degraded to `Slice.js` after navigation. The generated `routes.js` now carries `metadata.title` — taken from the same manifest the server prerenders — and the Router applies it on every navigation. The map and the guard are gone. |
 
 ---
 
@@ -304,7 +304,7 @@ src/public/og/manifest.json                         generated: route → { path,
 src/public/seo-manifest.json                        generated
 src/public/sitemap.xml                              generated
 src/App/index.html                                  home metadata (source of truth for /)
-src/Components/AppComponents/App/App.js             client title map
+src/routes.js (generated)                            metadata.title per route, applied by the Router
 src/Components/AppComponents/ComponentsPage/…       docs shell (no MultiRoute fallback)
 src/Components/Visual/MultiRoute/MultiRoute.js      opt-in fallback + scroll behaviour
 src/Components/Visual/Link/Link.js                  #section handling
@@ -322,8 +322,10 @@ tests/docs-tables.spec.js                           @server: table columns survi
   router with an invalid regular expression. When in doubt there, avoid regex.
 - The compression middleware skips a response that already has `Content-Encoding`. Precompressed
   buffers are safe; setting the header on an uncompressed body would corrupt it.
-- `Slice's` client `document.title` overwrites whatever the server sent. Any new top-level route
-  needs an entry in `App._titleByRoute`, or its title degrades to `Slice.js` after navigation.
+- `Slice's` client `document.title` is applied by the Router from each route's `metadata.title`, which
+  `routesSync.js` copies from the same manifest the server prerenders. A route **without** metadata
+  keeps the server's title; a route whose metadata disagrees with the manifest is a `slice doctor` /
+  `seo check` warning, not a silent downgrade.
 - `parser/index.js` runs on every `docs:generate` and can reorder `src/Components/components.js` and
   rewrite some generated files with different line endings. Check `git diff` before committing and
   drop pure-formatting churn.
