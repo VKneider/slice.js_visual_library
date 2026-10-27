@@ -72,7 +72,7 @@ notice.show({
 :::script label="After saving a form" expected="a short profile form; Save shows a soft success alert above it for 4 seconds ('Profile saved'); with an empty name it shows a danger alert with the problem instead, which stays until it is closed"
 const status = await slice.build('Alert', { open: false, dismissible: true });
 const name = await slice.build('Input', { label: 'Name', value: 'Ana López' });
-const email = await slice.build('Input', { label: 'Email', value: 'ana@acme.com', type: 'email' });
+const email = await slice.build('Input', { label: 'Email', value: 'ana@example.com', type: 'email' });
 const save = await slice.build('Button', {
   value: 'Save',
   variant: 'filled',

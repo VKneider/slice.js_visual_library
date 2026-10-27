@@ -28,21 +28,21 @@ tags: [avatar, group, people, members, assignees]
 - `items`: one object per person, with [Avatar](/docs/display/avatar)'s props (`{ name, src, status, … }`).
 - `max` (4 by default) is how many places it uses. With more people, the last place becomes "+N". With exactly `max` people, every face shows: never "+1".
 - Each face shows its name in a tooltip on hover, and "+N" lists the names it stands for. They come from the app's [ToolTipProvider](/docs/services/tooltip-provider). `tooltips: false` turns them off.
-- Screen readers hear the group once: "6 people: Ana López, Luis Galué, María Ruiz and 3 more". The faces are not separate tab stops.
+- Screen readers hear the group once: "6 people: Ana López, Lucas Molina, María Ruiz and 3 more". The faces are not separate tab stops.
 - `onMoreClick({ items, group, event })` makes "+N" a button that gets the people it stands for, for example to open the full list.
 - `size` and `shape` apply to every face. `texts` translates the group's name.
 
 ## Live Preview
 :::component name="AvatarGroup"
 {
-  "items": [{ "name": "Ana López" }, { "name": "Luis Galué" }, { "name": "María Ruiz" }, { "name": "José Pérez" }, { "name": "Sofía Rey" }],
+  "items": [{ "name": "Ana López" }, { "name": "Lucas Molina" }, { "name": "María Ruiz" }, { "name": "José Pérez" }, { "name": "Sofía Rey" }],
   "max": 4
 }
 :::
 
 ## Examples
 :::script label="Project cards with members" expected="three project Cards, each with a group of member avatars in its footer; +N opens a Modal with everyone on that project"
-const people = ['Ana López', 'Luis Galué', 'María Ruiz', 'José Pérez', 'Sofía Rey', 'Diego Fuentes', 'Carla Soto'].map((name, i) => ({ name, status: i % 3 === 0 ? 'online' : '' }));
+const people = ['Ana López', 'Lucas Molina', 'María Ruiz', 'José Pérez', 'Sofía Rey', 'Diego Fuentes', 'Carla Soto'].map((name, i) => ({ name, status: i % 3 === 0 ? 'online' : '' }));
 const projects = [
   { name: 'Website redesign', team: people.slice(0, 6) },
   { name: 'Mobile app', team: people.slice(2, 5) },

@@ -213,12 +213,12 @@ load: async ({ page, pageSize, search, filters, sort, view, signal }) => {
 ## Examples
 :::script label="Team directory" expected="a searchable list of people: avatar with status, name, email, city and role with icons, and an Active/Away badge; a City filter and a sort menu; clicking a person opens their card in a Modal"
 const people = [
-  { id: 1, name: 'José Pérez', email: 'jose@acme.com', city: 'Maracaibo', role: 'Engineering', active: true },
-  { id: 2, name: 'Ana López', email: 'ana@acme.com', city: 'Caracas', role: 'Design', active: true },
-  { id: 3, name: 'Luis Galué', email: 'luis@acme.com', city: 'Valencia', role: 'Security', active: false },
-  { id: 4, name: 'María Ruiz', email: 'maria@acme.com', city: 'Caracas', role: 'Sales', active: true },
-  { id: 5, name: 'Andrés Bello', email: 'andres@acme.com', city: 'Mérida', role: 'Support', active: false },
-  { id: 6, name: 'Sofía Rey', email: 'sofia@acme.com', city: 'Maracaibo', role: 'Engineering', active: true }
+  { id: 1, name: 'José Pérez', email: 'jose@example.com', city: 'Maracaibo', role: 'Engineering', active: true },
+  { id: 2, name: 'Ana López', email: 'ana@example.com', city: 'Caracas', role: 'Design', active: true },
+  { id: 3, name: 'Lucas Molina', email: 'lucas@example.com', city: 'Valencia', role: 'Security', active: false },
+  { id: 4, name: 'María Ruiz', email: 'maria@example.com', city: 'Caracas', role: 'Sales', active: true },
+  { id: 5, name: 'Andrés Bello', email: 'andres@example.com', city: 'Mérida', role: 'Support', active: false },
+  { id: 6, name: 'Sofía Rey', email: 'sofia@example.com', city: 'Maracaibo', role: 'Engineering', active: true }
 ];
 
 const team = await slice.build('DataList', {
@@ -251,7 +251,7 @@ const now = Date.now();
 const messages = [
   { id: 1, from: 'Ana López', subject: 'Release notes for 3.4', preview: 'I wrote the draft, can you check the API part?', at: now - 0.5 * hour, unread: true },
   { id: 2, from: 'GitHub', subject: '[slice.js] New issue #412', preview: 'Router: params with dots are not parsed', at: now - 3 * hour, unread: true },
-  { id: 3, from: 'Luis Galué', subject: 'VM access', preview: 'Your key is on the server now.', at: now - 26 * hour, unread: false },
+  { id: 3, from: 'Lucas Molina', subject: 'Handbook update', preview: 'The new onboarding page is live.', at: now - 26 * hour, unread: false },
   { id: 4, from: 'María Ruiz', subject: 'Demo on Friday', preview: 'The client wants to see the dashboard.', at: now - 30 * hour, unread: true },
   { id: 5, from: 'Billing', subject: 'Invoice October', preview: 'Your invoice is ready.', at: now - 4 * 24 * hour, unread: false }
 ];
@@ -366,7 +366,7 @@ return box;
 const statuses = ['Paid', 'Shipped', 'Refunded', 'Pending'];
 const db = Array.from({ length: 64 }, (_, i) => ({
   id: 5000 + i,
-  customer: ['Ana López', 'José Pérez', 'María Ruiz', 'Luis Galué', 'Sofía Rey'][i % 5],
+  customer: ['Ana López', 'José Pérez', 'María Ruiz', 'Lucas Molina', 'Sofía Rey'][i % 5],
   total: Math.round((20 + ((i * 37) % 480)) * 100) / 100,
   status: statuses[i % 4],
   date: new Date(Date.now() - i * 7 * 3600 * 1000).toISOString()

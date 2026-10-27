@@ -72,7 +72,7 @@ const STATUS = {
 };
 const orders = [
   { id: 1042, customer: 'Ana López', total: '$129.00', status: 'paid' },
-  { id: 1041, customer: 'Luis Galué', total: '$54.50', status: 'pending' },
+  { id: 1041, customer: 'Lucas Molina', total: '$54.50', status: 'pending' },
   { id: 1040, customer: 'María Ruiz', total: '$310.00', status: 'shipped' },
   { id: 1039, customer: 'Andrés Bello', total: '$18.90', status: 'refunded' },
   { id: 1038, customer: 'Sofía Rey', total: '$740.00', status: 'overdue' }

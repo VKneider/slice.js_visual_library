@@ -7,7 +7,7 @@ import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
 const PEOPLE = [
    { id: 1, name: 'Ana López', city: 'Caracas', role: 'admin', age: 34, active: true },
-   { id: 2, name: 'Luis Galué', city: 'Maracaibo', role: 'editor', age: 41, active: false },
+   { id: 2, name: 'Lucas Molina', city: 'Maracaibo', role: 'editor', age: 41, active: false },
    { id: 3, name: 'María Ruiz', city: 'Valencia', role: 'viewer', age: 29, active: true },
 ];
 
@@ -250,7 +250,7 @@ test.describe('Table — editing cells', () => {
       await expect.poll(() => table(h.page).evaluate((t) => t.getRow(2).city)).toBe(null);
       await cell(h.page, 2, 0).click();
       await h.page.keyboard.press('Delete');
-      expect(await table(h.page).evaluate((t) => t.getRow(2).name)).toBe('Luis Galué');
+      expect(await table(h.page).evaluate((t) => t.getRow(2).name)).toBe('Lucas Molina');
    });
 
    test('a select saves the moment a choice is made', async ({ mountHtml }) => {

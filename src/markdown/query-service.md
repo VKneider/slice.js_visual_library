@@ -119,7 +119,7 @@ A list of orders, a counter of open ones and a line that says when the data arri
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const orders = [
   { id: 1041, customer: 'Ana López', total: 120, paid: false },
-  { id: 1042, customer: 'Luis Galué', total: 75.5, paid: true },
+  { id: 1042, customer: 'Lucas Molina', total: 75.5, paid: true },
   { id: 1043, customer: 'María Ruiz', total: 310, paid: false },
   { id: 1044, customer: 'Sofía Rey', total: 48, paid: false },
   { id: 1045, customer: 'Pedro Díaz', total: 199, paid: true },
@@ -184,7 +184,7 @@ A detail usually opens after the pointer has been on its link for a few hundred 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const people = {
   7: { name: 'Ana López', email: 'ana@example.com', city: 'Maracaibo', since: '2021-03-14' },
-  8: { name: 'Luis Galué', email: 'luis@example.com', city: 'Caracas', since: '2022-11-02' },
+  8: { name: 'Lucas Molina', email: 'lucas@example.com', city: 'Caracas', since: '2022-11-02' },
   9: { name: 'María Ruiz', email: 'maria@example.com', city: 'Valencia', since: '2020-06-21' },
 };
 const fetchCustomer = async (id, signal) => { await wait(700); signal?.throwIfAborted(); return { id, ...people[id] }; };

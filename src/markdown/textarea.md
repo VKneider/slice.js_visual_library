@@ -157,7 +157,7 @@ return await slice.build('Button', { value: 'Give feedback', icon: 'bell', varia
 :::script label="Generated output, read-only" expected="editing the fields rewrites the JSON below; the read-only box can be selected and copied but not edited"
 const toasts = await slice.build('ToastProvider', { singleton: true });
 const name = await slice.build('Input', { label: 'Project name', value: 'website-redesign' });
-const owner = await slice.build('Input', { label: 'Owner', type: 'email', value: 'ana@acme.dev' });
+const owner = await slice.build('Input', { label: 'Owner', type: 'email', value: 'ana@example.com' });
 const isPublic = await slice.build('Switch', { label: 'Public', checked: false, labelPlacement: 'left' });
 const output = await slice.build('Textarea', {
   label: 'project.json',

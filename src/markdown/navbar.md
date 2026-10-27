@@ -74,7 +74,7 @@ At `breakpoint` (768px by default) and below, the links and actions move behind 
 :::component name="Navbar"
 {
   "variant": "surface",
-  "brand": { "text": "Acme", "path": "/" },
+  "brand": { "text": "Northwind", "path": "/" },
   "items": [
     { "text": "Home", "path": "/" },
     { "text": "Docs", "path": "/docs" },

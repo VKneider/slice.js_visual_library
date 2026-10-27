@@ -49,7 +49,7 @@ async init() {
 Building components is fast and stays awaited: `await slice.build()` is how a component comes to exist. What should not be awaited is **the network**.
 
 :::script label="Awaited or not: see the difference" expected="two buttons; 'Wait for the data' shows nothing for about 1.5 seconds and then the whole record; 'Data after the structure' shows the record's labels with skeleton bars at once and fills them 1.5 seconds later; under each run, how long the first paint and the data took"
-const fakeServer = () => new Promise((r) => setTimeout(() => r({ name: 'Ana López', email: 'ana@acme.com', plan: 'Pro', since: '2023-03-14' }), 1500));
+const fakeServer = () => new Promise((r) => setTimeout(() => r({ name: 'Ana López', email: 'ana@example.com', plan: 'Pro', since: '2023-03-14' }), 1500));
 const fields = ['name', { key: 'email', type: 'email' }, 'plan', { key: 'since', label: 'Customer since', type: 'date' }];
 
 const stage = document.createElement('div');
@@ -167,7 +167,7 @@ const fetchTeam = async () => {
   version += 1;
   return [
     { id: 1, name: 'Ana López', role: 'Design', online: true },
-    { id: 2, name: 'Luis Galué', role: 'Security', online: version % 2 === 0 },
+    { id: 2, name: 'Lucas Molina', role: 'Security', online: version % 2 === 0 },
     { id: 3, name: 'María Ruiz', role: 'Sales', online: true },
     ...(version > 1 ? [{ id: 4, name: 'Sofía Rey', role: 'Engineering', online: true }] : [])
   ];

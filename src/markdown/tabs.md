@@ -270,7 +270,7 @@ const profile = document.createElement('div');
 profile.style.cssText = 'display:grid;gap:18px;max-width:420px';
 profile.append(
   await field({ label: 'Full name', value: 'Ana López' }),
-  await field({ label: 'Email', type: 'email', icon: 'user', value: 'ana@acme.dev' })
+  await field({ label: 'Email', type: 'email', icon: 'user', value: 'ana@example.com' })
 );
 const notifications = document.createElement('div');
 notifications.style.cssText = 'display:flex;flex-direction:column;gap:12px';

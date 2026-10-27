@@ -25,10 +25,10 @@ test.describe('Avatar', () => {
    });
 
    test('a picture that fails to load falls back to the initials', async ({ mount }) => {
-      const c = await mount('Avatar', { src: BROKEN, name: 'Luis Galué' });
+      const c = await mount('Avatar', { src: BROKEN, name: 'Lucas Molina' });
       await expect(c.component).toHaveAttribute('data-showing', 'initials');
       await expect(c.locator('.slice-avatar__image')).toBeHidden();
-      await expect(c.locator('.slice-avatar__initials')).toHaveText('LG');
+      await expect(c.locator('.slice-avatar__initials')).toHaveText('LM');
    });
 
    test('no picture and no name: the icon', async ({ mount }) => {
@@ -42,7 +42,7 @@ test.describe('Avatar', () => {
       const c = await mount('Avatar', { name: 'Ana López' });
       const hue = (name) => c.component.evaluate((el, n) => { el.name = n; return el.style.getPropertyValue('--slice-avatar-hue'); }, name);
       const a1 = await hue('Ana López');
-      const b = await hue('Luis Galué');
+      const b = await hue('Lucas Molina');
       const a2 = await hue('Ana López');
       expect(a1).toBe(a2);
       expect(a1).not.toBe(b);

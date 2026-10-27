@@ -127,7 +127,7 @@ const show = (item) => {
 
 const menu = await slice.build('SideMenu', {
   mode: 'tree',
-  title: 'Acme admin',
+  title: 'Northwind admin',
   followRoute: false,
   activePath: '/admin/dashboard',
   items: [

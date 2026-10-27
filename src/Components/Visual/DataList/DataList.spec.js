@@ -1,11 +1,11 @@
 import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
 const PEOPLE = [
-   { id: 1, name: 'José Pérez', email: 'jose@acme.com', city: 'Maracaibo', role: 'Admin', active: true },
-   { id: 2, name: 'Ana López', email: 'ana@acme.com', city: 'Caracas', role: 'Editor', active: true },
-   { id: 3, name: 'Luis Galué', email: 'luis@acme.com', city: 'Valencia', role: 'Viewer', active: false },
-   { id: 4, name: 'María Ruiz', email: 'maria@acme.com', city: 'Caracas', role: 'Editor', active: true },
-   { id: 5, name: 'Andrés Bello', email: 'andres@acme.com', city: 'Mérida', role: 'Viewer', active: false },
+   { id: 1, name: 'José Pérez', email: 'jose@example.com', city: 'Maracaibo', role: 'Admin', active: true },
+   { id: 2, name: 'Ana López', email: 'ana@example.com', city: 'Caracas', role: 'Editor', active: true },
+   { id: 3, name: 'Lucas Molina', email: 'lucas@example.com', city: 'Valencia', role: 'Viewer', active: false },
+   { id: 4, name: 'María Ruiz', email: 'maria@example.com', city: 'Caracas', role: 'Editor', active: true },
+   { id: 5, name: 'Andrés Bello', email: 'andres@example.com', city: 'Mérida', role: 'Viewer', active: false },
 ];
 
 const BASE = { items: PEOPLE, title: 'name', description: 'email' };
@@ -31,7 +31,7 @@ test.describe('DataList — items', () => {
       await expect(c.component).toHaveClass(/slice-data-list/);
       await expect(c.locator('ul.slice-data-list__items')).toHaveAttribute('role', 'list');
       await expect(titles(c)).toHaveText(PEOPLE.map((p) => p.name));
-      await expect(row(c, 2).locator('.slice-data-list__description')).toHaveText('ana@acme.com');
+      await expect(row(c, 2).locator('.slice-data-list__description')).toHaveText('ana@example.com');
    });
 
    test('anatomy: avatar, meta with icons, tags, badge, value and a relative time', async ({ mount }) => {
@@ -127,7 +127,7 @@ test.describe('DataList — finding things', () => {
       await expect(views).toHaveText(['Everyone5', 'Active3', 'Inactive2']);
       await views.nth(2).click();
       await expect(views.nth(2)).toHaveAttribute('aria-pressed', 'true');
-      await expect(titles(c)).toHaveText(['Luis Galué', 'Andrés Bello']);
+      await expect(titles(c)).toHaveText(['Lucas Molina', 'Andrés Bello']);
    });
 
    test('filters: options come from the data, and the button says what is picked', async ({ mount }) => {
@@ -147,7 +147,7 @@ test.describe('DataList — finding things', () => {
       const c = await mount('DataList', { ...BASE, sortOptions: [{ key: 'name', label: 'Name' }, { key: 'city', label: 'City' }] });
       await wide(c);
       await c.component.evaluate((el) => { el.sort = { key: 'name', direction: 'asc' }; });
-      await expect(titles(c)).toHaveText(['Ana López', 'Andrés Bello', 'José Pérez', 'Luis Galué', 'María Ruiz']);
+      await expect(titles(c)).toHaveText(['Ana López', 'Andrés Bello', 'José Pérez', 'Lucas Molina', 'María Ruiz']);
       await c.component.evaluate((el) => { el.sort = { key: 'name', direction: 'desc' }; });
       await expect(titles(c).first()).toHaveText('María Ruiz');
       expect(await c.component.evaluate((el) => el.sort)).toEqual({ key: 'name', direction: 'desc' });
@@ -275,9 +275,9 @@ test.describe('DataList — create, edit, delete', () => {
    test('addItem: shows at once at the start; the saved version replaces it', async ({ mount }) => {
       const c = await mount('DataList', BASE);
       await wide(c);
-      await c.component.evaluate((el) => el.addItem({ id: 'tmp', name: 'Nuevo' }, { commit: () => new Promise((r) => setTimeout(() => r({ email: 'nuevo@acme.com' }), 100)) }));
+      await c.component.evaluate((el) => el.addItem({ id: 'tmp', name: 'Nuevo' }, { commit: () => new Promise((r) => setTimeout(() => r({ email: 'nuevo@example.com' }), 100)) }));
       await expect(titles(c).first()).toHaveText('Nuevo');
-      await expect(row(c, 'tmp').locator('.slice-data-list__description')).toHaveText('nuevo@acme.com');
+      await expect(row(c, 'tmp').locator('.slice-data-list__description')).toHaveText('nuevo@example.com');
       expect(await c.component.evaluate((el) => el.items.length)).toBe(6);
    });
 
@@ -313,11 +313,11 @@ test.describe('DataList — create, edit, delete', () => {
          el._done = el.removeItem(3, { undo: true, commit: (items) => el._committed.push(items.map((i) => i.id)) });
       });
       await expect(row(c, 3)).toHaveCount(0);
-      await expect(c.locator('.slice-data-list__notice .slice-alert__message')).toHaveText('“Luis Galué” removed');
+      await expect(c.locator('.slice-data-list__notice .slice-alert__message')).toHaveText('“Lucas Molina” removed');
       await c.locator('.slice-data-list__notice .slice-alert__actions button').click();
       await expect(row(c, 3)).toHaveCount(1);
       expect(await c.component.evaluate(async (el) => [await el._done, el._committed])).toEqual([false, []]);
-      await expect(titles(c).nth(2)).toHaveText('Luis Galué');
+      await expect(titles(c).nth(2)).toHaveText('Lucas Molina');
    });
 
    test('removeItem with undo: when the time is over (or the bar is closed), it commits', async ({ mount }) => {
@@ -533,7 +533,7 @@ test.describe('DataList — detail', () => {
       await rows(c).nth(1).locator('.slice-data-list__title').click();
       await expect(page.locator('slice-description-list')).toHaveCount(1);
       await expect(page.locator('.slice-modal__title').last()).toHaveText('Ana López');
-      await expect(field(page, 'email').locator('a')).toHaveText('ana@acme.com');
+      await expect(field(page, 'email').locator('a')).toHaveText('ana@example.com');
       await expect(field(page, 'role').locator('slice-badge')).toHaveText('Editor');
       expect(await c.component.evaluate((el) => el.detailKey)).toBe(2);
       await page.keyboard.press('Escape');
@@ -550,11 +550,11 @@ test.describe('DataList — detail', () => {
       await c.component.evaluate((el) => { el.openDetail(2); });
       await field(page, 'email').locator('[data-tool="pen"]').click();
       const input = field(page, 'email').locator('input');
-      await input.fill('ana.l@acme.com');
+      await input.fill('ana.l@example.com');
       await input.press('Enter');
-      await expect(field(page, 'email').locator('a')).toHaveText('ana.l@acme.com');
-      await expect(rows(c).nth(1)).toContainText('ana.l@acme.com');
-      expect(await c.component.evaluate((el) => el._saved)).toEqual([['email', 'ana.l@acme.com']]);
+      await expect(field(page, 'email').locator('a')).toHaveText('ana.l@example.com');
+      await expect(rows(c).nth(1)).toContainText('ana.l@example.com');
+      expect(await c.component.evaluate((el) => el._saved)).toEqual([['email', 'ana.l@example.com']]);
    });
 
    test('a failed commit puts the row back and the detail says why', async ({ mount, page }) => {
@@ -576,9 +576,9 @@ test.describe('DataList — detail', () => {
       const c = await mount('DataList', { ...BASE, detail: DETAIL });
       await c.component.evaluate((el) => { el.openDetail(3); });
       await expect(field(page, 'city')).toContainText('Valencia');
-      await c.component.evaluate((el) => el.updateItem(3, { city: 'Coro', name: 'Luis G.' }));
+      await c.component.evaluate((el) => el.updateItem(3, { city: 'Coro', name: 'Lucas M.' }));
       await expect(field(page, 'city')).toContainText('Coro');
-      await expect(page.locator('.slice-modal__title').last()).toHaveText('Luis G.');
+      await expect(page.locator('.slice-modal__title').last()).toHaveText('Lucas M.');
       await c.component.evaluate((el) => el.removeItem(3));
       await expect(page.locator('slice-description-list')).toHaveCount(0);
    });

@@ -126,7 +126,7 @@ A save shows the new value at once, busy while `commit` runs, and the active cel
 ## Live Preview
 :::component name="DescriptionList"
 {
-  "item": { "name": "Ana López", "email": "ana@acme.com", "city": "Caracas", "plan": "Pro" },
+  "item": { "name": "Ana López", "email": "ana@example.com", "city": "Caracas", "plan": "Pro" },
   "fields": [
     "name",
     { "key": "email", "type": "email", "copy": true },
@@ -148,7 +148,7 @@ let order = {
   createdAt: '2026-10-21',
   updatedAt: Date.now() - 1000 * 60 * 60 * 5,
   total: 1284.9,
-  customer: { name: 'Ana López', email: 'ana@acme.com', phone: '+58 412 555 0142' },
+  customer: { name: 'Ana López', email: 'ana@example.com', phone: '+58 412 555 0142' },
   address: 'Av. 5 de Julio, Edif. Sol, piso 3\nMaracaibo 4001\nVenezuela',
   tracking: 'VE-88213-4410',
   tags: ['Express', 'Gift wrap']
@@ -202,10 +202,10 @@ view.style.maxWidth = '640px';
 return view;
 :::
 
-:::script label="Profile you can edit, saved to a server" expected="a profile shared through slice.context: the top bar shows the name from the same store; each field has a pencil; changing the name updates the top bar after a short save; the email 'taken@acme.com' is refused by the pretend server and the editor stays open with the message; Language is a select; Newsletter is a switch that saves at once; Member since cannot be edited"
+:::script label="Profile you can edit, saved to a server" expected="a profile shared through slice.context: the top bar shows the name from the same store; each field has a pencil; changing the name updates the top bar after a short save; the email 'taken@example.com' is refused by the pretend server and the editor stays open with the message; Language is a select; Newsletter is a switch that saves at once; Member since cannot be edited"
 if (!slice.context.has('docsProfile')) {
   slice.context.create('docsProfile', {
-    user: { id: 7, name: 'Luis Galué', email: 'luis@acme.com', phone: '', language: 'es', bio: 'Security at Acme.\nLikes clean logs.', newsletter: true, memberSince: '2023-03-14' }
+    user: { id: 7, name: 'Lucas Molina', email: 'lucas@example.com', phone: '', language: 'es', bio: 'Security at Northwind.\nLikes clean logs.', newsletter: true, memberSince: '2023-03-14' }
   });
 }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -213,7 +213,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const api = {
   async patch(key, value) {
     await wait(500);
-    if (key === 'email' && value === 'taken@acme.com') throw new Error('That email is already in use.');
+    if (key === 'email' && value === 'taken@example.com') throw new Error('That email is already in use.');
   }
 };
 
@@ -233,7 +233,7 @@ const profile = await slice.build('DescriptionList', {
   labelWidth: '160px',
   fields: [
     { key: 'name', edit: { required: true, maxlength: 60 } },
-    { key: 'email', type: 'email', copy: true, edit: { required: true }, help: 'Try taken@acme.com' },
+    { key: 'email', type: 'email', copy: true, edit: { required: true }, help: 'Try taken@example.com' },
     { key: 'phone', type: 'phone', edit: { placeholder: '+58 …' } },
     { key: 'language', format: (code) => ({ es: 'Español', en: 'English', pt: 'Português' }[code] || code),
       edit: { options: [{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }, { value: 'pt', label: 'Português' }] } },
@@ -268,7 +268,7 @@ const server = await slice.build('DescriptionList', {
     if (signal.aborted) return null;
     tries += 1;
     if (tries === 1) throw new Error('offline');
-    return { hostname: 'api-prod-03.acme.internal', region: 'us-east-1', status: 'Healthy', uptime: 0.99982, cpu: 8, deployedAt: Date.now() - 1000 * 60 * 42 };
+    return { hostname: 'api-prod-03.internal', region: 'us-east-1', status: 'Healthy', uptime: 0.99982, cpu: 8, deployedAt: Date.now() - 1000 * 60 * 42 };
   }
 });
 server.style.width = '100%';
@@ -366,12 +366,12 @@ const STATUS = {
   rejected: { label: 'Rejected', tone: 'danger' }
 };
 const db = [
-  { id: 'L-301', applicant: 'Ana López', email: 'ana@acme.com', amount: 12000, income: 54000, term: 36, status: 'pending', submitted: Date.now() - 36e5 * 3, notes: '' },
-  { id: 'L-302', applicant: 'Luis Galué', email: 'luis@acme.com', amount: 4500, income: 31000, term: 12, status: 'pending', submitted: Date.now() - 36e5 * 20, notes: 'Second loan this year.' },
-  { id: 'L-303', applicant: 'María Ruiz', email: 'maria@acme.com', amount: 30000, income: 61000, term: 60, status: 'pending', submitted: Date.now() - 36e5 * 26, notes: '' },
-  { id: 'L-304', applicant: 'Andrés Bello', email: 'andres@acme.com', amount: 8000, income: 42000, term: 24, status: 'approved', submitted: Date.now() - 36e5 * 50, notes: 'Approved by J. Pérez.' },
-  { id: 'L-305', applicant: 'Sofía Rey', email: 'sofia@acme.com', amount: 15000, income: 28000, term: 48, status: 'pending', submitted: Date.now() - 36e5 * 72, notes: '' },
-  { id: 'L-306', applicant: 'José Pérez', email: 'jose@acme.com', amount: 2000, income: 39000, term: 6, status: 'rejected', submitted: Date.now() - 36e5 * 96, notes: 'Incomplete documents.' }
+  { id: 'L-301', applicant: 'Ana López', email: 'ana@example.com', amount: 12000, income: 54000, term: 36, status: 'pending', submitted: Date.now() - 36e5 * 3, notes: '' },
+  { id: 'L-302', applicant: 'Lucas Molina', email: 'lucas@example.com', amount: 4500, income: 31000, term: 12, status: 'pending', submitted: Date.now() - 36e5 * 20, notes: 'Second loan this year.' },
+  { id: 'L-303', applicant: 'María Ruiz', email: 'maria@example.com', amount: 30000, income: 61000, term: 60, status: 'pending', submitted: Date.now() - 36e5 * 26, notes: '' },
+  { id: 'L-304', applicant: 'Andrés Bello', email: 'andres@example.com', amount: 8000, income: 42000, term: 24, status: 'approved', submitted: Date.now() - 36e5 * 50, notes: 'Approved by J. Pérez.' },
+  { id: 'L-305', applicant: 'Sofía Rey', email: 'sofia@example.com', amount: 15000, income: 28000, term: 48, status: 'pending', submitted: Date.now() - 36e5 * 72, notes: '' },
+  { id: 'L-306', applicant: 'José Pérez', email: 'jose@example.com', amount: 2000, income: 39000, term: 6, status: 'rejected', submitted: Date.now() - 36e5 * 96, notes: 'Incomplete documents.' }
 ];
 const api = {
   async get(index) { await new Promise((r) => setTimeout(r, 450)); return { ...db[index] }; },

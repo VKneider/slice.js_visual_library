@@ -177,7 +177,7 @@ test.describe('DataGridEngine manual mode', () => {
 const people = [
   { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, active: true, joined: '2024-03-10', role: 'admin', tags: ['a', 'b'] },
   { id: 2, name: 'Ana López', city: 'Caracas', age: 28, active: false, joined: '2023-11-02', role: 'editor', tags: ['b'] },
-  { id: 3, name: 'Luis Galué', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer', tags: [] },
+  { id: 3, name: 'Lucas Molina', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer', tags: [] },
   { id: 4, name: 'María Ruiz', city: 'Valencia', age: null, active: true, joined: null, role: 'editor', tags: ['c'] },
   { id: 5, name: 'Pedro Díaz', city: '', age: 19, active: 'false', joined: '2024-12-31', role: 'viewer', tags: ['a'] },
 ];
@@ -187,7 +187,7 @@ const only = (filter) => ids(new DataGridEngine({ data: people, pageSize: 100 })
 test.describe('DataGridEngine filters: text', () => {
   test('contains ignores case and accents', () => {
     assert.deepEqual(only({ key: 'name', op: 'contains', value: 'JOSE' }), [1]);
-    assert.deepEqual(only({ key: 'name', value: 'galue' }), [3], 'type and op default to text/contains');
+    assert.deepEqual(only({ key: 'name', value: 'molina' }), [3], 'type and op default to text/contains');
   });
   test('equals, notEquals, startsWith, endsWith, notContains', () => {
     assert.deepEqual(only({ key: 'city', op: 'equals', value: 'maracaibo' }), [1, 3]);

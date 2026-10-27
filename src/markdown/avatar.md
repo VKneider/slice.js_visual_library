@@ -57,7 +57,7 @@ tags: [avatar, user, profile, photo, initials, status]
 const PHOTO = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="#0ea5e9"/><circle cx="20" cy="16" r="7" fill="#e0f2fe"/><rect x="8" y="26" width="24" height="14" rx="7" fill="#e0f2fe"/></svg>');
 const comments = [
   { name: 'Ana López', photo: PHOTO, time: '9:12', text: 'I moved the release to Thursday so QA has a full day.' },
-  { name: 'Luis Galué', photo: '/missing/luis.png', time: '9:20', text: 'Works for me. The migration is ready.' },
+  { name: 'Lucas Molina', photo: '/missing/lucas.png', time: '9:20', text: 'Works for me. The migration is ready.' },
   { name: 'María Ruiz', photo: '', time: '9:31', text: 'I will write the release notes tonight.' }
 ];
 
@@ -97,7 +97,7 @@ menu.querySelector('button')?.prepend(avatar);
 
 const bar = document.createElement('header');
 bar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;width:100%;padding:8px 14px;border-radius:12px;background:color-mix(in srgb,var(--primary-color) 7%,transparent)';
-bar.innerHTML = '<strong>Acme</strong>';
+bar.innerHTML = '<strong>Northwind</strong>';
 bar.append(menu);
 return bar;
 :::
@@ -114,7 +114,7 @@ for (const size of ['xs', 'sm', 'md', 'lg', 'xl']) sizes.append(await slice.buil
 const teams = row('Teams');
 for (const name of ['Design', 'Platform', 'Sales']) teams.append(await slice.build('Avatar', { name, shape: 'rounded' }));
 const statuses = row('Status');
-for (const status of ['online', 'away', 'busy', 'offline']) statuses.append(await slice.build('Avatar', { name: 'Luis Galué', status }));
+for (const status of ['online', 'away', 'busy', 'offline']) statuses.append(await slice.build('Avatar', { name: 'Lucas Molina', status }));
 const fallback = row('No name');
 fallback.append(await slice.build('Avatar', {}), await slice.build('Avatar', { icon: 'users', shape: 'rounded' }));
 

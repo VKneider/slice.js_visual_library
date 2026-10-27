@@ -102,7 +102,7 @@ const toasts = await slice.build('ToastProvider', { singleton: true });
 let projects = [
   { id: 1, name: 'website-redesign', owner: 'Ana López', files: 24, updated: '2 hours ago' },
   { id: 2, name: 'mobile-app', owner: 'José Pérez', files: 112, updated: 'yesterday' },
-  { id: 3, name: 'q4-report', owner: 'Luis Galué', files: 8, updated: '3 days ago' },
+  { id: 3, name: 'q4-report', owner: 'Lucas Molina', files: 8, updated: '3 days ago' },
   { id: 4, name: 'brand-assets', owner: 'Ana López', files: 57, updated: 'last week' }
 ];
 
@@ -165,9 +165,9 @@ return table;
 :::script label="Contacts: edit in a Form, with an unsaved-changes guard" expected="clicking a card opens a Form; closing with changes asks first in a second, stacked modal; Save updates the card"
 const toasts = await slice.build('ToastProvider', { singleton: true });
 const contacts = [
-  { name: 'Ana López', email: 'ana@acme.dev', role: 'Owner', notify: true },
-  { name: 'José Pérez', email: 'jose@acme.dev', role: 'Editor', notify: false },
-  { name: 'Luis Galué', email: 'luis@acme.dev', role: 'Viewer', notify: true }
+  { name: 'Ana López', email: 'ana@example.com', role: 'Owner', notify: true },
+  { name: 'José Pérez', email: 'jose@example.com', role: 'Editor', notify: false },
+  { name: 'Lucas Molina', email: 'lucas@example.com', role: 'Viewer', notify: true }
 ];
 
 // A second modal on top of the first: both share the scroll lock and the
@@ -242,7 +242,7 @@ return grid;
 :::
 
 :::script label="Orders: a filters drawer" expected="Filters opens a drawer (a sheet on phones) with a RadioGroup, a Select and a Switch; Apply filters the table and shows removable chips"
-const names = ['Ana López', 'José Pérez', 'Luis Galué', 'María Ruiz', 'Carlos Díaz', 'Elena Mora'];
+const names = ['Ana López', 'José Pérez', 'Lucas Molina', 'María Ruiz', 'Carlos Díaz', 'Elena Mora'];
 const cities = ['Maracaibo', 'Caracas', 'Valencia', 'Mérida'];
 const statuses = ['Pending', 'Shipped', 'Delivered'];
 const orders = Array.from({ length: 30 }, (_, i) => ({
@@ -420,7 +420,7 @@ const open = async () => {
     schema: [
       { kind: 'field', name: 'first', label: 'First name', component: 'Input', value: 'Ana' },
       { kind: 'field', name: 'last', label: 'Last name', component: 'Input', value: 'López' },
-      { kind: 'field', name: 'bio', label: 'Bio', component: 'Textarea', full: true, value: 'Designer at Acme.', props: { rows: 3 } }
+      { kind: 'field', name: 'bio', label: 'Bio', component: 'Textarea', full: true, value: 'Designer at Northwind.', props: { rows: 3 } }
     ],
     onSubmit: () => toasts.show('Profile saved', { type: 'success' })
   });

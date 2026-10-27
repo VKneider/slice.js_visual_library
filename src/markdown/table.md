@@ -180,7 +180,7 @@ return box;
 const statuses = ['Paid', 'Pending', 'Shipped', 'Refunded'];
 const all = Array.from({ length: 64 }, (_, i) => ({
   id: 1000 + i,
-  customer: ['Ana López', 'Luis Galué', 'María Ruiz', 'Andrés Bello', 'Sofía Rey'][i % 5],
+  customer: ['Ana López', 'Lucas Molina', 'María Ruiz', 'Andrés Bello', 'Sofía Rey'][i % 5],
   status: statuses[i % 4],
   total: Math.round((20 + ((i * 37) % 900)) * 100) / 100
 }));
@@ -389,7 +389,7 @@ return table;
 const rows = [
   { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, active: true, joined: '2024-03-10', role: 'admin' },
   { id: 2, name: 'Ana López', city: 'Caracas', age: 28, active: false, joined: '2023-11-02', role: 'editor' },
-  { id: 3, name: 'Luis Galué', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer' },
+  { id: 3, name: 'Lucas Molina', city: 'Maracaibo', age: 41, active: true, joined: '2025-01-20', role: 'viewer' },
   { id: 4, name: 'María Ruiz', city: 'Valencia', age: 52, active: true, joined: '2022-06-15', role: 'editor' },
   { id: 5, name: 'Pedro Díaz', city: 'Mérida', age: 19, active: false, joined: '2024-12-31', role: 'viewer' },
   { id: 6, name: 'Carla Soto', city: 'Caracas', age: 37, active: true, joined: '2024-07-01', role: 'admin' }
@@ -544,7 +544,7 @@ const table = await slice.build('Table', {
   rows: [
     { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, role: 'admin' },
     { id: 2, name: 'Ana López', city: 'Caracas', age: 28, role: 'editor' },
-    { id: 3, name: 'Luis Galué', city: 'Valencia', age: 41, role: 'viewer' }
+    { id: 3, name: 'Lucas Molina', city: 'Valencia', age: 41, role: 'viewer' }
   ],
   rowKey: 'id',
   selection: 'multiple',
@@ -590,7 +590,7 @@ const table = await slice.build('Table', {
   rows: [
     { id: 1, name: 'José Pérez', city: 'Maracaibo', age: 34, salary: 1200, role: 'admin' },
     { id: 2, name: 'Ana López', city: 'Caracas', age: 28, salary: 950, role: 'editor' },
-    { id: 3, name: 'Luis Galué', city: 'Valencia', age: 41, salary: 1800, role: 'viewer' },
+    { id: 3, name: 'Lucas Molina', city: 'Valencia', age: 41, salary: 1800, role: 'viewer' },
     { id: 4, name: 'María Ruiz', city: 'Mérida', age: 52, salary: 2100, role: 'editor' }
   ],
   rowKey: 'id',
@@ -641,7 +641,7 @@ const table = await slice.build('Table', {
   rows: [
     { id: 1, name: 'José Pérez', city: 'Maracaibo', role: 'admin', email: 'jose@example.com' },
     { id: 2, name: 'Ana López', city: 'Caracas', role: 'editor', email: 'ana@example.com' },
-    { id: 3, name: 'Luis Galué', city: 'Valencia', role: 'viewer', email: 'luis@example.com' }
+    { id: 3, name: 'Lucas Molina', city: 'Valencia', role: 'viewer', email: 'lucas@example.com' }
   ],
   rowKey: 'id',
   rowDetail: 'modal',

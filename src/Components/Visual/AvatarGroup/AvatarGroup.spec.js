@@ -1,7 +1,7 @@
 import { test, expect } from '../../../../playwright/harness/sliceFixtures.js';
 
 const PEOPLE = [
-   { name: 'Ana López' }, { name: 'Luis Galué' }, { name: 'María Ruiz' },
+   { name: 'Ana López' }, { name: 'Lucas Molina' }, { name: 'María Ruiz' },
    { name: 'José Pérez' }, { name: 'Sofía Rey' }, { name: 'Diego Fuentes' },
 ];
 
@@ -11,7 +11,7 @@ test.describe('AvatarGroup', () => {
       await expect(c.locator('slice-avatar')).toHaveCount(3);
       await expect(c.locator('.slice-avatar-group__more')).toHaveText('+3');
       await expect(c.component).toHaveAttribute('role', 'group');
-      await expect(c.component).toHaveAttribute('aria-label', '6 people: Ana López, Luis Galué, María Ruiz and 3 more');
+      await expect(c.component).toHaveAttribute('aria-label', '6 people: Ana López, Lucas Molina, María Ruiz and 3 more');
       await expect(c.locator('.slice-avatar-group__more')).toHaveAttribute('data-tooltip', 'José Pérez, Sofía Rey, Diego Fuentes');
    });
 

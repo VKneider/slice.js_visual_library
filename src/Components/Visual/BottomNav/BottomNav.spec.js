@@ -381,7 +381,7 @@ test.describe('BottomNav - measured layout', () => {
 
    test('the logo image gets a real box', async ({ mountHtml }) => {
       const h = await mountHtml(`<div></div>`);
-      await stage(h, { items: ITEMS4, logo: { src: LOGO_SRC, alt: 'Acme', path: '/' } });
+      await stage(h, { items: ITEMS4, logo: { src: LOGO_SRC, alt: 'Northwind', path: '/' } });
 
       const box = await h.page.evaluate(() => {
          const img = document.querySelector('.slice_bottomnav_logo img');

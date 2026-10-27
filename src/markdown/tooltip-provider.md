@@ -115,7 +115,7 @@ list.style.cssText = 'margin:0;padding:0;list-style:none;display:grid;grid-templ
 const names = [
   'Quarterly financial report – final version (approved by the board).pdf',
   'Team offsite photos, Mérida, October 2026.zip',
-  'contract-acme-renewal-2027-signed.docx'
+  'contract-renewal-2027-signed.docx'
 ];
 let n = 0;
 const addRow = (name) => {

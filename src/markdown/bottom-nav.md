@@ -159,7 +159,7 @@ return box;
 const nav = await slice.build('BottomNav', {
   position: 'static',
   layout: 'floating',
-  brand: { text: 'Acme', path: '/docs' },
+  brand: { text: 'Northwind', path: '/docs' },
   items: [
     { text: 'Home', path: '/docs', icon: 'home' },
     { text: 'Guides', path: '/guides', icon: 'book' },

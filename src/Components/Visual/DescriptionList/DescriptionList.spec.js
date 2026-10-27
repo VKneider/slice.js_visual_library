@@ -4,7 +4,7 @@ const ORDER = {
    id: 1042,
    status: 'paid',
    customer: { name: 'Ana López' },
-   email: 'ana@acme.com',
+   email: 'ana@example.com',
    total: 129.5,
    createdAt: '2026-10-20',
    notes: '',
@@ -54,7 +54,7 @@ test.describe('DescriptionList', () => {
       await expect(value(c, 'id')).toHaveText('#1042');
       await expect(value(c, 'total')).toHaveText('$129.50');
       await expect(value(c, 'createdAt')).toHaveText('Oct 20, 2026');
-      await expect(value(c, 'email').locator('a')).toHaveAttribute('href', 'mailto:ana@acme.com');
+      await expect(value(c, 'email').locator('a')).toHaveAttribute('href', 'mailto:ana@example.com');
    });
 
    test('components in values: Badge for a status, Avatar for a person, Badges for tags', async ({ mount }) => {
@@ -131,7 +131,7 @@ test.describe('DescriptionList', () => {
       await expect(button).toHaveAttribute('aria-label', 'Copy Email');
       await button.click();
       await expect(button).toHaveClass(/is-done/);
-      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ana@acme.com');
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ana@example.com');
       await expect(c.locator('.slice-description-list__live')).toHaveText('Copied');
    });
 
@@ -145,15 +145,15 @@ test.describe('DescriptionList', () => {
       await row(c, 'email').locator('[data-tool="pen"]').click();
       const input = row(c, 'email').locator('.slice-description-list__editor input');
       await expect(input).toBeFocused();
-      await expect(input).toHaveValue('ana@acme.com');
-      await input.fill('ana.lopez@acme.com');
+      await expect(input).toHaveValue('ana@example.com');
+      await input.fill('ana.lopez@example.com');
       await input.press('Enter');
       await expect(row(c, 'email').locator('.slice-description-list__editor')).toHaveCount(0);
-      await expect(value(c, 'email')).toHaveText('ana.lopez@acme.com');
-      expect(await c.component.evaluate((el) => el._calls)).toEqual([{ key: 'email', value: 'ana.lopez@acme.com', previous: 'ana@acme.com' }]);
-      expect(await c.component.evaluate((el) => el.item.email)).toBe('ana.lopez@acme.com');
+      await expect(value(c, 'email')).toHaveText('ana.lopez@example.com');
+      expect(await c.component.evaluate((el) => el._calls)).toEqual([{ key: 'email', value: 'ana.lopez@example.com', previous: 'ana@example.com' }]);
+      expect(await c.component.evaluate((el) => el.item.email)).toBe('ana.lopez@example.com');
       // The item you passed was not mutated.
-      expect(ORDER.email).toBe('ana@acme.com');
+      expect(ORDER.email).toBe('ana@example.com');
       expect(await c.events('onChange')).toBe(1);
    });
 
@@ -165,13 +165,13 @@ test.describe('DescriptionList', () => {
       });
       await row(c, 'email').locator('[data-tool="pen"]').click();
       const input = row(c, 'email').locator('.slice-description-list__editor input');
-      await input.fill('bad@acme.com');
+      await input.fill('bad@example.com');
       await input.press('Enter');
       await expect(row(c, 'email')).toHaveClass(/is-saving/);
       await expect(row(c, 'email').locator('.slice-description-list__error')).toHaveText('The change could not be saved. Server says no.');
-      await expect(input).toHaveValue('bad@acme.com');
+      await expect(input).toHaveValue('bad@example.com');
       await expect(row(c, 'email')).not.toHaveClass(/is-saving/);
-      expect(await c.component.evaluate((el) => el.item.email)).toBe('ana@acme.com');
+      expect(await c.component.evaluate((el) => el.item.email)).toBe('ana@example.com');
       // Cancelling takes the message away with the editor.
       await input.press('Escape');
       await expect(row(c, 'email').locator('.slice-description-list__error')).toBeHidden();
@@ -187,7 +187,7 @@ test.describe('DescriptionList', () => {
       await expect(row(c, 'email').locator('.slice-description-list__editor')).toHaveCount(1);
       await input.press('Escape');
       await expect(row(c, 'email').locator('.slice-description-list__editor')).toHaveCount(0);
-      await expect(value(c, 'email')).toHaveText('ana@acme.com');
+      await expect(value(c, 'email')).toHaveText('ana@example.com');
       await expect(row(c, 'email').locator('[data-tool="pen"]')).toBeFocused();
    });
 
@@ -213,11 +213,11 @@ test.describe('DescriptionList', () => {
       const c = await mount('DescriptionList', { item: ORDER });
       await withFields(c);
       expect(await c.component.evaluate(async (el) => {
-         el.commit = async ({ value }) => value !== 'nope@acme.com';
-         const ok = await el.setValue('email', 'new@acme.com');
-         const no = await el.setValue('email', 'nope@acme.com');
+         el.commit = async ({ value }) => value !== 'nope@example.com';
+         const ok = await el.setValue('email', 'new@example.com');
+         const no = await el.setValue('email', 'nope@example.com');
          return [ok, no, el.item.email];
-      })).toEqual([true, false, 'new@acme.com']);
+      })).toEqual([true, false, 'new@example.com']);
       await expect(c.locator('[data-tool="pen"]')).not.toHaveCount(0);
       await c.component.evaluate((el) => { el.readonly = true; });
       await expect(c.locator('[data-tool="pen"]')).toHaveCount(0);
@@ -229,11 +229,11 @@ test.describe('DescriptionList', () => {
       }, ORDER);
       const c = await mount('DescriptionList', { context: 'dlOrder', contextPath: 'order' });
       await withFields(c);
-      await expect(value(c, 'email')).toHaveText('ana@acme.com');
+      await expect(value(c, 'email')).toHaveText('ana@example.com');
       await page.evaluate(() => slice.context.setState('dlOrder', (s) => ({ ...s, order: { ...s.order, status: 'pending' } })));
       await expect(value(c, 'status').locator('slice-badge')).toHaveText('Pending');
-      await c.component.evaluate((el) => el.setValue('email', 'store@acme.com'));
-      expect(await page.evaluate(() => slice.context.getState('dlOrder').order.email)).toBe('store@acme.com');
+      await c.component.evaluate((el) => el.setValue('email', 'store@example.com'));
+      expect(await page.evaluate(() => slice.context.getState('dlOrder').order.email)).toBe('store@example.com');
    });
 
    test('a store update while editing another field does not wipe the editor', async ({ mount, page }) => {
@@ -244,10 +244,10 @@ test.describe('DescriptionList', () => {
       await withFields(c);
       await row(c, 'email').locator('[data-tool="pen"]').click();
       const input = row(c, 'email').locator('.slice-description-list__editor input');
-      await input.fill('typing@acme.com');
+      await input.fill('typing@example.com');
       await page.evaluate(() => slice.context.setState('dlOrder2', (s) => ({ ...s, order: { ...s.order, status: 'pending' } })));
       await expect(value(c, 'status').locator('slice-badge')).toHaveText('Pending');
-      await expect(input).toHaveValue('typing@acme.com');
+      await expect(input).toHaveValue('typing@example.com');
    });
 
    test('load: skeleton while loading, an error with a retry, then the record', async ({ mount }) => {
@@ -257,14 +257,14 @@ test.describe('DescriptionList', () => {
          el.load = () => new Promise((resolve, reject) => setTimeout(() => {
             el._tries += 1;
             if (el._tries === 1) reject(new Error('offline'));
-            else resolve({ id: 7, email: 'loaded@acme.com' });
+            else resolve({ id: 7, email: 'loaded@example.com' });
          }, 200));
       });
       await expect(c.component).toHaveClass(/is-loading/);
       await expect(c.locator('.slice-description-list__skeleton')).toHaveCount(2);
       await expect(c.locator('.slice-description-list__state')).toBeVisible();
       await c.locator('.slice-description-list__state').getByRole('button', { name: 'Try again' }).click();
-      await expect(value(c, 'email')).toHaveText('loaded@acme.com');
+      await expect(value(c, 'email')).toHaveText('loaded@example.com');
       await expect(c.component).not.toHaveClass(/is-loading/);
    });
 
@@ -280,12 +280,12 @@ test.describe('DescriptionList', () => {
    });
 
    test('links: path goes through the router, url opens a new tab', async ({ mount }) => {
-      const c = await mount('DescriptionList', { item: { ...ORDER, site: 'https://acme.com' } });
+      const c = await mount('DescriptionList', { item: { ...ORDER, site: 'https://example.com' } });
       await c.component.evaluate((el) => {
          el.fields = [{ key: 'customer.name', label: 'Customer', path: (o) => `/customers/${o.id}` }, { key: 'site', type: 'url' }];
       });
       await expect(c.locator('a[href="/customers/1042"]')).toHaveText('Ana López');
-      await expect(c.locator('a[href="https://acme.com"]')).toHaveAttribute('target', '_blank');
+      await expect(c.locator('a[href="https://example.com"]')).toHaveAttribute('target', '_blank');
    });
 
    test('destroying it destroys every component it built, and an open editor', async ({ mount, page }) => {
@@ -347,13 +347,13 @@ test.describe('DescriptionList — sheet', () => {
       });
       await cell(c, 'email').click();
       await expect(cell(c, 'email')).toBeFocused();
-      await page.keyboard.type('new@acme.com');
+      await page.keyboard.type('new@example.com');
       const input = cell(c, 'email').locator('input');
-      await expect(input).toHaveValue('new@acme.com');
+      await expect(input).toHaveValue('new@example.com');
       await page.keyboard.press('Enter');
-      await expect(cell(c, 'email')).toContainText('new@acme.com');
+      await expect(cell(c, 'email')).toContainText('new@example.com');
       await expect(cell(c, 'total')).toBeFocused();
-      expect(await c.component.evaluate((el) => el._calls)).toEqual([['email', 'new@acme.com']]);
+      expect(await c.component.evaluate((el) => el._calls)).toEqual([['email', 'new@example.com']]);
    });
 
    test('F2 edits with the value and the caret at the end; Escape cancels and keeps the cell', async ({ mount, page }) => {
@@ -363,9 +363,9 @@ test.describe('DescriptionList — sheet', () => {
       const input = cell(c, 'email').locator('input');
       await expect(input).toBeFocused();
       await page.keyboard.type('.ve');
-      await expect(input).toHaveValue('ana@acme.com.ve');
+      await expect(input).toHaveValue('ana@example.com.ve');
       await page.keyboard.press('Escape');
-      await expect(cell(c, 'email')).toContainText('ana@acme.com');
+      await expect(cell(c, 'email')).toContainText('ana@example.com');
       await expect(cell(c, 'email')).toBeFocused();
    });
 
@@ -373,10 +373,10 @@ test.describe('DescriptionList — sheet', () => {
       const c = await sheet(mount);
       await cell(c, 'email').dblclick();
       const input = cell(c, 'email').locator('input');
-      await input.fill('tab@acme.com');
+      await input.fill('tab@example.com');
       await page.keyboard.press('Tab');
       await expect(cell(c, 'total')).toBeFocused();
-      await expect(cell(c, 'email')).toContainText('tab@acme.com');
+      await expect(cell(c, 'email')).toContainText('tab@example.com');
 
       await cell(c, 'notes').dblclick();
       await cell(c, 'notes').locator('textarea').fill('Leave at the door');
@@ -391,15 +391,15 @@ test.describe('DescriptionList — sheet', () => {
          el.commit = () => new Promise((_, reject) => setTimeout(() => reject(new Error('Locked.')), 150));
       });
       await cell(c, 'email').click();
-      await page.keyboard.type('x@acme.com');
+      await page.keyboard.type('x@example.com');
       await page.keyboard.press('Enter');
       // At once: the typed value, busy; the active cell has moved on.
-      await expect(cell(c, 'email')).toContainText('x@acme.com');
+      await expect(cell(c, 'email')).toContainText('x@example.com');
       await expect(row(c, 'email')).toHaveClass(/is-saving/);
       await expect(cell(c, 'total')).toBeFocused();
       await expect(row(c, 'email')).toHaveClass(/has-error/);
       await expect(row(c, 'email').locator('.slice-description-list__error')).toHaveText('The change could not be saved. Locked.');
-      await expect(cell(c, 'email').locator('.slice-description-list__content')).toHaveText('ana@acme.com');
+      await expect(cell(c, 'email').locator('.slice-description-list__content')).toHaveText('ana@example.com');
    });
 
    test('Space flips a boolean; Delete clears a value; Ctrl+C copies the cell', async ({ mount, page, context }) => {
@@ -423,10 +423,10 @@ test.describe('DescriptionList — sheet', () => {
 
       await cell(c, 'email').click();
       await page.keyboard.press('Control+c');
-      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ana@acme.com');
+      expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('ana@example.com');
       // A required field is not cleared by Delete.
       await page.keyboard.press('Delete');
-      expect(await c.component.evaluate((el) => el.item.email)).toBe('ana@acme.com');
+      expect(await c.component.evaluate((el) => el.item.email)).toBe('ana@example.com');
    });
 
    test('fast typing: keys and Enter pressed before the editor is built are kept', async ({ mount, page }) => {

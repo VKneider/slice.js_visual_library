@@ -106,9 +106,9 @@ test.describe('Navbar — compatibility', () => {
 
 test.describe('Navbar — content', () => {
    test('brand can be an image, a name, or both', async ({ mount }) => {
-      const c = await mount('Navbar', { items: ITEMS, brand: { logo: '/logo.png', text: 'Acme', path: '/' } });
+      const c = await mount('Navbar', { items: ITEMS, brand: { logo: '/logo.png', text: 'Northwind', path: '/' } });
       await expect(c.locator('.logo_container img')).toHaveAttribute('alt', '');
-      await expect(c.locator('.nav_bar_brand_text')).toHaveText('Acme');
+      await expect(c.locator('.nav_bar_brand_text')).toHaveText('Northwind');
       await c.component.evaluate((el) => { el.brand = null; el.logo = null; });
       await expect(c.locator('.logo_container')).toBeHidden();
    });

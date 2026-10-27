@@ -116,7 +116,7 @@ return card;
 const people = [
   { name: 'Ana López', role: 'Designer', city: 'Maracaibo' },
   { name: 'José Pérez', role: 'Engineer', city: 'Caracas' },
-  { name: 'Luis Galué', role: 'Engineer', city: 'Valencia' },
+  { name: 'Lucas Molina', role: 'Engineer', city: 'Valencia' },
   { name: 'María Ruiz', role: 'Product', city: 'Mérida' },
   { name: 'Carlos Díaz', role: 'Support', city: 'Maracaibo' },
   { name: 'Elena Mora', role: 'Designer', city: 'Caracas' }
