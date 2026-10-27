@@ -1,5 +1,48 @@
 # AGENTS.md
 
+## Performance philosophy: the server precomputes, the request only delivers
+
+**No request may do work that could have been done earlier.** Startup and build are budgets you may
+spend; the request path is a delivery path. This is not a micro-optimization preference — it is the
+reason this server answers a prerendered docs page in **0.77 ms median / 1.43 ms p95** (100
+keep-alive requests) while the same page ships ~3 KB of HTML.
+
+The rule, in order of preference:
+
+1. **Derivable from build inputs → build time.** Sitemap, SEO manifest, social cards, content
+   hashes, precompressed bytes. If it needs a browser, a font or a git history, it does not belong
+   in the server at all.
+2. **Derivable from the app but not from the build → once at startup.** Per-route HTML with
+   meta/JSON-LD, gzip+brotli buffers, in-memory maps. `buildRoutePages()` is the reference: 74
+   routes → `{ html, gzip, br }` in ~200 ms and ~385 KB of RAM, paid once.
+3. **The request path is: lookup → pick encoding → write.** No regex over HTML, no template
+   rendering, no `fs.readFileSync`, no `JSON.parse`, no `new Date()`, no compression of a body you
+   could have compressed earlier.
+4. **Every repeated artifact gets a cache contract, not just a handler.** Content-addressed URL
+   (`?v=<hash>`, `<name>-<hash>.png`) → `public, max-age=31536000, immutable`. Rarely changing but
+   non-hashed → `max-age=86400, stale-while-revalidate=604800`. `no-store` is reserved for things
+   that must never be reused (`/slice-env.json`).
+5. **A missing cache header is a runtime cost, not a deployment detail.** An asset served with the
+   express default (`public, max-age=0`) is revalidated on every visit; one served `no-store` is
+   re-downloaded in full. That single line outranks any startup optimization.
+
+Apply the same test to anything new: *if two requests would compute the same thing, it is
+precomputation pretending to be a handler.*
+
+Current state of the rule here — the honest split:
+
+- **Done:** `loadSeoManifest()` / `loadOgManifest()` read their JSON once; `buildRoutePages()`
+  renders every route once (HTML + gzip + br); `injectMeta()` and the JSON-LD build run only at
+  startup; `og:generate` produces the cards at build time and `og:check` guards them; the 404 path
+  is a `Map` miss, not a re-render.
+- **Open, and it dwarfs everything else:** `/bundles/*` still answers
+  `no-cache, no-store, must-revalidate` and is read from disk + compressed **per request**. A docs
+  page transfers **~854 KB of JavaScript** (588 KB of it `shared-core`); a second visit, seconds
+  later in the same profile, still transfers **~830 KB**. `/sitemap.xml`, `/manifest.json`,
+  `/service-worker.js`, `/routes.js`, `/sliceConfig.json` and `/Slice/Slice.js` are `readFileSync`
+  per request, and the static mounts keep express's `public, max-age=0`. Numbers and the plan live
+  in [`SEO.md`](SEO.md) §6.
+
 ## Scope
 This document explains what is already implemented in `slicejs-components` and the operating pattern for future agents adding documentation pages from markdown.
 

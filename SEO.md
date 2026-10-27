@@ -254,11 +254,18 @@ started answering 404 when you arrived from a docs page. It is the right tool fo
 
 These are measured, not guesses. They are the next levers for the docs page.
 
+Re-measured on 2026-10-27 against `api/index.js --production` (Chromium, `transferSize` from the
+Resource Timing API, `/docs/input/button`): **864 KB on the first visit, 830 KB on the second** a few
+seconds later in the same profile. Nine scripts, 854 KB of it JavaScript; the prerendered HTML is
+3 KB and costs **0.77 ms median / 1.43 ms p95** over 100 keep-alive requests. In other words: the
+per-route rendering is done; the file delivery is not.
+
 | Item | Numbers | Effort |
 |---|---|---|
-| **Cache the bundles** (`Cache-Control: public, max-age=31536000, immutable` for `/bundles/*`, since they carry `?v=<hash>`; `max-age=86400, stale-while-revalidate=604800` for `/images|Styles|Themes`) | Everything goes out with `no-store` today: a docs page re-downloads **~700 KB of JS** per visit (`shared-core` 486 KB br + vendor 163 KB br + framework 27 KB + critical 21 KB) | ~10 lines in `api/index.js` |
+| **Cache the bundles** (`Cache-Control: public, max-age=31536000, immutable` for `/bundles/*`, since they carry `?v=<hash>`; `max-age=86400, stale-while-revalidate=604800` for `/images|Styles|Themes|og`) | Everything goes out with `no-store` today, so a repeat visit costs **830 KB** — nearly the first one. Today: `shared-core` **588 KB br** + vendor **183 KB** + framework **31 KB** + critical **22 KB** | ~10 lines in `api/index.js` |
+| **Precompress and preload the small files** (`/sitemap.xml`, `/manifest.json`, `/service-worker.js`, `/routes.js`, `/sliceConfig.json`, `/Slice/Slice.js`, `/robots.txt`) | Each is a `readFileSync` + on-the-fly compression per request, and they answer `public, max-age=0`. They are static bytes: read once at startup, or serve a prebuilt `.br`/`.gz` pair | ~20 lines |
 | **Take the markdown out of the bundle** | `this.markdownContent` is **664 KB** of prose across 65 pages (avg 10.2 KB, max 39.6 KB), embedded only for the copy button; `scriptScenarios` are another **344 KB**. The build does not copy `src/markdown` to `dist` yet | Parser + `CopyMarkdownMenu` fetch on click + copy the `.md` in the build |
-| **Split `shared-core`** | It is **3.1 MB raw / 486 KB br** and holds all 65 doc pages, because every docs route points at `App` and its children. A docs page downloads all of them | Needs the doc components to resolve through dynamic imports (framework-level) |
+| **Split `shared-core`** | It is **3.3 MB raw / 588 KB br** and holds all 65 doc pages, because every docs route points at `App` and its children. A docs page downloads all of them | Needs the doc components to resolve through dynamic imports (framework-level) |
 | **Prerender the articles** | The whole content is client-rendered; a crawler that does not run JS sees the shell. Prerendering each `/docs/*` into its own HTML is the only real fix for first paint | Big: content HTML at build time + hydration |
 | **Trim descriptions** | 20 of 71 descriptions are over 160 characters | Small, when injecting or in the front matter |
 
