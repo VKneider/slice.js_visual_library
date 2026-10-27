@@ -57,7 +57,10 @@ fallback itself:
 - `routes.js` lists every real documentation page explicitly (from the docs index), instead of the
   old `/docs/${section}/${page}` patterns. That is what makes a typo reach the Router's own
   fallback (`matchRoute` → the `/404` route → `NotFound`) instead of mounting the docs shell around
-  an empty page. `MultiRoute`'s `fallback` prop stays as a second net for in-app navigations.
+  an empty page. `MultiRoute`'s `fallback` prop is opt-in for a container that is the whole view;
+  **never** pass it in the App shell — that container is updated on every route change, so it would
+  build NotFound the moment the user leaves the docs (that is exactly how Theme Creator started
+  answering 404).
 - Internal routes (`/__test`, `/playground`, `/game`) → `200` + `noindex`.
 
 No rendering happens on the server: the same shell bytes go out, only the `<head>` differs, and the

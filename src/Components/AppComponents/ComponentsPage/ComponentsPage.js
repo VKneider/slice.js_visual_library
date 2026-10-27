@@ -20,11 +20,16 @@ export default class ComponentsPage extends HTMLElement {
 
       // Crear el MultiRoute con todas las rutas (usa docRoutes.generated.js para
       // que el bundle analyzer pueda detectar estaticamente los componentes)
+      //
+      // No `fallback` here on purpose: this container is the App shell, and it
+      // is updated on EVERY route change (`App.update` → `renderIfCurrentRoute`).
+      // With a fallback it would build NotFound the moment you leave the docs
+      // area for another section (Theme Creator, the Playground), leaving a 404
+      // inside the shell and stealing the page title. A `/docs/*` path that is
+      // not a page never mounts this shell anyway: `routes.js` lists every real
+      // page, so the Router's own `/404` route handles it.
       const visualComponentsMultiRoute = await slice.build('MultiRoute', {
-         routes: docRoutes,
-         // A /docs/* path that is not a page (a moved page, a typo) still shows
-         // the layout and its menu, with NotFound in the content area.
-         fallback: 'NotFound'
+         routes: docRoutes
       });
 
       // Crear el MainMenu que contendrá el TreeView

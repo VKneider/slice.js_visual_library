@@ -10,6 +10,14 @@ export default class App extends HTMLElement {
       this._titleByRoute = new Map(docsIndex.map((doc) => [doc.route, doc.title]));
       this._titleByRoute.set('/', 'Slice.js Components');
       this._titleByRoute.set('/docs', 'Components Library');
+      // The routes outside the docs area. The server already sends these titles
+      // (src/public/seo-manifest.json is the source of truth); this map only
+      // keeps the client from downgrading them to "Slice.js" after a navigation.
+      this._titleByRoute.set('/theme-creator', 'Theme Creator');
+      this._titleByRoute.set('/playground', 'Playground');
+      this._titleByRoute.set('/game', 'Game');
+      this._titleByRoute.set('/__test', 'Test Harness');
+      this._titleByRoute.set('/404', 'Not Found');
    }
 
    _resolveDocumentTitle(pathname) {
