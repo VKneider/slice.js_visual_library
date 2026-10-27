@@ -366,6 +366,11 @@ const documentationRoutes = {
         component: 'QueryServiceDocumentation'
       },
       {
+        title: 'RealtimeService',
+        path: '/docs/services/realtime-service',
+        component: 'RealtimeServiceDocumentation'
+      },
+      {
         title: 'LocalStorageManager',
         path: '/docs/services/local-storage-manager',
         component: 'LocalStorageManagerDocumentation'

@@ -622,7 +622,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-05-31"
+      "lastmod": "2026-10-26"
     },
     "/docs/services/infinite-scroll": {
       "title": "InfiniteScrollService | Slice.js",
@@ -654,6 +654,16 @@
       "changefreq": "monthly",
       "lastmod": "2026-10-26"
     },
+    "/docs/services/realtime-service": {
+      "title": "RealtimeService | Slice.js",
+      "description": "What the server tells the app without being asked. A WebSocket or Server-Sent Events connection that stays up — reconnecting with growing waits, channels with listeners that go with their component, subscribe frames sent again after a reconnect, a send queue, a heartbeat — and messages that make QueryService queries stale.",
+      "section": "Services",
+      "group": "Networking",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": null
+    },
     "/docs/services/shortcut-service": {
       "title": "ShortcutService | Slice.js",
       "description": "The app's keyboard shortcuts in one place. mod+k that is ⌘ on Mac and Ctrl elsewhere, sequences like \"g o\", no single-key shortcuts while typing, scopes so an open dialog takes the keyboard, a warning when two shortcuts collide, cleanup with the component, and list() for a help screen.",
@@ -662,7 +672,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": null
+      "lastmod": "2026-10-26"
     },
     "/docs/services/storage-service": {
       "title": "StorageService | Slice.js",
@@ -672,7 +682,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": null
+      "lastmod": "2026-10-26"
     },
     "/docs/services/toast-provider": {
       "title": "ToastProvider | Slice.js",

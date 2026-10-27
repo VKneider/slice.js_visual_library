@@ -354,7 +354,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/services/indexed-db-manager</loc>
-    <lastmod>2026-05-31</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -377,12 +377,19 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://components.slicejs.com/docs/services/realtime-service</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://components.slicejs.com/docs/services/shortcut-service</loc>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/services/storage-service</loc>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

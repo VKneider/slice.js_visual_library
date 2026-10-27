@@ -638,6 +638,17 @@ const docsIndex = [
     tags: ['service', 'query', 'cache', 'server state', 'react query', 'swr', 'stale-while-revalidate', 'invalidate', 'mutate', 'prefetch']
   },
   {
+    title: 'RealtimeService',
+    route: '/docs/services/realtime-service',
+    description: 'What the server tells the app without being asked. A WebSocket or Server-Sent Events connection that stays up — reconnecting with growing waits, channels with listeners that go with their component, subscribe frames sent again after a reconnect, a send queue, a heartbeat — and messages that make QueryService queries stale.',
+    section: 'Services',
+    group: 'Networking',
+    order: 32,
+    navLabel: 'RealtimeService',
+    component: 'RealtimeServiceDocumentation',
+    tags: ['service', 'websocket', 'sse', 'server-sent events', 'realtime', 'live', 'push', 'reconnect', 'subscribe', 'channels', 'query', 'invalidate']
+  },
+  {
     title: 'ToolTipProvider',
     route: '/docs/services/tooltip-provider',
     description: 'Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.',

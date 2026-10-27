@@ -199,4 +199,33 @@ test.describe('ShortcutService', () => {
       expect(out.thrown).toBe(true);
       expect(out.lPrevented).toBe(false);
    });
+   test("keys the browser keeps or uses warn once (unless override); keys that edit text stay the field's while typing", async ({ mountHtml }) => {
+      const h = await mountHtml('<input id="field">');
+      const out = await run(h.page, `
+         const warnings = [];
+         const listener = slice.logger.onLog((log) => { if (String(log.message).includes('browser')) warnings.push(log.message); });
+         const fired = [];
+         keys.add('mod+t', host, () => fired.push('t'), { label: 'New tab' });              // never reaches the page
+         keys.add('mod+e', host, () => fired.push('e'), { label: 'Rename' });               // the browser's search
+         keys.add('mod+e', host, () => fired.push('e2'), { label: 'Edit', within: document.body });   // same keys: warned once
+         keys.add('mod+k', host, () => fired.push('k'), { label: 'Palette', override: true });   // meant: no warning
+         keys.add('mod+enter', host, () => fired.push('enter'), { label: 'Send' });          // free: no warning
+         keys.add('g i', host, () => fired.push('gi'), { label: 'Go to inbox' });           // plain keys: no warning
+         keys.add('mod+z', host, () => fired.push('undo'), { label: 'Undo' });
+         keys.add('mod+backspace', host, () => fired.push('delete'), { label: 'Delete' });
+         const field = document.getElementById('field');
+         press('z', { ctrl: true }, field); press('Backspace', { ctrl: true }, field);   // the field's
+         press('k', { ctrl: true }, field); press('Enter', { ctrl: true }, field);       // still shortcuts
+         press('z', { ctrl: true }); press('Backspace', { ctrl: true });                 // outside a field
+         slice.logger.offLog?.(listener);
+         return { fired, warnings };
+      `);
+      expect(out.fired).toEqual(['k', 'enter', 'undo', 'delete']);
+      // mod+backspace has no browser meaning outside a field: no warning; in a field it is the field's.
+      expect(out.warnings).toHaveLength(3);
+      expect(out.warnings[0]).toContain('Ctrl+T cannot be a shortcut');
+      expect(out.warnings[1]).toContain("Ctrl+E is the browser's (search from the address bar)");
+      expect(out.warnings[1]).toContain('override: true');
+      expect(out.warnings[2]).toContain("Ctrl+Z is the browser's (undo)");
+   });
 });

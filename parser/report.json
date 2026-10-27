@@ -193,12 +193,20 @@
       "component": "RadioGroupDocumentation"
     },
     {
+      "filePath": "src/markdown/realtime-service.md",
+      "component": "RealtimeServiceDocumentation"
+    },
+    {
       "filePath": "src/markdown/route.md",
       "component": "RouteDocumentation"
     },
     {
       "filePath": "src/markdown/select.md",
       "component": "SelectDocumentation"
+    },
+    {
+      "filePath": "src/markdown/shortcut-service.md",
+      "component": "ShortcutServiceDocumentation"
     },
     {
       "filePath": "src/markdown/Sidemenu.md",
@@ -209,8 +217,8 @@
       "component": "SliderDocumentation"
     },
     {
-      "filePath": "src/markdown/store-service.md",
-      "component": "StoreServiceDocumentation"
+      "filePath": "src/markdown/storage-service.md",
+      "component": "StorageServiceDocumentation"
     },
     {
       "filePath": "src/markdown/switch.md",
@@ -264,7 +272,7 @@
   "validationErrors": [],
   "markdownCandidates": [
     {
-      "filePath": "C:\\Users\\vkneider\\Desktop\\asdasd\\slice.js_visual_library\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
+      "filePath": "C:\\Users\\vkneider\\Desktop\\asdasd\\slice-workspace\\repos\\slicejs-components\\src\\Components\\DocumentationPages\\DetailsDocumentation\\DetailsDocumentation.js",
       "reason": "Details-based FAQ can map to :::details blocks"
     }
   ],

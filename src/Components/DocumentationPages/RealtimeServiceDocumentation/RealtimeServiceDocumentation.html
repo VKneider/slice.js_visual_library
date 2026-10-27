@@ -1,0 +1,53 @@
+<div class="documentation-content realtimeservicedocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="realtimeservice">
+     <span class="doc-title-text">RealtimeService</span>
+   </h1>
+   <span class="copy-md-slot" data-copy-md></span>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>RealtimeService</code> keeps a connection to the server open so the server can tell the app when something changes: a WebSocket, or Server-Sent Events (SSE).</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p>It completes the data layer of <span data-inline-link="0"></span>: <span data-inline-link="1"></span> asks, <span data-inline-link="2"></span> keeps, and RealtimeService says when what is kept changed.</p>
+<p>What it takes care of:</p>
+<ul><li><strong>Connecting and staying connected.</strong> It connects when the first listener arrives (or on <code>connect()</code>). When the connection drops it reconnects, waiting longer each time (1 s, 2 s, 4 s… up to 30 s, with jitter), at once when the network comes back, and not at all while the browser is offline. A server that accepts and drops at once does not reset the waits.</li><li><strong>Channels.</strong> A message goes to the listeners of its channel: <code>message.channel</code>, <code>.type</code> or <code>.event</code> (or the event name in SSE). <code>'order.*'</code> listens to a family, <code>'*'</code> to everything.</li><li><strong>Cleanup.</strong> Every listener belongs to a component and goes with it.</li><li><strong>Subscriptions.</strong> With <code>subscribe</code>/<code>unsubscribe</code>, the server is told which channels have listeners: when a channel gets its first, when it loses its last, and again after every reconnect.</li><li><strong>Sending</strong> (WebSocket): <code>send()</code> while disconnected waits in a queue and goes out when the connection opens.</li><li><strong>Queries.</strong> <code>invalidates()</code> makes QueryService queries stale on a message, and after every reconnect, because what changed while the app was offline was never announced.</li><li><strong>Resuming SSE.</strong> The id of the last event (<code>id:</code> in the stream) is sent again on reconnect as <code>?lastEventId=…</code>, so the server can replay what was missed.</li><li><strong>A heartbeat</strong> that notices a connection that died without closing (a laptop waking up, a proxy that drops idle sockets).</li><li><strong>The status</strong>, to show it: <code>idle</code>, <code>connecting</code>, <code>open</code>, <code>reconnecting</code>, <code>closed</code>.</li></ul>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Data that changes on the server while people look at it: orders arriving, a ticket assigned, a build finishing, sensors, prices.</li><li>Several people on the same thing: chat, presence ("Ana is viewing"), "someone else edited this record".</li><li>Notifications the server decides to send.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li>Data that is fine a few seconds late: QueryService's <code>staleTime</code> and its refresh when the tab comes back are simpler and cheaper.</li><li>One answer to one question: <span data-inline-link="3"></span>.</li><li>Long work you start and wait for (an export): ask with FetchManager, then either poll its status or let the server announce it here.</li></ul>
+<h3 id="websocket-or-server-sent-events">WebSocket or Server-Sent Events</h3>
+<div class="table-block" data-block-id="doc-block-2"></div>
+<p>The transport follows the URL; pass <code>transport</code> when the URL is a function.</p>
+<h2 id="build-it">Build it</h2>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<h2 id="examples">Examples</h2>
+<h3 id="orders-that-update-themselves">Orders that update themselves</h3>
+<p>The table loads through QueryService; the server announces changes, and the table asks again. Nothing in the page handles the messages one by one.</p>
+<div class="code-block" data-block-id="doc-block-5"></div>
+<p>The server only has to send <code>{ "type": "order.updated", "id": 42 }</code>. When the connection comes back after a drop, the orders are asked again anyway.</p>
+<h3 id="only-what-changed">Only what changed</h3>
+<p>When a message carries the new record, put it in the query instead of asking the server again.</p>
+<div class="code-block" data-block-id="doc-block-6"></div>
+<h3 id="a-chat-room-with-subscribe-frames">A chat room, with subscribe frames</h3>
+<p>The server sends a room's messages only to connections subscribed to it. The service sends the frames when a component starts listening, when the last one stops, and again after every reconnect.</p>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<h3 id="showing-the-connection">Showing the connection</h3>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<h3 id="notifications-with-server-sent-events">Notifications with Server-Sent Events</h3>
+<div class="code-block" data-block-id="doc-block-9"></div>
+<p>The server streams named events, each with an id:</p>
+<div class="code-block" data-block-id="doc-block-10"></div>
+<p>If the connection drops after event 1042, the next one asks for <code>/api/notifications?lastEventId=1042</code>, and the server sends what came after it. A browser's own <code>EventSource</code> does this with the <code>Last-Event-ID</code> header, but only while the same <code>EventSource</code> lives; the service makes a new one on every reconnect (to control the waits), so it carries the id in the URL instead. Read it on the server from either:</p>
+<div class="code-block" data-block-id="doc-block-11"></div>
+<p>To resume across visits too, keep <code>live.lastEventId</code> with <span data-inline-link="4"></span> and pass it back as the <code>lastEventId</code> prop.</p>
+<h2 id="best-practices">Best practices</h2>
+<div class="callout callout-tip">- One RealtimeService for the app (<code>singleton: true</code>), used from domain Services; components listen with <code>on()</code> and the listener goes with them.
+- Send <strong>what changed</strong> (<code>{ type, id }</code>) and let <code>invalidates()</code> or <code>setData()</code> decide what to ask again. The server does not need to know what each page shows.
+- Show the status somewhere discreet: people trust live data more when they can see it is live.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Messages sent while the app was disconnected are lost. That is why <code>invalidates()</code> asks again after every reconnect; with <code>on()</code> alone, ask again yourself when <code>watch()</code> reports <code>reconnected</code>.</div>
+<div class="callout callout-warning">A token in the URL lives in server logs. Prefer a cookie, or a short-lived token from a function <code>url</code> (called on every connect, so it is always fresh).</div>
+</div>

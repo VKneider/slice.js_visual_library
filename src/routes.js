@@ -67,6 +67,7 @@ const routes = [
   { path: '/docs/services/infinite-scroll', component: 'App' },
   { path: '/docs/services/local-storage-manager', component: 'App' },
   { path: '/docs/services/query-service', component: 'App' },
+  { path: '/docs/services/realtime-service', component: 'App' },
   { path: '/docs/services/shortcut-service', component: 'App' },
   { path: '/docs/services/storage-service', component: 'App' },
   { path: '/docs/services/toast-provider', component: 'App' },

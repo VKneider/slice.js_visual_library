@@ -19,7 +19,7 @@ tags: [service, keyboard, shortcuts, hotkeys, keybindings, accessibility, comman
 ```js
 const keys = await slice.build('ShortcutService', { singleton: true, sliceId: 'shortcuts' });
 
-keys.add('mod+k', this, () => this.openSearch(), { label: 'Search', group: 'General' });
+keys.add('mod+k', this, () => this.openSearch(), { label: 'Search', group: 'General', override: true });
 keys.add('g o', this, () => slice.router.navigate('/orders'), { label: 'Go to orders', group: 'Navigation' });
 keys.add('shift+?', this, () => this.showShortcuts(), { label: 'Keyboard shortcuts', group: 'General' });
 ```
@@ -28,7 +28,8 @@ What it takes care of, so components do not each listen to `keydown`:
 
 - **`mod`** is ⌘ on Mac and Ctrl elsewhere, and `format()` / `list()` show the keys that way (`⌘K`, `Ctrl+K`).
 - **Sequences**: `g o` is G, then O within a second.
-- **Typing is safe**: in an input, a textarea or an editable element, single keys and sequences do nothing; combinations with Ctrl, ⌘ or Alt (`mod+s`) still work.
+- **Typing is safe**: in an input, a textarea or an editable element, single keys and sequences do nothing, and neither do the keys that edit text (`mod+z`, `mod+backspace`, `mod+arrows`…); other combinations with Ctrl, ⌘ or Alt (`mod+k`) still work.
+- **The browser's keys**: outside production, a shortcut on keys the browser uses (`mod+f`, `mod+e`, `mod+s`, `mod+p`…) logs a warning saying what people would lose, and one on keys the browser never gives to a page (`mod+t`, `mod+w`, `mod+n`) says it will never run. `override: true` when taking them is meant.
 - **Scopes**: while a dialog or panel is active, only its shortcuts (and the ones marked `global`) fire. When it is deactivated or destroyed, the page's shortcuts are back.
 - **Collisions**: the same keys twice in the same place log a warning, and the newest wins.
 - **Cleanup**: a shortcut belongs to a component and goes with it.
@@ -82,97 +83,268 @@ const keys = await slice.build('ShortcutService', { singleton: true, sliceId: 's
 | `scope` | `null` | A component: fires only while it is the active scope. Without it, the shortcut belongs to the page. |
 | `global` | `false` | Fires whatever scope is active (search, help). |
 | `within` | `null` | An element: fires only when focus is inside it (an editor's own shortcuts). |
-| `inInputs` | combinations only | `true`: also while typing in a field. `false`: never while typing, not even `mod+s`. |
+| `inInputs` | combinations only | `true`: also while typing in a field. `false`: never while typing. By default, combinations with Ctrl, ⌘ or Alt fire while typing, except the keys that edit text (`mod+z`, `mod+backspace`, `mod+arrows`…). |
+| `override` | `false` | `true`: taking keys the browser uses is meant (a palette on `mod+k`, bold on `mod+b` in an editor), so no warning. |
 | `preventDefault` | `true` | The browser's own action for those keys does not run. |
 | `repeat` | `false` | Holding the keys down fires once; `true` fires on every repeat (arrows). |
 | `when()` | — | Fires only when it returns `true` (something is selected, a tab is open). |
 
 ## Examples
 
-### An inbox you can drive with the keyboard
-Click the example (or Tab to it), then try **J** and **K** to move, **E** to archive, **G** then **A** to see the archive, **G** then **I** to go back, **Ctrl+K** (**⌘K** on Mac) to search, and **?** for the list. While the list is open only its own shortcuts work, and typing in the search box does not trigger anything. The shortcuts are limited to the example with `within`, so the rest of this page keeps its keys.
+### A task list you can drive from the keyboard
+The keys follow what Gmail, GitHub or Linear do. **Ctrl** (**⌘** on Mac) only where people expect an app to take it: **Ctrl+K** for the command palette and **Ctrl+Enter** to mark a task done. Everything else is a plain key or a sequence, limited to the example with `within`: it never fights with the browser, and it does nothing while you type in the field. Click the example (or Tab to it) and try:
 
-:::script label="Keyboard inbox" expected="a search field, a list of five messages with the first one highlighted, and a hint line; J and K move the highlight, E archives the highlighted message, G then A shows the archived ones and G then I the inbox again, Ctrl+K (⌘K on Mac) puts the cursor in the search field, and ? opens a dialog listing the shortcuts with their keys; typing letters in the search field does not move the highlight"
+- **Ctrl+K**: a command palette with every action and its keys; type to filter, arrows to choose, Enter to run.
+- **?**: the list of shortcuts.
+- **J / K**: next and previous task (hold to keep moving). **Ctrl+Enter**: done or not done.
+- **N**: write a new task, Enter to add it, **Esc** to leave the field. **E**: rename the selected task. **Delete**: delete it. **U**: undo (several times).
+- **] / [**: next and previous filter. **G** then **A**, **T** or **D**: All, To do, Done.
+
+While the palette or the list is open, the task shortcuts stop: the dialog is the active scope, so **Delete** cannot remove a task behind it.
+
+:::script label="Keyboard task list" expected="a 'New task' field, a filter badge, a list of six tasks with the first highlighted, and a status line; J and K move the highlight, Ctrl+Enter marks the task done or not done, N puts the cursor in the field and Enter adds the task, E puts the selected title in the field to rename it, Delete removes it, U undoes, ] and [ change the filter and G then A, T or D jump to one, Ctrl+K opens a command palette that filters as you type and runs the chosen command with Enter, and ? opens the list of shortcuts with their keys; letters typed in the field only type"
 const keys = await slice.build('ShortcutService', { singleton: true, sliceId: 'docsShortcuts' });
-
-let messages = [
-  { id: 1, from: 'Ana López', subject: 'Quarterly numbers', archived: false },
-  { id: 2, from: 'Luis Galué', subject: 'Server maintenance on Friday', archived: false },
-  { id: 3, from: 'María Ruiz', subject: 'New client in Valencia', archived: false },
-  { id: 4, from: 'Sofía Rey', subject: 'Design review notes', archived: false },
-  { id: 5, from: 'Pedro Díaz', subject: 'Invoice #1045', archived: false }
-];
-let view = 'inbox';
-let current = 0;
 
 // The example's area: focusable, and the `within` of its shortcuts.
 const box = document.createElement('div');
 box.tabIndex = 0;
-box.setAttribute('aria-label', 'Keyboard inbox');
-box.style.cssText = 'display:grid;gap:10px;width:100%;max-width:560px;padding:8px;border-radius:10px;outline-offset:2px';
-const area = { within: box };
+box.setAttribute('aria-label', 'Task list with keyboard shortcuts');
+box.style.cssText = 'display:grid;gap:10px;width:100%;max-width:600px;padding:8px;border-radius:10px;outline-offset:2px';
 
-const search = await slice.build('Input', { label: 'Search mail', size: 'sm', clearable: true, onChange: () => { current = 0; paint(); } });
+// ── The data, with an undo history ──
+let tasks = [
+  { id: 1, title: 'Prepare the quarterly report', tag: 'Work', done: false },
+  { id: 2, title: 'Review the pull request for the Table', tag: 'Work', done: false },
+  { id: 3, title: 'Book the meeting room for Friday', tag: 'Office', done: true },
+  { id: 4, title: 'Buy paper for the shop', tag: 'Shop', done: false },
+  { id: 5, title: 'Call the client in Valencia', tag: 'Sales', done: false },
+  { id: 6, title: 'Update the team on the release', tag: 'Work', done: true }
+];
+let nextId = 7;
+let current = 0;
+let filter = 'all';
+let renaming = null;            // the id of the task being renamed
+const FILTERS = [['all', 'All'], ['todo', 'To do'], ['done', 'Done']];
+const history = [];
+const remember = () => { history.push(JSON.stringify(tasks)); if (history.length > 30) history.shift(); };
+
+const visible = () => tasks.filter((t) => filter === 'all' || (filter === 'done') === t.done);
+const selected = () => visible()[current] || null;
+
+// ── The interface ──
+const field = await slice.build('Input', {
+  label: 'New task', size: 'sm',
+  onEnter: (text, event) => {
+    if (event.ctrlKey || event.metaKey) return;          // Ctrl+Enter is a shortcut, not "add"
+    const title = text.trim();
+    if (!title) return;
+    remember();
+    if (renaming !== null) {
+      tasks = tasks.map((t) => (t.id === renaming ? { ...t, title } : t));
+      say('Renamed · U to undo');
+      renaming = null;
+      field.label = 'New task';
+    } else {
+      tasks = [{ id: nextId++, title, tag: 'Inbox', done: false }, ...tasks];
+      filter = filter === 'done' ? 'all' : filter;
+      current = 0;
+      say('Added · U to undo');
+    }
+    field.value = '';
+    paint();
+    box.focus();                                          // back to the list: the keys work again
+  }
+});
+const filterBadge = await slice.build('Badge', { label: 'All', tone: 'accent' });
 const list = document.createElement('div');
 list.setAttribute('role', 'listbox');
+list.setAttribute('aria-label', 'Tasks');
 list.style.cssText = 'display:grid;gap:4px';
-const hint = document.createElement('small');
-hint.style.cssText = 'opacity:.75';
+const status = document.createElement('small');
+status.style.cssText = 'opacity:.75;min-height:1.4em';
+const say = (text) => { status.textContent = text; };
 
-const visible = () => {
-  const q = search.value.trim().toLowerCase();
-  return messages.filter((m) => m.archived === (view === 'archive'))
-    .filter((m) => !q || `${m.from} ${m.subject}`.toLowerCase().includes(q));
-};
 const paint = () => {
   const items = visible();
   current = Math.max(0, Math.min(current, items.length - 1));
-  list.replaceChildren(...items.map((m, i) => {
+  filterBadge.label = FILTERS.find(([value]) => value === filter)[1];
+  list.replaceChildren(...items.map((task, i) => {
     const row = document.createElement('div');
     row.setAttribute('role', 'option');
     row.setAttribute('aria-selected', String(i === current));
-    row.style.cssText = `padding:8px 12px;border-radius:8px;border:1px solid var(--primary-color-shade);${i === current ? 'background:color-mix(in srgb, var(--primary-color) 14%, transparent);border-color:var(--primary-color)' : ''}`;
-    row.innerHTML = '<strong></strong> — <span></span>';
-    row.querySelector('strong').textContent = m.from;
-    row.querySelector('span').textContent = m.subject;
+    const on = i === current;
+    row.style.cssText = `display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;border:1px solid ${on ? 'var(--primary-color)' : 'var(--primary-color-shade)'};${on ? 'background:color-mix(in srgb, var(--primary-color) 14%, transparent);' : ''}`;
+    const mark = document.createElement('span');
+    mark.textContent = task.done ? '✓' : '○';
+    mark.style.cssText = `width:1.2em;text-align:center;${task.done ? 'color:var(--success-color)' : 'opacity:.6'}`;
+    const title = document.createElement('span');
+    title.textContent = task.title;
+    title.style.cssText = `flex:1;${task.done ? 'text-decoration:line-through;opacity:.65' : ''}`;
+    const tag = document.createElement('small');
+    tag.textContent = task.tag;
+    tag.style.opacity = '.7';
+    row.append(mark, title, tag);
     return row;
   }));
-  if (!items.length) list.textContent = view === 'archive' ? 'Nothing archived yet.' : 'No messages.';
-  hint.textContent = `${view === 'archive' ? 'Archive' : 'Inbox'} · press ? for the shortcuts`;
+  if (!items.length) list.textContent = filter === 'done' ? 'Nothing done yet.' : 'Nothing to do.';
 };
 
-// The shortcuts belong to the search field (they go when this example does)
-// and work only with focus inside the example.
-keys.add('j', search, () => { current += 1; paint(); }, { ...area, label: 'Next message', group: 'Inbox', repeat: true });
-keys.add('k', search, () => { current -= 1; paint(); }, { ...area, label: 'Previous message', group: 'Inbox', repeat: true });
-keys.add('e', search, () => {
-  const message = visible()[current];
-  if (message) { message.archived = view !== 'archive'; paint(); }
-}, { ...area, label: 'Archive (or move back)', group: 'Inbox', when: () => visible().length > 0 });
-keys.add('g a', search, () => { view = 'archive'; current = 0; paint(); }, { ...area, label: 'Go to the archive', group: 'Navigation' });
-keys.add('g i', search, () => { view = 'inbox'; current = 0; paint(); }, { ...area, label: 'Go to the inbox', group: 'Navigation' });
-keys.add('mod+k', search, () => search.focus(), { ...area, label: 'Search', group: 'General', global: true });
-keys.add('shift+?', search, async () => {
-  // The dialog takes the keyboard while it is open.
+// ── A dialog that takes the keyboard while it is open ──
+const openDialog = async (title, content, onKeys) => {
+  const dialog = await slice.build('Modal', { title, size: 'sm', content });
+  document.body.append(dialog);
+  keys.activate(dialog);                 // the task shortcuts wait
+  const shown = dialog.show();
+  onKeys?.(dialog);
+  const { returnValue } = await shown;
+  keys.deactivate(dialog);
+  slice.controller.destroyComponent(dialog);
+  return returnValue;
+};
+
+const openHelp = () => {
   const rows = document.createElement('div');
   rows.style.cssText = 'display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center';
+  let group = '';
   for (const shortcut of keys.list().filter((s) => s.label)) {
+    if (shortcut.group !== group) {
+      group = shortcut.group;
+      const heading = document.createElement('strong');
+      heading.textContent = group;
+      heading.style.cssText = 'grid-column:1 / -1;margin-top:6px';
+      rows.append(heading);
+    }
     const k = document.createElement('kbd');
     k.textContent = shortcut.keys.join(' / ');
     const label = document.createElement('span');
-    label.textContent = `${shortcut.label}${shortcut.group ? ` · ${shortcut.group}` : ''}`;
+    label.textContent = shortcut.label;
     rows.append(k, label);
   }
-  const dialog = await slice.build('Modal', { title: 'Keyboard shortcuts', size: 'sm', content: rows });
-  document.body.append(dialog);
-  keys.activate(dialog);
-  await dialog.show();
-  keys.deactivate(dialog);
-  slice.controller.destroyComponent(dialog);
-}, { ...area, label: 'Keyboard shortcuts', group: 'General' });
+  return openDialog('Keyboard shortcuts', rows);
+};
 
+// The palette lists the same commands, runs the chosen one after it closes.
+const openPalette = async () => {
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:grid;gap:8px';
+  const results = document.createElement('div');
+  results.setAttribute('role', 'listbox');
+  results.style.cssText = 'display:grid;gap:2px;max-height:300px;overflow:auto';
+  let matches = [];
+  let pick = 0;
+  const show = (query) => {
+    const q = query.trim().toLowerCase();
+    matches = commands.filter((c) => c.combo !== 'mod+k' && (!q || `${c.label} ${c.group}`.toLowerCase().includes(q)));
+    pick = Math.min(pick, Math.max(0, matches.length - 1));
+    results.replaceChildren(...matches.map((c, i) => {
+      const row = document.createElement('div');
+      row.setAttribute('role', 'option');
+      row.setAttribute('aria-selected', String(i === pick));
+      row.style.cssText = `display:flex;justify-content:space-between;gap:12px;padding:6px 10px;border-radius:6px;${i === pick ? 'background:color-mix(in srgb, var(--primary-color) 14%, transparent)' : ''}`;
+      const name = document.createElement('span');
+      name.textContent = c.label;
+      const k = document.createElement('kbd');
+      k.textContent = keys.format(c.combo);
+      row.append(name, k);
+      return row;
+    }));
+    if (!matches.length) results.textContent = 'No command matches.';
+  };
+  const search = await slice.build('Input', { label: 'Type a command', size: 'sm', onChange: (text) => { pick = 0; show(text); } });
+  wrap.append(search, results);
+  show('');
+  let chosen = null;
+  const answer = await openDialog('Commands', wrap, (dialog) => {
+    search.focus();
+    // Arrows and Enter are how this list works (its own keyboard model), not shortcuts.
+    search.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+        event.preventDefault();
+        pick = (pick + (event.key === 'ArrowDown' ? 1 : -1) + matches.length) % Math.max(1, matches.length);
+        show(search.value);
+      } else if (event.key === 'Enter' && matches[pick]) {
+        chosen = matches[pick];
+        dialog.close('run');
+      }
+    });
+  });
+  if (answer === 'run' && chosen) {
+    box.focus();
+    chosen.run();
+  }
+};
+
+// ── The commands: one list for the shortcuts, the palette and the help ──
+const move = (step) => { current = Math.max(0, Math.min(visible().length - 1, current + step)); paint(); };
+const hasTask = () => selected() !== null;
+const setFilter = (value) => { filter = value; current = 0; paint(); };
+const stepFilter = (step) => setFilter(FILTERS[(FILTERS.findIndex(([v]) => v === filter) + step + FILTERS.length) % FILTERS.length][0]);
+const inField = () => document.activeElement?.closest?.('slice-input') === field;
+const commands = [
+  // Ctrl only where an app is expected to take it (override: the browser uses Ctrl+K too).
+  { combo: 'mod+k', label: 'Command palette', group: 'General', override: true, typing: true, run: openPalette },
+  { combo: 'shift+?', label: 'Keyboard shortcuts', group: 'General', run: openHelp },
+  { combo: 'j', label: 'Next task', group: 'Move', repeat: true, run: () => move(1) },
+  { combo: 'k', label: 'Previous task', group: 'Move', repeat: true, run: () => move(-1) },
+  { combo: 'mod+enter', label: 'Done / not done', group: 'Tasks', when: hasTask, typing: false, run: () => {
+    const task = selected();
+    remember();
+    tasks = tasks.map((t) => (t.id === task.id ? { ...t, done: !t.done } : t));
+    say(`${task.done ? 'Back to do' : 'Done'} · U to undo`);
+    paint();
+  } },
+  { combo: 'n', label: 'New task', group: 'Tasks', run: () => { renaming = null; field.label = 'New task'; field.focus(); } },
+  { combo: 'e', label: 'Rename task', group: 'Tasks', when: hasTask, run: () => {
+    const task = selected();
+    renaming = task.id;
+    field.label = 'Rename task (Enter to save, Esc to cancel)';
+    field.value = task.title;
+    field.focus();
+  } },
+  { combo: 'escape', label: 'Leave the field', group: 'Tasks', when: inField, typing: true, run: () => {
+    renaming = null;
+    field.label = 'New task';
+    field.value = '';
+    box.focus();
+  } },
+  { combo: 'delete', label: 'Delete task', group: 'Tasks', when: hasTask, run: () => {
+    const task = selected();
+    remember();
+    tasks = tasks.filter((t) => t.id !== task.id);
+    say(`Deleted "${task.title}" · U to undo`);
+    paint();
+  } },
+  { combo: 'u', label: 'Undo', group: 'Tasks', run: () => {
+    const before = history.pop();
+    if (!before) { say('Nothing to undo.'); return; }
+    tasks = JSON.parse(before);
+    say('Undone.');
+    paint();
+  } },
+  { combo: ']', label: 'Next filter', group: 'View', run: () => stepFilter(1) },
+  { combo: '[', label: 'Previous filter', group: 'View', run: () => stepFilter(-1) },
+  { combo: 'g a', label: 'Show all', group: 'View', run: () => setFilter('all') },
+  { combo: 'g t', label: 'Show to do', group: 'View', run: () => setFilter('todo') },
+  { combo: 'g d', label: 'Show done', group: 'View', run: () => setFilter('done') }
+];
+
+// Registered on the field (they go when this example does), only with focus inside it.
+for (const command of commands) {
+  keys.add(command.combo, field, () => command.run(), {
+    within: box, label: command.label, group: command.group, repeat: command.repeat, when: command.when,
+    override: command.override,
+    // In the field: plain keys only type; Ctrl+K and Esc still work, Ctrl+Enter does not.
+    inInputs: command.typing
+  });
+}
+
+const head = document.createElement('div');
+head.style.cssText = 'display:flex;gap:10px;align-items:end';
+field.style.flex = '1';
+head.append(field, filterBadge);
 paint();
-box.append(search, list, hint);
+say(`${keys.format('mod+k')} for every command · ? for the shortcuts`);
+box.append(head, list, status);
 return box;
 :::
 
@@ -198,22 +370,23 @@ keys.add('delete', this, () => this.removeSelected(), {
 ```
 
 ### An editor's own shortcuts
-`within` limits them to focus inside the element, and `inInputs: true` lets them fire while typing there.
+`within` limits them to focus inside the element, `inInputs: true` lets them fire while typing there, and `override: true` says that taking the browser's Ctrl+B (bookmarks in Firefox) is meant inside an editor.
 
 ```js
-keys.add('mod+b', this, () => this.toggleBold(), { within: this.$editor, inInputs: true, label: 'Bold', group: 'Editor' });
+keys.add('mod+b', this, () => this.toggleBold(), { within: this.$editor, inInputs: true, override: true, label: 'Bold', group: 'Editor' });
 ```
 
 ## Best practices
 :::tip
 - One service for the app (`singleton: true`), and every shortcut added by the component it belongs to: it goes away with it.
 - Give each shortcut a `label`, and offer `?` with `list()`: shortcuts nobody can discover are not used.
-- Prefer `mod+…` for actions that also make sense while typing (save, search), and single keys or sequences for moving around.
+- Use Ctrl/⌘ only where people expect an app to take it (`mod+k` for a palette, `mod+enter` to send); almost every other Ctrl+letter is the browser's. Plain keys and sequences (`j`, `e`, `g i`), with a `within` or a `scope`, are what Gmail, GitHub or Linear use for the rest.
+- Read the warnings: when the service says a key is the browser's, choose another, or pass `override: true` only when taking it is the point.
 :::
 
 ## Pitfalls
 :::warning
-Do not take keys the browser or the screen reader relies on (Tab, Ctrl+L, Ctrl+W, Ctrl+T, F6, Alt+arrows for history). `preventDefault` would take them away from people who depend on them.
+Do not take keys the browser or the screen reader relies on (Tab, Ctrl+L, Ctrl+F, F6, Alt+arrows for history). `preventDefault` would take them away from people who depend on them. Some (Ctrl+T, Ctrl+W, Ctrl+N) the browser never gives to a page at all; the service warns about both while you develop.
 :::
 
 :::warning

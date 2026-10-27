@@ -50,6 +50,7 @@ const docRoutes = [
   { path: '/docs/internal/markdown-parser-rules', component: 'MarkdownParserRulesDocumentation' },
   { path: '/docs/services/query-service', component: 'QueryServiceDocumentation' },
   { path: '/docs/input/radio-group', component: 'RadioGroupDocumentation' },
+  { path: '/docs/services/realtime-service', component: 'RealtimeServiceDocumentation' },
   { path: '/docs/routing/route', component: 'RouteDocumentation' },
   { path: '/docs/input/select', component: 'SelectDocumentation' },
   { path: '/docs/services/shortcut-service', component: 'ShortcutServiceDocumentation' },
