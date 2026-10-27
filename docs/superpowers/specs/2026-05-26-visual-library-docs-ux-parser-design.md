@@ -1,7 +1,7 @@
 # Diseno: mejora de UX visual + parser static props (hibrido)
 
 Fecha: 2026-05-26
-Repositorio: `slice.js_visual_library`
+Repositorio: `slicejs-components`
 Estado: Aprobado en conversacion, pendiente de implementacion
 
 ## Objetivo

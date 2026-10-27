@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Scope
-This document explains what is already implemented in `slice.js_visual_library` and the operating pattern for future agents adding documentation pages from markdown.
+This document explains what is already implemented in `slicejs-components` and the operating pattern for future agents adding documentation pages from markdown.
 
 ## Implemented So Far
 

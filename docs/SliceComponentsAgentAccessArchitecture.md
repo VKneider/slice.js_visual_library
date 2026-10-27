@@ -13,24 +13,25 @@ It includes both categories of installable library modules:
 - **Visual components** such as `Button`, `Table`, `Modal`, and `Navbar`.
 - **Service components** such as `FetchManager`, `StoreService`, and `HtmlService`.
 
-The current repository name, `slice.js_visual_library`, is a legacy implementation name. It may remain in repository paths and compatibility URLs while the public catalog, CLI, MCP, and documentation use the following identifiers:
+The repository was renamed from `slice.js_visual_library` to `slicejs-components`. The old name remains only as a compatibility identifier (redirects and historical URLs) while the public catalog, CLI, MCP, and documentation use the following identifiers:
 
 | Purpose | Canonical value |
 | --- | --- |
 | Public product | `Slice.js Components` |
+| Repository / npm package | `slicejs-components` |
 | Catalog identifier | `slicejs-components` |
 | CLI source | `components` |
 | Legacy repository name | `slice.js_visual_library` |
 | Framework documentation source | `framework` |
 
-The legacy name must not be used as the primary name in new public APIs. Existing URLs and configuration values should continue to work during the migration when practical.
+The old name must not be used as the primary name in new public APIs. Existing URLs and configuration values should continue to work during the migration when practical.
 
 ## Problem
 
 Slice.js has two related but separate documentation sources:
 
 1. `slicejs_docs` documents the framework, CLI, architecture, lifecycle, and development patterns.
-2. `slice.js_visual_library` contains the Markdown documentation for Visual and Service components.
+2. `slicejs-components` contains the Markdown documentation for Visual and Service components.
 
 The current documentation site for Slice.js Components is optimized for human browsing. Its Markdown files are already the source of truth and include practical examples, including executable `:::script` scenarios.
 
@@ -75,7 +76,7 @@ The goal is to let an agent use either MCP or CLI to access both documentation s
                          └──────────────┬───────────────┘
                                         │
                          ┌──────────────▼───────────────┐
-                         │ slice.js_visual_library       │
+                         │ slicejs-components       │
                          │ public: Slice.js Components   │
                          │ source: components            │
                          └──────────────┬───────────────┘
@@ -121,7 +122,7 @@ This catalog covers lifecycle, routing, services, project architecture, CLI usag
 
 ```text
 catalog id: components
-repository: slice.js_visual_library
+repository: slicejs-components
 public name: Slice.js Components
 content: Visual and Service component Markdown
 ```
@@ -369,7 +370,7 @@ The first implementation should prioritize reliable Markdown retrieval and add e
 - Adopt `Slice.js Components` as the public name.
 - Add a generated Components `docs-manifest.json`.
 - Define the common catalog schema for `framework` and `components`.
-- Keep `slice.js_visual_library` as a legacy repository identifier.
+- Keep `slice.js_visual_library` redirects/compatibility URLs working during the migration.
 - Publish source revision and raw Markdown URLs.
 
 ### Phase 2: CLI and MCP access
@@ -414,8 +415,8 @@ The first implementation is now distributed across the following projects:
 
 | Area | Implementation |
 | --- | --- |
-| Components catalog generation | `slice.js_visual_library/scripts/build-agent-catalog.mjs` |
-| Components manifest | `slice.js_visual_library/agent/docs-manifest.json` |
+| Components catalog generation | `slicejs-components/scripts/build-agent-catalog.mjs` |
+| Components manifest | `slicejs-components/agent/docs-manifest.json` |
 | Components catalog command | `slice docs list/search/get --source components` |
 | Framework catalog command | `slice docs list/search/get --source framework` |
 | Framework MCP tools | `slice_framework_list_docs`, `slice_framework_search_docs`, `slice_framework_get_doc` |

@@ -2,11 +2,74 @@
   "schemaVersion": 1,
   "catalog": "slicejs-components",
   "displayName": "Slice.js Components",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "revision": "master",
-  "repository": "VKneider/slice.js_visual_library",
-  "rawBaseUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library",
+  "repository": "VKneider/slicejs-components",
+  "rawBaseUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components",
   "documents": [
+    {
+      "id": "alert",
+      "title": "Alert",
+      "kind": "Visual",
+      "component": "Alert",
+      "sourcePath": "src/markdown/alert.md",
+      "route": "/docs/feedback/alert",
+      "section": "Feedback",
+      "group": "Notifications",
+      "order": 9,
+      "description": "A message inside the page, next to what it is about. Tone for the meaning, variant for the loudness; a title, actions such as Undo or Try again, a close button, and a timeout that waits while you point at it.",
+      "tags": [
+        "alert",
+        "notice",
+        "banner",
+        "callout",
+        "message",
+        "undo",
+        "feedback"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/alert.md"
+    },
+    {
+      "id": "avatar",
+      "title": "Avatar",
+      "kind": "Visual",
+      "component": "Avatar",
+      "sourcePath": "src/markdown/avatar.md",
+      "route": "/docs/display/avatar",
+      "section": "Display",
+      "group": "Basic",
+      "order": 24,
+      "description": "A person, a team or a project as a small picture. Falls back to initials on a colour of their own, then to an icon; status dot, badge, sizes, shapes, and clickable.",
+      "tags": [
+        "avatar",
+        "user",
+        "profile",
+        "photo",
+        "initials",
+        "status"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/avatar.md"
+    },
+    {
+      "id": "avatar-group",
+      "title": "AvatarGroup",
+      "kind": "Visual",
+      "component": "AvatarGroup",
+      "sourcePath": "src/markdown/avatar-group.md",
+      "route": "/docs/display/avatar-group",
+      "section": "Display",
+      "group": "Basic",
+      "order": 24.5,
+      "description": "A few people as overlapping avatars and \"+N\" for the rest, with each name on hover and one accessible name for the group.",
+      "tags": [
+        "avatar",
+        "group",
+        "people",
+        "members",
+        "assignees"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/avatar-group.md"
+    },
     {
       "id": "badge",
       "title": "Badge",
@@ -17,15 +80,17 @@
       "section": "Display",
       "group": "Basic",
       "order": 25,
-      "description": "Small status pill or count, with semantic variants that follow the theme.",
+      "description": "A status, a count or a mark next to what it describes. Tone for the meaning, variant for the loudness; icon, live indicator, dot, sizes and colours of your own.",
       "tags": [
         "badge",
         "pill",
         "status",
         "count",
-        "dot"
+        "dot",
+        "tag",
+        "label"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/badge.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/badge.md"
     },
     {
       "id": "bottom-nav",
@@ -45,7 +110,7 @@
         "mobile",
         "badge"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/bottom-nav.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/bottom-nav.md"
     },
     {
       "id": "breadcrumbs",
@@ -63,7 +128,7 @@
         "navigation",
         "hierarchy"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/breadcrumbs.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/breadcrumbs.md"
     },
     {
       "id": "button",
@@ -80,7 +145,7 @@
         "button",
         "input"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/button.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/button.md"
     },
     {
       "id": "card",
@@ -100,7 +165,7 @@
         "list",
         "tile"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/card.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/card.md"
     },
     {
       "id": "carrousel",
@@ -121,7 +186,7 @@
         "layout",
         "navigation"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/carrousel.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/carrousel.md"
     },
     {
       "id": "checkbox",
@@ -139,7 +204,7 @@
         "input",
         "forms"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/checkbox.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/checkbox.md"
     },
     {
       "id": "chip",
@@ -159,7 +224,7 @@
         "filter",
         "removable"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/chip.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/chip.md"
     },
     {
       "id": "code-visualizer",
@@ -178,7 +243,7 @@
         "highlight",
         "display"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/code-visualizer.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/code-visualizer.md"
     },
     {
       "id": "color-picker",
@@ -200,7 +265,7 @@
         "hex",
         "form"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/color-picker.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/color-picker.md"
     },
     {
       "id": "confirm-action-modal",
@@ -223,7 +288,7 @@
         "dialog",
         "events"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/confirm-action-modal.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/confirm-action-modal.md"
     },
     {
       "id": "css-conventions",
@@ -242,7 +307,31 @@
         "display",
         "conventions"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/css-conventions.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/css-conventions.md"
+    },
+    {
+      "id": "datalist",
+      "title": "DataList",
+      "kind": "Visual",
+      "component": "DataList",
+      "sourcePath": "src/markdown/datalist.md",
+      "route": "/docs/data/datalist",
+      "section": "Data",
+      "group": "Tables",
+      "order": 12,
+      "description": "The list of records an app works with — people, orders, tasks, files. Rows or cards with avatars, details, status and actions; search, views, filters, sort and groups; selection with bulk actions; create, edit and delete with undo and rollback; pages, load more or infinite scrolling; local data, a slice.context store or a server.",
+      "tags": [
+        "datalist",
+        "list",
+        "crud",
+        "records",
+        "actions",
+        "selection",
+        "infinite",
+        "pagination",
+        "context"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/datalist.md"
     },
     {
       "id": "datepicker",
@@ -262,7 +351,30 @@
         "range",
         "forms"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/datepicker.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/datepicker.md"
+    },
+    {
+      "id": "description-list",
+      "title": "DescriptionList",
+      "kind": "Visual",
+      "component": "DescriptionList",
+      "sourcePath": "src/markdown/description-list.md",
+      "route": "/docs/data/description-list",
+      "section": "Data",
+      "group": "Tables",
+      "order": 13,
+      "description": "One record as label → value pairs — the detail of an order, a profile, the settings of a project. Values formatted by type and shown with components (Badge, Avatar), sections, copy buttons, edit in place with commit and rollback, a store or a server as the source, and a skeleton while it loads.",
+      "tags": [
+        "description list",
+        "detail",
+        "record",
+        "key value",
+        "properties",
+        "profile",
+        "inline edit",
+        "dl"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/description-list.md"
     },
     {
       "id": "details",
@@ -283,7 +395,7 @@
         "collapse",
         "layout"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/details.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/details.md"
     },
     {
       "id": "dom-service",
@@ -304,7 +416,7 @@
         "rendering",
         "service"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/dom-service.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/dom-service.md"
     },
     {
       "id": "drag-drop-service",
@@ -326,7 +438,7 @@
         "reorder",
         "service"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/drag-drop-service.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/drag-drop-service.md"
     },
     {
       "id": "dropdown",
@@ -346,7 +458,7 @@
         "submenu",
         "actions"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/dropdown.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/dropdown.md"
     },
     {
       "id": "empty-state",
@@ -365,7 +477,7 @@
         "zero-state",
         "onboarding"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/empty-state.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/empty-state.md"
     },
     {
       "id": "fetch-manager",
@@ -377,14 +489,20 @@
       "section": "Services",
       "group": "Networking",
       "order": 30,
-      "description": "HTTP client Service over fetch with timeout, base URL, default headers and a simple cache.",
+      "description": "The app's HTTP client. get, post, patch… that return the data or throw an HttpError; baseUrl, default headers, query objects, JSON bodies, timeouts with your own signal, safe retries, and hooks to add a token or handle a 401 in one place.",
       "tags": [
         "service",
         "fetch",
         "http",
-        "networking"
+        "networking",
+        "api",
+        "request",
+        "error",
+        "retry",
+        "timeout",
+        "interceptor"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/fetch-manager.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/fetch-manager.md"
     },
     {
       "id": "file-download-service",
@@ -404,7 +522,7 @@
         "blob",
         "export"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/file-download-service.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/file-download-service.md"
     },
     {
       "id": "file-upload",
@@ -426,7 +544,7 @@
         "attachment",
         "image"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/file-upload.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/file-upload.md"
     },
     {
       "id": "form",
@@ -445,7 +563,7 @@
         "validation",
         "input"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/form.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/form.md"
     },
     {
       "id": "grid",
@@ -462,7 +580,56 @@
         "grid",
         "layout"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/grid.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/grid.md"
+    },
+    {
+      "id": "guides/data-components",
+      "title": "Writing a component that loads data",
+      "kind": "Documentation",
+      "sourcePath": "src/markdown/guides/data-components.md",
+      "route": "/docs/guides/data-components",
+      "section": "Guides",
+      "group": "Components",
+      "order": 2,
+      "description": "The standard every Slice component that shows server data follows — three sources with the same names, the states it must show, requests that never block the page and are cancelled when they are not needed, and how changes are saved and taken back. With a complete component to copy.",
+      "tags": [
+        "guide",
+        "component",
+        "data",
+        "load",
+        "context",
+        "states",
+        "skeleton",
+        "abort",
+        "commit",
+        "rollback",
+        "standards"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/guides/data-components.md"
+    },
+    {
+      "id": "guides/data-loading",
+      "title": "Data and the first load",
+      "kind": "Documentation",
+      "sourcePath": "src/markdown/guides/data-loading.md",
+      "route": "/docs/guides/data-and-loading",
+      "section": "Guides",
+      "group": "Applications",
+      "order": 1,
+      "description": "How to bring data from a server into a Slice app without keeping the page behind the loader. Why an awaited fetch in init() slows the first load, and the patterns that avoid it — data that arrives after the structure, a slice.context shared between components, critical data in parallel, refresh in the background, and saving changes.",
+      "tags": [
+        "guide",
+        "data",
+        "fetch",
+        "server",
+        "loading",
+        "first load",
+        "context",
+        "skeleton",
+        "performance",
+        "stale-while-revalidate"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/guides/data-loading.md"
     },
     {
       "id": "html-service",
@@ -484,7 +651,7 @@
         "dompurify",
         "escape"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/html-service.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/html-service.md"
     },
     {
       "id": "icon",
@@ -502,7 +669,7 @@
         "display",
         "reference"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/icon.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/icon.md"
     },
     {
       "id": "indexed-db-manager",
@@ -520,7 +687,28 @@
         "storage",
         "indexeddb"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/indexed-db-manager.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/indexed-db-manager.md"
+    },
+    {
+      "id": "infinite-scroll-service",
+      "title": "InfiniteScrollService",
+      "kind": "Service",
+      "component": "InfiniteScrollService",
+      "sourcePath": "src/markdown/infinite-scroll-service.md",
+      "route": "/docs/services/infinite-scroll",
+      "section": "Services",
+      "group": "Interaction",
+      "order": 61,
+      "description": "Headless infinite scrolling. Watches the end of a list and loads the next page, one request at a time, with abort on reset, fill-the-screen, errors with retry, and page or cursor APIs.",
+      "tags": [
+        "infinite",
+        "scroll",
+        "pagination",
+        "feed",
+        "load more",
+        "service"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/infinite-scroll-service.md"
     },
     {
       "id": "input",
@@ -539,7 +727,7 @@
         "field",
         "validation"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/input.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/input.md"
     },
     {
       "id": "layout",
@@ -556,7 +744,7 @@
         "layout",
         "container"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/layout.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/layout.md"
     },
     {
       "id": "link",
@@ -574,7 +762,7 @@
         "navigation",
         "anchor"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/link.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/link.md"
     },
     {
       "id": "loading",
@@ -586,12 +774,16 @@
       "section": "Feedback",
       "group": "Status",
       "order": 40,
-      "description": "Loading component documentation with activation and container usage scenarios.",
+      "description": "Shows that the app is busy, over the whole page or one part of it. Four indicators (the Slice logo, a ring, dots, a top bar), backdrops, a label, a delay and a minimum time, and a welcome screen for the first load of the app, built in or your own.",
       "tags": [
         "loading",
+        "spinner",
+        "progress",
+        "splash",
+        "welcome",
         "feedback"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/loading.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/loading.md"
     },
     {
       "id": "local-storage-manager",
@@ -609,7 +801,7 @@
         "storage",
         "localstorage"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/local-storage-manager.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/local-storage-manager.md"
     },
     {
       "id": "mini-inspector",
@@ -617,8 +809,8 @@
       "kind": "Visual",
       "component": "MiniInspector",
       "sourcePath": "src/markdown/mini-inspector.md",
-      "route": "/docs/utilities/mini-inspector",
-      "section": "Utilities",
+      "route": "/docs/developer/mini-inspector",
+      "section": "Developer Tools",
       "group": "Developer",
       "order": 10,
       "description": "MiniInspector documentation with executable live-editing scenarios.",
@@ -628,7 +820,7 @@
         "props",
         "setters"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/mini-inspector.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/mini-inspector.md"
     },
     {
       "id": "modal",
@@ -649,7 +841,7 @@
         "overlay",
         "feedback"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/modal.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/modal.md"
     },
     {
       "id": "multi-route",
@@ -667,7 +859,7 @@
         "routing",
         "app-shell"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/multi-route.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/multi-route.md"
     },
     {
       "id": "navbar",
@@ -687,7 +879,7 @@
         "menu",
         "mobile"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/navbar.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/navbar.md"
     },
     {
       "id": "not-found",
@@ -706,7 +898,7 @@
         "navigation",
         "routing"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/not-found.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/not-found.md"
     },
     {
       "id": "pagination",
@@ -726,7 +918,7 @@
         "navigation",
         "data"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/pagination.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/pagination.md"
     },
     {
       "id": "parser-rules",
@@ -743,7 +935,32 @@
         "parser",
         "rules"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/parser-rules.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/parser-rules.md"
+    },
+    {
+      "id": "query-service",
+      "title": "QueryService",
+      "kind": "Service",
+      "component": "QueryService",
+      "sourcePath": "src/markdown/query-service.md",
+      "route": "/docs/services/query-service",
+      "section": "Services",
+      "group": "Networking",
+      "order": 31,
+      "description": "What the app already knows from the server. One request per key however many components ask, data kept while it is fresh and refreshed behind the screen when it is not, invalidation after a change, retries, cancellation. React Query, the Slice way.",
+      "tags": [
+        "service",
+        "query",
+        "cache",
+        "server state",
+        "react query",
+        "swr",
+        "stale-while-revalidate",
+        "invalidate",
+        "mutate",
+        "prefetch"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/query-service.md"
     },
     {
       "id": "radio-group",
@@ -763,7 +980,7 @@
         "forms",
         "choice"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/radio-group.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/radio-group.md"
     },
     {
       "id": "route",
@@ -781,7 +998,7 @@
         "routing",
         "container"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/route.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/route.md"
     },
     {
       "id": "select",
@@ -801,7 +1018,29 @@
         "multiselect",
         "autocomplete"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/select.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/select.md"
+    },
+    {
+      "id": "Sidemenu",
+      "title": "SideMenu",
+      "kind": "Visual",
+      "component": "SideMenu",
+      "sourcePath": "src/markdown/Sidemenu.md",
+      "route": "/docs/navigation/side-menu",
+      "section": "Navigation",
+      "group": "Navigation",
+      "order": 49,
+      "description": "A navigation menu whose items open more items, as deep as needed. Submenus slide in with a back button (drill) or open in place, indented (tree). Links, actions, lazy submenus, groups, badges and the current page.",
+      "tags": [
+        "sidemenu",
+        "menu",
+        "sidebar",
+        "navigation",
+        "drilldown",
+        "submenu",
+        "nested"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/Sidemenu.md"
     },
     {
       "id": "slider",
@@ -821,7 +1060,7 @@
         "forms",
         "number"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/slider.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/slider.md"
     },
     {
       "id": "store-service",
@@ -841,7 +1080,7 @@
         "persistence",
         "service"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/store-service.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/store-service.md"
     },
     {
       "id": "switch",
@@ -859,7 +1098,7 @@
         "input",
         "toggle"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/switch.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/switch.md"
     },
     {
       "id": "table",
@@ -871,7 +1110,7 @@
       "section": "Data",
       "group": "Tables",
       "order": 10,
-      "description": "Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling.",
+      "description": "Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling; rows from a slice.context store or a server, add / change / remove with rollback and undo, and cells edited in place like a spreadsheet.",
       "tags": [
         "table",
         "data",
@@ -882,9 +1121,14 @@
         "virtual",
         "export",
         "totals",
-        "menu"
+        "menu",
+        "crud",
+        "editable",
+        "grid",
+        "spreadsheet",
+        "context"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/table.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/table.md"
     },
     {
       "id": "tabs",
@@ -903,7 +1147,7 @@
         "routing",
         "panels"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/tabs.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/tabs.md"
     },
     {
       "id": "textarea",
@@ -923,7 +1167,7 @@
         "multiline",
         "validation"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/textarea.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/textarea.md"
     },
     {
       "id": "theme-selector",
@@ -944,7 +1188,7 @@
         "settings",
         "light"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/theme-selector.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/theme-selector.md"
     },
     {
       "id": "theme-switcher",
@@ -964,7 +1208,7 @@
         "dark-mode",
         "settings"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/theme-switcher.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/theme-switcher.md"
     },
     {
       "id": "toast",
@@ -983,7 +1227,7 @@
         "feedback",
         "alert"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/toast.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/toast.md"
     },
     {
       "id": "toast-provider",
@@ -1002,7 +1246,7 @@
         "service",
         "notification"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/toast-provider.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/toast-provider.md"
     },
     {
       "id": "tooltip",
@@ -1022,7 +1266,7 @@
         "overlay",
         "display"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/tooltip.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/tooltip.md"
     },
     {
       "id": "tooltip-provider",
@@ -1042,7 +1286,7 @@
         "overlay",
         "data-attributes"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/tooltip-provider.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/tooltip-provider.md"
     },
     {
       "id": "treeview",
@@ -1063,7 +1307,7 @@
         "checkbox",
         "drag"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/treeview.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/treeview.md"
     },
     {
       "id": "unsaved-changes-guard",
@@ -1085,7 +1329,7 @@
         "confirm",
         "dirty"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/markdown/unsaved-changes-guard.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/unsaved-changes-guard.md"
     }
   ]
 }

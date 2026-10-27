@@ -9,7 +9,7 @@
     ·
     <a href="https://github.com/VKneider/slicejs-cli">CLI Repository</a>
     ·
-    <a href="https://github.com/VKneider/slice.js_visual_library/issues/new">Report Bug</a>
+    <a href="https://github.com/VKneider/slicejs-components/issues/new">Report Bug</a>
   </p>
 </div>
 
@@ -19,7 +19,7 @@ _Deployment note:_ this repository is configured for Vercel serverless routing t
 
 This repository contains **Slice.js Components**, the official Visual and Service components library for Slice.js. It serves as the source of truth for component documentation, hosting the Markdown sources that generate interactive documentation pages with live examples, API tables, and usage guides.
 
-The `slicejs-cli` registry points to this repository to resolve component metadata and documentation. The repository name `slice.js_visual_library` is retained as a legacy implementation and URL identifier.
+The `slicejs-cli` registry points to this repository to resolve component metadata and documentation. The repository was renamed from `slice.js_visual_library` to `slicejs-components`; old GitHub URLs redirect to the new name while compatibility lasts.
 
 ### Input component highlights
 
@@ -38,8 +38,8 @@ The `slicejs-cli` registry points to this repository to resolve component metada
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/VKneider/slice.js_visual_library.git
-   cd slice.js_visual_library
+   git clone https://github.com/VKneider/slicejs-components.git
+   cd slicejs-components
    ```
 
 2. **Install dependencies**
@@ -126,7 +126,7 @@ Validates that all markdown files have the required front matter fields (`title`
 ## Project structure
 
 ```
-slice.js_visual_library/
+slicejs-components/
 ├── src/
 │   ├── markdown/                    # Markdown documentation sources
 │   ├── Components/
@@ -185,6 +185,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Links
 
 - 📘 Documentation: https://components.slicejs.com
-- 🐙 GitHub: https://github.com/VKneider/slice.js_visual_library
+- 🐙 GitHub: https://github.com/VKneider/slicejs-components
 - 🧩 Framework: https://github.com/VKneider/slice.js
 - 🛠️ CLI: https://github.com/VKneider/slicejs-cli

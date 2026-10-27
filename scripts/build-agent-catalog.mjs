@@ -9,8 +9,8 @@ const REGISTRY_PATH = path.join(ROOT, 'src', 'Components', 'components.js');
 const PACKAGE_PATH = path.join(ROOT, 'package.json');
 const OUTPUT_PATH = path.join(ROOT, 'agent', 'docs-manifest.json');
 
-const DEFAULT_REPOSITORY = 'VKneider/slice.js_visual_library';
-const DEFAULT_RAW_BASE_URL = 'https://raw.githubusercontent.com/VKneider/slice.js_visual_library';
+const DEFAULT_REPOSITORY = 'VKneider/slicejs-components';
+const DEFAULT_RAW_BASE_URL = 'https://raw.githubusercontent.com/VKneider/slicejs-components';
 
 function parseScalar(value) {
   const trimmed = value.trim();

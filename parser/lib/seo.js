@@ -62,7 +62,7 @@ const readShellMeta = (root) => {
   const fallback = {
     title: 'Slice.js Components',
     description:
-      'Official visual components library for Slice.js. Interactive documentation with live examples, API tables, and usage guides for every component.'
+      'Official Slice.js Components library. Interactive documentation with live examples, API tables, and usage guides for every component.'
   };
 
   try {

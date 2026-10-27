@@ -1,7 +1,7 @@
-# Slice.js Visual Library Architecture
+# Slice.js Components Architecture
 
 ## Overview
-`slice.js_visual_library` is both:
+`slicejs-components` is both:
 1. The official component registry source for `slice-cli`.
 2. The documentation app where docs pages are generated from markdown.
 

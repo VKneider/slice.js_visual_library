@@ -1,8 +1,16 @@
 {
-  "name": "slicejs-webframework-visual-components-library",
-  "version": "1.5.0",
+  "name": "slicejs-components",
+  "version": "2.0.0",
   "description": "Official Slice.js Components library and documentation registry for Visual and Service components",
   "main": "src/Components/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VKneider/slicejs-components.git"
+  },
+  "homepage": "https://components.slicejs.com",
+  "bugs": {
+    "url": "https://github.com/VKneider/slicejs-components/issues"
+  },
   "scripts": {
     "dev": "node ./node_modules/slicejs-cli/client.js dev --port 3001",
     "build": "node ./node_modules/slicejs-cli/client.js build",

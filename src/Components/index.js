@@ -1,4 +1,4 @@
-// Entry point for the Slice.js Visual Components Library
+// Entry point for the Slice.js Components library
 // Exports all available components for consumption
 
 // Visual Components

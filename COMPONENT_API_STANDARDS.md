@@ -1,9 +1,9 @@
 # Slice.js Component API & Naming Standards
 
 > **Status:** Canonical reference for authoring components in this repository.
-> **Scope:** This repo (`slice.js_visual_library`) **is the official component registry** —
+> **Scope:** This repo (`slicejs-components`) **is the official component registry** —
 > the Slice CLI downloads components from
-> `raw.githubusercontent.com/VKneider/slice.js_visual_library/master/src/Components`.
+> `raw.githubusercontent.com/VKneider/slicejs-components/master/src/Components`.
 > Therefore **every change here is a published, public API change** for all Slice.js
 > projects once it reaches `master`. Treat prop renames as breaking unless shipped with a
 > backward-compatible alias (see §7).

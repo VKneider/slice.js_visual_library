@@ -4,7 +4,7 @@
   "routes": {
     "/": {
       "title": "Slice.js Components | Slice.js",
-      "description": "Official visual components library for Slice.js. Interactive documentation with live examples, API tables, and usage guides for every component.",
+      "description": "Official Slice.js Components library. Interactive documentation with live examples, API tables, and usage guides for every component.",
       "section": null,
       "group": null,
       "indexable": true,

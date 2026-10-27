@@ -23,8 +23,8 @@ This project uses **pnpm** (pinned via `packageManager` in `package.json`). Use 
 1. **Fork** the repository on GitHub.
 2. **Clone your fork:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/slice.js_visual_library.git
-   cd slice.js_visual_library
+   git clone https://github.com/YOUR_USERNAME/slicejs-components.git
+   cd slicejs-components
    ```
 3. **Install dependencies:**
    ```bash

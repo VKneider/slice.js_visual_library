@@ -2,7 +2,7 @@ const baseVisualRoutes = {
   defaultRoute: {
     path: '/docs',
     component: 'VisualLibraryHome',
-    title: 'Visual Library'
+    title: 'Components'
   }
 };
 
