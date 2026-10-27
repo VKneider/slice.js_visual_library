@@ -1,0 +1,46 @@
+<div class="documentation-content shortcutservicedocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="shortcutservice">
+     <span class="doc-title-text">ShortcutService</span>
+   </h1>
+   <span class="copy-md-slot" data-copy-md></span>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>ShortcutService</code> keeps the app's keyboard shortcuts in one place. A component says which keys do what; the service listens once for the whole app and decides which shortcut, if any, a key press belongs to.</p>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<p>What it takes care of, so components do not each listen to <code>keydown</code>:</p>
+<ul><li><strong><code>mod</code></strong> is ⌘ on Mac and Ctrl elsewhere, and <code>format()</code> / <code>list()</code> show the keys that way (<code>⌘K</code>, <code>Ctrl+K</code>).</li><li><strong>Sequences</strong>: <code>g o</code> is G, then O within a second.</li><li><strong>Typing is safe</strong>: in an input, a textarea or an editable element, single keys and sequences do nothing; combinations with Ctrl, ⌘ or Alt (<code>mod+s</code>) still work.</li><li><strong>Scopes</strong>: while a dialog or panel is active, only its shortcuts (and the ones marked <code>global</code>) fire. When it is deactivated or destroyed, the page's shortcuts are back.</li><li><strong>Collisions</strong>: the same keys twice in the same place log a warning, and the newest wins.</li><li><strong>Cleanup</strong>: a shortcut belongs to a component and goes with it.</li><li><strong>Keyboards</strong>: <code>?</code> works whether your layout needs Shift for it or not, and Alt/Option combinations match the physical key.</li></ul>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>An app people use every day: an inbox, a dashboard, an editor, an admin panel.</li><li>A command palette or search on <code>mod+k</code>, navigation with sequences (<code>g i</code>, <code>g o</code>).</li><li>A help screen that lists the shortcuts that work right now.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li>Keys inside a widget that are part of how it works (arrows in a list, Enter in a field, Escape in a menu). The library's components already handle their own; that is the widget's keyboard model, not a shortcut.</li><li>Replacing a visible control: every shortcut should also be reachable with the mouse or by tab.</li></ul>
+<h2 id="build-it">Build it</h2>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<h2 id="writing-keys">Writing keys</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-5"></div>
+<h3 id="options-of-add">Options of add</h3>
+<div class="table-block" data-block-id="doc-block-6"></div>
+<h2 id="examples">Examples</h2>
+<h3 id="an-inbox-you-can-drive-with-the-keyboard">An inbox you can drive with the keyboard</h3>
+<p>Click the example (or Tab to it), then try <strong>J</strong> and <strong>K</strong> to move, <strong>E</strong> to archive, <strong>G</strong> then <strong>A</strong> to see the archive, <strong>G</strong> then <strong>I</strong> to go back, <strong>Ctrl+K</strong> (<strong>⌘K</strong> on Mac) to search, and <strong>?</strong> for the list. While the list is open only its own shortcuts work, and typing in the search box does not trigger anything. The shortcuts are limited to the example with <code>within</code>, so the rest of this page keeps its keys.</p>
+<div class="script-block" data-block-id="doc-block-7"></div>
+<h3 id="a-dialog-that-takes-the-keyboard">A dialog that takes the keyboard</h3>
+<p>Activate the dialog as its scope when it opens: the page's <code>j</code>, <code>k</code>, <code>e</code> stop working, the dialog's <code>mod+enter</code> works, and a <code>global</code> shortcut (search) still does. Deactivate it when it closes; if it is destroyed instead, the page gets the keyboard back anyway.</p>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<h3 id="shortcuts-that-only-exist-while-something-is-selected">Shortcuts that only exist while something is selected</h3>
+<div class="code-block" data-block-id="doc-block-9"></div>
+<h3 id="an-editors-own-shortcuts">An editor's own shortcuts</h3>
+<p><code>within</code> limits them to focus inside the element, and <code>inInputs: true</code> lets them fire while typing there.</p>
+<div class="code-block" data-block-id="doc-block-10"></div>
+<h2 id="best-practices">Best practices</h2>
+<div class="callout callout-tip">- One service for the app (<code>singleton: true</code>), and every shortcut added by the component it belongs to: it goes away with it.
+- Give each shortcut a <code>label</code>, and offer <code>?</code> with <code>list()</code>: shortcuts nobody can discover are not used.
+- Prefer <code>mod+…</code> for actions that also make sense while typing (save, search), and single keys or sequences for moving around.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Do not take keys the browser or the screen reader relies on (Tab, Ctrl+L, Ctrl+W, Ctrl+T, F6, Alt+arrows for history). <code>preventDefault</code> would take them away from people who depend on them.</div>
+<div class="callout callout-warning">A single-letter shortcut fires anywhere on the page that is not a text field. In pages with many custom widgets, give it a <code>scope</code> or a <code>within</code>, or use a sequence.</div>
+</div>

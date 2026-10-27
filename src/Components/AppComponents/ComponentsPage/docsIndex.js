@@ -605,6 +605,17 @@ const docsIndex = [
     tags: ['infinite', 'scroll', 'pagination', 'feed', 'load more', 'service']
   },
   {
+    title: 'ShortcutService',
+    route: '/docs/services/shortcut-service',
+    description: 'The app\'s keyboard shortcuts in one place. mod+k that is ⌘ on Mac and Ctrl elsewhere, sequences like "g o", no single-key shortcuts while typing, scopes so an open dialog takes the keyboard, a warning when two shortcuts collide, cleanup with the component, and list() for a help screen.',
+    section: 'Services',
+    group: 'Interaction',
+    order: 62,
+    navLabel: 'ShortcutService',
+    component: 'ShortcutServiceDocumentation',
+    tags: ['service', 'keyboard', 'shortcuts', 'hotkeys', 'keybindings', 'accessibility', 'command palette', 'scope']
+  },
+  {
     title: 'FetchManager',
     route: '/docs/services/fetch-manager',
     description: 'The app\'s HTTP client. get, post, patch… that return the data or throw an HttpError; baseUrl, default headers, query objects, JSON bodies, timeouts with your own signal, safe retries, and hooks to add a token or handle a 401 in one place.',
@@ -671,17 +682,6 @@ const docsIndex = [
     tags: ['service', 'unsaved', 'guard', 'navigation', 'beforeunload', 'confirm', 'dirty']
   },
   {
-    title: 'StoreService',
-    route: '/docs/services/store-service',
-    description: 'A thin facade over slice.context, so context persistence is configured in one place.',
-    section: 'Services',
-    group: 'State',
-    order: 63,
-    navLabel: 'StoreService',
-    component: 'StoreServiceDocumentation',
-    tags: ['store', 'context', 'state', 'persistence', 'service']
-  },
-  {
     title: 'LocalStorageManager',
     route: '/docs/services/local-storage-manager',
     description: 'Service wrapper over window.localStorage with automatic JSON serialization.',
@@ -691,6 +691,17 @@ const docsIndex = [
     navLabel: 'LocalStorageManager',
     component: 'LocalStorageManagerDocumentation',
     tags: ['service', 'storage', 'localstorage']
+  },
+  {
+    title: 'StorageService',
+    route: '/docs/services/storage-service',
+    description: 'Small values the browser keeps for the app — preferences, the last filters, a draft. JSON in and out, a namespace per app, expiry per value, watch() that also hears other tabs, a full storage that does not throw, and a memory fallback when the browser refuses storage.',
+    section: 'Services',
+    group: 'Storage',
+    order: 10,
+    navLabel: 'StorageService',
+    component: 'StorageServiceDocumentation',
+    tags: ['service', 'storage', 'localStorage', 'sessionStorage', 'preferences', 'persist', 'ttl', 'expiry', 'watch', 'tabs']
   },
   {
     title: 'FileDownloadService',
@@ -706,13 +717,13 @@ const docsIndex = [
   {
     title: 'IndexedDbManager',
     route: '/docs/services/indexed-db-manager',
-    description: 'Async Service wrapper over IndexedDB for a single auto-keyed object store.',
+    description: 'A database in the browser. Several stores with indexes, created and upgraded for you; one shared connection; queries by index and range; transactions that keep all or nothing; and another tab\'s upgrade handled without blocking.',
     section: 'Services',
     group: 'Storage',
     order: 20,
     navLabel: 'IndexedDbManager',
     component: 'IndexedDbManagerDocumentation',
-    tags: ['service', 'storage', 'indexeddb']
+    tags: ['service', 'indexeddb', 'database', 'offline', 'storage', 'index', 'query', 'transaction', 'upgrade']
   },
 ];
 

@@ -52,7 +52,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/data/description-list": {
       "title": "DescriptionList | Slice.js",
@@ -62,7 +62,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/data/pagination": {
       "title": "Pagination | Slice.js",
@@ -82,7 +82,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/developer/mini-inspector": {
       "title": "MiniInspector | Slice.js",
@@ -102,7 +102,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/display/avatar-group": {
       "title": "AvatarGroup | Slice.js",
@@ -112,7 +112,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/display/badge": {
       "title": "Badge | Slice.js",
@@ -122,7 +122,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/display/chip": {
       "title": "Chip | Slice.js",
@@ -192,7 +192,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/feedback/loading": {
       "title": "Loading | Slice.js",
@@ -212,7 +212,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-22"
+      "lastmod": "2026-10-26"
     },
     "/docs/feedback/toast": {
       "title": "Toast | Slice.js",
@@ -232,7 +232,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/guides/data-components": {
       "title": "Writing a component that loads data | Slice.js",
@@ -312,7 +312,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/input/radio-group": {
       "title": "RadioGroup | Slice.js",
@@ -362,7 +362,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-22"
+      "lastmod": "2026-10-26"
     },
     "/docs/input/theme-selector": {
       "title": "ThemeSelector | Slice.js",
@@ -462,7 +462,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-22"
+      "lastmod": "2026-10-26"
     },
     "/docs/navigation/breadcrumbs": {
       "title": "Breadcrumbs | Slice.js",
@@ -502,7 +502,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-22"
+      "lastmod": "2026-10-26"
     },
     "/docs/navigation/not-found": {
       "title": "NotFound | Slice.js",
@@ -522,7 +522,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-25"
+      "lastmod": "2026-10-26"
     },
     "/docs/navigation/tabs": {
       "title": "Tabs | Slice.js",
@@ -532,7 +532,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-22"
+      "lastmod": "2026-10-26"
     },
     "/docs/navigation/treeview": {
       "title": "TreeView | Slice.js",
@@ -616,7 +616,7 @@
     },
     "/docs/services/indexed-db-manager": {
       "title": "IndexedDbManager | Slice.js",
-      "description": "Async Service wrapper over IndexedDB for a single auto-keyed object store.",
+      "description": "A database in the browser. Several stores with indexes, created and upgraded for you; one shared connection; queries by index and range; transactions that keep all or nothing; and another tab's upgrade handled without blocking.",
       "section": "Services",
       "group": "Storage",
       "indexable": true,
@@ -654,15 +654,25 @@
       "changefreq": "monthly",
       "lastmod": "2026-10-26"
     },
-    "/docs/services/store-service": {
-      "title": "StoreService | Slice.js",
-      "description": "A thin facade over slice.context, so context persistence is configured in one place.",
+    "/docs/services/shortcut-service": {
+      "title": "ShortcutService | Slice.js",
+      "description": "The app's keyboard shortcuts in one place. mod+k that is ⌘ on Mac and Ctrl elsewhere, sequences like \"g o\", no single-key shortcuts while typing, scopes so an open dialog takes the keyboard, a warning when two shortcuts collide, cleanup with the component, and list() for a help screen.",
       "section": "Services",
-      "group": "State",
+      "group": "Interaction",
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-13"
+      "lastmod": null
+    },
+    "/docs/services/storage-service": {
+      "title": "StorageService | Slice.js",
+      "description": "Small values the browser keeps for the app — preferences, the last filters, a draft. JSON in and out, a namespace per app, expiry per value, watch() that also hears other tabs, a full storage that does not throw, and a memory fallback when the browser refuses storage.",
+      "section": "Services",
+      "group": "Storage",
+      "indexable": true,
+      "priority": "0.7",
+      "changefreq": "monthly",
+      "lastmod": null
     },
     "/docs/services/toast-provider": {
       "title": "ToastProvider | Slice.js",
@@ -682,7 +692,7 @@
       "indexable": true,
       "priority": "0.7",
       "changefreq": "monthly",
-      "lastmod": "2026-10-22"
+      "lastmod": "2026-10-26"
     },
     "/docs/services/unsaved-changes-guard": {
       "title": "UnsavedChangesGuard | Slice.js",

@@ -52,7 +52,8 @@ function stable(value) {
       return `set{${[...value].map(stable).sort().join(',')}}`;
    }
    if (typeof Blob !== 'undefined' && value instanceof Blob) {
-      return `blob{${JSON.stringify(value.name || '')},${value.size},${JSON.stringify(value.type || '')}}`;
+      const name = value instanceof File ? value.name : '';   // a File has a name; a plain Blob does not
+      return `blob{${JSON.stringify(name)},${value.size},${JSON.stringify(value.type || '')}}`;
    }
    const proto = Object.getPrototypeOf(value);
    if (proto !== Object.prototype && proto !== null) {

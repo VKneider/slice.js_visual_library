@@ -24,7 +24,7 @@
 <p>This is the default. Use it whenever one component shows one set of data.</p>
 <h2 id="pattern-2-share-data-through-a-context">Pattern 2 — Share data through a context</h2>
 <p>When several components show the same data (a list, a counter in the menu, a chart), ask for it <strong>once</strong> and keep it in a context (<code>slice.context.create(name, …)</code>). Every component watches the context, so a change anywhere shows everywhere, and nothing is asked twice.</p>
-<p>(To persist a context or create it from several places safely, <span data-inline-link="3"></span> is a thin layer over <code>slice.context</code>; the pattern is the same.)</p>
+<p>(To create a context from several places safely, keep its creation in one composition-root service; persistence is configured directly on <code>slice.context.create(name, initial, { persist: true })</code>. The pattern is the same.)</p>
 <p>Keep the request's state in the context next to the data, so every component can show it. A helper like this one lives in a module of your app (for example <code>src/Components/AppComponents/resources.js</code>) and is imported with a relative path:</p>
 <div class="code-block" data-block-id="doc-block-5"></div>
 <p>The states mean: <code>loading</code> (nothing yet: show a skeleton), <code>refreshing</code> (show what you have, quietly busy), <code>ready</code>, <code>error</code> (keep the old data if there is some, and offer Try again).</p>
@@ -42,10 +42,10 @@
 <div class="code-block" data-block-id="doc-block-9"></div>
 <h2 id="saving-changes">Saving changes</h2>
 <p>The same rule applies the other way: the page stays usable while a change is saved.</p>
-<ul><li><strong>List changes are optimistic.</strong> <code>addItem</code>, <code>updateItem</code> and <code>removeItem</code> (<code>addRow</code>… in Table) show the change at once and run your <code>commit</code>. If it fails, the change is taken back and an <span data-inline-link="4"></span> says so. <code>removeItem(keys, { undo: true, commit })</code> gives an Undo before the server is asked at all.</li><li><strong>Field and cell edits are commit-first.</strong> In DescriptionList and Table the edited value shows busy while <code>commit</code> runs, and the record changes when it succeeds. If it fails, the old value stays and the field shows the error.</li><li><strong>Throw with a message people can act on.</strong> "Prices over 1,000 need approval." shows on the field and on the bar; "Error 500" helps nobody.</li></ul>
+<ul><li><strong>List changes are optimistic.</strong> <code>addItem</code>, <code>updateItem</code> and <code>removeItem</code> (<code>addRow</code>… in Table) show the change at once and run your <code>commit</code>. If it fails, the change is taken back and an <span data-inline-link="3"></span> says so. <code>removeItem(keys, { undo: true, commit })</code> gives an Undo before the server is asked at all.</li><li><strong>Field and cell edits are commit-first.</strong> In DescriptionList and Table the edited value shows busy while <code>commit</code> runs, and the record changes when it succeeds. If it fails, the old value stays and the field shows the error.</li><li><strong>Throw with a message people can act on.</strong> "Prices over 1,000 need approval." shows on the field and on the bar; "Error 500" helps nobody.</li></ul>
 <div class="code-block" data-block-id="doc-block-10"></div>
 <h2 id="the-apps-own-loader">The app's own loader</h2>
-<p><code>sliceConfig.loading</code> sets how <span data-inline-link="5"></span> looks while a page is prepared:</p>
+<p><code>sliceConfig.loading</code> sets how <span data-inline-link="4"></span> looks while a page is prepared:</p>
 <ul><li><code>delayMs</code>: work that ends before this shows nothing. Use 150–300 ms, so fast route changes do not flash.</li><li><code>minVisibleMs</code>: once shown, it stays at least this long, so it does not blink.</li><li><code>welcome</code>: a branded screen for the first load of the app.</li></ul>
 <p>None of this makes a slow <code>init()</code> fast. It only makes the wait look better. The real fix is the rule at the top.</p>
 <h2 id="checklist">Checklist</h2>

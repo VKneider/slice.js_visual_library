@@ -681,11 +681,17 @@
       "section": "Services",
       "group": "Storage",
       "order": 20,
-      "description": "Async Service wrapper over IndexedDB for a single auto-keyed object store.",
+      "description": "A database in the browser. Several stores with indexes, created and upgraded for you; one shared connection; queries by index and range; transactions that keep all or nothing; and another tab's upgrade handled without blocking.",
       "tags": [
         "service",
+        "indexeddb",
+        "database",
+        "offline",
         "storage",
-        "indexeddb"
+        "index",
+        "query",
+        "transaction",
+        "upgrade"
       ],
       "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/indexed-db-manager.md"
     },
@@ -1021,6 +1027,29 @@
       "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/select.md"
     },
     {
+      "id": "shortcut-service",
+      "title": "ShortcutService",
+      "kind": "Service",
+      "component": "ShortcutService",
+      "sourcePath": "src/markdown/shortcut-service.md",
+      "route": "/docs/services/shortcut-service",
+      "section": "Services",
+      "group": "Interaction",
+      "order": 62,
+      "description": "The app's keyboard shortcuts in one place. mod+k that is ⌘ on Mac and Ctrl elsewhere, sequences like \"g o\", no single-key shortcuts while typing, scopes so an open dialog takes the keyboard, a warning when two shortcuts collide, cleanup with the component, and list() for a help screen.",
+      "tags": [
+        "service",
+        "keyboard",
+        "shortcuts",
+        "hotkeys",
+        "keybindings",
+        "accessibility",
+        "command palette",
+        "scope"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/shortcut-service.md"
+    },
+    {
       "id": "Sidemenu",
       "title": "SideMenu",
       "kind": "Visual",
@@ -1063,24 +1092,29 @@
       "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/slider.md"
     },
     {
-      "id": "store-service",
-      "title": "StoreService",
+      "id": "storage-service",
+      "title": "StorageService",
       "kind": "Service",
-      "component": "StoreService",
-      "sourcePath": "src/markdown/store-service.md",
-      "route": "/docs/services/store-service",
+      "component": "StorageService",
+      "sourcePath": "src/markdown/storage-service.md",
+      "route": "/docs/services/storage-service",
       "section": "Services",
-      "group": "State",
-      "order": 63,
-      "description": "A thin facade over slice.context, so context persistence is configured in one place.",
+      "group": "Storage",
+      "order": 10,
+      "description": "Small values the browser keeps for the app — preferences, the last filters, a draft. JSON in and out, a namespace per app, expiry per value, watch() that also hears other tabs, a full storage that does not throw, and a memory fallback when the browser refuses storage.",
       "tags": [
-        "store",
-        "context",
-        "state",
-        "persistence",
-        "service"
+        "service",
+        "storage",
+        "localStorage",
+        "sessionStorage",
+        "preferences",
+        "persist",
+        "ttl",
+        "expiry",
+        "watch",
+        "tabs"
       ],
-      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/store-service.md"
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/storage-service.md"
     },
     {
       "id": "switch",

@@ -7,19 +7,51 @@
    <span class="copy-md-slot" data-copy-md></span>
  </div>
 <h2 id="overview">Overview</h2>
-<p><code>IndexedDbManager</code> is a <strong>Service</strong> component: a thin async wrapper over the browser's IndexedDB. Each instance manages <strong>one object store</strong> inside a database. The store is created on demand with a <code>keyPath</code> of <code>'id'</code> and <code>autoIncrement: true</code>, so every item gets a numeric <code>id</code> automatically.</p>
-<p>Build it with a <code>databaseName</code> and <code>storeName</code>:</p>
+<p><code>IndexedDbManager</code> is a database in the browser: many records, found by index, kept between visits. Declare the stores and indexes you need; it creates them, opens <strong>one</strong> connection shared by every call, and turns IndexedDB's events into promises.</p>
 <div class="code-block" data-block-id="doc-block-1"></div>
-<h2 id="methods">Methods</h2>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Many records, or large ones: an offline copy of a list, attachments, a history.</li><li>Records you look up by something other than their key (by date, by tag, by status).</li><li>Changes to several records that must happen together.</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li>A few small values (a theme, a draft): <span data-inline-link="0"></span> is synchronous and simpler.</li><li>State the components share while the app runs: <code>slice.context</code>.</li><li>A copy of server data that only needs to live while the page is open: <span data-inline-link="1"></span>.</li></ul>
+<h2 id="build-it">Build it</h2>
 <div class="table-block" data-block-id="doc-block-2"></div>
-<h2 id="usage">Usage</h2>
+<p>A store:</p>
 <div class="code-block" data-block-id="doc-block-3"></div>
-<div class="code-block" data-block-id="doc-block-4"></div>
-<h2 id="best-practices">Best Practices</h2>
-<div class="callout callout-tip">You don't need to call <code>openDatabase()</code> yourself — every data method opens the database as
-needed. Let <code>addItem</code> assign the <code>id</code>, and pass the full object (including <code>id</code>) to <code>updateItem</code>.</div>
+<h3 id="adding-a-store-or-an-index-later">Adding a store or an index later</h3>
+<p>Add it to <code>stores</code> and deploy. Without <code>version</code>, the manager sees it is missing, raises the version by one, and creates it; the data already there stays. With <code>version</code>, raise it yourself; until you do, opening fails with an error that says what is missing.</p>
+<h2 id="methods">Methods</h2>
+<h3 id="a-store">A store</h3>
+<p><code>db.store(name)</code> gives a store whose calls each run in their own transaction:</p>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<p>The service has the same methods for its default store: <code>db.get(1)</code> is <code>db.store(db.storeName).get(1)</code>.</p>
+<h3 id="query">query</h3>
+<div class="table-block" data-block-id="doc-block-5"></div>
+<div class="code-block" data-block-id="doc-block-6"></div>
+<h3 id="transaction">transaction</h3>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<p><code>fn</code> receives the store (one name) or <code>{ name: store }</code> (an array). If it throws, <strong>nothing</strong> it did is kept. Inside, await only these stores' calls: waiting for a <code>fetch</code> or a timer lets the browser close the transaction.</p>
+<h3 id="the-connection">The connection</h3>
+<div class="table-block" data-block-id="doc-block-8"></div>
+<p>When another tab opens the same database with a newer version, this connection closes itself so that tab can upgrade, and opens again on its next call.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="notes-that-stay-offline">Notes that stay offline</h3>
+<p>Notes are kept in the browser: reload the page and they are still here. The list is a query on an index (newest first), and the tag field filters with a <code>multiEntry</code> index.</p>
+<div class="script-block" data-block-id="doc-block-9"></div>
+<h3 id="moving-data-when-the-shape-changes">Moving data when the shape changes</h3>
+<p>Version 2 splits <code>name</code> into <code>firstName</code> and <code>lastName</code>. <code>upgrade</code> runs once per browser, inside the upgrade transaction.</p>
+<div class="code-block" data-block-id="doc-block-10"></div>
+<h3 id="an-offline-copy-of-server-data">An offline copy of server data</h3>
+<p>Keep what QueryService got, so the next visit shows it before the server answers.</p>
+<div class="code-block" data-block-id="doc-block-11"></div>
+<h2 id="from-the-old-api">From the old API</h2>
+<p>The old methods still work, on the default store, and warn once.</p>
+<div class="table-block" data-block-id="doc-block-12"></div>
+<p>Two instances with different <code>storeName</code>s on the same database used to leave the second store uncreated. Now each one adds its store when it is missing.</p>
+<h2 id="best-practices">Best practices</h2>
+<div class="callout callout-tip">- One manager per database, built once (<code>singleton: true</code>), with every store declared there.
+- Index what you search by; <code>filter</code> walks every record of the range it is given.
+- Keep <code>version</code> out until you need <code>upgrade</code>: adding stores and indexes works without it.</div>
 <h2 id="pitfalls">Pitfalls</h2>
-<div class="callout callout-warning">All data methods are asynchronous — always <code>await</code> them. <code>updateItem</code> and <code>deleteItem</code> require a
-valid existing <code>id</code>. Each instance is bound to a single store; use separate instances (or
-<code>storeName</code>s) for different collections.</div>
+<div class="callout callout-warning">Inside <code>transaction</code>, do not await anything but the stores' own calls. A <code>fetch</code> in the middle lets the transaction close, and the next call fails with <code>TransactionInactiveError</code>. Fetch first, then write in one transaction.</div>
+<div class="callout callout-warning">Once you set <code>version</code>, never lower it: a browser that already has a higher version refuses to open (<code>VersionError</code>).</div>
 </div>

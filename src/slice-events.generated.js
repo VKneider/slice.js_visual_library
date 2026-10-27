@@ -47,6 +47,32 @@ export default {
         }
       ],
       "listeners": []
+    },
+    "router:change": {
+      "payload": null,
+      "emitters": [],
+      "listeners": [
+        {
+          "file": "src/Components/Visual/BottomNav/BottomNav.js",
+          "line": 197,
+          "component": "BottomNav"
+        },
+        {
+          "file": "src/Components/Visual/Navbar/Navbar.js",
+          "line": 213,
+          "component": "Navbar"
+        },
+        {
+          "file": "src/Components/Visual/SideMenu/SideMenu.js",
+          "line": 127,
+          "component": "SideMenu"
+        },
+        {
+          "file": "src/Components/Visual/TreeView/TreeView.js",
+          "line": 274,
+          "component": "TreeView"
+        }
+      ]
     }
   },
   "dynamic": {

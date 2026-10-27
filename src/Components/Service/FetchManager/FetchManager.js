@@ -40,6 +40,10 @@ let warnedLegacy = false;
  * with the signal's reason (an AbortError), as fetch does.
  */
 class HttpError extends Error {
+   /**
+    * @param {{ kind: 'http' | 'network' | 'timeout' | 'parse' | string, status?: number, statusText?: string,
+    *   body?: any, url?: string, method?: string, response?: Response | null, cause?: any }} details
+    */
    constructor({ kind, status = 0, statusText = '', body = null, url, method, response = null, cause }) {
       super(HttpError.messageFor({ kind, status, statusText, body, url, method }), cause ? { cause } : undefined);
       this.name = 'HttpError';

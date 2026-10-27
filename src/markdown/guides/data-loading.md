@@ -125,7 +125,7 @@ This is the default. Use it whenever one component shows one set of data.
 ## Pattern 2 — Share data through a context
 When several components show the same data (a list, a counter in the menu, a chart), ask for it **once** and keep it in a context (`slice.context.create(name, …)`). Every component watches the context, so a change anywhere shows everywhere, and nothing is asked twice.
 
-(To persist a context or create it from several places safely, [StoreService](/docs/services/store-service) is a thin layer over `slice.context`; the pattern is the same.)
+(To create a context from several places safely, keep its creation in one composition-root service; persistence is configured directly on `slice.context.create(name, initial, { persist: true })`. The pattern is the same.)
 
 Keep the request's state in the context next to the data, so every component can show it. A helper like this one lives in a module of your app (for example `src/Components/AppComponents/resources.js`) and is imported with a relative path:
 

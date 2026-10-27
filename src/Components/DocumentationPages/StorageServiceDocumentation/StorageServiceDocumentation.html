@@ -1,0 +1,47 @@
+<div class="documentation-content storageservicedocumentation">
+
+ <div class="doc-title-bar">
+   <h1 id="storageservice">
+     <span class="doc-title-text">StorageService</span>
+   </h1>
+   <span class="copy-md-slot" data-copy-md></span>
+ </div>
+<h2 id="overview">Overview</h2>
+<p><code>StorageService</code> keeps small values in the browser for the app: the theme, a collapsed sidebar, the last filters, a draft. It is <code>localStorage</code> (or <code>sessionStorage</code>) with what every app ends up writing around it:</p>
+<ul><li>values go in and come out <strong>as they were</strong> (objects, arrays, numbers), not as strings;</li><li>a <strong>namespace</strong>, so two apps on the same origin never share keys, and <code>clear()</code> removes only yours;</li><li>an <strong>expiry</strong> per value (<code>ttl</code>);</li><li>a <strong>full storage</strong> returns <code>false</code> with a warning instead of throwing in the middle of a click;</li><li><strong><code>watch()</code></strong>: a component hears a value change, in this tab <strong>and in other tabs</strong>, until it is destroyed;</li><li>when the browser <strong>refuses storage</strong> (some private modes, blocked site data), values live in memory for the session, with one warning, instead of failing on every call.</li></ul>
+<div class="code-block" data-block-id="doc-block-1"></div>
+<h3 id="when-to-use-it">When to use it</h3>
+<ul><li>Preferences and small UI memory: theme, density, the open tab, a dismissed banner, the last search.</li><li>A draft that should survive a reload, with an expiry.</li><li>A value several tabs must agree on (sign-out in one tab, the others follow).</li></ul>
+<h3 id="when-not-to-use-it">When not to use it</h3>
+<ul><li><strong>Many records, files, or anything to search</strong>: <span data-inline-link="0"></span>. Storage holds a few megabytes of text, and every read is synchronous.</li><li><strong>State the app's components share while it runs</strong>: <code>slice.context</code> (with <code>persist: true</code> when it must survive a reload).</li><li><strong>Server data</strong>: <span data-inline-link="1"></span>.</li><li><strong>Secrets</strong> (tokens with long lives, personal data): any script on the page can read storage.</li></ul>
+<h2 id="build-it">Build it</h2>
+<div class="code-block" data-block-id="doc-block-2"></div>
+<div class="table-block" data-block-id="doc-block-3"></div>
+<p>Build one per namespace and area, as a singleton, and give components the service.</p>
+<h2 id="methods">Methods</h2>
+<div class="table-block" data-block-id="doc-block-4"></div>
+<p>A value written as plain text by other code (<code>localStorage.setItem('x', 'hello')</code>) is read back as that text.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="preferences-that-follow-you-between-tabs">Preferences that follow you between tabs</h3>
+<p>The switches keep their state in storage, and the panel below watches it. Open this page in a second tab and change a switch there: this one follows.</p>
+<div class="script-block" data-block-id="doc-block-5"></div>
+<h3 id="a-draft-that-survives-a-reload-for-a-while">A draft that survives a reload, for a while</h3>
+<p>Every change is kept with a <code>ttl</code>: reload within ten minutes and the text is back; after that it is gone.</p>
+<div class="script-block" data-block-id="doc-block-6"></div>
+<h3 id="signing-out-in-every-tab">Signing out in every tab</h3>
+<p>A value all tabs watch. When one tab signs out, the others hear it and follow.</p>
+<div class="code-block" data-block-id="doc-block-7"></div>
+<h3 id="remembering-a-lists-filters">Remembering a list's filters</h3>
+<div class="code-block" data-block-id="doc-block-8"></div>
+<h2 id="from-localstoragemanager">From LocalStorageManager</h2>
+<p><code>LocalStorageManager</code> is deprecated and keeps working as it was, with one warning.</p>
+<div class="table-block" data-block-id="doc-block-9"></div>
+<p>Without a <code>namespace</code>, StorageService reads and writes the same keys as LocalStorageManager, so a move does not lose what users had.</p>
+<h2 id="best-practices">Best practices</h2>
+<div class="callout callout-tip">- Always give a <code>namespace</code>: other code on the origin (an analytics script, another app on the same domain) uses storage too.
+- Keep values small and few. Storage is synchronous: a large value read on every route change is felt.
+- Read with a <code>fallback</code>: the first visit, another device, or a cleared browser has nothing.</div>
+<h2 id="pitfalls">Pitfalls</h2>
+<div class="callout callout-warning">Storage is not private: any script on the page can read it. Do not keep long-lived tokens or personal data there.</div>
+<div class="callout callout-warning"><code>watch()</code> reports changes made <strong>through StorageService</strong> in this page, and any change in other tabs. A <code>localStorage.setItem</code> written directly in this same tab is not seen until something reads the key again.</div>
+</div>

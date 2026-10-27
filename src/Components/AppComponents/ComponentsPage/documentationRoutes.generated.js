@@ -351,6 +351,11 @@ const documentationRoutes = {
         component: 'InfiniteScrollServiceDocumentation'
       },
       {
+        title: 'ShortcutService',
+        path: '/docs/services/shortcut-service',
+        component: 'ShortcutServiceDocumentation'
+      },
+      {
         title: 'FetchManager',
         path: '/docs/services/fetch-manager',
         component: 'FetchManagerDocumentation'
@@ -364,6 +369,11 @@ const documentationRoutes = {
         title: 'LocalStorageManager',
         path: '/docs/services/local-storage-manager',
         component: 'LocalStorageManagerDocumentation'
+      },
+      {
+        title: 'StorageService',
+        path: '/docs/services/storage-service',
+        component: 'StorageServiceDocumentation'
       },
       {
         title: 'FileDownloadService',
@@ -384,11 +394,6 @@ const documentationRoutes = {
         title: 'UnsavedChangesGuard',
         path: '/docs/services/unsaved-changes-guard',
         component: 'UnsavedChangesGuardDocumentation'
-      },
-      {
-        title: 'StoreService',
-        path: '/docs/services/store-service',
-        component: 'StoreServiceDocumentation'
       },
       {
         title: 'ToastProvider',

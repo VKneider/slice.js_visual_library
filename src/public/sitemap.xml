@@ -12,13 +12,13 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/data/datalist</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/data/description-list</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -30,7 +30,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/data/table</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -42,19 +42,19 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/display/avatar</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/display/avatar-group</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/display/badge</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -96,7 +96,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/feedback/alert</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -108,7 +108,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/feedback/modal</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -120,7 +120,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/guides/data-and-loading</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -168,7 +168,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/input/input</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -198,7 +198,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/input/textarea</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -258,7 +258,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/navigation/bottom-nav</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -282,7 +282,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/navigation/navbar</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -294,13 +294,13 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/navigation/side-menu</loc>
-    <lastmod>2026-10-25</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/navigation/tabs</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -377,8 +377,12 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://components.slicejs.com/docs/services/store-service</loc>
-    <lastmod>2026-10-13</lastmod>
+    <loc>https://components.slicejs.com/docs/services/shortcut-service</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://components.slicejs.com/docs/services/storage-service</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -390,7 +394,7 @@
   </url>
   <url>
     <loc>https://components.slicejs.com/docs/services/tooltip-provider</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
