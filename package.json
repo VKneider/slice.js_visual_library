@@ -34,6 +34,8 @@
     "slice:sync": "node ./node_modules/slicejs-cli/client.js sync",
     "slice:build": "node ./node_modules/slicejs-cli/client.js build",
     "docs:generate": "node parser/index.js",
+    "seo:generate": "node ./node_modules/slicejs-cli/client.js seo sitemap",
+    "seo:check": "node ./node_modules/slicejs-cli/client.js seo check",
     "og:generate": "node scripts/og/generate.mjs",
     "og:check": "node scripts/og/generate.mjs --check",
     "docs:lint-md": "node parser/index.js --lint-only",

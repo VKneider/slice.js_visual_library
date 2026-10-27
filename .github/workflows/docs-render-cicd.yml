@@ -35,6 +35,25 @@ jobs:
       - name: Generate documentation artifacts
         run: npm run docs:generate
 
+      - name: Generate the sitemap (slice seo)
+        run: |
+          # The command needs slicejs-web-framework >= 4.1, which ships
+          # api/framework/seo.js. Until that version is installed, the parser
+          # still writes the sitemap from the same manifest (identical bytes).
+          if [ -f node_modules/slicejs-web-framework/api/framework/seo.js ]; then
+            npm run seo:generate
+          else
+            echo "Framework without api/framework/seo.js; skipping (parser owns the sitemap)."
+          fi
+
+      - name: Check the SEO artifacts
+        run: |
+          if [ -f node_modules/slicejs-web-framework/api/framework/seo.js ]; then
+            npm run seo:check
+          else
+            echo "Framework without api/framework/seo.js; skipping the SEO check."
+          fi
+
       - name: Generate agent catalog
         run: npm run docs:agent
 
