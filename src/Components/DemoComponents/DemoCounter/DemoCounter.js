@@ -41,8 +41,11 @@ export default class DemoCounter extends HTMLElement {
       slice.controller.setComponentProps(this, props);
    }
 
+   get value() { return this._value; }
    set value(v) { this._value = Number(v) || 0; this.$value.textContent = String(this._value); }
+   get step() { return this._step; }
    set step(v) { this._step = Number(v) || 1; }
+   get label() { return this._label; }
    set label(v) { this._label = v ?? ''; this.$label.textContent = this._label; }
 }
 

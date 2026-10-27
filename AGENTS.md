@@ -74,7 +74,11 @@ already hit:
   self-closing slash — otherwise the leftover ` />` lands in the document as text and breaks `<head>`.
 - Development serves components unbundled and fetches `<Component>.html` over HTTP, and JS-only
   components (Link, MultiRoute…) have no template file. Those requests keep getting the shell in
-  `development`; a 404 there makes `slice.build` return `null` and the page dies.
+  `development`; a 404 there makes `slice.build` return `null` and the page dies. A JS-only component
+  also has **no `.css`**, and that 404 is what broke the MiniInspector and Breadcrumbs demos: the
+  build returned `null` and the inspector rendered zero rows. The dev fallback now answers an empty
+  stylesheet for a component whose `.js` exists but whose `.css` does not — and only for that, so a
+  missing theme or a typo'd component still 404s (`tests/dev-resources.spec.js`).
 - `dist/` root files (`slice-events.generated.js`, `ComponentLibrary.js`) need the root static mount
   in production, or the fallback answers a `<script>` with HTML.
 

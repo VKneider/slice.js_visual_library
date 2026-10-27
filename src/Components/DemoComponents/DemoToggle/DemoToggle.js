@@ -30,8 +30,11 @@ export default class DemoToggle extends HTMLElement {
       slice.controller.setComponentProps(this, props);
    }
 
+   get on() { return this._on; }
    set on(v) { this._on = Boolean(v); this._apply(); }
+   get onText() { return this._onText; }
    set onText(v) { this._onText = v ?? 'ON'; this._apply(); }
+   get offText() { return this._offText; }
    set offText(v) { this._offText = v ?? 'OFF'; this._apply(); }
 
    _apply() {

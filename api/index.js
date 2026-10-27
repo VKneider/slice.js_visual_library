@@ -40,6 +40,25 @@ let routePages = null;
 let shellPage = null;
 const NOINDEX_META = { noindex: true };
 
+// Component URL prefixes, straight from sliceConfig. Used only by the
+// development fallback: a JS-only Visual component (DemoButton, DemoRouteHome,
+// MultiRoute…) ships no stylesheet, and the framework fetches it over HTTP.
+const componentPathPrefixes = Object.values(sliceConfig.paths?.components || {})
+  .map((entry) => entry?.path)
+  .filter(Boolean);
+
+/**
+ * True for `/Components/<Category>/<Name>/<Name>.css` when the component's
+ * `.js` exists but it has no `.css` next to it. Narrow on purpose: a genuinely
+ * missing file for a component that does ship styles still 404s.
+ */
+const isComponentWithoutStylesheet = (pathname) => {
+  if (!pathname.endsWith('.css') || pathname.includes('..')) return false;
+  if (!componentPathPrefixes.some((prefix) => pathname.startsWith(`${prefix}/`))) return false;
+  const file = path.join(__dirname, '..', folderDeployed, pathname);
+  return !fs.existsSync(file) && fs.existsSync(file.replace(/\.css$/, '.js'));
+};
+
 const loadSeoManifest = () => {
   const manifestPath = path.join(__dirname, `../${folderDeployed}`, 'public', 'seo-manifest.json');
   try {
@@ -578,12 +597,23 @@ app.use((req, res) => {
   const pathname = decodeURI(req.path).replace(/\/+$/, '') || '/';
 
   // Development serves components unbundled, so the framework fetches each
-  // `<Component>.html` over HTTP — and a JS-only component (Link, MultiRoute…)
-  // has no template file. The dev server has always answered those with the
-  // shell; answering 404 makes `slice.build` return null and the page dies.
-  // The production build inlines templates, so it never asks for them.
+  // `<Component>.html` over HTTP — and a JS-only component (Link, MultiRoute,
+  // DemoButton…) has no template/CSS file. The dev server has always answered
+  // those with the shell; answering 404 makes `slice.build` return null and the
+  // page dies. The production build inlines templates, so it never asks.
   if (runMode === 'development' && pathname.endsWith('.html')) {
     return sendPage(req, res, shellPage);
+  }
+
+  // Same class of request, but for CSS: an empty stylesheet instead of the
+  // shell. A 404 there is what broke the MiniInspector and Breadcrumbs demos
+  // ("Live preview error: Expected 3 editable rows, got 0") — the demo
+  // components are built from JS and ship no `.css`.
+  if (runMode === 'development' && isComponentWithoutStylesheet(pathname)) {
+    res.status(200);
+    res.set('Content-Type', 'text/css; charset=utf-8');
+    res.set('Cache-Control', 'no-store');
+    return res.end('/* component ships no stylesheet */');
   }
 
   const page = routePages.get(pathname);

@@ -148,7 +148,6 @@ the generic banner, now with its real 1893×932 declared in the shell.
 - [x] Regenerate locally before a release; CI runs `og:check`.
 - [ ] Do we want section-hub cards to differ from the page slice (`/docs/input`, `/docs/display`)?
       They are not pages today, so they share the parent route's card.
-- [ ] Regenerate `mini-inspector` / `breadcrumbs` once their demos are fixed.
 
 ## Decision log
 
@@ -164,3 +163,11 @@ the generic banner, now with its real 1893×932 declared in the shell.
   element clip grabbed the neighbouring border).
 - 2026-10-27 - Known gaps: `mini-inspector` and `breadcrumbs` demos throw and fall back to a page
   slice — docs bugs, surfaced by the generator, tracked above.
+- 2026-10-27 - Both gaps closed. The root cause was one: JS-only Visual components (`DemoButton`,
+  `DemoRouteHome`…) ship no `.css`, the dev fallback 404'd it, and `slice.build` returned `null`
+  (hence "Expected 3 editable rows, got 0" and `appendChild` of `null`). `api/index.js` now answers
+  an empty stylesheet for a component whose `.js` exists but whose `.css` does not, and the demo
+  fixtures expose getters so the inspector shows current values. `tests/dev-resources.spec.js`
+  guards both sides. Cards regenerated: `mini-inspector` and `breadcrumbs` are now `demo` (28.8 KB /
+  25.8 KB), and `file-upload` / `unsaved-changes-guard` lost their null-build placeholder.
+

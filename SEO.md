@@ -133,9 +133,16 @@ say "this is gone". No fake title, no fabricated canonical. Internal routes (`/_
 ### 3.4 Two server details that bit us
 
 - **Development serves components unbundled**, so the framework fetches `<Component>.html` over
-  HTTP; a JS-only component (`Link`, `MultiRoute`) has no template file. Those requests keep
-  receiving the shell in `development`; a 404 there makes `slice.build` return `null` and the page
-  dies. The production build inlines templates, so it never asks.
+  HTTP; a JS-only component (`MultiRoute`, `DemoButton`, `DemoRouteHome`…) has no template file.
+  Those requests keep receiving the shell in `development`; a 404 there makes `slice.build` return
+  `null` and the page dies. The production build inlines templates, so it never asks.
+- **The same applies to `.css`**, and it was the one missing until the MiniInspector and Breadcrumbs
+  demos surfaced it: those components build their DOM in JS and ship no stylesheet, so
+  `slice.build('DemoButton')` returned `null` in dev ("Live preview error: Expected 3 editable rows,
+  got 0" — a `null` target rendered zero rows). The dev fallback now answers an **empty stylesheet**
+  for a component whose `.js` exists but whose `.css` does not, and nothing else: a missing theme,
+  a typo'd component or a CSS for a component that does ship styles still 404s
+  (`tests/dev-resources.spec.js`).
 - **`dist/` root artifacts** (`slice-events.generated.js`, `ComponentLibrary.js`) needed
   `express.static(dist)` in production. Before, the SPA fallback answered a `<script>` with
   `index.html`.

@@ -30,8 +30,11 @@ export default class DemoButton extends HTMLElement {
       slice.controller.setComponentProps(this, props);
    }
 
+   get label() { return this._label; }
    set label(v) { this._label = v ?? ''; this.$label.textContent = this._label; }
+   get clicks() { return this._clicks; }
    set clicks(v) { this._clicks = Number(v) || 0; this.$count.textContent = this._clicks ? ' · ' + this._clicks : ''; }
+   get disabled() { return this._disabled; }
    set disabled(v) {
       this._disabled = Boolean(v);
       this.$btn.disabled = this._disabled;

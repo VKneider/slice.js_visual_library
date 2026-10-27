@@ -56,12 +56,12 @@
       "kind": "demo"
     },
     "/docs/developer/mini-inspector": {
-      "path": "/og/docs-developer-mini-inspector-8230c69de5.jpg",
+      "path": "/og/docs-developer-mini-inspector-aeba825b5d.png",
       "width": 1200,
       "height": 630,
-      "type": "image/jpeg",
-      "bytes": 80878,
-      "kind": "page"
+      "type": "image/png",
+      "bytes": 29507,
+      "kind": "demo"
     },
     "/docs/display/avatar": {
       "path": "/og/docs-display-avatar-7ffbc81b99.png",
@@ -216,11 +216,11 @@
       "kind": "demo"
     },
     "/docs/input/file-upload": {
-      "path": "/og/docs-input-file-upload-9136814ccc.png",
+      "path": "/og/docs-input-file-upload-c67e187d65.png",
       "width": 1200,
       "height": 630,
       "type": "image/png",
-      "bytes": 32672,
+      "bytes": 32684,
       "kind": "demo"
     },
     "/docs/input/form": {
@@ -360,12 +360,12 @@
       "kind": "demo"
     },
     "/docs/navigation/breadcrumbs": {
-      "path": "/og/docs-navigation-breadcrumbs-0c64520e93.jpg",
+      "path": "/og/docs-navigation-breadcrumbs-6d33e94c86.png",
       "width": 1200,
       "height": 630,
-      "type": "image/jpeg",
-      "bytes": 72107,
-      "kind": "page"
+      "type": "image/png",
+      "bytes": 26432,
+      "kind": "demo"
     },
     "/docs/navigation/dropdown": {
       "path": "/og/docs-navigation-dropdown-c1168d84e3.png",
@@ -552,11 +552,11 @@
       "kind": "demo"
     },
     "/docs/services/unsaved-changes-guard": {
-      "path": "/og/docs-services-unsaved-changes-guard-405da007f8.png",
+      "path": "/og/docs-services-unsaved-changes-guard-4956cd0b5f.png",
       "width": 1200,
       "height": 630,
       "type": "image/png",
-      "bytes": 41606,
+      "bytes": 41646,
       "kind": "demo"
     },
     "/theme-creator": {
