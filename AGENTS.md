@@ -100,6 +100,9 @@ is:
 
 Commands: `pnpm run docs:lint-md`, `pnpm run docs:generate`, `pnpm run docs:sync-registry`.
 
+The crawler-facing side (sitemap, manifest, per-route metadata, 404s) is documented end to end,
+with the numbers behind each decision, in **[`SEO.md`](SEO.md)**.
+
 ## Agent Workflow (for new docs pages)
 1. Add new markdown file in `src/markdown/` with required front matter.
 2. Add realistic `:::script` examples that return nodes for live previews.

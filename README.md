@@ -159,6 +159,7 @@ We welcome contributions to the component library and documentation. Full guide:
 
 - **Component authoring rules** (prop naming, deprecation/alias policy, CSS encapsulation, a11y) — [COMPONENT_API_STANDARDS.md](COMPONENT_API_STANDARDS.md)
 - **Testing** (the `mount` harness + how to add a component test) — [playwright/README.md](playwright/README.md)
+- **SEO** (sitemap and manifest generation, per-route metadata, real 404s, what is still open) — [SEO.md](SEO.md)
 
 > ⚠️ This repository **is the published component registry** — the CLI downloads components from
 > it. Any prop rename is a public API change, so never remove an old prop name without keeping it
