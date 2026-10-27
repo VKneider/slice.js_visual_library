@@ -38,19 +38,24 @@ pages are generated from, because the hand-maintained sitemap had already drifte
 pnpm run docs:generate      # runs parser/index.js
   ├─ …markdown → DocumentationPages/*
   └─ writeSeoArtifacts()
-       ├─ src/public/seo-manifest.json
+       ├─ src/public/seo.json        (the framework's manifest shape)
        └─ src/public/sitemap.xml
 ```
 
-### `src/public/seo-manifest.json`
+### `src/public/seo.json`
 
-One entry per route: `title`, `description`, `section`, `group`, `lastmod`, `indexable`,
-`priority`, `changefreq`.
+One entry per route, in the shape `slicejs-web-framework/api/framework/seo.js` consumes: `title`,
+`description`, `robots` (`false` for internal pages), `sitemap` (`lastmod`, `priority`,
+`changefreq`), and `jsonLd` (one array per route). `defaults` carries the title template (`%s`, the
+titles already include their suffix) and the generic banner as the fallback card.
 
 - **71 routes today**: 65 docs pages + `/` + `/docs` + `/theme-creator` (indexable) and `/__test`,
-  `/playground`, `/game`, `/404` (`indexable: false` + `noindex: true`).
+  `/playground`, `/game`, `/404` (`robots: false`).
 - `/` takes its title and description **from `src/App/index.html`**, so the home page has one source
   of truth instead of two.
+- The generated `src/public/og/manifest.json` is passed separately (`seo.images`) because the cards
+  are produced after this file; a route with a card and a route with the banner therefore share one
+  manifest.
 - **Deterministic**: keys sorted, no `generatedAt`. `writeFileIfChanged` therefore writes nothing
   when nothing changed, and the CI auto-commit stays quiet.
 
@@ -84,7 +89,7 @@ Verified against the previous sitemap: the test fails with exactly the 25 missin
 
 At startup:
 
-1. `loadSeoManifest()` reads `public/seo-manifest.json` and `App/index.html` once.
+1. `loadSeoManifest()` reads `public/seo.json` and `App/index.html` once.
 2. `buildRoutePages()` renders **every route** through `injectMeta()`, then compresses each result
    once:
 
@@ -179,7 +184,7 @@ then compose the card in Chromium and write `src/public/og/<slug>-<hash>.png`.
   average 40 KB, max 86 KB.
 
 **Selection at runtime.** `api/index.js` reads `public/og/manifest.json` once at startup (separate
-from `seo-manifest.json` on purpose: the parser owns that one and rewrites it on every
+from `seo.json` on purpose: the parser owns that one and rewrites it on every
 `docs:generate`). `injectMeta()` replaces `og:image`, `og:image:width/height/type/alt` and
 `twitter:image` with the absolute URL for the route; routes without an entry — everything
 `noindex`, the 404 shell — keep the generic `images/og-image.png` banner that ships in
@@ -301,7 +306,7 @@ scripts/og/generate.mjs                             social cards: capture, compo
 scripts/og/card.mjs                                 the 1200×630 card (HTML + CSS, pure)
 src/public/og/                                      generated: one card per indexable route
 src/public/og/manifest.json                         generated: route → { path, width, height, type }
-src/public/seo-manifest.json                        generated
+src/public/seo.json                                 generated (framework manifest shape)
 src/public/sitemap.xml                              generated
 src/App/index.html                                  home metadata (source of truth for /)
 src/routes.js (generated)                            metadata.title per route, applied by the Router

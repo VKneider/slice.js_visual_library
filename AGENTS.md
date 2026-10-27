@@ -78,8 +78,8 @@ From markdown input, parser generates:
   - `src/public/sitemap.xml` — only real routes (`docsIndex` + `/` + `/docs` + `/theme-creator`), with
     `<lastmod>` taken from the markdown file's **last commit date** (`git log`, not mtime — mtimes
     reset on clone and would churn CI).
-  - `src/public/seo-manifest.json` — per-route `title`, `description`, `section`, `lastmod`,
-    `indexable` (internal routes carry `indexable: false` + `noindex`). Deterministic output
+  - `src/public/seo.json` — per-route `title`, `description`, `robots`, `sitemap` and `jsonLd`, in
+    the framework's manifest shape (`robots: false` for internal routes). Deterministic output
     (sorted keys, no timestamps) so `writeFileIfChanged` stays quiet.
   - `parser/tests/seo.test.js` is the drift guard: it fails if the committed sitemap stops matching
     `docRoutes.generated.js`, or if a sitemap URL has no manifest entry. Adding a markdown page and
@@ -90,7 +90,7 @@ From markdown input, parser generates:
 - Current top-level routes are defined in `src/routes.js` and map docs paths to `ComponentsPage` (app shell pattern).
 
 ### 4b) Request-time metadata (server, not SSR)
-`api/index.js` reads `seo-manifest.json` + `App/index.html` **once at startup** and answers the SPA
+`api/index.js` reads `seo.json` + `App/index.html` **once at startup** and answers the SPA
 fallback itself:
 
 - Known route → `200` with that route's `<title>`, `description`, `canonical`, `og:*`, `twitter:*`,
@@ -130,7 +130,7 @@ URL answering 200 with its own canonical, and every script the shell references 
 
 ### 4c) Social cards (`og:image`) — generated, never per request
 Every indexable route ships its own 1200×630 card in `src/public/og/`, selected by `api/index.js`
-from `src/public/og/manifest.json` (a separate file because the parser owns `seo-manifest.json`
+from `src/public/og/manifest.json` (a separate file because the parser owns `seo.json`
 and rewrites it on every `docs:generate`).
 
 - `pnpm run og:generate` (`scripts/og/generate.mjs`) boots the app server, screenshots the real

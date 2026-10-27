@@ -1,0 +1,4001 @@
+{
+  "version": 1,
+  "origin": "https://components.slicejs.com",
+  "defaults": {
+    "titleTemplate": "%s",
+    "image": "/images/og-image.png"
+  },
+  "routes": {
+    "/": {
+      "title": "Slice.js Components | Slice.js",
+      "description": "Official Slice.js Components library. Interactive documentation with live examples, API tables, and usage guides for every component.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "priority": "1.0",
+        "changefreq": "weekly"
+      },
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    },
+    "/404": {
+      "title": "Not found | Slice.js",
+      "description": "",
+      "robots": false,
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    },
+    "/__test": {
+      "title": "Test Harness | Slice.js",
+      "description": "",
+      "robots": false,
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    },
+    "/docs": {
+      "title": "Components Library | Slice.js",
+      "description": "Every Slice.js component, documented with live examples, prop tables and usage guides, grouped by input, display, layout, navigation, data and services.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "priority": "0.9",
+        "changefreq": "weekly"
+      },
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    },
+    "/docs/data/datalist": {
+      "title": "DataList | Slice.js",
+      "description": "The list of records an app works with — people, orders, tasks, files. Rows or cards with avatars, details, status and actions; search, views, filters, sort and groups; selection with bulk actions; create, edit and delete with undo and rollback; pages, load more or infinite scrolling; local data, a slice.context store or a server.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "DataList | Slice.js",
+          "description": "The list of records an app works with — people, orders, tasks, files. Rows or cards with avatars, details, status and actions; search, views, filters, sort and groups; selection with bulk actions; create, edit and delete with undo and rollback; pages, load more or infinite scrolling; local data, a slice.context store or a server.",
+          "url": "https://components.slicejs.com/docs/data/datalist",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "data",
+              "item": "https://components.slicejs.com/docs/data"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "datalist",
+              "item": "https://components.slicejs.com/docs/data/datalist"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/data/description-list": {
+      "title": "DescriptionList | Slice.js",
+      "description": "One record as label → value pairs — the detail of an order, a profile, the settings of a project. Values formatted by type and shown with components (Badge, Avatar), sections, copy buttons, edit in place with commit and rollback, a store or a server as the source, and a skeleton while it loads.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "DescriptionList | Slice.js",
+          "description": "One record as label → value pairs — the detail of an order, a profile, the settings of a project. Values formatted by type and shown with components (Badge, Avatar), sections, copy buttons, edit in place with commit and rollback, a store or a server as the source, and a skeleton while it loads.",
+          "url": "https://components.slicejs.com/docs/data/description-list",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "data",
+              "item": "https://components.slicejs.com/docs/data"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "description-list",
+              "item": "https://components.slicejs.com/docs/data/description-list"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/data/pagination": {
+      "title": "Pagination | Slice.js",
+      "description": "Moves through pages of a list, a table or search results. Five looks, numbered, compact or dot modes, the range on screen, a page-size picker, a jump box, real links, and a compact form on narrow screens.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Pagination | Slice.js",
+          "description": "Moves through pages of a list, a table or search results. Five looks, numbered, compact or dot modes, the range on screen, a page-size picker, a jump box, real links, and a compact form on narrow screens.",
+          "url": "https://components.slicejs.com/docs/data/pagination",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "data",
+              "item": "https://components.slicejs.com/docs/data"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "pagination",
+              "item": "https://components.slicejs.com/docs/data/pagination"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/data/table": {
+      "title": "Table | Slice.js",
+      "description": "Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling; rows from a slice.context store or a server, add / change / remove with rollback and undo, and cells edited in place like a spreadsheet.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Table | Slice.js",
+          "description": "Data table with sorting, pagination, search, typed filters, selection, totals, row detail, custom menus, export, remembered state and virtual scrolling; rows from a slice.context store or a server, add / change / remove with rollback and undo, and cells edited in place like a spreadsheet.",
+          "url": "https://components.slicejs.com/docs/data/table",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "data",
+              "item": "https://components.slicejs.com/docs/data"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "table",
+              "item": "https://components.slicejs.com/docs/data/table"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/developer/mini-inspector": {
+      "title": "MiniInspector | Slice.js",
+      "description": "MiniInspector documentation with executable live-editing scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "MiniInspector | Slice.js",
+          "description": "MiniInspector documentation with executable live-editing scenarios.",
+          "url": "https://components.slicejs.com/docs/developer/mini-inspector",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "developer",
+              "item": "https://components.slicejs.com/docs/developer"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "mini-inspector",
+              "item": "https://components.slicejs.com/docs/developer/mini-inspector"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/avatar": {
+      "title": "Avatar | Slice.js",
+      "description": "A person, a team or a project as a small picture. Falls back to initials on a colour of their own, then to an icon; status dot, badge, sizes, shapes, and clickable.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Avatar | Slice.js",
+          "description": "A person, a team or a project as a small picture. Falls back to initials on a colour of their own, then to an icon; status dot, badge, sizes, shapes, and clickable.",
+          "url": "https://components.slicejs.com/docs/display/avatar",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "avatar",
+              "item": "https://components.slicejs.com/docs/display/avatar"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/avatar-group": {
+      "title": "AvatarGroup | Slice.js",
+      "description": "A few people as overlapping avatars and \"+N\" for the rest, with each name on hover and one accessible name for the group.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "AvatarGroup | Slice.js",
+          "description": "A few people as overlapping avatars and \"+N\" for the rest, with each name on hover and one accessible name for the group.",
+          "url": "https://components.slicejs.com/docs/display/avatar-group",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "avatar-group",
+              "item": "https://components.slicejs.com/docs/display/avatar-group"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/badge": {
+      "title": "Badge | Slice.js",
+      "description": "A status, a count or a mark next to what it describes. Tone for the meaning, variant for the loudness; icon, live indicator, dot, sizes and colours of your own.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Badge | Slice.js",
+          "description": "A status, a count or a mark next to what it describes. Tone for the meaning, variant for the loudness; icon, live indicator, dot, sizes and colours of your own.",
+          "url": "https://components.slicejs.com/docs/display/badge",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "badge",
+              "item": "https://components.slicejs.com/docs/display/badge"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/chip": {
+      "title": "Chip | Slice.js",
+      "description": "Compact label for filters, tags and selections, optionally removable.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Chip | Slice.js",
+          "description": "Compact label for filters, tags and selections, optionally removable.",
+          "url": "https://components.slicejs.com/docs/display/chip",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "chip",
+              "item": "https://components.slicejs.com/docs/display/chip"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/code-visualizer": {
+      "title": "CodeVisualizer | Slice.js",
+      "description": "CodeVisualizer documentation with syntax highlighting and copy scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-05-31",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "CodeVisualizer | Slice.js",
+          "description": "CodeVisualizer documentation with syntax highlighting and copy scenarios.",
+          "url": "https://components.slicejs.com/docs/display/code-visualizer",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "code-visualizer",
+              "item": "https://components.slicejs.com/docs/display/code-visualizer"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/confirm-action-modal": {
+      "title": "ConfirmActionModal | Slice.js",
+      "description": "Promise-based \"are you sure?\" modal and single-value prompt, built on Modal, with an event-manager channel.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ConfirmActionModal | Slice.js",
+          "description": "Promise-based \"are you sure?\" modal and single-value prompt, built on Modal, with an event-manager channel.",
+          "url": "https://components.slicejs.com/docs/display/confirm-action-modal",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "confirm-action-modal",
+              "item": "https://components.slicejs.com/docs/display/confirm-action-modal"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/empty-state": {
+      "title": "EmptyState | Slice.js",
+      "description": "The \"nothing here yet\" placeholder, with an optional icon, explanation and action.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "EmptyState | Slice.js",
+          "description": "The \"nothing here yet\" placeholder, with an optional icon, explanation and action.",
+          "url": "https://components.slicejs.com/docs/display/empty-state",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "empty-state",
+              "item": "https://components.slicejs.com/docs/display/empty-state"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/icon": {
+      "title": "Icon | Slice.js",
+      "description": "Complete icon reference with all 291 symbols, usage patterns, and style variants.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Icon | Slice.js",
+          "description": "Complete icon reference with all 291 symbols, usage patterns, and style variants.",
+          "url": "https://components.slicejs.com/docs/display/icon",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "icon",
+              "item": "https://components.slicejs.com/docs/display/icon"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/display/tooltip": {
+      "title": "ToolTip | Slice.js",
+      "description": "Explains a control on hover, keyboard focus or a long press. Title, text and shortcut, twelve placements with an arrow that follows the trigger, three looks, a toggletip mode for an ⓘ with links, and it shows above modals.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ToolTip | Slice.js",
+          "description": "Explains a control on hover, keyboard focus or a long press. Title, text and shortcut, twelve placements with an arrow that follows the trigger, three looks, a toggletip mode for an ⓘ with links, and it shows above modals.",
+          "url": "https://components.slicejs.com/docs/display/tooltip",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "display",
+              "item": "https://components.slicejs.com/docs/display"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "tooltip",
+              "item": "https://components.slicejs.com/docs/display/tooltip"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/feedback/alert": {
+      "title": "Alert | Slice.js",
+      "description": "A message inside the page, next to what it is about. Tone for the meaning, variant for the loudness; a title, actions such as Undo or Try again, a close button, and a timeout that waits while you point at it.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Alert | Slice.js",
+          "description": "A message inside the page, next to what it is about. Tone for the meaning, variant for the loudness; a title, actions such as Undo or Try again, a close button, and a timeout that waits while you point at it.",
+          "url": "https://components.slicejs.com/docs/feedback/alert",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "feedback",
+              "item": "https://components.slicejs.com/docs/feedback"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "alert",
+              "item": "https://components.slicejs.com/docs/feedback/alert"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/feedback/loading": {
+      "title": "Loading | Slice.js",
+      "description": "Shows that the app is busy, over the whole page or one part of it. Four indicators (the Slice logo, a ring, dots, a top bar), backdrops, a label, a delay and a minimum time, and a welcome screen for the first load of the app, built in or your own.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Loading | Slice.js",
+          "description": "Shows that the app is busy, over the whole page or one part of it. Four indicators (the Slice logo, a ring, dots, a top bar), backdrops, a label, a delay and a minimum time, and a welcome screen for the first load of the app, built in or your own.",
+          "url": "https://components.slicejs.com/docs/feedback/loading",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "feedback",
+              "item": "https://components.slicejs.com/docs/feedback"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "loading",
+              "item": "https://components.slicejs.com/docs/feedback/loading"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/feedback/modal": {
+      "title": "Modal | Slice.js",
+      "description": "Native dialog with sizes, tones, centred, top, drawer, sheet and fullscreen layouts, actions, a close guard, a promise for the answer and enter/exit animations.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Modal | Slice.js",
+          "description": "Native dialog with sizes, tones, centred, top, drawer, sheet and fullscreen layouts, actions, a close guard, a promise for the answer and enter/exit animations.",
+          "url": "https://components.slicejs.com/docs/feedback/modal",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "feedback",
+              "item": "https://components.slicejs.com/docs/feedback"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "modal",
+              "item": "https://components.slicejs.com/docs/feedback/modal"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/feedback/toast": {
+      "title": "Toast | Slice.js",
+      "description": "Toast notification component with type-based styling, auto-dismiss, and dismissable modes.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Toast | Slice.js",
+          "description": "Toast notification component with type-based styling, auto-dismiss, and dismissable modes.",
+          "url": "https://components.slicejs.com/docs/feedback/toast",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "feedback",
+              "item": "https://components.slicejs.com/docs/feedback"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "toast",
+              "item": "https://components.slicejs.com/docs/feedback/toast"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/guides/data-and-loading": {
+      "title": "Data and the first load | Slice.js",
+      "description": "How to bring data from a server into a Slice app without keeping the page behind the loader. Why an awaited fetch in init() slows the first load, and the patterns that avoid it — data that arrives after the structure, a slice.context shared between components, critical data in parallel, refresh in the background, and saving changes.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Data and the first load | Slice.js",
+          "description": "How to bring data from a server into a Slice app without keeping the page behind the loader. Why an awaited fetch in init() slows the first load, and the patterns that avoid it — data that arrives after the structure, a slice.context shared between components, critical data in parallel, refresh in the background, and saving changes.",
+          "url": "https://components.slicejs.com/docs/guides/data-and-loading",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "guides",
+              "item": "https://components.slicejs.com/docs/guides"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "data-and-loading",
+              "item": "https://components.slicejs.com/docs/guides/data-and-loading"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/guides/data-components": {
+      "title": "Writing a component that loads data | Slice.js",
+      "description": "The standard every Slice component that shows server data follows — three sources with the same names, the states it must show, requests that never block the page and are cancelled when they are not needed, and how changes are saved and taken back. With a complete component to copy.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Writing a component that loads data | Slice.js",
+          "description": "The standard every Slice component that shows server data follows — three sources with the same names, the states it must show, requests that never block the page and are cancelled when they are not needed, and how changes are saved and taken back. With a complete component to copy.",
+          "url": "https://components.slicejs.com/docs/guides/data-components",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "guides",
+              "item": "https://components.slicejs.com/docs/guides"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "data-components",
+              "item": "https://components.slicejs.com/docs/guides/data-components"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/button": {
+      "title": "Button | Slice.js",
+      "description": "Button documentation with executable prop scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Button | Slice.js",
+          "description": "Button documentation with executable prop scenarios.",
+          "url": "https://components.slicejs.com/docs/input/button",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "button",
+              "item": "https://components.slicejs.com/docs/input/button"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/checkbox": {
+      "title": "Checkbox | Slice.js",
+      "description": "Checkbox component documentation with practical prop scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-18",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Checkbox | Slice.js",
+          "description": "Checkbox component documentation with practical prop scenarios.",
+          "url": "https://components.slicejs.com/docs/input/checkbox",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "checkbox",
+              "item": "https://components.slicejs.com/docs/input/checkbox"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/color-picker": {
+      "title": "ColorPicker | Slice.js",
+      "description": "A labelled colour swatch with a hex readout that normalizes any CSS colour before the browser can silently black it out.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-18",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ColorPicker | Slice.js",
+          "description": "A labelled colour swatch with a hex readout that normalizes any CSS colour before the browser can silently black it out.",
+          "url": "https://components.slicejs.com/docs/input/color-picker",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "color-picker",
+              "item": "https://components.slicejs.com/docs/input/color-picker"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/datepicker": {
+      "title": "DatePicker | Slice.js",
+      "description": "Date field with a calendar. People can type the date or pick it. Supports ranges over two months, min / max and disabled days, presets, an inline calendar, the full keyboard pattern and the same field styling and validation as Input.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "DatePicker | Slice.js",
+          "description": "Date field with a calendar. People can type the date or pick it. Supports ranges over two months, min / max and disabled days, presets, an inline calendar, the full keyboard pattern and the same field styling and validation as Input.",
+          "url": "https://components.slicejs.com/docs/input/datepicker",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "datepicker",
+              "item": "https://components.slicejs.com/docs/input/datepicker"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/file-upload": {
+      "title": "FileUpload | Slice.js",
+      "description": "Pick, drop or paste files, check them (type, size, count), see them with previews, remove them, and upload them with progress, retry and cancel. A real file input underneath, and a Form field.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "FileUpload | Slice.js",
+          "description": "Pick, drop or paste files, check them (type, size, count), see them with previews, remove them, and upload them with progress, retry and cancel. A real file input underneath, and a Form field.",
+          "url": "https://components.slicejs.com/docs/input/file-upload",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "file-upload",
+              "item": "https://components.slicejs.com/docs/input/file-upload"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/form": {
+      "title": "Form | Slice.js",
+      "description": "Declarative forms with sections, descriptions and validation, composed from Slice components.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Form | Slice.js",
+          "description": "Declarative forms with sections, descriptions and validation, composed from Slice components.",
+          "url": "https://components.slicejs.com/docs/input/form",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "form",
+              "item": "https://components.slicejs.com/docs/input/form"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/input": {
+      "title": "Input | Slice.js",
+      "description": "Text field with a floating label, variants, sizes, icon, prefix and suffix, clear button, help, errors, a counter and validation shared with Textarea.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Input | Slice.js",
+          "description": "Text field with a floating label, variants, sizes, icon, prefix and suffix, clear button, help, errors, a counter and validation shared with Textarea.",
+          "url": "https://components.slicejs.com/docs/input/input",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input/input"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/radio-group": {
+      "title": "RadioGroup | Slice.js",
+      "description": "Single-choice control that owns its value — keyboard, forms and card pickers included.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-21",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "RadioGroup | Slice.js",
+          "description": "Single-choice control that owns its value — keyboard, forms and card pickers included.",
+          "url": "https://components.slicejs.com/docs/input/radio-group",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "radio-group",
+              "item": "https://components.slicejs.com/docs/input/radio-group"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/select": {
+      "title": "Select | Slice.js",
+      "description": "Combobox with search, groups, multiple selection with chips, creatable options, server-loaded options and virtual scrolling.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Select | Slice.js",
+          "description": "Combobox with search, groups, multiple selection with chips, creatable options, server-loaded options and virtual scrolling.",
+          "url": "https://components.slicejs.com/docs/input/select",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "select",
+              "item": "https://components.slicejs.com/docs/input/select"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/slider": {
+      "title": "Slider | Slice.js",
+      "description": "Numeric slider with keyboard support, a two-thumb range mode, marks and formatted values.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-21",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Slider | Slice.js",
+          "description": "Numeric slider with keyboard support, a two-thumb range mode, marks and formatted values.",
+          "url": "https://components.slicejs.com/docs/input/slider",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "slider",
+              "item": "https://components.slicejs.com/docs/input/slider"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/switch": {
+      "title": "Switch | Slice.js",
+      "description": "Switch component documentation with practical interaction scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-21",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Switch | Slice.js",
+          "description": "Switch component documentation with practical interaction scenarios.",
+          "url": "https://components.slicejs.com/docs/input/switch",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "switch",
+              "item": "https://components.slicejs.com/docs/input/switch"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/textarea": {
+      "title": "Textarea | Slice.js",
+      "description": "Multi-line text field that shares Input's label, looks and validation, with auto-grow up to a limit, a counter and Ctrl+Enter to submit.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Textarea | Slice.js",
+          "description": "Multi-line text field that shares Input's label, looks and validation, with auto-grow up to a limit, a counter and Ctrl+Enter to submit.",
+          "url": "https://components.slicejs.com/docs/input/textarea",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "textarea",
+              "item": "https://components.slicejs.com/docs/input/textarea"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/theme-selector": {
+      "title": "ThemeSelector | Slice.js",
+      "description": "A binary LIGHT/DARK toggle with sun and moon icons that switches the app theme and keeps every theme control in sync.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-06-11",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ThemeSelector | Slice.js",
+          "description": "A binary LIGHT/DARK toggle with sun and moon icons that switches the app theme and keeps every theme control in sync.",
+          "url": "https://components.slicejs.com/docs/input/theme-selector",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "theme-selector",
+              "item": "https://components.slicejs.com/docs/input/theme-selector"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/input/theme-switcher": {
+      "title": "ThemeSwitcher | Slice.js",
+      "description": "A one-click control that cycles through your registered themes and keeps every theme control in sync.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ThemeSwitcher | Slice.js",
+          "description": "A one-click control that cycles through your registered themes and keeps every theme control in sync.",
+          "url": "https://components.slicejs.com/docs/input/theme-switcher",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "input",
+              "item": "https://components.slicejs.com/docs/input"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "theme-switcher",
+              "item": "https://components.slicejs.com/docs/input/theme-switcher"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/internal/css-conventions": {
+      "title": "CSS Conventions | Slice.js",
+      "description": "Three rules to write component CSS that never leaks — host scope, explicit display, and prefixed keyframes.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "CSS Conventions | Slice.js",
+          "description": "Three rules to write component CSS that never leaks — host scope, explicit display, and prefixed keyframes.",
+          "url": "https://components.slicejs.com/docs/internal/css-conventions",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "internal",
+              "item": "https://components.slicejs.com/docs/internal"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "css-conventions",
+              "item": "https://components.slicejs.com/docs/internal/css-conventions"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/internal/markdown-parser-rules": {
+      "title": "Markdown Parser Rules | Slice.js",
+      "description": "Contract, template, and generation rules for Slice.js documentation pages.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Markdown Parser Rules | Slice.js",
+          "description": "Contract, template, and generation rules for Slice.js documentation pages.",
+          "url": "https://components.slicejs.com/docs/internal/markdown-parser-rules",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "internal",
+              "item": "https://components.slicejs.com/docs/internal"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "markdown-parser-rules",
+              "item": "https://components.slicejs.com/docs/internal/markdown-parser-rules"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/layout/card": {
+      "title": "Card | Slice.js",
+      "description": "One thing, summed up. A product, a person, a file, a project or a metric, shown among others like it, that can lead to its detail. Image or icon, title, badge, content, actions, selectable and loading states.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Card | Slice.js",
+          "description": "One thing, summed up. A product, a person, a file, a project or a metric, shown among others like it, that can lead to its detail. Image or icon, title, badge, content, actions, selectable and loading states.",
+          "url": "https://components.slicejs.com/docs/layout/card",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "layout",
+              "item": "https://components.slicejs.com/docs/layout"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "card",
+              "item": "https://components.slicejs.com/docs/layout/card"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/layout/details": {
+      "title": "Details | Slice.js",
+      "description": "Content that folds open. One section, or a group of them as an accordion (one open at a time, or several), with icons, badges, lazy content, keyboard navigation and remembered state. Built on the native details element.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Details | Slice.js",
+          "description": "Content that folds open. One section, or a group of them as an accordion (one open at a time, or several), with icons, badges, lazy content, keyboard navigation and remembered state. Built on the native details element.",
+          "url": "https://components.slicejs.com/docs/layout/details",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "layout",
+              "item": "https://components.slicejs.com/docs/layout"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "details",
+              "item": "https://components.slicejs.com/docs/layout/details"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/layout/element-carrousel": {
+      "title": "ElementCarrousel | Slice.js",
+      "description": "A row of slides that moves one position at a time. Swipe, drag, arrows, the keyboard, dots, a count or thumbnails, several slides per view with a peek, loop, and autoplay that pauses itself.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ElementCarrousel | Slice.js",
+          "description": "A row of slides that moves one position at a time. Swipe, drag, arrows, the keyboard, dots, a count or thumbnails, several slides per view with a peek, loop, and autoplay that pauses itself.",
+          "url": "https://components.slicejs.com/docs/layout/element-carrousel",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "layout",
+              "item": "https://components.slicejs.com/docs/layout"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "element-carrousel",
+              "item": "https://components.slicejs.com/docs/layout/element-carrousel"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/layout/grid": {
+      "title": "Grid | Slice.js",
+      "description": "Grid component documentation with layout composition scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-05-31",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Grid | Slice.js",
+          "description": "Grid component documentation with layout composition scenarios.",
+          "url": "https://components.slicejs.com/docs/layout/grid",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "layout",
+              "item": "https://components.slicejs.com/docs/layout"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "grid",
+              "item": "https://components.slicejs.com/docs/layout/grid"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/layout/layout": {
+      "title": "Layout | Slice.js",
+      "description": "Layout container documentation with view swapping scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-05-31",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Layout | Slice.js",
+          "description": "Layout container documentation with view swapping scenarios.",
+          "url": "https://components.slicejs.com/docs/layout/layout",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "layout",
+              "item": "https://components.slicejs.com/docs/layout"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "layout",
+              "item": "https://components.slicejs.com/docs/layout/layout"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/bottom-nav": {
+      "title": "BottomNav | Slice.js",
+      "description": "App-style bottom tab bar with variants, badges, a raised centre action, label modes, docking on phones and hide-on-scroll.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "BottomNav | Slice.js",
+          "description": "App-style bottom tab bar with variants, badges, a raised centre action, label modes, docking on phones and hide-on-scroll.",
+          "url": "https://components.slicejs.com/docs/navigation/bottom-nav",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "bottom-nav",
+              "item": "https://components.slicejs.com/docs/navigation/bottom-nav"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/breadcrumbs": {
+      "title": "Breadcrumbs | Slice.js",
+      "description": "Breadcrumbs component for hierarchical navigation context and quick backtracking.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-06-09",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Breadcrumbs | Slice.js",
+          "description": "Breadcrumbs component for hierarchical navigation context and quick backtracking.",
+          "url": "https://components.slicejs.com/docs/navigation/breadcrumbs",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "breadcrumbs",
+              "item": "https://components.slicejs.com/docs/navigation/breadcrumbs"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/dropdown": {
+      "title": "DropDown | Slice.js",
+      "description": "Menu button with links, actions, toggles and nested submenus, trigger variants, smart placement and full keyboard support.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "DropDown | Slice.js",
+          "description": "Menu button with links, actions, toggles and nested submenus, trigger variants, smart placement and full keyboard support.",
+          "url": "https://components.slicejs.com/docs/navigation/dropdown",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "dropdown",
+              "item": "https://components.slicejs.com/docs/navigation/dropdown"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/link": {
+      "title": "Link | Slice.js",
+      "description": "Route-aware anchor with optional icon and subtitle — the one link primitive that navigates through slice.router.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Link | Slice.js",
+          "description": "Route-aware anchor with optional icon and subtitle — the one link primitive that navigates through slice.router.",
+          "url": "https://components.slicejs.com/docs/navigation/link",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "link",
+              "item": "https://components.slicejs.com/docs/navigation/link"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/navbar": {
+      "title": "Navbar | Slice.js",
+      "description": "Top navigation bar with five variants, nested dropdowns, the current page marked, sticky or fixed positioning and a real mobile menu.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Navbar | Slice.js",
+          "description": "Top navigation bar with five variants, nested dropdowns, the current page marked, sticky or fixed positioning and a real mobile menu.",
+          "url": "https://components.slicejs.com/docs/navigation/navbar",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "navbar",
+              "item": "https://components.slicejs.com/docs/navigation/navbar"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/not-found": {
+      "title": "NotFound | Slice.js",
+      "description": "NotFound 404 page documentation with route fallback scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-05-31",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "NotFound | Slice.js",
+          "description": "NotFound 404 page documentation with route fallback scenarios.",
+          "url": "https://components.slicejs.com/docs/navigation/not-found",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "not-found",
+              "item": "https://components.slicejs.com/docs/navigation/not-found"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/side-menu": {
+      "title": "SideMenu | Slice.js",
+      "description": "A navigation menu whose items open more items, as deep as needed. Submenus slide in with a back button (drill) or open in place, indented (tree). Links, actions, lazy submenus, groups, badges and the current page.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "SideMenu | Slice.js",
+          "description": "A navigation menu whose items open more items, as deep as needed. Submenus slide in with a back button (drill) or open in place, indented (tree). Links, actions, lazy submenus, groups, badges and the current page.",
+          "url": "https://components.slicejs.com/docs/navigation/side-menu",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "side-menu",
+              "item": "https://components.slicejs.com/docs/navigation/side-menu"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/tabs": {
+      "title": "Tabs | Slice.js",
+      "description": "Tab strip with four variants, a sliding indicator, icons, badges, closable and lazy tabs, overflow arrows, vertical layout, the full keyboard pattern and remembered state.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Tabs | Slice.js",
+          "description": "Tab strip with four variants, a sliding indicator, icons, badges, closable and lazy tabs, overflow arrows, vertical layout, the full keyboard pattern and remembered state.",
+          "url": "https://components.slicejs.com/docs/navigation/tabs",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "tabs",
+              "item": "https://components.slicejs.com/docs/navigation/tabs"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/navigation/treeview": {
+      "title": "TreeView | Slice.js",
+      "description": "Hierarchical list with full keyboard support, search, checkboxes, lazy branches, virtual scrolling, drag and drop and row menus.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "TreeView | Slice.js",
+          "description": "Hierarchical list with full keyboard support, search, checkboxes, lazy branches, virtual scrolling, drag and drop and row menus.",
+          "url": "https://components.slicejs.com/docs/navigation/treeview",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "navigation",
+              "item": "https://components.slicejs.com/docs/navigation"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "treeview",
+              "item": "https://components.slicejs.com/docs/navigation/treeview"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/routing/multi-route": {
+      "title": "MultiRoute | Slice.js",
+      "description": "MultiRoute container documentation with app-shell and dynamic route scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "MultiRoute | Slice.js",
+          "description": "MultiRoute container documentation with app-shell and dynamic route scenarios.",
+          "url": "https://components.slicejs.com/docs/routing/multi-route",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "routing",
+              "item": "https://components.slicejs.com/docs/routing"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "multi-route",
+              "item": "https://components.slicejs.com/docs/routing/multi-route"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/routing/route": {
+      "title": "Route | Slice.js",
+      "description": "Route container documentation with dynamic path and metadata scenarios.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-05-31",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "Route | Slice.js",
+          "description": "Route container documentation with dynamic path and metadata scenarios.",
+          "url": "https://components.slicejs.com/docs/routing/route",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "routing",
+              "item": "https://components.slicejs.com/docs/routing"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "route",
+              "item": "https://components.slicejs.com/docs/routing/route"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/dom-service": {
+      "title": "DomService | Slice.js",
+      "description": "Reconciles a list of data against the child components that render it, without leaking.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "DomService | Slice.js",
+          "description": "Reconciles a list of data against the child components that render it, without leaking.",
+          "url": "https://components.slicejs.com/docs/services/dom-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "dom-service",
+              "item": "https://components.slicejs.com/docs/services/dom-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/drag-drop": {
+      "title": "DragDropService | Slice.js",
+      "description": "Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder, with full touch support.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "DragDropService | Slice.js",
+          "description": "Singleton service for headless drag-and-drop, resize, and sortable — draggable, droppable, resizable, free positioning, and item reorder, with full touch support.",
+          "url": "https://components.slicejs.com/docs/services/drag-drop",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "drag-drop",
+              "item": "https://components.slicejs.com/docs/services/drag-drop"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/fetch-manager": {
+      "title": "FetchManager | Slice.js",
+      "description": "The app's HTTP client. get, post, patch… that return the data or throw an HttpError; baseUrl, default headers, query objects, JSON bodies, timeouts with your own signal, safe retries, and hooks to add a token or handle a 401 in one place.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "FetchManager | Slice.js",
+          "description": "The app's HTTP client. get, post, patch… that return the data or throw an HttpError; baseUrl, default headers, query objects, JSON bodies, timeouts with your own signal, safe retries, and hooks to add a token or handle a 401 in one place.",
+          "url": "https://components.slicejs.com/docs/services/fetch-manager",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "fetch-manager",
+              "item": "https://components.slicejs.com/docs/services/fetch-manager"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/file-download-service": {
+      "title": "FileDownloadService | Slice.js",
+      "description": "Saves a string or Blob to the user's device, with the object URL lifecycle handled for you.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "FileDownloadService | Slice.js",
+          "description": "Saves a string or Blob to the user's device, with the object URL lifecycle handled for you.",
+          "url": "https://components.slicejs.com/docs/services/file-download-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "file-download-service",
+              "item": "https://components.slicejs.com/docs/services/file-download-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/html-service": {
+      "title": "HtmlService | Slice.js",
+      "description": "Escape, sanitize and strip HTML at the boundary where untrusted markup becomes real DOM.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "HtmlService | Slice.js",
+          "description": "Escape, sanitize and strip HTML at the boundary where untrusted markup becomes real DOM.",
+          "url": "https://components.slicejs.com/docs/services/html-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "html-service",
+              "item": "https://components.slicejs.com/docs/services/html-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/indexed-db-manager": {
+      "title": "IndexedDbManager | Slice.js",
+      "description": "A database in the browser. Several stores with indexes, created and upgraded for you; one shared connection; queries by index and range; transactions that keep all or nothing; and another tab's upgrade handled without blocking.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "IndexedDbManager | Slice.js",
+          "description": "A database in the browser. Several stores with indexes, created and upgraded for you; one shared connection; queries by index and range; transactions that keep all or nothing; and another tab's upgrade handled without blocking.",
+          "url": "https://components.slicejs.com/docs/services/indexed-db-manager",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "indexed-db-manager",
+              "item": "https://components.slicejs.com/docs/services/indexed-db-manager"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/infinite-scroll": {
+      "title": "InfiniteScrollService | Slice.js",
+      "description": "Headless infinite scrolling. Watches the end of a list and loads the next page, one request at a time, with abort on reset, fill-the-screen, errors with retry, and page or cursor APIs.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-25",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "InfiniteScrollService | Slice.js",
+          "description": "Headless infinite scrolling. Watches the end of a list and loads the next page, one request at a time, with abort on reset, fill-the-screen, errors with retry, and page or cursor APIs.",
+          "url": "https://components.slicejs.com/docs/services/infinite-scroll",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "infinite-scroll",
+              "item": "https://components.slicejs.com/docs/services/infinite-scroll"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/local-storage-manager": {
+      "title": "LocalStorageManager | Slice.js",
+      "description": "Service wrapper over window.localStorage with automatic JSON serialization.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-05-31",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "LocalStorageManager | Slice.js",
+          "description": "Service wrapper over window.localStorage with automatic JSON serialization.",
+          "url": "https://components.slicejs.com/docs/services/local-storage-manager",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "local-storage-manager",
+              "item": "https://components.slicejs.com/docs/services/local-storage-manager"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/query-service": {
+      "title": "QueryService | Slice.js",
+      "description": "What the app already knows from the server. One request per key however many components ask, data kept while it is fresh and refreshed behind the screen when it is not, invalidation after a change, retries, cancellation. React Query, the Slice way.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "QueryService | Slice.js",
+          "description": "What the app already knows from the server. One request per key however many components ask, data kept while it is fresh and refreshed behind the screen when it is not, invalidation after a change, retries, cancellation. React Query, the Slice way.",
+          "url": "https://components.slicejs.com/docs/services/query-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "query-service",
+              "item": "https://components.slicejs.com/docs/services/query-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/realtime-service": {
+      "title": "RealtimeService | Slice.js",
+      "description": "What the server tells the app without being asked. A WebSocket or Server-Sent Events connection that stays up — reconnecting with growing waits, channels with listeners that go with their component, subscribe frames sent again after a reconnect, a send queue, a heartbeat — and messages that make QueryService queries stale.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "RealtimeService | Slice.js",
+          "description": "What the server tells the app without being asked. A WebSocket or Server-Sent Events connection that stays up — reconnecting with growing waits, channels with listeners that go with their component, subscribe frames sent again after a reconnect, a send queue, a heartbeat — and messages that make QueryService queries stale.",
+          "url": "https://components.slicejs.com/docs/services/realtime-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "realtime-service",
+              "item": "https://components.slicejs.com/docs/services/realtime-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/shortcut-service": {
+      "title": "ShortcutService | Slice.js",
+      "description": "The app's keyboard shortcuts in one place. mod+k that is ⌘ on Mac and Ctrl elsewhere, sequences like \"g o\", no single-key shortcuts while typing, scopes so an open dialog takes the keyboard, a warning when two shortcuts collide, cleanup with the component, and list() for a help screen.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ShortcutService | Slice.js",
+          "description": "The app's keyboard shortcuts in one place. mod+k that is ⌘ on Mac and Ctrl elsewhere, sequences like \"g o\", no single-key shortcuts while typing, scopes so an open dialog takes the keyboard, a warning when two shortcuts collide, cleanup with the component, and list() for a help screen.",
+          "url": "https://components.slicejs.com/docs/services/shortcut-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "shortcut-service",
+              "item": "https://components.slicejs.com/docs/services/shortcut-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/storage-service": {
+      "title": "StorageService | Slice.js",
+      "description": "Small values the browser keeps for the app — preferences, the last filters, a draft. JSON in and out, a namespace per app, expiry per value, watch() that also hears other tabs, a full storage that does not throw, and a memory fallback when the browser refuses storage.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "StorageService | Slice.js",
+          "description": "Small values the browser keeps for the app — preferences, the last filters, a draft. JSON in and out, a namespace per app, expiry per value, watch() that also hears other tabs, a full storage that does not throw, and a memory fallback when the browser refuses storage.",
+          "url": "https://components.slicejs.com/docs/services/storage-service",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "storage-service",
+              "item": "https://components.slicejs.com/docs/services/storage-service"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/toast-provider": {
+      "title": "ToastProvider | Slice.js",
+      "description": "Singleton service for programmatic toast management — show, dismiss, clear, and position notifications.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-22",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ToastProvider | Slice.js",
+          "description": "Singleton service for programmatic toast management — show, dismiss, clear, and position notifications.",
+          "url": "https://components.slicejs.com/docs/services/toast-provider",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "toast-provider",
+              "item": "https://components.slicejs.com/docs/services/toast-provider"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/tooltip-provider": {
+      "title": "ToolTipProvider | Slice.js",
+      "description": "Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-26",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "ToolTipProvider | Slice.js",
+          "description": "Tooltips for many elements with one shared bubble and no component per trigger. Data attributes or attach(), elements added later included, and the same behaviour as ToolTip.",
+          "url": "https://components.slicejs.com/docs/services/tooltip-provider",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "tooltip-provider",
+              "item": "https://components.slicejs.com/docs/services/tooltip-provider"
+            }
+          ]
+        }
+      ]
+    },
+    "/docs/services/unsaved-changes-guard": {
+      "title": "UnsavedChangesGuard | Slice.js",
+      "description": "Warns before the user throws away work in progress — tab close, in-app navigation, or the back button.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "lastmod": "2026-10-13",
+        "priority": "0.7",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "TechArticle",
+          "headline": "UnsavedChangesGuard | Slice.js",
+          "description": "Warns before the user throws away work in progress — tab close, in-app navigation, or the back button.",
+          "url": "https://components.slicejs.com/docs/services/unsaved-changes-guard",
+          "author": {
+            "@type": "Organization",
+            "name": "vkneider.dev"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "Slice.js"
+          }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://components.slicejs.com"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Components Library",
+              "item": "https://components.slicejs.com/docs"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "services",
+              "item": "https://components.slicejs.com/docs/services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "unsaved-changes-guard",
+              "item": "https://components.slicejs.com/docs/services/unsaved-changes-guard"
+            }
+          ]
+        }
+      ]
+    },
+    "/game": {
+      "title": "Game | Slice.js",
+      "description": "",
+      "robots": false,
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    },
+    "/playground": {
+      "title": "Playground | Slice.js",
+      "description": "",
+      "robots": false,
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    },
+    "/theme-creator": {
+      "title": "Theme Creator | Slice.js",
+      "description": "Tune the Slice.js theme tokens live - colour, radius, spacing and typography - and export the CSS variables for your own app.",
+      "robots": {
+        "index": true,
+        "follow": true
+      },
+      "sitemap": {
+        "priority": "0.5",
+        "changefreq": "monthly"
+      },
+      "jsonLd": [
+        {
+          "@type": "WebSite",
+          "name": "Slice.js Components",
+          "url": "https://components.slicejs.com"
+        }
+      ]
+    }
+  }
+}

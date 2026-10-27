@@ -7,7 +7,7 @@
 // from the pages, not typed next to them.
 //
 //   src/public/sitemap.xml        -> what crawlers are told to index
-//   src/public/seo-manifest.json  -> what the server injects into the SPA shell
+//   src/public/seo.json           -> what the server injects into the SPA shell
 //                                    (title / description / canonical / JSON-LD)
 //
 // The manifest is also the route inventory the server uses to answer 404 for a
@@ -128,7 +128,11 @@ const normalizeRoute = (route) => {
 };
 
 /**
- * Build the route table the sitemap and the server both read.
+ * Build the route table the framework reads (`seo.json`): one entry per route,
+ * in the shape `slicejs-web-framework/api/framework/seo.js` consumes.
+ *
+ * Titles keep their `| Slice.js` suffix and the manifest declares no template,
+ * so what the server sends is exactly what is written here.
  *
  * @param {Array<{route: string, title: string, description?: string, section?: string,
  *   group?: string, tags?: string[], markdownFile?: string}>} entries docs entries
@@ -140,27 +144,61 @@ const buildSeoManifest = (entries = [], options = {}) => {
   const lastModified = options.lastModified || new Map();
   const routes = {};
 
+  const websiteJsonLd = { '@type': 'WebSite', name: 'Slice.js Components', url: ORIGIN };
+  const docsJsonLd = (route, title, description) => {
+    const canonical = `${ORIGIN}${route}`;
+    const parts = route.split('/').filter(Boolean); // ['docs', 'input', 'button']
+    const breadcrumbs = {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: ORIGIN },
+        { '@type': 'ListItem', position: 2, name: 'Components Library', item: `${ORIGIN}/docs` }
+      ]
+    };
+    if (parts.length >= 2) {
+      breadcrumbs.itemListElement.push({
+        '@type': 'ListItem',
+        position: 3,
+        name: parts[1],
+        item: `${ORIGIN}/docs/${parts[1]}`
+      });
+    }
+    if (parts.length === 3) {
+      breadcrumbs.itemListElement.push({
+        '@type': 'ListItem',
+        position: 4,
+        name: parts[2],
+        item: canonical
+      });
+    }
+    return [
+      {
+        '@type': 'TechArticle',
+        headline: title,
+        description,
+        url: canonical,
+        author: { '@type': 'Organization', name: 'vkneider.dev' },
+        publisher: { '@type': 'Organization', name: 'Slice.js' }
+      },
+      breadcrumbs
+    ];
+  };
+
   routes['/'] = {
     title: `${shellMeta.title}${TITLE_SUFFIX}`,
     description: shellMeta.description,
-    section: null,
-    group: null,
-    indexable: true,
-    priority: '1.0',
-    changefreq: 'weekly',
-    lastmod: null
+    robots: { index: true, follow: true },
+    sitemap: { priority: '1.0', changefreq: 'weekly' },
+    jsonLd: [websiteJsonLd]
   };
 
   for (const [route, meta] of Object.entries(STATIC_ROUTES)) {
     routes[route] = {
       title: `${meta.title}${TITLE_SUFFIX}`,
       description: meta.description,
-      section: null,
-      group: null,
-      indexable: true,
-      priority: meta.priority,
-      changefreq: meta.changefreq,
-      lastmod: null
+      robots: { index: true, follow: true },
+      sitemap: { priority: meta.priority, changefreq: meta.changefreq },
+      jsonLd: [websiteJsonLd]
     };
   }
 
@@ -168,14 +206,10 @@ const buildSeoManifest = (entries = [], options = {}) => {
     routes[route] = {
       title: `${title}${TITLE_SUFFIX}`,
       description: '',
-      section: null,
-      group: null,
-      indexable: false,
-      priority: '0.0',
-      changefreq: 'yearly',
-      lastmod: null,
-      // The server turns this into <meta name="robots" content="noindex">.
-      noindex: true
+      // The server turns this into <meta name="robots" content="noindex, nofollow">
+      // and keeps the route out of the sitemap.
+      robots: false,
+      jsonLd: [websiteJsonLd]
     };
   }
 
@@ -187,17 +221,22 @@ const buildSeoManifest = (entries = [], options = {}) => {
     if (routes[route]) continue;
 
     const title = String(entry.title || '').trim() || route;
+    const description =
+      String(entry.description || '').trim() || DESCRIPTION_FALLBACK(title);
     const markdownFile = entry.markdownFile || '';
 
     routes[route] = {
       title: `${title}${TITLE_SUFFIX}`,
-      description: String(entry.description || '').trim() || DESCRIPTION_FALLBACK(title),
-      section: entry.section || null,
-      group: entry.group || null,
-      indexable: true,
-      priority: '0.7',
-      changefreq: 'monthly',
-      lastmod: markdownFile ? lastModified.get(markdownFile) || null : null
+      description,
+      robots: { index: true, follow: true },
+      sitemap: {
+        lastmod: markdownFile ? lastModified.get(markdownFile) || null : null,
+        priority: '0.7',
+        changefreq: 'monthly'
+      },
+      jsonLd: route.startsWith('/docs/')
+        ? docsJsonLd(route, `${title}${TITLE_SUFFIX}`, description)
+        : [websiteJsonLd]
     };
   }
 
@@ -209,6 +248,10 @@ const buildSeoManifest = (entries = [], options = {}) => {
   return {
     version: 1,
     origin: ORIGIN,
+    // Titles already carry the suffix, so there is nothing to compose. The
+    // generic banner is the fallback for a route whose card was not generated
+    // (internal pages, or a page added before the image generator ran).
+    defaults: { titleTemplate: '%s', image: '/images/og-image.png' },
     routes: sortedRoutes
   };
 };
@@ -222,8 +265,8 @@ const escapeXml = (value) =>
     .replace(/'/g, '&apos;');
 
 /**
- * Sitemap XML from a manifest. Only `indexable` routes, sorted by URL, with the
- * `<lastmod>` we actually know (no fabricated date).
+ * Sitemap XML from a manifest. Only routes the manifest marks indexable, sorted
+ * by URL, with the `<lastmod>` we actually know (no fabricated date).
  */
 const buildSitemap = (manifest) => {
   const lines = [
@@ -232,16 +275,22 @@ const buildSitemap = (manifest) => {
   ];
 
   const routes = Object.keys(manifest.routes)
-    .filter((route) => manifest.routes[route].indexable !== false)
+    .filter((route) => {
+      const meta = manifest.routes[route];
+      if (meta.robots === false || meta.robots?.index === false) return false;
+      if (meta.sitemap === false) return false;
+      return true;
+    })
     .sort();
 
   for (const route of routes) {
     const meta = manifest.routes[route];
+    const sitemap = meta.sitemap || {};
     lines.push('  <url>');
     lines.push(`    <loc>${escapeXml(`${manifest.origin}${route}`)}</loc>`);
-    if (meta.lastmod) lines.push(`    <lastmod>${escapeXml(meta.lastmod)}</lastmod>`);
-    if (meta.changefreq) lines.push(`    <changefreq>${escapeXml(meta.changefreq)}</changefreq>`);
-    if (meta.priority) lines.push(`    <priority>${escapeXml(meta.priority)}</priority>`);
+    if (sitemap.lastmod) lines.push(`    <lastmod>${escapeXml(sitemap.lastmod)}</lastmod>`);
+    if (sitemap.changefreq) lines.push(`    <changefreq>${escapeXml(sitemap.changefreq)}</changefreq>`);
+    if (sitemap.priority) lines.push(`    <priority>${escapeXml(sitemap.priority)}</priority>`);
     lines.push('  </url>');
   }
 
@@ -251,7 +300,10 @@ const buildSitemap = (manifest) => {
 };
 
 /**
- * Write both SEO artifacts, skipping files whose content did not change.
+ * Write the SEO artifacts, skipping files whose content did not change.
+ *
+ * `seo.json` is the manifest the framework server reads; `sitemap.xml` is still
+ * generated here (the CLI's `slice seo sitemap` takes over in a later step).
  *
  * @returns {{ manifest: object, changed: string[] }}
  */
@@ -259,12 +311,12 @@ const writeSeoArtifacts = ({ root, publicDir, entries }) => {
   // One `git log` call for the whole run: the sitemap's <lastmod> is the commit
   // date of the markdown file, not its mtime (which a fresh clone resets).
   const manifest = buildSeoManifest(entries, { root, lastModified: collectLastModified(root) });
-  const manifestPath = path.join(publicDir, 'seo-manifest.json');
+  const manifestPath = path.join(publicDir, 'seo.json');
   const sitemapPath = path.join(publicDir, 'sitemap.xml');
   const changed = [];
 
   if (writeFileIfChanged(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`)) {
-    changed.push('seo-manifest.json');
+    changed.push('seo.json');
   }
   if (writeFileIfChanged(sitemapPath, buildSitemap(manifest))) {
     changed.push('sitemap.xml');

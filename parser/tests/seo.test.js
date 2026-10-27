@@ -61,10 +61,12 @@ test('buildSeoManifest describes every docs entry plus the static routes', () =>
     '/theme-creator'
   ]);
   assert.equal(manifest.routes['/docs/input/button'].title, 'Button | Slice.js');
-  assert.equal(manifest.routes['/docs/input/button'].section, 'Input');
-  assert.equal(manifest.routes['/docs/input/button'].indexable, true);
+  assert.deepEqual(manifest.routes['/docs/input/button'].robots, { index: true, follow: true });
+  assert.equal(manifest.routes['/docs/input/button'].jsonLd[0]['@type'], 'TechArticle');
+  assert.equal(manifest.routes['/docs/input/button'].jsonLd[1]['@type'], 'BreadcrumbList');
   assert.equal(manifest.routes['/'].title, `${SHELL_META.title} | Slice.js`);
-  assert.equal(manifest.routes['/docs'].priority, '0.9');
+  assert.equal(manifest.routes['/docs'].sitemap.priority, '0.9');
+  assert.equal(manifest.routes['/'].jsonLd[0]['@type'], 'WebSite');
 });
 
 test('manifest keys are sorted so regenerating the file is a no-op', () => {
@@ -107,8 +109,7 @@ test('internal routes are described but never indexable', () => {
   const hidden = ['/__test', '/playground', '/game', '/404'];
 
   for (const route of hidden) {
-    assert.equal(manifest.routes[route].indexable, false, `${route} must not be indexable`);
-    assert.equal(manifest.routes[route].noindex, true, `${route} must carry noindex`);
+    assert.equal(manifest.routes[route].robots, false, `${route} must not be indexable`);
   }
 });
 
@@ -122,9 +123,9 @@ test('lastmod comes from the markdown commit date, never fabricated', () => {
     { shellMeta: SHELL_META, lastModified }
   );
 
-  assert.equal(manifest.routes['/docs/input/button'].lastmod, '2026-10-24');
-  assert.equal(manifest.routes['/docs/input/slider'].lastmod, null);
-  assert.equal(manifest.routes['/'].lastmod, null);
+  assert.equal(manifest.routes['/docs/input/button'].sitemap.lastmod, '2026-10-24');
+  assert.equal(manifest.routes['/docs/input/slider'].sitemap.lastmod, null);
+  assert.equal(manifest.routes['/'].sitemap.lastmod, undefined);
 });
 
 test('buildSitemap lists only indexable routes, sorted, with the real origin', () => {
@@ -174,7 +175,7 @@ test('buildSitemap escapes XML entities in titles and routes', () => {
 
   const escaped = buildSitemap({
     origin: ORIGIN,
-    routes: { '/docs/a&b': { indexable: true, priority: '0.7' } }
+    routes: { '/docs/a&b': { robots: { index: true, follow: true }, sitemap: { priority: '0.7' } } }
   });
   assert.match(escaped, /<loc>https:\/\/components\.slicejs\.com\/docs\/a&amp;b<\/loc>/);
 });
@@ -188,9 +189,9 @@ test('writeSeoArtifacts writes both files and is idempotent', () => {
   };
 
   const first = writeSeoArtifacts(options);
-  assert.deepEqual(first.changed.sort(), ['seo-manifest.json', 'sitemap.xml']);
+  assert.deepEqual(first.changed.sort(), ['seo.json', 'sitemap.xml']);
 
-  const manifestPath = path.join(publicDir, 'seo-manifest.json');
+  const manifestPath = path.join(publicDir, 'seo.json');
   const sitemapPath = path.join(publicDir, 'sitemap.xml');
   const manifestStat = fs.statSync(manifestPath);
 
@@ -238,10 +239,10 @@ test('the committed sitemap matches the real documentation routes (drift guard)'
 });
 
 test('the committed manifest describes every sitemap URL with its own metadata', () => {
-  const manifestPath = path.join(ROOT, 'src', 'public', 'seo-manifest.json');
+  const manifestPath = path.join(ROOT, 'src', 'public', 'seo.json');
   const sitemapPath = path.join(ROOT, 'src', 'public', 'sitemap.xml');
 
-  if (!fs.existsSync(manifestPath)) assert.fail('seo-manifest.json must exist');
+  if (!fs.existsSync(manifestPath)) assert.fail('seo.json must exist');
 
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const indexed = sitemapLocations(fs.readFileSync(sitemapPath, 'utf8')).map(sitemapRoute);
@@ -249,7 +250,7 @@ test('the committed manifest describes every sitemap URL with its own metadata',
   for (const route of indexed) {
     const meta = manifest.routes[route];
     assert.ok(meta, `${route} is in the sitemap but missing from the manifest`);
-    assert.equal(meta.indexable, true, `${route} is in the sitemap but marked non-indexable`);
+    assert.notEqual(meta.robots, false, `${route} is in the sitemap but marked non-indexable`);
     assert.ok(meta.title, `${route} needs a title`);
     assert.ok(meta.description, `${route} needs a description`);
   }

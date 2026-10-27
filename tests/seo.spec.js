@@ -1,6 +1,6 @@
 import { test, expect } from '../playwright/harness/sliceFixtures.js';
 
-// Phase 2 of the SEO work: the server reads src/public/seo-manifest.json and
+// Phase 2 of the SEO work: the server reads src/public/seo.json and
 // answers every SPA route with its OWN metadata, and a route that is not a page
 // with a real 404 instead of the shell (a "soft 404": 200 + "Loading…" forever).
 //
@@ -163,11 +163,14 @@ test.describe('Per-route social cards @server', () => {
 
     expect(tags.ogImage).toBe(`${ORIGIN}/images/og-image.png`);
     expect(tags.ogImageType).toBe('image/png');
-    expect(tags.ogImageWidth).toBe('1893');
+    // The banner is the manifest's `defaults.image`, so its dimensions are not
+    // declared — crawlers fetch the file. Generated cards do declare theirs.
+    expect(tags.ogImageWidth).toBeNull();
   });
 });
 
-test.describe('Real 404 for routes that are not pages @server', () => {  test('an unknown docs path answers 404 with the app shell', async ({ page }) => {
+test.describe('Real 404 for routes that are not pages @server', () => {
+  test('an unknown docs path answers 404 with the app shell', async ({ page }) => {
     const response = await page.request.get('/docs/xyz/nope');
     expect(response.status()).toBe(404);
 

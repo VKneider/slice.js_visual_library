@@ -24,8 +24,8 @@
 <p><code>docs:generate</code> also writes two files from the same front matter, so they can never drift:</p>
 <ul><li><code>src/public/sitemap.xml</code> — one <code>&lt;url&gt;</code> per <strong>real</strong> page (the generated <code>docRoutes</code> plus <code>/</code>,</li></ul>
 <p><code>/docs</code> and <code>/theme-creator</code>), never a section index that has no page. <code>&lt;lastmod&gt;</code> is the   markdown file's last <strong>commit</strong> date (not its mtime), so a fresh clone does not rewrite it.</p>
-<ul><li><code>src/public/seo-manifest.json</code> — per-route <code>title</code>, <code>description</code>, <code>section</code>, <code>lastmod</code> and</li></ul>
-<p><code>indexable</code>. Internal routes (<code>/__test</code>, <code>/playground</code>, <code>/game</code>, <code>/404</code>) are listed as   <code>indexable: false</code> + <code>noindex</code> so they get served without being indexed.</p>
+<ul><li><code>src/public/seo.json</code> — per-route <code>title</code>, <code>description</code>, <code>robots</code>, <code>sitemap</code> and <code>jsonLd</code>.</li></ul>
+<p>Internal routes (<code>/__test</code>, <code>/playground</code>, <code>/game</code>, <code>/404</code>) carry <code>robots: false</code> so they get   served without being indexed, and the same file is what the framework's <code>seo</code> option reads.</p>
 <p>Both are generated: edit <code>parser/lib/seo.js</code> or the front matter, never the XML/JSON by hand. <code>parser/tests/seo.test.js</code> fails when the committed sitemap does not match the generated routes.</p>
 <h2 id="commands">Commands</h2>
 <div class="code-block" data-block-id="doc-block-3"></div>
