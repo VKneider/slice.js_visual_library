@@ -2321,6 +2321,7 @@ export default class Table extends HTMLElement {
   //
   //   'separator' | 'details' | 'copy' | 'select' | 'csv' | 'json' | ...  built-in ids
   //   { label, icon?, onClick(ctx), danger?, disabled?, hidden?, checked?, shortcut? }
+  //     `icon` is an Icon name or a Node; a name builds a real Icon component.
   //   { type: 'label', label }        a group heading
   //   { render: (ctx) => Node }       anything else, as-is
   //
@@ -2401,6 +2402,7 @@ export default class Table extends HTMLElement {
     if (!state) return;
     slice.controller.destroyByContainer(this.$menu);
     state.entries = state.build();
+    const renderId = (state.renderId = (state.renderId || 0) + 1);
     const nodes = state.entries.map((entry, index) => {
       if (entry.type === 'separator') return this._el('div', 'table_menu_separator', { role: 'separator' });
       if (entry.type === 'label') return this._el('div', 'table_menu_label', { role: 'presentation', text: entry.label });
@@ -2416,8 +2418,27 @@ export default class Table extends HTMLElement {
       button.dataset.index = String(index);
       if (entry.checked !== undefined) button.setAttribute('aria-checked', entry.checked ? 'true' : 'false');
       if (entry.disabled) button.setAttribute('aria-disabled', 'true');
-      if (entry.icon instanceof Node) button.appendChild(entry.icon);
-      else if (entry.icon) button.appendChild(this._el('span', 'table_menu_icon', { 'aria-hidden': 'true', text: String(entry.icon) }));
+      if (entry.icon instanceof Node) {
+        button.appendChild(entry.icon);
+      } else if (typeof entry.icon === 'string' && entry.icon) {
+        // Items name an Icon; build the real component. The menu may close or
+        // re-render while the icon loads, so guard the slot and render id.
+        const slot = this._el('span', 'table_menu_icon', { 'aria-hidden': 'true' });
+        slot.style.display = 'inline-flex';
+        slot.style.width = '16px';
+        slot.style.height = '16px';
+        slot.style.alignItems = 'center';
+        slot.style.justifyContent = 'center';
+        button.appendChild(slot);
+        slice.build('Icon', { name: entry.icon, size: '16px' }).then((icon) => {
+          if (!icon) return;
+          if (this._menuState === state && state.renderId === renderId && slot.isConnected) {
+            slot.appendChild(icon);
+          } else {
+            slice.controller.destroyComponent(icon);
+          }
+        });
+      }
       button.appendChild(this._el('span', 'table_menu_text', { text: entry.label }));
       if (entry.shortcut) button.appendChild(this._el('span', 'table_menu_shortcut', { text: String(entry.shortcut) }));
       return button;

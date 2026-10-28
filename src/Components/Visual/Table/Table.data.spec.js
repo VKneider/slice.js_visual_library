@@ -284,3 +284,24 @@ test.describe('Table — editing cells', () => {
       expect(await h.page.evaluate((i) => !!slice.controller.getComponent(i), id)).toBe(false);
    });
 });
+
+test('row actions accept an Icon name and build the real component', async ({ mountHtml }) => {
+   const h = await mountHtml('<div></div>');
+   await h.page.evaluate(async () => {
+      const t = await slice.build('Table', {
+         rows: [{ id: 1, name: 'Ana' }],
+         rowKey: 'id',
+         columns: [{ key: 'name', label: 'Name' }],
+         rowActions: [{ label: 'Edit', icon: 'pen', onClick: () => {} }]
+      });
+      t.style.width = '640px';
+      document.querySelector('[data-test-root]').append(t);
+   });
+
+   await rows(h.page).first().locator('[aria-haspopup="menu"]').click();
+   const item = table(h.page).locator('.table_menu_item').filter({ hasText: 'Edit' });
+   await expect(item).toHaveCount(1);
+   await expect(item.locator('slice-icon')).toHaveCount(1);
+   await expect(item.locator('slice-icon svg')).toHaveCount(1);
+   expect(await item.locator('.table_menu_icon').textContent()).toBe('');
+});

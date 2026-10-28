@@ -616,7 +616,7 @@ The table's menus share one item vocabulary, so a menu is just an array:
 
 - `'details'`, `'copy'`, … — a built-in action (see below).
 - `'separator'` — a divider (repeated or edge separators are dropped).
-- `{ label, icon, shortcut, onClick(ctx) }` — your action. Add `danger: true` for destructive ones, `keepOpen: true` to leave the menu open after the click, and `checked` to show a tick.
+- `{ label, icon, shortcut, onClick(ctx) }` - your action. `icon` is an `Icon` name (`'pen'`) or a node; it is built as a real `Icon` component. Add `danger: true` for destructive ones, `keepOpen: true` to leave the menu open after the click, and `checked` to show a tick.
 - `disabled` / `hidden` — `true` or a function of the row.
 - `{ type: 'label', label }` — a small section title.
 - `{ render(ctx) }` — anything: return a node (a form, a component). Keys typed inside it belong to it: arrows and Tab do not move the menu, Escape still closes it.
