@@ -82,7 +82,7 @@ function wait(ms, signal) {
       }
       const timer = setTimeout(() => {
          signal?.removeEventListener('abort', onAbort);
-         resolve();
+         resolve(undefined);
       }, ms);
       const onAbort = () => {
          clearTimeout(timer);
