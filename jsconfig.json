@@ -5,7 +5,16 @@
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "maxNodeModuleJsDepth": 2
+    "noEmit": true,
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true
   },
   "include": [
     "src/Components/**/*.js",
@@ -16,6 +25,7 @@
     "dist",
     "src/libs/**",
     "tests/**",
-    "src/public/**"
+    "src/public/**",
+    "**/*.spec.js"
   ]
 }

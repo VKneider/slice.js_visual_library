@@ -963,6 +963,14 @@ export interface RadioGroupDocumentationProps {
   [key: string]: unknown;
 }
 
+export interface RealtimeServiceProps {
+  [key: string]: unknown;
+}
+
+export interface RealtimeServiceDocumentationProps {
+  [key: string]: unknown;
+}
+
 export interface RouteProps {
   [key: string]: unknown;
 }
@@ -1482,6 +1490,8 @@ export interface SliceComponentPropsMap {
   QueryServiceDocumentation: QueryServiceDocumentationProps;
   RadioGroup: RadioGroupProps;
   RadioGroupDocumentation: RadioGroupDocumentationProps;
+  RealtimeService: RealtimeServiceProps;
+  RealtimeServiceDocumentation: RealtimeServiceDocumentationProps;
   Route: RouteProps;
   RouteDocumentation: RouteDocumentationProps;
   Select: SelectProps;

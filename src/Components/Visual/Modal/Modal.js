@@ -437,7 +437,7 @@ export default class Modal extends HTMLElement {
       if (!this.$dialog?.open || this._guarding) return false;
       if (this._onBeforeClose) {
          this._guarding = true;
-         let allowed = true;
+         let allowed;
          try {
             const answer = await this._onBeforeClose({ reason, returnValue, modal: this });
             allowed = answer !== false;

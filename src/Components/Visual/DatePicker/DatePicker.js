@@ -1174,7 +1174,7 @@ export default class DatePicker extends HTMLElement {
       if (!day) return;
       const iso = day.dataset.date;
       const weekStart = this.weekStartsOn;
-      let target = null;
+      let target;
       switch (event.key) {
          case 'ArrowLeft': target = addDays(iso, -1); break;
          case 'ArrowRight': target = addDays(iso, 1); break;

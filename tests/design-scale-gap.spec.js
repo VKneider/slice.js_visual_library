@@ -1,4 +1,4 @@
-import { test } from '../playwright/harness/sliceFixtures.js';
+import { test, expect } from '../playwright/harness/sliceFixtures.js';
 
 /**
  * PENDING — the conformance test the scale is missing.

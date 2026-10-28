@@ -2283,7 +2283,7 @@ export default class Table extends HTMLElement {
     const name = (typeof options.filename === 'string' && options.filename.trim()) || this._exportFilename || 'table';
     const file = format === 'json'
       ? { name: `${name}.json`, body: content, type: 'application/json;charset=utf-8' }
-      : { name: `${name}.csv`, body: `﻿${content}`, type: 'text/csv;charset=utf-8' };
+      : { name: `${name}.csv`, body: `\uFEFF${content}`, type: 'text/csv;charset=utf-8' };
     // Literal slice.build so the CLI dependency analyser can see it. A singleton
     // service lives for the app, so it is not destroyed here.
     const files = await slice.build('FileDownloadService', { singleton: true });
@@ -2965,7 +2965,7 @@ export default class Table extends HTMLElement {
   _restoreState() {
     const key = this._storageKey();
     if (!key) return null;
-    let data = null;
+    let data;
     try {
       data = JSON.parse(localStorage.getItem(key) || 'null');
     } catch {

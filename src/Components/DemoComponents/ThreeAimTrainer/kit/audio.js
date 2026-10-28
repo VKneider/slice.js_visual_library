@@ -2,7 +2,7 @@ let audioCtx = null;
 
 function init() {
    if (audioCtx) return;
-   try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) {}
+   try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { /* audio may be blocked until the first gesture */ }
 }
 
 // A context created outside a user gesture starts 'suspended', and every tone
@@ -27,7 +27,7 @@ function tone(freq, dur, type, vol, ramp) {
       gain.connect(audioCtx.destination);
       osc.start();
       osc.stop(audioCtx.currentTime + dur);
-   } catch (_) {}
+   } catch (_) { /* audio may be blocked until the first gesture */ }
 }
 
 export function playHitSound() {

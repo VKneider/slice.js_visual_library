@@ -836,7 +836,7 @@ export default class DescriptionList extends HTMLElement {
          return;
       }
 
-      let node = null;
+      let node;
       switch (field.type) {
          case 'badge': {
             const props = typeof field.badge === 'function' ? field.badge(value, item)
@@ -994,7 +994,7 @@ export default class DescriptionList extends HTMLElement {
       const text = typeof cell.field.copy === 'function'
          ? String(cell.field.copy(value, item) ?? '')
          : (value !== null && typeof value === 'object' ? cell.content.textContent.trim() : String(value ?? ''));
-      let done = false;
+      let done;
       try {
          await navigator.clipboard.writeText(text);
          done = true;

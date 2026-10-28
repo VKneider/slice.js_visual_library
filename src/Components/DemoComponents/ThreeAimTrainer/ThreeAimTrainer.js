@@ -482,11 +482,11 @@ export default class ThreeAimTrainer extends HTMLElement {
       // ── Fullscreen / pointer lock ──
       async function enterFullscreen() {
          if (!fullscreenSupported) return;
-         try { await wrap.requestFullscreen(); } catch (_) {}
+         try { await wrap.requestFullscreen(); } catch (_) { /* fullscreen/pointer lock may be denied */ }
       }
       function exitFullscreen() {
          if (!fullscreenSupported) return;
-         try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
+         try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) { /* fullscreen/pointer lock may be denied */ }
       }
       function lockPointer() {
                // `requestPointerLock()` returns a PROMISE in modern browsers, and
@@ -502,9 +502,9 @@ export default class ThreeAimTrainer extends HTMLElement {
                try {
                   const pending = wrap.requestPointerLock?.();
                   if (pending && typeof pending.catch === 'function') pending.catch(() => {});
-               } catch (_) {}
+               } catch (_) { /* fullscreen/pointer lock may be denied */ }
             }
-      function unlockPointer() { try { document.exitPointerLock?.(); } catch (_) {} }
+      function unlockPointer() { try { document.exitPointerLock?.(); } catch (_) { /* fullscreen/pointer lock may be denied */ } }
 
       function pauseGame() {
          if (!playing || paused) return;

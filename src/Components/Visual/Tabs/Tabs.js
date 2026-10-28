@@ -681,7 +681,7 @@ export default class Tabs extends HTMLElement {
     const prevKey = vertical ? 'ArrowUp' : 'ArrowLeft';
     const enabled = this._order.filter((id) => !this._tabs.get(id).item.disabled);
     const current = enabled.indexOf(button.dataset.tabId);
-    let target = null;
+    let target;
 
     if (event.key === nextKey) target = enabled[(current + 1) % enabled.length];
     else if (event.key === prevKey) target = enabled[(current - 1 + enabled.length) % enabled.length];

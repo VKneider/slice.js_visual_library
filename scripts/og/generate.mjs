@@ -220,7 +220,7 @@ const startServer = async () => {
     await waitForServer(baseUrl);
   } catch (error) {
     child.kill();
-    throw new Error(`${error.message}\n--- server output ---\n${output}`);
+    throw new Error(`${error.message}\n--- server output ---\n${output}`, { cause: error });
   }
   return { baseUrl, stop: () => child.kill() };
 };
