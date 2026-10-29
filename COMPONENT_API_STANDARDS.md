@@ -550,7 +550,7 @@ itself when the app enables it.
    An attribute needs its own entry (`key.ariaLabel`) and `data-t` on the element.
 4. **Text props still win.** Read the prop when painting, not once in the constructor; when an
    instance prop overrides a built-in text, write the prop's text and remove that element's `data-t`.
-5. **Text passed as a prop is a marker**: `slice.translator.key('slice.modal.close')`, so it is
+5. **Text passed as a prop is a marker**: `slice.t.ref('slice.modal.close')`, so it is
    re-assigned on a locale change.
 6. **Formatting** goes through `slice.translator.format.*` (dates, numbers, lists) unless the
    component has an explicit `locale` prop for a fixed-format column — then that locale wins.

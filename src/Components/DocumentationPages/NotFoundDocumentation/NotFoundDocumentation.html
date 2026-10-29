@@ -13,7 +13,7 @@
 <h2 id="texts-and-translation">Texts and translation</h2>
 <p>The three texts are marked and ship their own defaults (English and Spanish), so the component works with the translator off and translates itself when it is on:</p>
 <div class="table-block" data-block-id="doc-block-1"></div>
-<p>An app dictionary that defines these keys wins; the defaults are registered in the translator's <code>defaults</code> layer, never overriding the app. The home button receives the key as a prop (<code>slice.translator.key</code>), so it follows a locale change.</p>
+<p>An app dictionary that defines these keys wins; the defaults are registered in the translator's <code>defaults</code> layer, never overriding the app. The home button receives the key as a prop (<code>slice.translator.ref</code>), so it follows a locale change.</p>
 <ul><li>Automatically updates the page title on <code>init()</code>.</li><li>Composable inside <code>MultiRoute</code> as the default fallback view.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
 <div class="component-block" data-block-id="doc-block-2"></div>

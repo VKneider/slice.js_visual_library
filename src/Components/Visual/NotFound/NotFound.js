@@ -32,7 +32,7 @@ export default class NotFound extends HTMLElement {
       if (container) {
          const homeBtn = await slice.build('Button', {
             // A marker: the framework re-assigns it on a locale change.
-            value: slice.translator?.enabled ? slice.translator.key('slice.notFound.home') : t('home'),
+            value: slice.translator?.enabled ? slice.t.ref('slice.notFound.home') : t('home'),
             customColor: { background: 'var(--primary-color-contrast)', text: 'var(--primary-color)' },
             onClick: () => slice.router.navigate('/'),
          });

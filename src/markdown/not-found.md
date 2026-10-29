@@ -33,7 +33,7 @@ with the translator off and translates itself when it is on:
 
 An app dictionary that defines these keys wins; the defaults are registered in the translator's
 `defaults` layer, never overriding the app. The home button receives the key as a prop
-(`slice.translator.key`), so it follows a locale change.
+(`slice.translator.ref`), so it follows a locale change.
 - Automatically updates the page title on `init()`.
 - Composable inside `MultiRoute` as the default fallback view.
 
