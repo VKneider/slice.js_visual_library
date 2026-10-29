@@ -53,6 +53,33 @@ test('translator on but the key is missing: the English default still shows', ()
    delete globalThis.slice;
 });
 
+test('params are interpolated on the English fallback', () => {
+   delete globalThis.slice;
+   const t = texts('test.params', {
+      en: { more: 'and {count} more' },
+      es: { more: 'y {count} más' }
+   });
+   assert.equal(t('more', { count: 3 }), 'and 3 more');
+   assert.equal(t('more'), 'and {count} more');
+});
+
+test('showKeys returns the full key instead of the English default', () => {
+   globalThis.slice = {
+      translator: {
+         enabled: true,
+         showKeys: true,
+         add: () => {},
+         t: () => 'translated'
+      }
+   };
+   const t = texts('test.showKeys', {
+      en: { title: 'Title' },
+      es: { title: 'Título' }
+   });
+   assert.equal(t('title'), 'test.showKeys.title');
+   delete globalThis.slice;
+});
+
 test('nested defaults fall back through the dotted path', () => {
    delete globalThis.slice;
    const t = texts('test.table', {

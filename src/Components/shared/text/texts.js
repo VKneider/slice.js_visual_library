@@ -84,10 +84,26 @@ export function texts(namespace, defaults) {
       const full = namespace ? `${namespace}.${key}` : key;
       const translator = globalThis.slice?.translator;
       if (translator?.enabled) {
+         // The debugger renders the key on purpose; do not turn it into the English default.
+         if (translator.showKeys) return full;
          const text = translator.t(full, params);
          if (text !== full) return text;
       }
       const fallback = readPath(english, key);
-      return fallback === undefined ? full : String(fallback);
+      return fallback === undefined ? full : interpolate(String(fallback), params);
    };
+}
+
+/**
+ * Fill `{name}` with the same params the translator would use. A missing param keeps the
+ * placeholder, exactly like `slice.t()`.
+ * @param {string} template
+ * @param {Record<string, any>} [params]
+ * @returns {string}
+ */
+function interpolate(template, params) {
+   if (!params) return template;
+   return template.replace(/\{(\w+)\}/g, (match, name) =>
+      Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : match
+   );
 }
