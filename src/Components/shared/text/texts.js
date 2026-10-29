@@ -58,6 +58,18 @@ export function registerTexts(namespace, defaults) {
 }
 
 /**
+ * Register lazily too: a component module can be evaluated before `Slice.init()`
+ * creates the translator (critical bundles). The first `t()` call happens during
+ * render, after init, and retries the registration then.
+ * @param {string} namespace
+ * @param {Record<string, Record<string, string>>} defaults
+ */
+function ensureRegistered(namespace, defaults) {
+   if (registered.has(namespace)) return;
+   registerTexts(namespace, defaults);
+}
+
+/**
  * A lookup for one component's built-in texts.
  * @param {string} namespace e.g. 'slice.notFound'
  * @param {Record<string, Record<string, string>>} defaults locale → messages (must include `en`)
@@ -68,6 +80,7 @@ export function texts(namespace, defaults) {
    const english = defaults?.en || Object.values(defaults || {})[0] || {};
 
    return (key, params) => {
+      ensureRegistered(namespace, defaults);
       const full = namespace ? `${namespace}.${key}` : key;
       const translator = globalThis.slice?.translator;
       if (translator?.enabled) {

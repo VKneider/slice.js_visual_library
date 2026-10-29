@@ -65,6 +65,28 @@ test('nested defaults fall back through the dotted path', () => {
    assert.equal(t('operators.nope'), 'test.table.operators.nope');
 });
 
+test('registers on the first call when the translator appears later', () => {
+   delete globalThis.slice;
+   const t = texts('test.late.registration', {
+      en: { title: 'Title' },
+      es: { title: 'Título' }
+   });
+   assert.equal(t('title'), 'Title');
+
+   const added = [];
+   globalThis.slice = {
+      translator: {
+         enabled: true,
+         add: (locale) => added.push(locale),
+         t: (key) => (key === 'test.late.registration.title' ? 'Título' : key)
+      }
+   };
+
+   assert.equal(t('title'), 'Título');
+   assert.deepEqual(added, ['en', 'es']);
+   delete globalThis.slice;
+});
+
 test('the English fallback wins over a registered translation that returns the key', () => {
    globalThis.slice = {
       translator: {
