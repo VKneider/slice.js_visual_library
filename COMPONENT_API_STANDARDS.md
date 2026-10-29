@@ -570,14 +570,13 @@ Two shapes work; choose one **per component** and keep it consistent with the re
 | Shape | Example | Trade-offs |
 | --- | --- | --- |
 | **In place** (default) | `const TEXTS = { ... }` next to `static props`, then `texts('slice.table', { en: TEXTS, es: ... })` | One file per component, no extra download, the table sits next to the code that uses it. Adds 5-90 lines to an already large file (Table, DataList). |
-| **Separate module** | `<Component>/texts.js` exporting `{ en, es }`, imported by `<Component>.js` | The component body stays focused and translation-only diffs are isolated. `slice get` / `slice sync` already follow relative `.js` imports, so the file ships and updates - but a failed helper download is only a **warning**, which leaves the component broken at runtime, and `slice get` lists three files, not four. |
+| **Separate module** | `<Component>/texts.js` exporting `{ en, es }`, imported by `<Component>.js` | The component body stays focused and translation-only diffs are isolated. `slice get` / `slice sync` follow relative `.js` imports, so the file ships and updates; a failed helper download now fails the component install, and `slice get` lists three files, not four. |
 | **Shared module** (cross-component text only) | `shared/validation/fieldRules.js` | One namespace for messages several components use (`slice.validation.*`). Never duplicate a shared message per component. |
 
-Decision pending: keep the table **in place** until the migration is done - that is what the components that already had a
-`TEXTS` / `DEFAULT_LABELS` table already did. A component with more than ~40 keys
-may move to `<Component>/texts.js` once the CLI treats a failed helper download as fatal. Record the
-choice in `features/0007-library-texts-through-slice-translator.md` before starting a component.
+The table lives **in the component file**, next to `static props`: one file per component, no extra
+download, and the text sits beside the code that uses it. A `<Component>/texts.js` module is reserved
+for a table large enough to dominate the file; cross-component text lives in the shared module.
 
-The prop that carries an app override keeps its historical name (`texts`, `labels`, `messages`,
-`closeLabel`, `emptyMessage`...). New text props are called `texts`; an existing prop is never
-renamed without an alias (section 7).
+The prop that carries an app override is `texts`, or the component's existing `labels`, `messages`,
+`closeLabel` or `emptyMessage`. New text props use `texts`; an existing prop is never renamed without
+an alias (section 7).

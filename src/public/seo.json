@@ -2,7 +2,6 @@
   "version": 1,
   "origin": "https://components.slicejs.com",
   "defaults": {
-    "titleTemplate": "%s",
     "image": "/images/og-image.png"
   },
   "routes": {
@@ -134,7 +133,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -250,7 +249,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-28",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -366,7 +365,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -424,7 +423,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -656,7 +655,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-13",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -946,7 +945,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1004,7 +1003,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1062,7 +1061,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-22",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1526,7 +1525,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1584,7 +1583,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1700,7 +1699,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-22",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1932,7 +1931,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-06-11",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -1990,7 +1989,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-13",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -2512,7 +2511,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-06-09",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -2570,7 +2569,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-22",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -2686,7 +2685,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -2860,7 +2859,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-26",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },
@@ -2918,7 +2917,7 @@
         "follow": true
       },
       "sitemap": {
-        "lastmod": "2026-10-22",
+        "lastmod": "2026-10-29",
         "priority": "0.7",
         "changefreq": "monthly"
       },

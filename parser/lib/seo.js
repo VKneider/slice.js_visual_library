@@ -248,10 +248,10 @@ const buildSeoManifest = (entries = [], options = {}) => {
   return {
     version: 1,
     origin: ORIGIN,
-    // Titles already carry the suffix, so there is nothing to compose. The
-    // generic banner is the fallback for a route whose card was not generated
-    // (internal pages, or a page added before the image generator ran).
-    defaults: { titleTemplate: '%s', image: '/images/og-image.png' },
+    // Titles already carry their suffix, so nothing is composed here. The generic
+    // banner is the fallback for a route whose card was not generated (internal
+    // pages, or a page added before the image generator ran).
+    defaults: { image: '/images/og-image.png' },
     routes: sortedRoutes
   };
 };
