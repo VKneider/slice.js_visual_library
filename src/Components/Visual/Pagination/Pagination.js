@@ -1,5 +1,6 @@
 import DataGridEngine from '../../Service/DataGridEngine/DataGridEngine.js';
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
+import { texts } from '../../shared/text/texts.js';
 // Pagination — moves through pages of a list, a table or search results.
 //
 //   [«] [‹ Previous] [1] … [4] [5] [6] … [20] [Next ›] [»]    21–40 of 400   Rows per page [20 ▾]
@@ -40,6 +41,25 @@ const TEXTS = {
    perPage: 'Rows per page',
    goTo: 'Go to page',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   label: 'Paginación',
+   previous: 'Anterior',
+   next: 'Siguiente',
+   first: 'Primera página',
+   last: 'Última página',
+   previousPage: 'Página anterior',
+   nextPage: 'Página siguiente',
+   page: 'Página {page}',
+   pageOf: 'Página {page} de {total}',
+   info: '{from}–{to} de {total}',
+   empty: 'Sin resultados',
+   perPage: 'Filas por página',
+   goTo: 'Ir a la página',
+};
+
+const t = texts('slice.pagination', { en: TEXTS, es: ES });
 
 const ICONS = {
    previous: '<path d="m15 18-6-6 6-6"/>',
@@ -110,7 +130,7 @@ export default class Pagination extends HTMLElement {
       this._hrefTemplate = '';
       this._controlled = false;
       this._disabled = false;
-      this._texts = { ...TEXTS };
+      this._texts = {};
       this._onPageChange = null;
       this._onPageSizeChange = null;
 
@@ -132,6 +152,13 @@ export default class Pagination extends HTMLElement {
       this.size = this._size;
       this.align = this._align;
       this.dataset.mode = this._mode;
+      this.$nav?.setAttribute('aria-label', this._t('label'));
+      slice.translator?.watch?.(this, () => {
+         this.$nav?.setAttribute('aria-label', this._t('label'));
+         this._render();
+         this._toolsKey = '';
+         this._renderTools();
+      });
       this._render();
       await this._renderTools();
    }
@@ -243,8 +270,8 @@ export default class Pagination extends HTMLElement {
 
    get texts() { return this._texts; }
    set texts(value) {
-      this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) };
-      this.$nav.setAttribute('aria-label', this._texts.label);
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this.$nav?.setAttribute('aria-label', this._t('label'));
       this._render();
       if (this._ready) {
          this._toolsKey = '';
@@ -284,7 +311,7 @@ export default class Pagination extends HTMLElement {
    // ── Rendering ──────────────────────────────────────────────────
 
    _t(key, values = {}) {
-      return fill(this._texts[key] ?? TEXTS[key] ?? key, values);
+      return fill(this._texts[key] ?? t(key), values);
    }
 
    _page() {

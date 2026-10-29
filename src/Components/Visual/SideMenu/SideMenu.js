@@ -1,4 +1,5 @@
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
+import { texts } from '../../shared/text/texts.js';
 // SideMenu — a navigation menu whose items open more items, as deep as needed.
 //
 // Two ways to show the levels, with the same items:
@@ -35,6 +36,21 @@ const TEXTS = {
    level: '{label}, {count} items',
    expand: 'Open {label}',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   label: 'Menú',
+   back: 'Volver a {label}',
+   overview: 'Todo en {label}',
+   loading: 'Cargando…',
+   error: 'No se ha podido cargar este menú.',
+   retry: 'Reintentar',
+   empty: 'Aquí todavía no hay nada.',
+   level: '{label}, {count} elementos',
+   expand: 'Abrir {label}',
+};
+
+const t = texts('slice.sideMenu', { en: TEXTS, es: ES });
 
 function fill(template, values) {
    return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -90,7 +106,7 @@ export default class SideMenu extends HTMLElement {
       this._multiple = true;
       this._variant = 'soft';
       this._label = '';
-      this._texts = { ...TEXTS };
+      this._texts = {};
       this._onSelect = null;
       this._onOpenChange = null;
 
@@ -132,6 +148,12 @@ export default class SideMenu extends HTMLElement {
       if (!this._activePath && this._followRoute) this._activePath = this._currentRoutePath();
       this._openToActive();
       this._render();
+      // A language change repaints what the texts setter repaints. The open
+      // level, the open branches and the current page stay as they are.
+      slice.translator?.watch?.(this, () => {
+         this._applyLabel();
+         this._render();
+      });
    }
 
    // A cached MultiRoute brought the view back: follow the URL again.
@@ -218,7 +240,7 @@ export default class SideMenu extends HTMLElement {
 
    get texts() { return this._texts; }
    set texts(value) {
-      this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) };
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
       this._applyLabel();
       this._ready && this._render();
    }
@@ -1043,7 +1065,7 @@ export default class SideMenu extends HTMLElement {
    }
 
    _t(key, values = {}) {
-      return fill(this._texts[key] ?? TEXTS[key] ?? key, values);
+      return fill(this._texts[key] ?? t(key), values);
    }
 }
 

@@ -412,3 +412,11 @@ the `Form` itself through `slice.controller.destroyComponent(form)` / `destroyBy
 tear down whatever hosts it (a view). A [Modal](/docs/feedback/modal) destroys what is in its body when
 it is destroyed, so a Form in a Modal with `destroyOnClose: true` is taken care of.
 :::
+
+## Language
+
+The built-in texts are `slice.form.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `submit`, `next`, `back`, `remove`, `removeItem`, `add`, `item`, `itemNumber`, `required`, `progress`, `step`, `stepOf`.

@@ -227,3 +227,11 @@ Use `exact: true` on a link whose path is a prefix of other links' paths (an "Ov
 :::warning
 `hideOnScroll` and the scrolled state listen to the window's scroll. A bar inside a scrolling panel (not the page) will not see that panel scroll.
 :::
+
+## Language
+
+The built-in texts are `slice.navbar.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `openMenu`, `closeMenu`.

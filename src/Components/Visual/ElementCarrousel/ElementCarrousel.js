@@ -1,3 +1,4 @@
+import { texts } from '../../shared/text/texts.js';
 // ElementCarrousel — a row of slides that scrolls one position at a time.
 //
 // The track is a native scroll container with scroll-snap, so a swipe on a
@@ -33,6 +34,20 @@ const TEXTS = {
    pause: 'Pause slides',
    announce: 'Slide {index} of {total}',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   label: 'Carrusel',
+   slide: '{index} de {total}',
+   previous: 'Diapositiva anterior',
+   next: 'Diapositiva siguiente',
+   goTo: 'Ir a la diapositiva {page}',
+   play: 'Reproducir diapositivas',
+   pause: 'Pausar diapositivas',
+   announce: 'Diapositiva {index} de {total}',
+};
+
+const t = texts('slice.carousel', { en: TEXTS, es: ES });
 
 function fill(template, values) {
    return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -89,7 +104,7 @@ export default class ElementCarrousel extends HTMLElement {
       this._thumbnail = null;
       this._startIndex = 0;
       this._label = '';
-      this._texts = { ...TEXTS };
+      this._texts = {};
       this._onChange = null;
 
       this.slides = [];
@@ -150,6 +165,12 @@ export default class ElementCarrousel extends HTMLElement {
       this._resize = new ResizeObserver(() => this._layout());
       this._resize.observe(this);
       this._applyLabel();
+      slice.translator?.watch?.(this, () => {
+         this._applyLabel();
+         this._renderControls();
+         this._renderSlides();
+         this.goTo(this._index, { behavior: 'instant', silent: true });
+      });
       this._applyLooks();
       this._renderSlides();
       await this._renderControls();
@@ -239,7 +260,7 @@ export default class ElementCarrousel extends HTMLElement {
 
    get texts() { return this._texts; }
    set texts(value) {
-      this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) };
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
       this._applyLabel();
       if (this._ready) {
          this._renderControls();
@@ -388,7 +409,7 @@ export default class ElementCarrousel extends HTMLElement {
             showPrevNext: false,
             variant: 'ghost',
             size: 'sm',
-            texts: { label: this._t('label'), page: this._texts.goTo },
+            texts: { label: this._t('label'), page: this._texts.goTo ?? t('goTo') },
             onPageChange: (page) => this.goTo(Number(page) - 1),
          });
          if (token !== this._dotsToken || !this._ready) {
@@ -403,7 +424,7 @@ export default class ElementCarrousel extends HTMLElement {
             button.type = 'button';
             button.className = 'slice-element-carrousel__thumb';
             button.dataset.index = String(i);
-            button.setAttribute('aria-label', fill(this._texts.goTo, { page: i + 1 }));
+            button.setAttribute('aria-label', this._t('goTo', { page: i + 1 }));
             const content = this._thumbnail?.(this._elements[i], i);
             if (content instanceof Node) button.appendChild(content);
             else button.textContent = String(i + 1);
@@ -620,7 +641,7 @@ export default class ElementCarrousel extends HTMLElement {
    }
 
    _t(key, values = {}) {
-      return fill(this._texts[key] ?? TEXTS[key] ?? key, values);
+      return fill(this._texts[key] ?? t(key), values);
    }
 }
 

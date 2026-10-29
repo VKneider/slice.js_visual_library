@@ -53,5 +53,7 @@
 <div class="callout callout-warning">A <code>Modal</code> built with <code>slice.build</code> is not destroyed when it closes. Pass <code>destroyOnClose: true</code> for a one-off modal, or build one once and reuse it. Building a new one on every click without either leaks a component each time.</div>
 <div class="callout callout-warning"><code>close()</code> skips <code>onBeforeClose</code> on purpose. If your code closes the modal on someone's behalf and the guard should still run, call <code>requestClose()</code>.</div>
 <div class="callout callout-warning"><code>resizable: true</code> removes the width and height caps while the modal is open, so it can grow past them. Drag and resize only apply to the <code>center</code> and <code>top</code> layouts; on a drawer, sheet or fullscreen they are off.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.modal.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. <code>closeLabel</code> and <code>texts</code> still win over the dictionary. Keys: <code>close</code>.</p>
 <div class="component-block" data-block-id="doc-block-10"></div>
 </div>

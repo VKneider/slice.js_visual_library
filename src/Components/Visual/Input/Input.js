@@ -1,4 +1,5 @@
 import { applySize, applyClassName, SIZE_VALUES } from '../../shared/props.js';
+import { texts } from '../../shared/text/texts.js';
 import {
    fieldId, validationMessage, compileConditions, countText,
    VALIDATE_ON, FIELD_VARIANTS, LABEL_PLACEMENTS,
@@ -27,6 +28,19 @@ import {
 // always was), `conditions`, validateValue(), triggerError(), triggerSuccess(),
 // clear(), and the .slice_input / .input_area / .slice_input_placeholder
 // classes.
+
+const TEXTS = {
+   clear: 'Clear',
+   togglePassword: 'Toggle password visibility',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   clear: 'Borrar',
+   togglePassword: 'Mostrar u ocultar la contraseña',
+};
+
+const t = texts('slice.input', { en: TEXTS, es: ES });
 
 export default class Input extends HTMLElement {
 
@@ -68,6 +82,8 @@ export default class Input extends HTMLElement {
       debounce: { type: 'number', default: 0 },
       ariaLabel: { type: 'string', default: '' },
       className: { type: 'string', default: '', required: false },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: { type: 'object', default: null },
       // Fired with the new value on every `input` event (after `debounce`).
       onChange: { type: 'function', default: null },
       // Enter pressed in the field: (value, event).
@@ -120,6 +136,7 @@ export default class Input extends HTMLElement {
       this._validateOn = 'blur';
       this._debounce = 0;
       this._ariaLabel = '';
+      this._texts = {};
       this._onChange = null;
       this._onEnter = null;
 
@@ -154,6 +171,10 @@ export default class Input extends HTMLElement {
       this.$inputContainer.addEventListener('mousedown', this._handleContainerClick);
 
       if (this._secret && this._type === 'password') this.setupSecretToggle();
+      this._applyTexts();
+      // A language change repaints the clear button and the reveal toggle; the
+      // value, the focused state and the error on screen stay as they are.
+      slice.translator?.watch?.(this, () => this._applyTexts());
       this._syncFloat();
    }
 
@@ -464,6 +485,12 @@ export default class Input extends HTMLElement {
       this._className = typeof value === 'string' ? value : '';
    }
 
+   get texts() { return this._texts; }
+   set texts(value) {
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this._applyTexts();
+   }
+
    get onChange() { return this._onChange; }
    set onChange(value) {
       // Accept null/non-function to CLEAR the handler.
@@ -474,6 +501,18 @@ export default class Input extends HTMLElement {
    set onEnter(value) { this._onEnter = typeof value === 'function' ? value : null; }
 
    // ── Rendering ──────────────────────────────────────────────────
+
+   _t(key) {
+      return this._texts[key] ?? t(key);
+   }
+
+   // The two buttons inside the field name themselves; the template ships the
+   // English words, the locale may not. Validation messages come from
+   // shared/validation/fieldRules.js, which is already translated.
+   _applyTexts() {
+      if (this.$clear) this.$clear.setAttribute('aria-label', this._t('clear'));
+      if (this.$eyeIcon) this.$eyeIcon.setAttribute('aria-label', this._t('togglePassword'));
+   }
 
    _setAttr(name, value) {
       if (value === null || value === undefined || value === '') this.$input.removeAttribute(name);

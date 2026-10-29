@@ -1,6 +1,7 @@
 import { getter, read, readPath, writePath } from '../../shared/data/paths.js';
 import { relativeTime, fullDate, toDate } from '../../shared/data/dates.js';
 import { normalizeEdit, editKind, controlFor, readControl, validateValue, TEXT_KINDS } from '../../shared/editing/inlineControl.js';
+import { texts } from '../../shared/text/texts.js';
 // DescriptionList — one record, shown as label → value pairs: the detail of
 // an order, a customer's profile, the settings of a project. Where DataList
 // shows many records with a few properties each, DescriptionList shows one
@@ -67,6 +68,29 @@ const TEXTS = {
    expand: 'Show {label}',
    collapse: 'Hide {label}',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   empty: '—',
+   yes: 'Sí',
+   no: 'No',
+   edit: 'Editar {label}',
+   editing: 'Editando {label}',
+   copy: 'Copiar {label}',
+   copied: 'Copiado',
+   save: 'Guardar',
+   cancel: 'Cancelar',
+   saving: 'Guardando…',
+   saved: '{label} se ha guardado',
+   saveError: 'No se ha podido guardar el cambio.',
+   error: 'No se ha podido cargar.',
+   retry: 'Reintentar',
+   loading: 'Cargando…',
+   expand: 'Mostrar {label}',
+   collapse: 'Ocultar {label}',
+};
+
+const t = texts('slice.descriptionList', { en: TEXTS, es: ES });
 
 function fill(template, values = {}) {
    return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -152,7 +176,7 @@ export default class DescriptionList extends HTMLElement {
       this._loading = false;
       this._hideEmpty = false;
       this._locale = '';
-      this._texts = { ...TEXTS };
+      this._texts = {};
 
       // Internal state: never a prop's `_<name>`, which Slice resets on build.
       this._loaded = null;          // the record `load` returned
@@ -200,6 +224,13 @@ export default class DescriptionList extends HTMLElement {
       // With a server, the first paint is already the skeleton, not dashes.
       if (this._load) this._fetchState = 'loading';
       this._render();
+      // A language change repaints what the texts setter repaints. An editor
+      // that is open is left alone, so a change of language never takes away
+      // what was already typed into it.
+      slice.translator?.watch?.(this, () => {
+         if (this._editor) this._repaintAll();
+         else this._render();
+      });
       // A `load` from QueryService says when its data went stale (after a
       // change somewhere else): ask again, keeping what is on screen.
       if (typeof this._load?.subscribe === 'function') this._loadWatch = this._load.subscribe(() => this.reload());
@@ -320,7 +351,7 @@ export default class DescriptionList extends HTMLElement {
 
    get texts() { return this._texts; }
    set texts(value) {
-      this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) };
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
       this._render();
    }
 
@@ -565,7 +596,7 @@ export default class DescriptionList extends HTMLElement {
 
    // ── Rendering ──────────────────────────────────────────────────
 
-   _t(key, values) { return fill(this._texts[key] ?? TEXTS[key] ?? key, values); }
+   _t(key, values) { return fill(this._texts[key] ?? t(key), values); }
 
    _applyLooks() {
       this.dataset.layout = this._layout;

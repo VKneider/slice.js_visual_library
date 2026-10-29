@@ -2,9 +2,10 @@ import { getter, read, readPath, writePath } from '../../shared/data/paths.js';
 import { relativeTime, fullDate } from '../../shared/data/dates.js';
 import { insertItem, patchItem, removeItems, restoreItems, revertItem } from '../../shared/data/collection.js';
 import Selection from './parts/Selection.js';
-import { groupItems } from './parts/grouping.js';
+import { groupItems, DAY_BUCKETS } from './parts/grouping.js';
 import { resolveActions, splitActions, confirmOf } from './parts/actions.js';
 import Toolbar from './parts/Toolbar.js';
+import { texts } from '../../shared/text/texts.js';
 
 // DataList — a list of records an app works with: people, orders, tasks,
 // files. Each item is a row (or a card) with a title, details, a status and
@@ -87,6 +88,58 @@ const TEXTS = {
    day_none: 'No date',
    justNow: '',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   label: 'Lista',
+   search: 'Buscar',
+   create: 'Nuevo',
+   sortBy: 'Ordenar',
+   ascending: 'Ascendente',
+   descending: 'Descendente',
+   any: 'Cualquiera',
+   yes: 'Sí',
+   no: 'No',
+   clear: 'Limpiar',
+   clearFilters: 'Limpiar búsqueda y filtros',
+   all: 'Todos',
+   selectAll: 'Seleccionar todo',
+   selected: '{count} seleccionados',
+   selectItem: 'Seleccionar {title}',
+   clearSelection: 'Anular selección',
+   moreActions: 'Más acciones',
+   loading: 'Cargando…',
+   loadMore: 'Cargar más',
+   error: 'No se pudo cargar la lista.',
+   retry: 'Reintentar',
+   end: 'Eso es todo.',
+   empty: 'Aún no hay nada',
+   emptyText: '',
+   noResults: 'No hay coincidencias',
+   noResultsText: 'Prueba con otras palabras o limpia la búsqueda y los filtros.',
+   count: '{count} elementos',
+   countOf: '{shown} de {total}',
+   removed: '{count} eliminados',
+   removedOne: 'Se eliminó «{title}»',
+   undo: 'Deshacer',
+   dismiss: 'Descartar',
+   saveError: 'No se pudo guardar el cambio.',
+   confirm: 'Confirmar',
+   cancel: 'Cancelar',
+   collapse: 'Ocultar {label}',
+   expand: 'Mostrar {label}',
+   noGroup: 'Otros',
+   day_today: 'Hoy',
+   day_yesterday: 'Ayer',
+   day_week: 'Esta semana',
+   day_month: 'Este mes',
+   day_older: 'Más antiguos',
+   day_future: 'Próximos',
+   day_none: 'Sin fecha',
+   justNow: '',
+};
+
+const t = texts('slice.dataList', { en: TEXTS, es: ES });
 
 function fill(template, values = {}) {
    return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -260,7 +313,7 @@ export default class DataList extends HTMLElement {
       /** @type {WeakMap<Element, any>} row element → item key */
       this._rowKeys = new WeakMap();
 
-      this._texts = { ...TEXTS };
+      this._texts = {};
       this._items = [];
       this._keyOf = getter('id');
       // Not `_selection`: Slice clears `_<prop>` for every prop on build, so
@@ -333,6 +386,13 @@ export default class DataList extends HTMLElement {
       if (this._context) this._watchContext();
       this._toolbar = new Toolbar(this);
       await this._renderToolbar();
+      // The translator changed language: redraw the texts in place, keeping the
+      // items, the selection, the filters, the search and the page as they are.
+      slice.translator?.watch?.(this, () => {
+         this._rowRev += 1;
+         this._renderToolbar();
+         this._render();
+      });
       // A `load` from QueryService says when its data went stale (after a
       // change somewhere else): ask again, keeping what is on screen.
       if (typeof this._load?.subscribe === 'function') this._loadWatch = this._load.subscribe(() => this.refresh());
@@ -588,7 +648,7 @@ export default class DataList extends HTMLElement {
    set label(value) { this._label = value ? String(value) : ''; this._applyLooks(); }
 
    get texts() { return this._texts; }
-   set texts(value) { this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) }; if (this._ready) { this._rowRev += 1; this._renderToolbar(); this._render(); } }
+   set texts(value) { this._texts = value && typeof value === 'object' ? { ...value } : {}; if (this._ready) { this._rowRev += 1; this._renderToolbar(); this._render(); } }
 
    // ── Reading the list ───────────────────────────────────────────
 
@@ -1203,7 +1263,7 @@ export default class DataList extends HTMLElement {
    _renderItems() {
       if (!this._ready) return;
       const shown = this._shown;
-      const groups = this._groupBy ? groupItems(shown, this._groupBy, { order: this._groupOrder, label: this._groupLabel, texts: this._texts }) : null;
+      const groups = this._groupBy ? groupItems(shown, this._groupBy, { order: this._groupOrder, label: this._groupLabel, texts: this._groupTexts() }) : null;
       const keep = new Set();
       const nodes = [];
 
@@ -1260,7 +1320,15 @@ export default class DataList extends HTMLElement {
    }
 
    _t(key, values) {
-      return fill(this._texts[key] ?? TEXTS[key] ?? key, values);
+      return fill(this._texts[key] ?? t(key), values);
+   }
+
+   // groupItems reads its headings straight from a dictionary (`day_today`,
+   // `noGroup`), so it gets the translated texts with the overrides on top.
+   _groupTexts() {
+      const labels = { noGroup: t('noGroup') };
+      for (const bucket of DAY_BUCKETS) labels[`day_${bucket}`] = t(`day_${bucket}`);
+      return { ...labels, ...this._texts };
    }
 
    // One item. Parts it does not have are not drawn.
@@ -1363,7 +1431,7 @@ export default class DataList extends HTMLElement {
          if (time) {
             const t = document.createElement('time');
             t.className = 'slice-data-list__time';
-            const text = relativeTime(time, { justNow: this._texts.justNow || undefined });
+            const text = relativeTime(time, { justNow: this._t('justNow') || undefined });
             t.textContent = text;
             t.title = fullDate(time);
             const date = time instanceof Date ? time : new Date(time);
@@ -1621,7 +1689,7 @@ export default class DataList extends HTMLElement {
             button.addEventListener('click', () => this._loadMore());
             this.$more.append(button);
             footer = true;
-         } else if (done && this._texts.end && shown > this._pageSize) {
+         } else if (done && (this._texts.end ?? t('end')) && shown > this._pageSize) {
             const text = document.createElement('span');
             text.textContent = this._t('end');
             this.$more.append(text);

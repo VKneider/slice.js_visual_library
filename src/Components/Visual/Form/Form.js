@@ -15,16 +15,59 @@
 //   for Checkbox/Switch).
 // - `required` is `true` or a custom message; `validate(value, values)` returns
 //   an error string (or a falsy value when valid). Validation runs on submit.
+
+import { texts } from '../../shared/text/texts.js';
+
+// Every word the form writes itself. A schema's own labels, titles and
+// validation messages are the app's, not the component's.
+const TEXTS = {
+  submit: 'Submit',
+  next: 'Next',
+  back: 'Back',
+  remove: 'Remove',
+  removeItem: 'Remove {item} {n}',
+  add: 'Add {item}',
+  item: 'item',
+  itemNumber: '{item} {n}',
+  required: 'This field is required',
+  progress: 'Form progress',
+  step: 'Step {n}',
+  stepOf: 'Step {step} of {total}',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+  submit: 'Enviar',
+  next: 'Siguiente',
+  back: 'Atrás',
+  remove: 'Quitar',
+  removeItem: 'Quitar {item} {n}',
+  add: 'Añadir {item}',
+  item: 'elemento',
+  itemNumber: '{item} {n}',
+  required: 'Este campo es obligatorio',
+  progress: 'Progreso del formulario',
+  step: 'Paso {n}',
+  stepOf: 'Paso {step} de {total}',
+};
+
+const t = texts('slice.form', { en: TEXTS, es: ES });
+
+function fill(template, values) {
+  return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
+
 export default class Form extends HTMLElement {
   static props = {
     schema: { type: 'array', default: [] },
-    submitText: { type: 'string', default: 'Submit' },
+    // null means "use the built-in text"; a string always wins over it.
+    submitText: { type: 'string', default: null },
     resetText: { type: 'string', default: null },
     onSubmit: { type: 'function', default: null },
 
     // Label for the button that advances a step. On the last step the button
     // becomes the submit button and shows submitText instead.
-    nextText: { type: 'string', default: 'Next' },
+    nextText: { type: 'string', default: null },
 
     // 'card' draws a raised surface; 'plain' is rhythm only, for a form that
     // already sits inside one (a Modal body, a Card). Not auto-detected -
@@ -38,7 +81,10 @@ export default class Form extends HTMLElement {
     // Cap on the form's width, so a single text field is not as wide as the
     // page. A long line of text to read into is a real usability problem, and
     // it is the single thing that most made the old demos look unfinished.
-    maxWidth: { type: 'string', default: null }
+    maxWidth: { type: 'string', default: null },
+
+    // Per-instance overrides of any built-in text (see TEXTS).
+    texts: { type: 'object', default: null }
   };
 
   constructor(props) {
@@ -50,9 +96,10 @@ export default class Form extends HTMLElement {
     this.$actions = this.querySelector('.slice-form__actions');
 
     this._schema = [];
-    this._submitText = 'Submit';
-    this._nextText = 'Next';
+    this._submitText = null;
+    this._nextText = null;
     this._resetText = null;
+    this._texts = {};
     this._onSubmit = null;
     this._variant = 'card';
     this._columns = 1;
@@ -84,7 +131,7 @@ export default class Form extends HTMLElement {
   get schema() { return this._schema; }
 
   set submitText(value) {
-    this._submitText = typeof value === 'string' ? value : 'Submit';
+    this._submitText = typeof value === 'string' ? value : null;
     if (this._ready) this._render();
   }
 
@@ -94,7 +141,7 @@ export default class Form extends HTMLElement {
   }
 
   set nextText(value) {
-    this._nextText = typeof value === 'string' ? value : 'Next';
+    this._nextText = typeof value === 'string' ? value : null;
     this._syncActionLabels();
   }
 
@@ -124,10 +171,23 @@ export default class Form extends HTMLElement {
   }
   get maxWidth() { return this._maxWidth; }
 
+  get texts() { return this._texts; }
+  set texts(value) {
+    // Only the overrides are kept: every key left out falls back to the
+    // translator (or to the English default).
+    this._texts = value && typeof value === 'object' ? { ...value } : {};
+    if (this._ready) this._rerenderKeepingValues();
+  }
+
   async init() {
     this.$form.addEventListener('submit', this._handleSubmit);
     await this._render();
     this._ready = true;
+    // A language change repaints the buttons, the step labels and the group
+    // rows. What is typed and the step on screen survive the rebuild.
+    slice.translator?.watch?.(this, () => {
+      this._rerenderKeepingValues();
+    });
   }
 
   async beforeDestroy() {
@@ -259,7 +319,7 @@ export default class Form extends HTMLElement {
   _errorFor(field, values) {
     const value = this._valueFor(field, values);
     if (field.config.required && this._isEmpty(value)) {
-      return typeof field.config.required === 'string' ? field.config.required : 'This field is required';
+      return typeof field.config.required === 'string' ? field.config.required : this._t('required');
     }
     if (typeof field.config.validate === 'function') {
       const error = field.config.validate(value, values);
@@ -373,14 +433,14 @@ export default class Form extends HTMLElement {
   _announceStep() {
     if (!this.$live) return;
     const step = this._steps[this._stepIndex];
-    const where = `Step ${this._stepIndex + 1} of ${this._steps.length}`;
+    const where = this._t('stepOf', { step: this._stepIndex + 1, total: this._steps.length });
     this.$live.textContent = step?.label ? `${where}: ${step.label}` : where;
   }
 
   _syncActionLabels() {
     const last = this._steps.length - 1;
     if (this.$nextBtn) {
-      this.$nextBtn.value = this._stepIndex >= last ? this._submitText : this._nextText;
+      this.$nextBtn.value = this._stepIndex >= last ? (this._submitText ?? this._t('submit')) : (this._nextText ?? this._t('next'));
       this.$nextBtn.hidden = !this.isStepped;
     }
     if (this.$backBtn) {
@@ -425,6 +485,29 @@ export default class Form extends HTMLElement {
   }
 
   // --- rendering ---
+  _t(key, values = {}) {
+    return fill(this._texts[key] ?? t(key), values);
+  }
+
+  /**
+   * Redraw the form without losing what is in it.
+   *
+   * The action buttons and the group rows carry words, so a translation change
+   * rebuilds them. The field values are read first and put back on the new
+   * controls, and the step on screen is kept.
+   */
+  _rerenderKeepingValues() {
+    const snapshot = this._fields.map((field) => [field.name, field.instance?.[field.valueProp]]);
+    const step = this._stepIndex;
+    return this._render().then(() => {
+      this._stepIndex = Math.min(step, Math.max(0, this._steps.length - 1));
+      for (const [name, value] of snapshot) {
+        if (name) this.setValue(name, value);
+      }
+      this._syncSteps(false);
+    });
+  }
+
   /**
    * Queue a render. Concurrent callers chain onto the in-flight one instead of
    * racing it, and a rejection does not poison the queue for the next render.
@@ -533,7 +616,7 @@ export default class Form extends HTMLElement {
     // the same reasoning the original used for cancel-before-confirm.
     if (this.isStepped) {
       const back = await slice.build('Button', {
-        value: 'Back',
+        value: this._t('back'),
         variant: 'outlined',
         onClick: () => this.prevStep(),
       });
@@ -551,7 +634,7 @@ export default class Form extends HTMLElement {
     // even see - and never advanced. The label changed to "Next"; the
     // behaviour did not, so the button looked broken.
     const submit = await slice.build('Button', {
-      value: this._submitText,
+      value: this._submitText ?? this._t('submit'),
       onClick: () => this._advanceOrSubmit(),
     });
     if (submit) {
@@ -584,11 +667,11 @@ export default class Form extends HTMLElement {
   async _renderProgress() {
     const nav = document.createElement('ol');
     nav.className = 'slice-form__progress';
-    nav.setAttribute('aria-label', 'Form progress');
+    nav.setAttribute('aria-label', this._t('progress'));
 
     for (const [i, step] of this._steps.entries()) {
       const btn = await slice.build('Button', {
-        value: step.label || `Step ${i + 1}`,
+        value: step.label || this._t('step', { n: i + 1 }),
         variant: 'ghost',
         onClick: () => this.gotoStep(i),
       });
@@ -669,7 +752,7 @@ export default class Form extends HTMLElement {
     // removing one item takes exactly its controls with it and never orphans
     // its neighbours'.
     const entries = [];
-    const itemLabel = config.itemLabel || 'item';
+    const itemLabel = config.itemLabel || this._t('item');
 
     const addEntry = async (index) => {
       const box = document.createElement('div');
@@ -686,7 +769,7 @@ export default class Form extends HTMLElement {
       if (itemSchema.length > 1) {
         const tag = document.createElement('span');
         tag.className = 'slice-form__group-item-tag';
-        tag.textContent = `${itemLabel} ${index + 1}`;
+        tag.textContent = this._t('itemNumber', { item: itemLabel, n: index + 1 });
         head.appendChild(tag);
         owned.push(tag);
       }
@@ -709,7 +792,7 @@ export default class Form extends HTMLElement {
 
       if (max > 1) {
         const remove = await slice.build('Button', {
-          value: 'Remove',
+          value: this._t('remove'),
           // Button's `icon` is an OBJECT ({ name, size, color }), not a string. Passing
           // a bare name leaves Icon with name: undefined and it renders an EMPTY
           // <svg> with no warning - a 20x20 gap where the icon should be.
@@ -719,7 +802,7 @@ export default class Form extends HTMLElement {
         });
         if (remove) {
           remove.classList.add('slice-form__group-remove');
-          remove.setAttribute('aria-label', `Remove ${itemLabel} ${index + 1}`);
+          remove.setAttribute('aria-label', this._t('removeItem', { item: itemLabel, n: index + 1 }));
           head.appendChild(remove);
           owned.push(remove);
         }
@@ -763,7 +846,7 @@ export default class Form extends HTMLElement {
       for (const [i, other] of entries.entries()) {
         other.box.dataset.index = String(i);
         const removeBtn = other.box.querySelector('.slice-form__group-remove');
-        if (removeBtn) removeBtn.setAttribute('aria-label', `Remove ${itemLabel} ${i + 1}`);
+        if (removeBtn) removeBtn.setAttribute('aria-label', this._t('removeItem', { item: itemLabel, n: i + 1 }));
       }
 
       const value = this.getValues()[groupName];
@@ -777,7 +860,7 @@ export default class Form extends HTMLElement {
     for (let i = 0; i < count; i++) await addEntry(i);
 
     const add = await slice.build('Button', {
-      value: `Add ${itemLabel.toLowerCase()}`,
+      value: this._t('add', { item: itemLabel.toLowerCase() }),
       variant: 'outlined',
       onClick: async () => {
         if (entries.length >= max) return;

@@ -291,3 +291,11 @@ that a stray Escape reads as a refusal.
 Every instance subscribes to `confirm:request`. Two instances means two dialogs for one question,
 so build exactly one, or give the second a different `eventName`.
 :::
+
+## Language
+
+The built-in texts are `slice.confirmAction.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+`confirmLabel` and `cancelLabel` still win over the dictionary.
+Keys: `confirmLabel`, `cancelLabel`, `confirmVariant`, `eventName`.

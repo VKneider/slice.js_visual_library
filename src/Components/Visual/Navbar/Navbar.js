@@ -1,3 +1,4 @@
+import { texts } from '../../shared/text/texts.js';
 // Navbar — the top navigation bar: brand, links (with dropdowns nested as deep
 // as you like), and actions, in five looks, with the current page marked and a
 // mobile menu that behaves like one.
@@ -25,6 +26,19 @@
 // the setters from `Navbar.props` (COMPONENT_API_STANDARDS.md §10).
 
 let _sliceNavbarSeq = 0;
+
+const TEXTS = {
+   openMenu: 'Open menu',
+   closeMenu: 'Close menu',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   openMenu: 'Abrir menú',
+   closeMenu: 'Cerrar menú',
+};
+
+const t = texts('slice.navbar', { en: TEXTS, es: ES });
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -135,6 +149,12 @@ export default class Navbar extends HTMLElement {
          default: 'Main',
          required: false
       },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: {
+         type: 'object',
+         default: null,
+         required: false
+      },
       // `(open) => void` when the mobile menu opens or closes.
       onMenuToggle: {
          type: 'function',
@@ -180,6 +200,7 @@ export default class Navbar extends HTMLElement {
       this._mql = null;
       this._savedOverflow = null;
       this._onMenuToggle = null;
+      this._texts = {};
 
       for (const name of [
          '_handleBrandClick', '_handleToggleClick', '_handleCloseClick', '_handleNavClick',
@@ -223,6 +244,9 @@ export default class Navbar extends HTMLElement {
 
       this._ready = true;
       this._watchBreakpoint();
+      this._paintMenuLabel();
+      // A language change repaints the menu labels; open/closed is not touched.
+      slice.translator?.watch?.(this, () => this._paintMenuLabel());
       await this._renderItems();
       await this._renderActions();
       this._syncScroll(true);
@@ -364,8 +388,25 @@ export default class Navbar extends HTMLElement {
    get onMenuToggle() { return this._onMenuToggle; }
    set onMenuToggle(value) { this._onMenuToggle = typeof value === 'function' ? value : null; }
 
+   get texts() { return this._texts; }
+   set texts(value) {
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this._paintMenuLabel();
+   }
+
    /** Whether the mobile menu is open. */
    get isMenuOpen() { return this._menuOpen; }
+
+   _t(key) {
+      return this._texts[key] ?? t(key);
+   }
+
+   /** The hamburger and the panel's ✕ name themselves from the current state. */
+   _paintMenuLabel() {
+      if (!this.$mobileButton) return;
+      this.$mobileButton.setAttribute('aria-label', this._t(this._menuOpen ? 'closeMenu' : 'openMenu'));
+      if (this.$closeMenu) this.$closeMenu.setAttribute('aria-label', this._t('closeMenu'));
+   }
 
    _pick(name, value) {
       const { allowedValues, default: fallback } = Navbar.props[name];
@@ -734,7 +775,7 @@ export default class Navbar extends HTMLElement {
       this._menuOpen = open;
       this.classList.toggle('nav_bar--open', open);
       this.$mobileButton.setAttribute('aria-expanded', open ? 'true' : 'false');
-      this.$mobileButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      this._paintMenuLabel();
 
       if (open) {
          // The sheet hangs from the bar's bottom edge.

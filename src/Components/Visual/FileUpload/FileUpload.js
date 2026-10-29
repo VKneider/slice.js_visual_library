@@ -1,5 +1,6 @@
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
 import { fieldId } from '../../shared/validation/fieldRules.js';
+import { texts } from '../../shared/text/texts.js';
 
 // Pick or drop files, see what was picked, fix it, and (optionally) upload it.
 //
@@ -52,6 +53,46 @@ const TEXTS = {
    any_audio: 'Audio',
    any_text: 'Text files',
 };
+
+// Spanish mirrors TEXTS and MESSAGES key by key; the app can override any of them.
+const ES = {
+   prompt: 'Arrastra los archivos aquí o {browse}',
+   promptOne: 'Arrastra un archivo aquí o {browse}',
+   browse: 'elige',
+   compact: 'Elegir archivos',
+   compactOne: 'Elegir un archivo',
+   remove: 'Quitar {name}',
+   retry: 'Reintentar',
+   cancel: 'Cancelar la subida de {name}',
+   uploading: 'Subiendo… {percent}%',
+   done: 'Subido',
+   failed: 'Error al subir',
+   rejected: 'No se añadió',
+   anyFile: 'Cualquier archivo',
+   upTo: 'hasta {size}',
+   maxFiles: 'máximo {max} archivos',
+   any_image: 'Imágenes',
+   any_video: 'Vídeos',
+   any_audio: 'Audio',
+   any_text: 'Archivos de texto',
+};
+
+const ES_MESSAGES = {
+   required: 'Añade al menos un archivo',
+   type: 'Este tipo de archivo no está permitido',
+   tooLarge: 'Supera {max}',
+   tooMany: 'Puedes añadir hasta {max} archivos',
+   uploading: 'Espera a que terminen las subidas',
+   failed: 'Algunos archivos no se subieron',
+};
+
+// 'uploading' and 'failed' name a state and a problem, so they exist in both TEXTS
+// and MESSAGES. The messages live under their own branch: one key per meaning,
+// while the public `messages` prop keeps the names it always had.
+const t = texts('slice.fileUpload', {
+   en: { ...TEXTS, messages: MESSAGES },
+   es: { ...ES, messages: ES_MESSAGES },
+});
 
 const UNITS = ['B', 'KB', 'MB', 'GB', 'TB'];
 
@@ -179,8 +220,8 @@ export default class FileUpload extends HTMLElement {
       this._autoUpload = true;
       this._concurrency = 3;
       this._validateOn = 'change';
-      this._messages = { ...MESSAGES };
-      this._texts = { ...TEXTS };
+      this._messages = {};
+      this._texts = {};
       this._onFiles = null;
       this._onChange = null;
       this._onReject = null;
@@ -225,6 +266,10 @@ export default class FileUpload extends HTMLElement {
       this._renderList();
       this._renderMessage();
       this._syncFormValue();
+      slice.translator?.watch?.(this, () => {
+         this._renderCopy();
+         this._renderList();
+      });
       await this._renderIcon();
    }
 
@@ -368,11 +413,11 @@ export default class FileUpload extends HTMLElement {
    set validateOn(v) { this._validateOn = VALIDATE_ON.includes(v) ? v : 'change'; }
 
    get messages() { return this._messages; }
-   set messages(v) { this._messages = { ...MESSAGES, ...(v && typeof v === 'object' ? v : {}) }; }
+   set messages(v) { this._messages = v && typeof v === 'object' ? { ...v } : {}; }
 
    get texts() { return this._texts; }
    set texts(v) {
-      this._texts = { ...TEXTS, ...(v && typeof v === 'object' ? v : {}) };
+      this._texts = v && typeof v === 'object' ? { ...v } : {};
       if (this._ready) {
          this._renderCopy();
          this._renderList();
@@ -398,8 +443,8 @@ export default class FileUpload extends HTMLElement {
 
    /** What is wrong right now, or ''. An empty field only counts once validate() runs. */
    get validationMessage() {
-      if (this.uploading) return this._messages.uploading;
-      if (this._items.some((i) => i.status === 'error')) return this._messages.failed;
+      if (this.uploading) return this._m('uploading');
+      if (this._items.some((i) => i.status === 'error')) return this._m('failed');
       return '';
    }
 
@@ -409,7 +454,7 @@ export default class FileUpload extends HTMLElement {
 
    /** Check the field and show the problem. Returns true when it is fine. */
    validate() {
-      const message = this._required && this._items.length === 0 ? this._messages.required : this.validationMessage;
+      const message = this._required && this._items.length === 0 ? this._m('required') : this.validationMessage;
       this._shownError = message;
       this._renderMessage();
       if (message) {
@@ -512,9 +557,9 @@ export default class FileUpload extends HTMLElement {
       const accepted = [];
       for (const file of files) {
          if (!matchesAccept(file, this._accept)) {
-            rejected.push({ file, reason: 'type', message: this._messages.type });
+            rejected.push({ file, reason: 'type', message: this._m('type') });
          } else if (this._maxSize && file.size > this._maxSize) {
-            rejected.push({ file, reason: 'size', message: fill(this._messages.tooLarge, { max: formatSize(this._maxSize) }) });
+            rejected.push({ file, reason: 'size', message: this._m('tooLarge', { max: formatSize(this._maxSize) }) });
          } else {
             accepted.push(file);
          }
@@ -525,7 +570,7 @@ export default class FileUpload extends HTMLElement {
       if (!this._multiple) {
          // One file: a new pick replaces the old one, and extras are turned away.
          for (const file of accepted.slice(1)) {
-            rejected.push({ file, reason: 'count', message: fill(this._messages.tooMany, { max: 1 }) });
+            rejected.push({ file, reason: 'count', message: this._m('tooMany', { max: 1 }) });
          }
          incoming = accepted.slice(0, 1);
          if (incoming.length) {
@@ -535,7 +580,7 @@ export default class FileUpload extends HTMLElement {
       } else if (this._maxFiles) {
          const room = Math.max(0, this._maxFiles - keep.length);
          for (const file of incoming.slice(room)) {
-            rejected.push({ file, reason: 'count', message: fill(this._messages.tooMany, { max: this._maxFiles }) });
+            rejected.push({ file, reason: 'count', message: this._m('tooMany', { max: this._maxFiles }) });
          }
          incoming = incoming.slice(0, room);
       }
@@ -581,7 +626,7 @@ export default class FileUpload extends HTMLElement {
       // An error on screen follows the files, so it clears once they are fixed.
       if (this._shownError && this._validateOn !== 'manual') this.validate();
       else if (this._shownError) {
-         const message = this._required && this._items.length === 0 ? this._messages.required : this.validationMessage;
+         const message = this._required && this._items.length === 0 ? this._m('required') : this.validationMessage;
          if (!message) this._shownError = '';
       }
       this._renderMessage();
@@ -662,7 +707,18 @@ export default class FileUpload extends HTMLElement {
    // ── Rendering ──────────────────────────────────────────────────
 
    _t(key, values = {}) {
-      return fill(this._texts[key] ?? TEXTS[key] ?? key, values);
+      return fill(this._texts[key] ?? t(key), values);
+   }
+
+   // A message is filled from the `messages` prop first, then from the library.
+   _m(key, values = {}) {
+      return fill(this._messages[key] ?? t(`messages.${key}`), values);
+   }
+
+   // The prompt with {browse} still in it: it marks where the link goes, so it
+   // is split in the DOM instead of being filled with a string here.
+   _raw(key) {
+      return this._texts[key] ?? t(key, { browse: '{browse}' });
    }
 
    _renderNames() {
@@ -685,7 +741,7 @@ export default class FileUpload extends HTMLElement {
          this.$prompt.appendChild(button);
       } else {
          // Raw, not through _t(): {browse} is where the link goes, not a value to fill.
-         const template = this._prompt || (this._multiple ? this._texts.prompt : this._texts.promptOne);
+         const template = this._prompt || this._raw(this._multiple ? 'prompt' : 'promptOne');
          const [before, after = ''] = template.split('{browse}');
          const browse = document.createElement('span');
          browse.className = 'slice-file-upload__browse';
@@ -715,7 +771,12 @@ export default class FileUpload extends HTMLElement {
       if (!rule) return '';
       if (rule.startsWith('.')) return rule.slice(1).toUpperCase();
       const [kind, sub] = rule.split('/');
-      if (sub === '*') return this._t(`any_${kind}`) !== `any_${kind}` ? this._t(`any_${kind}`) : kind.toUpperCase();
+      if (sub === '*') {
+         // A kind that has a name of its own ("Images"); any other stays the bare type.
+         const key = `any_${kind}`;
+         const known = this._texts[key] ?? (Object.prototype.hasOwnProperty.call(TEXTS, key) ? t(key) : '');
+         return known || kind.toUpperCase();
+      }
       return (sub || kind).toUpperCase();
    }
 

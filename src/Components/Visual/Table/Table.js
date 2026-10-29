@@ -1,11 +1,12 @@
 import { readPath, writePath } from '../../shared/data/paths.js';
 import { insertItem, patchItem, removeItems, restoreItems, revertItem } from '../../shared/data/collection.js';
 import { normalizeEdit, editKind, controlFor, readControl, validateValue, optionLabel, TEXT_KINDS } from '../../shared/editing/inlineControl.js';
+import { texts } from '../../shared/text/texts.js';
 
-// Default UI strings. Every one can be overridden through the `labels` prop
-// (partially: only the keys you pass change), which is how a Spanish app gets a
-// Spanish table without forking the component. `{shown}`, `{total}`, `{count}`
-// are placeholders.
+// Built-in English texts, shipped as the translator's lowest layer (`slice.table`).
+// Every one can still be overridden through the `labels` prop (partially: only the
+// keys you pass change), and an app dictionary overrides them all. `{shown}`,
+// `{total}`, `{count}` and `{label}` are placeholders.
 const DEFAULT_LABELS = {
   searchPlaceholder: 'Search…',
   searchLabel: 'Search the table',
@@ -88,6 +89,107 @@ const DEFAULT_LABELS = {
     notIn: 'is none of'
   }
 };
+
+// Spanish mirrors DEFAULT_LABELS key by key (symbol operators stay symbols);
+// the app can override any of them with its own dictionary.
+const ES = {
+  searchPlaceholder: 'Buscar…',
+  searchLabel: 'Buscar en la tabla',
+  filters: 'Filtros',
+  clearAll: 'Limpiar todo',
+  clearFilters: 'Limpiar filtros',
+  showing: '{shown} de {total} filas',
+  selected: '{count} seleccionadas',
+  noResults: 'Ninguna fila coincide con los filtros actuales.',
+  removeFilter: 'Quitar filtro',
+  searchChip: 'Búsqueda',
+  any: 'Cualquiera',
+  yes: 'Sí',
+  no: 'No',
+  from: 'Desde',
+  to: 'Hasta',
+  value: 'Valor',
+  operator: 'Condición',
+  selectAll: 'Seleccionar todas las filas',
+  selectRow: 'Seleccionar fila',
+  sortBy: 'Ordenar por',
+  sortNone: 'Orden predeterminado',
+  ascending: 'Ascendente',
+  descending: 'Descendente',
+  export: 'Exportar',
+  exportCsv: 'Descargar CSV',
+  exportJson: 'Descargar JSON',
+  exportCopy: 'Copiar al portapapeles',
+  exportScopeFiltered: 'Todas las filas coincidentes ({count})',
+  exportScopeSelected: 'Filas seleccionadas ({count})',
+  copied: 'Se copiaron {count} filas',
+  copyFailed: 'No se pudo copiar al portapapeles',
+  exported: 'Se exportaron {count} filas',
+  view: 'Vista',
+  columns: 'Columnas',
+  density: 'Densidad',
+  densityCompact: 'Compacta',
+  densityComfortable: 'Cómoda',
+  densitySpacious: 'Amplia',
+  totals: 'Total',
+  actions: 'Acciones',
+  rowActions: 'Acciones de la fila',
+  details: 'Detalles',
+  showDetails: 'Mostrar detalles',
+  hideDetails: 'Ocultar detalles',
+  copyRow: 'Copiar fila',
+  selectRowAction: 'Seleccionar',
+  deselectRow: 'Deseleccionar',
+  detailEmpty: '—',
+  undo: 'Deshacer',
+  dismiss: 'Descartar',
+  removed: 'Se eliminaron {count} filas',
+  removedOne: 'Fila eliminada',
+  saveError: 'No se pudo guardar el cambio.',
+  loadError: 'No se pudieron cargar las filas.',
+  retry: 'Reintentar',
+  editCell: 'Editar {label}',
+  copiedCell: 'Copiado',
+  operators: {
+    contains: 'contiene',
+    notContains: 'no contiene',
+    equals: 'es',
+    notEquals: 'no es',
+    startsWith: 'empieza por',
+    endsWith: 'termina en',
+    empty: 'está vacío',
+    notEmpty: 'no está vacío',
+    eq: '=',
+    neq: '≠',
+    gt: '>',
+    gte: '≥',
+    lt: '<',
+    lte: '≤',
+    between: 'entre',
+    is: 'es',
+    on: 'el',
+    before: 'antes de',
+    after: 'después de',
+    in: 'es cualquiera de',
+    notIn: 'es ninguno de'
+  }
+};
+
+const t = texts('slice.table', { en: DEFAULT_LABELS, es: ES });
+
+// The per-instance text layer: `labels` stores only the overrides, and a read
+// that was not overridden falls through to `t()` — the app's dictionary, or the
+// English default. One layer keeps the ~50 direct `this._text.<key>` reads in
+// the render path working without merging DEFAULT_LABELS into every instance.
+function textLayer(custom = {}) {
+  const overrides = { ...custom, operators: { ...(custom.operators || {}) } };
+  return new Proxy(overrides, {
+    get(target, key, receiver) {
+      if (typeof key === 'symbol' || key in target) return Reflect.get(target, key, receiver);
+      return t(String(key));
+    }
+  });
+}
 
 // Operators per filter type, first = default. Mirrors DataGridEngine.OPERATORS;
 // duplicated (not imported) because a component may only import within
@@ -346,7 +448,7 @@ export default class Table extends HTMLElement {
     this._editors = new Map();         // key -> { root, sync(state) }
     this._panelStale = true;
     this._panelOpen = false;
-    this._text = DEFAULT_LABELS;
+    this._text = textLayer();
     this._selectedKeys = new Set();
     this._selectionAnchor = null;
     this._identity = new WeakMap();
@@ -617,11 +719,8 @@ export default class Table extends HTMLElement {
   set labels(value) {
     const custom = value && typeof value === 'object' ? value : {};
     this._labels = value && typeof value === 'object' ? value : null;
-    this._text = {
-      ...DEFAULT_LABELS,
-      ...custom,
-      operators: { ...DEFAULT_LABELS.operators, ...(custom.operators || {}) }
-    };
+    // Only the overrides are kept; everything else comes from `t()`.
+    this._text = textLayer({ ...custom, operators: { ...(custom.operators || {}) } });
     this._panelStale = true;
     this._contentVersion += 1;
     if (this._mounted) {
@@ -840,6 +939,16 @@ export default class Table extends HTMLElement {
       totalItems: this._totalItems
     });
     this._mounted = true;
+
+    // A language switch re-labels in place: the filtered/sorted/paginated rows,
+    // the filters, the selection and the page all live in the engine, so only the
+    // chrome and the rendered rows are rebuilt (never the data).
+    slice.translator?.watch?.(this, () => {
+      this._panelStale = true;
+      this._contentVersion += 1;
+      this._renderChrome();
+      this.renderTable();
+    });
 
     this.$head.addEventListener('click', this._handleHeaderClick);
     this.$head.addEventListener('keydown', this._handleHeaderKeydown);
@@ -1214,12 +1323,12 @@ export default class Table extends HTMLElement {
   // ------------------------------------------------------------- filtering
 
   _label(key, vars = {}) {
-    const template = this._text[key] ?? DEFAULT_LABELS[key] ?? '';
-    return String(template).replace(/\{(\w+)\}/g, (_, name) => (vars[name] !== undefined ? String(vars[name]) : ''));
+    const template = this._text[key] ?? t(key);
+    return String(template ?? '').replace(/\{(\w+)\}/g, (_, name) => (vars[name] !== undefined ? String(vars[name]) : ''));
   }
 
   _opLabel(op) {
-    return this._text.operators?.[op] ?? DEFAULT_LABELS.operators[op] ?? op;
+    return this._text.operators?.[op] ?? t('operators.' + op);
   }
 
   // Which columns get a filter editor, of what type, with which options.

@@ -137,3 +137,11 @@ Use `shape: 'rounded'` for teams, companies and projects, and circles for people
 :::warning
 Do not pass a status the app cannot keep up to date. A green dot that stays green after the person left is worse than no dot.
 :::
+
+## Language
+
+The built-in texts are `slice.avatar.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `online`, `away`, `busy`, `offline`, `unknown`.

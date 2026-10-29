@@ -28,4 +28,6 @@
 <div class="callout callout-tip">Use <code>shape: 'rounded'</code> for teams, companies and projects, and circles for people. The shape tells them apart at a glance.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Do not pass a status the app cannot keep up to date. A green dot that stays green after the person left is worse than no dot.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.avatar.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>online</code>, <code>away</code>, <code>busy</code>, <code>offline</code>, <code>unknown</code>.</p>
 </div>

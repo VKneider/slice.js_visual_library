@@ -37,6 +37,29 @@
 // The enumerated props are LITERAL arrays inside `static props`, and the setters
 // read them back from `DropDown.props` (COMPONENT_API_STANDARDS.md §10).
 
+import { texts } from '../../shared/text/texts.js';
+
+const TEXTS = {
+   noOptions: 'No options',
+   loading: 'Loading…',
+   backToPrevious: 'Back to the previous menu',
+   backToMenu: 'Back to menu',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   noOptions: 'Sin opciones',
+   loading: 'Cargando…',
+   backToPrevious: 'Volver al menú anterior',
+   backToMenu: 'Volver al menú',
+};
+
+const t = texts('slice.dropDown', { en: TEXTS, es: ES });
+
+function fill(template, values) {
+   return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
+
 let _sliceDropDownSeq = 0;
 
 // Hover intent, in ms: long enough that crossing an item on the way to a
@@ -145,6 +168,12 @@ export default class DropDown extends HTMLElement {
          type: 'function',
          default: null,
          required: false
+      },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: {
+         type: 'object',
+         default: null,
+         required: false
       }
    };
 
@@ -178,6 +207,8 @@ export default class DropDown extends HTMLElement {
       this._frame = 0;
       this._onSelect = null;
       this._onOpenChange = null;
+      this._texts = {};
+      this._textsToken = 0;
 
       for (const name of [
          '_handleTriggerClick', '_handleTriggerKeydown', '_handleTriggerPointerEnter',
@@ -206,6 +237,11 @@ export default class DropDown extends HTMLElement {
       if (this._caret === undefined) this.caret = true;
       if (this._placement === undefined) this.placement = DropDown.props.placement.default;
       if (this._trigger === undefined) this.trigger = DropDown.props.trigger.default;
+      // A language change repaints the open panels in place: the open levels,
+      // the submenu path and the focused item stay as they are.
+      slice.translator?.watch?.(this, () => {
+         this._retranslate();
+      });
    }
 
    beforeDestroy() {
@@ -314,8 +350,20 @@ export default class DropDown extends HTMLElement {
    get onOpenChange() { return this._onOpenChange; }
    set onOpenChange(value) { this._onOpenChange = typeof value === 'function' ? value : null; }
 
+   get texts() { return this._texts; }
+   set texts(value) {
+      // Only the overrides are kept: every key left out falls back to the
+      // translator (or to the English default).
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this._retranslate();
+   }
+
    /** Whether the menu is open. */
    get isOpen() { return this._open; }
+
+   _t(key, values = {}) {
+      return fill(this._texts[key] ?? t(key), values);
+   }
 
    // ------------------------------------------------------------- public API
 
@@ -445,7 +493,7 @@ export default class DropDown extends HTMLElement {
 
       const nodes = await Promise.all(entries.map((entry, index) => this._renderEntry(entry, index, level, hasChecks)));
       if (entries.length === 0) {
-         nodes.push(this._el('div', 'slice_dropdown_empty', { role: 'presentation', text: 'No options' }));
+         nodes.push(this._el('div', 'slice_dropdown_empty', { role: 'presentation', text: this._t('noOptions') }));
       }
       panel.replaceChildren(...nodes);
    }
@@ -519,7 +567,7 @@ export default class DropDown extends HTMLElement {
       const row = this._el('button', 'slice_dropdown_item slice_dropdown_back', { type: 'button', role: 'menuitem', tabindex: '-1' });
       row.appendChild(this._el('span', 'slice_dropdown_back_chevron', { 'aria-hidden': 'true' }));
       row.appendChild(this._el('span', 'slice_dropdown_item_label', { text: label }));
-      row.setAttribute('aria-label', `Back to ${label ? 'the previous menu' : 'menu'}`);
+      row.setAttribute('aria-label', label ? this._t('backToPrevious') : this._t('backToMenu'));
       return row;
    }
 
@@ -610,7 +658,7 @@ export default class DropDown extends HTMLElement {
       let children = entry.children;
       if (typeof children === 'function') {
          // Loading on demand: show the panel with a placeholder at once.
-         panel.replaceChildren(this._el('div', 'slice_dropdown_loading', { role: 'presentation', text: 'Loading…' }));
+         panel.replaceChildren(this._el('div', 'slice_dropdown_loading', { role: 'presentation', text: this._t('loading') }));
          if (stacked) panel.prepend(this._backRow(entry.label));
          this._showPanel(panel);
          this._positionLevel(level + 1);
@@ -672,6 +720,54 @@ export default class DropDown extends HTMLElement {
       if (!this._open) return;
       this._levels = [{ panel: this.$box, entries, item: null }];
       this._positionLevel(0);
+   }
+
+   /**
+    * Redraw the open menu in every language.
+    *
+    * Each open level is rendered again in place, so nothing closes: the path of
+    * submenus stays open, and the item that had focus is focused again. A
+    * stacked submenu gets its Back row back (rendering the panel cleared it),
+    * and the parent item is relinked to its submenu.
+    */
+   async _retranslate() {
+      if (!this._open) return;
+      const token = ++this._textsToken;
+      const levels = this._levels.slice();
+      const active = document.activeElement;
+      const focusLevel = this._levelOf(active);
+      const focusIndex = focusLevel === -1 ? null : active?.dataset?.index ?? null;
+      const onPanel = focusLevel !== -1 && active === levels[focusLevel]?.panel;
+      // The item that opened each deeper level, read before its panel is redrawn.
+      const openers = levels.map((record) => (record?.button ? Number(record.button.dataset.index) : null));
+
+      for (let level = 0; level < levels.length; level++) {
+         const record = levels[level];
+         if (!record) continue;
+         if (level === 0) record.entries = this._entries(this._rootItems());
+         await this._renderPanel(record.panel, record.entries, level);
+         if (token !== this._textsToken || !this._open) return;
+         if (level > 0 && record.stacked) {
+            record.panel.prepend(this._backRow(String(record.item?.label ?? record.item?.text ?? '')));
+         }
+         const child = levels[level + 1];
+         const opener = openers[level + 1];
+         if (child && Number.isInteger(opener)) {
+            const button = record.panel.querySelector(`:scope > .slice_dropdown_item[data-index="${opener}"]`);
+            if (button) {
+               child.button = button;
+               button.setAttribute('aria-expanded', 'true');
+               button.setAttribute('aria-controls', child.panel.id);
+               child.panel.setAttribute('aria-labelledby', button.id);
+            }
+         }
+         this._positionLevel(level);
+      }
+
+      const panel = levels[focusLevel]?.panel;
+      if (!panel) return;
+      if (onPanel) panel.focus({ preventScroll: true });
+      else panel.querySelector(`:scope > .slice_dropdown_item[data-index="${focusIndex}"]`)?.focus({ preventScroll: true });
    }
 
    _toggleDocumentListeners(on) {

@@ -98,3 +98,11 @@ Use `duration: 0` for toasts that require user action. Always provide a `type` t
 :::warning
 Do not stack multiple `<slice-toast>` elements manually — use `ToastProvider` for programmatic management. Avoid toasts for critical or mandatory information; prefer inline messages or modals for content users must acknowledge.
 :::
+
+## Language
+
+The built-in texts are `slice.toast.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `close`.

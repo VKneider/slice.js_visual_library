@@ -24,6 +24,33 @@
 // The enumerated props are LITERAL arrays inside `static props`, read back by
 // the setters from `Select.props` (COMPONENT_API_STANDARDS.md §10).
 
+import { texts } from '../../shared/text/texts.js';
+
+const TEXTS = {
+   noResultsText: 'No results',
+   loadingText: 'Loading…',
+   remove: 'Remove {label}',
+   selectAll: 'Select all',
+   clearSelection: 'Clear selection',
+   create: 'Create',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   noResultsText: 'Sin resultados',
+   loadingText: 'Cargando…',
+   remove: 'Quitar {label}',
+   selectAll: 'Seleccionar todo',
+   clearSelection: 'Borrar selección',
+   create: 'Crear',
+};
+
+const t = texts('slice.select', { en: TEXTS, es: ES });
+
+function fill(template, values) {
+   return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
+
 let _sliceSelectSeq = 0;
 
 const _sliceDeprecated = new Set();
@@ -166,12 +193,18 @@ export default class Select extends HTMLElement {
       },
       noResultsText: {
          type: 'string',
-         default: 'No results',
+         default: null,
          required: false
       },
       loadingText: {
          type: 'string',
-         default: 'Loading…',
+         default: null,
+         required: false
+      },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: {
+         type: 'object',
+         default: null,
          required: false
       },
       onChange: {
@@ -234,6 +267,7 @@ export default class Select extends HTMLElement {
       this._onChange = null;
       this._onOpenChange = null;
       this._visibleProp = 'text';
+      this._texts = {};
 
       for (const name of [
          '_handleControlPointerDown', '_handleControlClick', '_handleKeydown', '_handleInput',
@@ -262,6 +296,15 @@ export default class Select extends HTMLElement {
       }
       if (this._noResultsText === undefined) this._noResultsText = Select.props.noResultsText.default;
       if (this._loadingText === undefined) this._loadingText = Select.props.loadingText.default;
+      // The template ships the English label; the locale may say otherwise.
+      this.$clear.setAttribute('aria-label', this._t('clearSelection'));
+      // A language change repaints the chips and the open list. The selection,
+      // the search text and the open state are not touched.
+      slice.translator?.watch?.(this, () => {
+         this.$clear.setAttribute('aria-label', this._t('clearSelection'));
+         this._renderChips();
+         if (this._open) this._refresh();
+      });
       this._syncField();
    }
 
@@ -439,10 +482,26 @@ export default class Select extends HTMLElement {
    }
 
    get noResultsText() { return this._noResultsText; }
-   set noResultsText(value) { this._noResultsText = value ?? ''; }
+   set noResultsText(value) {
+      this._noResultsText = value === null || value === undefined ? null : String(value);
+      if (this._open) this._refresh();
+   }
 
    get loadingText() { return this._loadingText; }
-   set loadingText(value) { this._loadingText = value ?? ''; }
+   set loadingText(value) {
+      this._loadingText = value === null || value === undefined ? null : String(value);
+      if (this._open) this._refresh();
+   }
+
+   get texts() { return this._texts; }
+   set texts(value) {
+      // Only the overrides are kept: every key left out falls back to the
+      // translator (or to the English default).
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this.$clear.setAttribute('aria-label', this._t('clearSelection'));
+      this._renderChips();
+      if (this._open) this._refresh();
+   }
 
    get onChange() { return this._onChange; }
    set onChange(value) { if (typeof value === 'function') this._onChange = value; }
@@ -690,7 +749,7 @@ export default class Select extends HTMLElement {
          remove.type = 'button';
          remove.className = 'slice_select_chip_remove';
          remove.tabIndex = -1;
-         remove.setAttribute('aria-label', `Remove ${entry.label}`);
+         remove.setAttribute('aria-label', this._t('remove', { label: entry.label }));
          chip.append(text, remove);
          chip._entry = entry;
          return chip;
@@ -725,6 +784,10 @@ export default class Select extends HTMLElement {
    }
 
    // ------------------------------------------------------------ open / close
+
+   _t(key, values = {}) {
+      return fill(this._texts[key] ?? t(key), values);
+   }
 
    _setOpen(open, keepFocus, selectText = true) {
       open = open === true && !this._disabled;
@@ -824,7 +887,7 @@ export default class Select extends HTMLElement {
       const query = fold(this._query.trim());
       const rows = [];
       if (this._remoteLoading && this._entries.length === 0) {
-         rows.push({ kind: 'status', text: this._loadingText });
+         rows.push({ kind: 'status', text: this._loadingText ?? this._t('loadingText') });
       }
       const local = this._loadOptions ? this._entries : this._entries.filter((entry) => !query || fold(entry.label).includes(query) || fold(entry.description ?? '').includes(query));
       if (this._multiple && this._selectAll && local.some((entry) => !entry.disabled)) {
@@ -841,7 +904,7 @@ export default class Select extends HTMLElement {
       const exact = local.some((entry) => fold(entry.label) === query);
       if (this._creatable && query && !exact) rows.push({ kind: 'create', text: this._query.trim() });
       if (!rows.some((row) => row.kind === 'option' || row.kind === 'create' || row.kind === 'status')) {
-         rows.push({ kind: 'status', text: this._remoteLoading ? this._loadingText : this._noResultsText });
+         rows.push({ kind: 'status', text: this._remoteLoading ? (this._loadingText ?? this._t('loadingText')) : (this._noResultsText ?? this._t('noResultsText')) });
       }
       this._rows = rows;
       if (resetActive || this._activeIndex >= rows.length || !this._isActivatable(rows[this._activeIndex])) {
@@ -920,14 +983,14 @@ export default class Select extends HTMLElement {
       if (row.kind === 'all') {
          node.classList.add('slice_select_option--all');
          node.appendChild(this._checkNode());
-         node.appendChild(this._textNode('Select all'));
+         node.appendChild(this._textNode(this._t('selectAll')));
          return node;
       }
       if (row.kind === 'create') {
          node.classList.add('slice_select_option--create');
          const text = document.createElement('span');
          text.className = 'slice_select_option_label';
-         text.append('Create ');
+         text.append(`${this._t('create')} `);
          const strong = document.createElement('strong');
          strong.textContent = `“${row.text}”`;
          text.appendChild(strong);

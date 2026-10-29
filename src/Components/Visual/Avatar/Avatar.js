@@ -1,3 +1,4 @@
+import { texts } from '../../shared/text/texts.js';
 // Avatar — a person (or a team, a project) as a small picture.
 //
 //   await slice.build('Avatar', { src: user.photo, name: user.name, status: 'online' });
@@ -20,6 +21,17 @@ const TEXTS = {
    offline: 'Offline',
    unknown: 'Unknown user',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   online: 'En línea',
+   away: 'Ausente',
+   busy: 'Ocupado',
+   offline: 'Desconectado',
+   unknown: 'Usuario desconocido',
+};
+
+const t = texts('slice.avatar', { en: TEXTS, es: ES });
 
 // "Ana María López" → "AL", "Victor" → "V", "  " → "".
 function initialsOf(name) {
@@ -83,7 +95,7 @@ export default class Avatar extends HTMLElement {
       this._onClick = null;
       this._path = '';
       this._href = '';
-      this._texts = { ...TEXTS };
+      this._texts = {};
       this._failed = '';
       this._built = { icon: null, badge: null };
 
@@ -114,6 +126,10 @@ export default class Avatar extends HTMLElement {
       this._paintStatus();
       this._paintBadge();
       this._applyRole();
+      slice.translator?.watch?.(this, () => {
+         this._paintStatus();
+         this._applyRole();
+      });
    }
 
    beforeDestroy() {
@@ -174,7 +190,7 @@ export default class Avatar extends HTMLElement {
 
    get texts() { return this._texts; }
    set texts(value) {
-      this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) };
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
       if (this._ready) { this._paintStatus(); this._applyRole(); }
    }
 
@@ -188,6 +204,10 @@ export default class Avatar extends HTMLElement {
    }
 
    // ── Painting ───────────────────────────────────────────────────
+
+   _t(key) {
+      return this._texts[key] ?? t(key);
+   }
 
    _paint() {
       this.dataset.shape = this._shape;
@@ -242,7 +262,7 @@ export default class Avatar extends HTMLElement {
       if (this._status) {
          this.$status.dataset.status = this._status;
          this.$status.setAttribute('role', 'img');
-         this.$status.setAttribute('aria-label', this._texts[this._status] || this._status);
+         this.$status.setAttribute('aria-label', this._t(this._status));
       }
       this._applyRole();
    }
@@ -275,8 +295,8 @@ export default class Avatar extends HTMLElement {
 
    // An image with a name, or a control when it does something.
    _applyRole() {
-      const label = this._alt || this._name || this._texts.unknown;
-      const status = this._status ? `, ${this._texts[this._status] || this._status}` : '';
+      const label = this._alt || this._name || this._t('unknown');
+      const status = this._status ? `, ${this._t(this._status)}` : '';
       const interactive = !!(this._onClick || this._path || this._href);
       this.setAttribute('role', this._onClick ? 'button' : this._path || this._href ? 'link' : 'img');
       this.setAttribute('aria-label', label + status);

@@ -36,5 +36,7 @@
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning"><code>draggable</code> moves items inside your own arrays (that is how your data stays in step). If your arrays are frozen or derived on every render, refuse the drop in <code>onMove</code> and update your state yourself.</div>
 <div class="callout callout-warning"><code>virtual</code> needs one row height: long labels are cut with an ellipsis, and a <code>description</code> line needs a bigger <code>rowHeight</code>.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.treeView.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>searchPlaceholder</code>, <code>emptyMessage</code>, <code>search</code>, <code>loading</code>, <code>actionsFor</code>.</p>
 <div class="component-block" data-block-id="doc-block-8"></div>
 </div>

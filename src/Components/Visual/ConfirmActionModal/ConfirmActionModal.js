@@ -1,3 +1,4 @@
+import { texts } from '../../shared/text/texts.js';
 // The "are you sure?" modal, and the prompt variant with a single text field.
 //
 // Built on `Modal`, so scroll-lock, focus handling, Escape and backdrop
@@ -45,6 +46,21 @@ const DEFAULTS = {
    eventName: 'confirm:request',
 };
 
+// The labels the buttons get when the caller passes none. They live here, not in
+// DEFAULTS, so the translator can localize them; DEFAULTS keeps the English text.
+const TEXTS = {
+   confirm: DEFAULTS.confirmLabel,
+   cancel: DEFAULTS.cancelLabel,
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   confirm: 'Confirmar',
+   cancel: 'Cancelar',
+};
+
+const t = texts('slice.confirmAction', { en: TEXTS, es: ES });
+
 // Valid public Icon names. A destructive question must not look like a
 // routine one, so the mark follows `danger` unless the caller overrides it.
 const ICONS = {
@@ -56,8 +72,10 @@ export default class ConfirmActionModal extends HTMLElement {
 
    static props = {
       // Defaults for every question. Anything passed to the call wins.
-      confirmLabel: { type: 'string', default: DEFAULTS.confirmLabel },
-      cancelLabel: { type: 'string', default: DEFAULTS.cancelLabel },
+      // null = not overridden: the label comes from t('confirm') / t('cancel'),
+      // so the built-in English text still follows the translator.
+      confirmLabel: { type: 'string', default: null },
+      cancelLabel: { type: 'string', default: null },
       confirmVariant: { type: 'string', default: DEFAULTS.confirmVariant },
 
       // Namespace the event channel, so two independently-built modals in one
@@ -85,6 +103,9 @@ export default class ConfirmActionModal extends HTMLElement {
       this._subscribedChannel = null;
       this._pending = null;
       this._settled = true;
+      // null = no prop override, so the built-in t('confirm') / t('cancel') is used.
+      this._confirmLabel = null;
+      this._cancelLabel = null;
 
       slice.controller.setComponentProps(this, props);
    }
@@ -94,6 +115,11 @@ export default class ConfirmActionModal extends HTMLElement {
       // on destroy, so it cannot outlive the component.
       this.events = slice.events.bind(this);
       this._listen(this._channel);
+      // A language change must repaint the buttons of the question on screen
+      // without losing the question, its input or the pending promise.
+      slice.translator?.watch?.(this, () => {
+         if (this._pending && this.$confirmBtn && this.$cancelBtn) this._paintLabels();
+      });
    }
 
    _listen(channel) {
@@ -129,6 +155,17 @@ export default class ConfirmActionModal extends HTMLElement {
       // the id subscribe() handed back.
       slice.events.unsubscribe(previous, this._subId);
       this._listen(next);
+   }
+
+   /** Footer labels for every question. null = the built-in, translated text. */
+   get confirmLabel() { return this._confirmLabel; }
+   set confirmLabel(value) {
+      this._confirmLabel = value === null || value === undefined || value === '' ? null : String(value);
+   }
+
+   get cancelLabel() { return this._cancelLabel; }
+   set cancelLabel(value) {
+      this._cancelLabel = value === null || value === undefined || value === '' ? null : String(value);
    }
 
    beforeDestroy() {
@@ -198,14 +235,14 @@ export default class ConfirmActionModal extends HTMLElement {
       // were documented and completely inert.
       const merged = {
          ...DEFAULTS,
-         confirmLabel: this.confirmLabel,
-         cancelLabel: this.cancelLabel,
          confirmVariant: this.confirmVariant,
          ...options,
       };
       const withInput = options.withInput === true;
 
-      this._pending = { withInput };
+      // The raw options are kept so a later language change can repaint the
+      // labels without re-asking the question (a per-call label still wins).
+      this._pending = { withInput, options: { ...options } };
       this._settled = false;
       // The resolver is installed BEFORE anything can settle, so no path can
       // resolve a promise nobody is holding yet.
@@ -217,8 +254,7 @@ export default class ConfirmActionModal extends HTMLElement {
       this.$message.textContent = merged.message || '';
       this.$message.hidden = !merged.message;
 
-      this.$cancelBtn.value = merged.cancelLabel;
-      this.$confirmBtn.value = merged.confirmLabel;
+      this._paintLabels();
       // A destructive question must not look like a routine one.
       this.$confirmBtn.variant = merged.danger ? 'danger' : merged.confirmVariant;
 
@@ -252,6 +288,16 @@ export default class ConfirmActionModal extends HTMLElement {
       if (withInput) this.$input.focus();
 
       return done;
+   }
+
+   /**
+    * Footer labels for the question on screen: a per-call label wins, then the
+    * component prop, then the built-in text (translated when the translator is on).
+    */
+   _paintLabels() {
+      const options = this._pending?.options || {};
+      this.$cancelBtn.value = options.cancelLabel ?? this._cancelLabel ?? t('cancel');
+      this.$confirmBtn.value = options.confirmLabel ?? this._confirmLabel ?? t('confirm');
    }
 
    /** Swap the header mark. `false` / `''` / `null` hides it entirely. */

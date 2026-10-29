@@ -296,3 +296,11 @@ Inside a [Form](/docs/input/form), the Form owns the label and the error: it set
 :::warning
 `maxlength` stops typing at the limit. If you would rather let people type past it and show the error, use a `validator` that checks the length, with `showCount` to show how far over they are.
 :::
+
+## Language
+
+The built-in texts are `slice.input.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `clear`, `togglePassword`.

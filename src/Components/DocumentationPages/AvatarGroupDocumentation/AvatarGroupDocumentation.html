@@ -22,5 +22,7 @@
 <div class="callout callout-tip">Keep <code>max</code> small (3 to 5). The group says "these people and some more"; the full list belongs in a click on "+N".</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Give every person a <code>name</code>. Without one, the face has no tooltip and the group's name cannot list them.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.avatarGroup.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>label</code>, <code>more</code>, <code>moreLabel</code>.</p>
 <div class="component-block" data-block-id="doc-block-3"></div>
 </div>

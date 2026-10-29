@@ -632,3 +632,11 @@ A `Modal` built with `slice.build` is not destroyed when it closes. Pass `destro
 :::warning
 `resizable: true` removes the width and height caps while the modal is open, so it can grow past them. Drag and resize only apply to the `center` and `top` layouts; on a drawer, sheet or fullscreen they are off.
 :::
+
+## Language
+
+The built-in texts are `slice.modal.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+`closeLabel` and `texts` still win over the dictionary.
+Keys: `close`.

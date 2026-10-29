@@ -27,5 +27,7 @@
 <div class="callout callout-tip">Use <code>duration: 0</code> for toasts that require user action. Always provide a <code>type</code> to communicate severity. For many notifications in a view, use <code>ToastProvider</code> which handles queuing, positioning, and cleanup automatically.</div>
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Do not stack multiple <code>&lt;slice-toast&gt;</code> elements manually — use <code>ToastProvider</code> for programmatic management. Avoid toasts for critical or mandatory information; prefer inline messages or modals for content users must acknowledge.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.toast.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>close</code>.</p>
 <div class="component-block" data-block-id="doc-block-8"></div>
 </div>

@@ -40,5 +40,7 @@
 <div class="callout callout-warning">Inputs no longer carry a 20px margin. Spacing belongs to whatever holds them (a Form, a grid, a flex column with a <code>gap</code>). To get the old spacing back on one field, set <code>--control-margin-block: 20px</code> on it.</div>
 <div class="callout callout-warning">Inside a <span data-inline-link="3"></span>, the Form owns the label and the error: it sets <code>labelPlacement: 'above'</code>, turns off the field's own validation display and prints the message itself. Give the label to the schema item (<code>label: 'Email'</code>), not to the Input's <code>props</code>, or it shows twice.</div>
 <div class="callout callout-warning"><code>maxlength</code> stops typing at the limit. If you would rather let people type past it and show the error, use a <code>validator</code> that checks the length, with <code>showCount</code> to show how far over they are.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.input.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>clear</code>, <code>togglePassword</code>.</p>
 <div class="component-block" data-block-id="doc-block-8"></div>
 </div>

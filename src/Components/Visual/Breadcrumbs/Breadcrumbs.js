@@ -1,9 +1,22 @@
+import { texts } from '../../shared/text/texts.js';
+
 const _sliceDeprecated = new Set();
 function deprecate(oldName, newName) {
   if (_sliceDeprecated.has(oldName)) return;
   _sliceDeprecated.add(oldName);
   console.warn(`[Slice] "${oldName}" is deprecated; use "${newName}" instead.`);
 }
+
+const TEXTS = {
+  label: 'Breadcrumb',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+  label: 'Ruta de navegación',
+};
+
+const t = texts('slice.breadcrumbs', { en: TEXTS, es: ES });
 
 export default class Breadcrumbs extends HTMLElement {
   static props = {
@@ -62,6 +75,12 @@ export default class Breadcrumbs extends HTMLElement {
       type: 'function',
       default: null,
       required: false
+    },
+    // Per-instance overrides of any built-in text (see TEXTS).
+    texts: {
+      type: 'object',
+      default: null,
+      required: false
     }
   };
 
@@ -79,12 +98,31 @@ export default class Breadcrumbs extends HTMLElement {
     this._onClick = null;
     this._children = [];
     this._currentPath = '';
+    this._texts = {};
 
     slice.controller.setComponentProps(this, props);
   }
 
   init() {
+    this._applyTexts();
+    // A language change repaints the landmark name; the trail is not touched.
+    slice.translator?.watch?.(this, () => this._applyTexts());
     this.render();
+  }
+
+  get texts() { return this._texts; }
+  set texts(value) {
+    this._texts = value && typeof value === 'object' ? { ...value } : {};
+    this._applyTexts();
+  }
+
+  _t(key) {
+    return this._texts[key] ?? t(key);
+  }
+
+  /** The template ships the English landmark name; the locale may say otherwise. */
+  _applyTexts() {
+    if (this.$root) this.$root.setAttribute('aria-label', this._t('label'));
   }
 
   get items() {

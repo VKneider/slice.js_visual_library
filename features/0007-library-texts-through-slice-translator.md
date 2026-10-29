@@ -123,6 +123,12 @@ content doubles.
 
 ## Inventory (2026-10-29)
 
+**Status:** implemented. Every row below now calls `texts('slice.<namespace>', { en, es })`, stores
+only the app overrides, repaints on a locale change through `slice.translator.watch(this, …)`, and
+exposes a `texts` prop (or keeps its existing text props). The acceptance test is
+`src/Components/shared/text/translator.spec.js` (config interception + `setLocale('es')` on
+Pagination, Modal, Form and Select).
+
 Every string a component writes by itself, counted from the source. "Table" means the file already
 keeps a `TEXTS` / `DEFAULT_LABELS` / `MESSAGES` / `DP_TEXTS` / `DEFAULTS` object with an override prop;
 "inline" means defaults inside `static props` or literals in code/templates. **269 strings** in total
@@ -185,7 +191,13 @@ keeps a `TEXTS` / `DEFAULT_LABELS` / `MESSAGES` / `DP_TEXTS` / `DEFAULTS` object
   ColorPicker, Details, EmptyState, Grid, Icon, Layout, Link, MultiRoute, Route, Slider, Switch,
   ToolTip, TreeItem.
 
-## Placement (decision pending)
+## Placement (decided: in place)
+
+**Decision (2026-10-29): the table lives in the component file, next to `static props`.** The
+`texts` prop, the module-scope `texts()` call, the `TEXTS`/`ES` pair and the `_t()` fallback are one
+unit; a separate file would add a download that fails with a warning (the component installs broken),
+change the three-file shape `slice get` reports, and buy nothing: the texts are not shared and the
+library defaults are maintained by the component author, not by a translator.
 
 The question is where the table lives, not whether the mechanism works: `slice get` already follows
 relative `.js` imports and `installHelperFile` mirrors them into the app, and `slice sync` re-fetches
@@ -198,9 +210,9 @@ them with `force`. The bundler inlines relative imports in both shapes.
 | **Shared module** (`shared/text/`, `shared/validation/`) | yes | Correct for text several components use; wrong for one component's chrome. |
 
 Recommendation: **in place by default**, because it is the existing convention, keeps the component
-self-contained and avoids the warn-only helper failure. Revisit for a component with more than ~40
-keys once the CLI treats a failed helper download as fatal. Record the decision here before the first
-component of the migration.
+self-contained and avoids the warn-only helper failure. A separate file stays an escape hatch for a
+component whose table grows past ~40 keys **and** once the CLI treats a failed helper download as
+fatal; shared text lives in `shared/text/` or `shared/validation/` (as `slice.validation.*` does).
 
 ## Alternatives considered
 
@@ -254,8 +266,8 @@ component of the migration.
 1. Key naming: `slice.modal.close` (namespace per component) or flat `slice.close` shared by every
    component that has a close button?
 2. Should the docs default to English (today's URLs stay) with Spanish under `/es/`, as proposed?
-3. Placement: the table in place in `<Component>.js` (recommended), a `<Component>/texts.js` module,
-   or a shared module? Both ship today; see "Placement".
+3. ~~Placement: the table in place in `<Component>.js` (recommended), a `<Component>/texts.js` module,
+   or a shared module?~~ **Decided: in place.** Shared text stays in the shared module.
 
 ## Decision log
 
@@ -285,3 +297,11 @@ component of the migration.
 - 2026-10-29 - The helper contract is documented in `COMPONENT_API_STANDARDS.md` §16/§16.1 and in the
   translator docs page: registration once at module load, nested namespace, lowest priority, English
   fallback, no-op with the translator off.
+- 2026-10-29 - Text migration completed across the library: 25 visual components + the shared
+  validation module. All built-in chrome now registers `slice.*` en/es defaults through `texts()`,
+  keeps the existing text props as the highest priority, repaints on a locale change with
+  `translator.watch(this, ...)`, and documents its namespace and keys in its markdown page.
+  Acceptance: `src/Components/shared/text/translator.spec.js` switches the real runtime to `es`.
+- 2026-10-29 - Placement decided: the table lives in the component file. A separate
+  `<Component>/texts.js` remains an escape hatch for a very large table once the CLI treats a failed
+  helper download as fatal; cross-component text stays in `shared/`.

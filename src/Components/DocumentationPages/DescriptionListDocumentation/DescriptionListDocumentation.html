@@ -53,5 +53,7 @@
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Do not use it as a form to create a record. It edits the fields of a record that exists, one at a time; a new record needs a <span data-inline-link="14"></span> that validates and saves everything together.</div>
 <div class="callout callout-warning"><code>percent</code> takes a fraction: <code>0.25</code> shows as 25%. Pass <code>25</code> and it shows 2,500%. If your data is already in percent, use <code>type: 'number'</code> with <code>unit: '%'</code>.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.descriptionList.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>empty</code>, <code>yes</code>, <code>no</code>, <code>edit</code>, <code>editing</code>, <code>copy</code>, <code>copied</code>, <code>save</code>, <code>cancel</code>, <code>saving</code>, <code>saved</code>, <code>saveError</code>, <code>error</code>, <code>retry</code>, <code>loading</code>, <code>expand</code>, <code>collapse</code>.</p>
 <div class="component-block" data-block-id="doc-block-11"></div>
 </div>

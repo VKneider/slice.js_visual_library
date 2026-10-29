@@ -767,3 +767,11 @@ In `virtual` mode every row has the same height (`rowHeight`, or the one `densit
 :::warning
 Filters and search read the row DATA. A column whose `render` shows something different from `row[key]` (a formatted date, a label for a code) should give `filterValue` / `searchValue`, or the filter will compare against the raw value.
 :::
+
+## Language
+
+The built-in texts are `slice.table.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `labels` still wins over the dictionary.
+Keys: `searchPlaceholder`, `searchLabel`, `filters`, `clearAll`, `clearFilters`, `showing`, `selected`, `noResults`, `removeFilter`, `searchChip`, `any`, `yes`, `no`, `from`, `to`, `value`, `operator`, `selectAll`, `selectRow`, `sortBy`, `sortNone`, `ascending`, `descending`, `export`, `exportCsv`, `exportJson`, `exportCopy`, `exportScopeFiltered`, `exportScopeSelected`, `copied`, `copyFailed`, `exported`, `view`, `columns`, `density`, `densityCompact`, `densityComfortable`, `densitySpacious`, `totals`, `actions`, `rowActions`, `details`, `showDetails`, `hideDetails`, `copyRow`, `selectRowAction`, `deselectRow`, `detailEmpty`, `undo`, `dismiss`, `removed`, `removedOne`, `saveError`, `loadError`, `retry`, `editCell`, `copiedCell`, `operators.*`.

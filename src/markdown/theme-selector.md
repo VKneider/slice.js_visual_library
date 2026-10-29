@@ -63,3 +63,11 @@ page.
 themes (e.g. `'SOLARIZED'`), use [`ThemeSwitcher`](/docs/input/theme-switcher) instead,
 which accepts a custom `themes` array.
 :::
+
+## Language
+
+The built-in texts are `slice.themeSelector.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `label`.

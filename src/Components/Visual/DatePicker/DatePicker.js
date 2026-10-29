@@ -4,6 +4,7 @@ import {
    parseTyped, parseTypedRange, monthNames, weekdayNames, daysBetween,
 } from './dates.js';
 import { DEFAULT_MESSAGES } from '../../shared/validation/fieldRules.js';
+import { texts } from '../../shared/text/texts.js';
 
 // A date field with a calendar.
 //
@@ -42,6 +43,16 @@ const DP_MESSAGES = {
    order: 'The end date is before the start date',
 };
 
+const ES_MESSAGES = {
+   required: 'Este campo es obligatorio',
+   invalid: 'Introduce una fecha válida',
+   min: 'Elige una fecha igual o posterior a {min}',
+   max: 'Elige una fecha igual o anterior a {max}',
+   disabled: 'Esa fecha no está disponible',
+   incomplete: 'Elige una fecha de fin',
+   order: 'La fecha de fin es anterior a la de inicio',
+};
+
 // Every word the calendar shows or announces, so it can speak the page's
 // language: pass `texts` with any of these keys. {n}, {month} and {year} are
 // filled in.
@@ -64,6 +75,32 @@ const DP_TEXTS = {
    days: '{n} days',
    quickPicks: 'Quick picks',
 };
+
+// Spanish mirrors DP_TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   today: 'Hoy',
+   clear: 'Borrar',
+   chooseDate: 'Elegir fecha',
+   clearDate: 'Borrar fecha',
+   calendar: 'Elige una fecha',
+   previousMonth: 'Mes anterior',
+   nextMonth: 'Mes siguiente',
+   previousYear: 'Año anterior',
+   nextYear: 'Año siguiente',
+   previousYears: 'Años anteriores',
+   nextYears: 'Años siguientes',
+   chooseMonth: '{month}, elige un mes',
+   chooseYear: '{year}, elige un año',
+   pickStart: 'Elige una fecha de inicio',
+   pickEnd: 'Elige una fecha de fin',
+   days: '{n} días',
+   quickPicks: 'Selecciones rápidas',
+};
+
+const t = texts('slice.datePicker', {
+   en: { ...DP_TEXTS, messages: DP_MESSAGES },
+   es: { ...ES, messages: ES_MESSAGES },
+});
 
 let uid = 0;
 
@@ -157,6 +194,7 @@ export default class DatePicker extends HTMLElement {
       this._closeOnSelect = true;
       this._showToday = true;
       this._messages = null;
+      this._texts = {};
       this._validateOn = 'blur';
       this._onChange = null;
       this._onOpenChange = null;
@@ -205,6 +243,12 @@ export default class DatePicker extends HTMLElement {
       this.$popup.addEventListener('pointerover', this._handlePopupOver);
       this.$popup.addEventListener('pointerdown', this._handlePopupPointerDown);
       this._syncInline();
+      slice.translator?.watch?.(this, () => {
+         this.$clear.setAttribute('aria-label', this._t('clearDate'));
+         this.$toggle.setAttribute('aria-label', this._t('chooseDate'));
+         this._syncLabel();
+         this._refreshIfShown();
+      });
    }
 
    beforeDestroy() {
@@ -390,9 +434,9 @@ export default class DatePicker extends HTMLElement {
    get messages() { return this._messages; }
    set messages(value) { this._messages = value && typeof value === 'object' ? value : null; }
 
-   get texts() { return this._texts || null; }
+   get texts() { return this._texts; }
    set texts(value) {
-      this._texts = value && typeof value === 'object' ? value : null;
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
       if (this.$clear) {
          this.$clear.setAttribute('aria-label', this._t('clearDate'));
          this.$toggle.setAttribute('aria-label', this._t('chooseDate'));
@@ -402,8 +446,7 @@ export default class DatePicker extends HTMLElement {
    }
 
    _t(key, values = {}) {
-      const template = (this._texts && this._texts[key]) ?? DP_TEXTS[key];
-      return fill(template, values);
+      return fill(this._texts[key] ?? t(key), values);
    }
 
    get validateOn() { return this._validateOn; }
@@ -458,7 +501,16 @@ export default class DatePicker extends HTMLElement {
    }
 
    get validationMessage() {
-      const messages = { ...DP_MESSAGES, ...(this._messages || {}) };
+      const supplied = this._messages || {};
+      const messages = {
+         required: supplied.required ?? t('messages.required'),
+         invalid: supplied.invalid ?? t('messages.invalid'),
+         min: supplied.min ?? t('messages.min'),
+         max: supplied.max ?? t('messages.max'),
+         disabled: supplied.disabled ?? t('messages.disabled'),
+         incomplete: supplied.incomplete ?? t('messages.incomplete'),
+         order: supplied.order ?? t('messages.order'),
+      };
       if (this._typed !== null && this._typed.trim() !== '' && !this._parseTyped(this._typed)) return messages.invalid;
       const empty = !this._start && !this._end;
       if (empty) return this._required ? messages.required : '';

@@ -1,8 +1,23 @@
+import { texts } from '../../shared/text/texts.js';
+
+const TEXTS = {
+   label: 'Theme',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   label: 'Tema',
+};
+
+const t = texts('slice.themeSwitcher', { en: TEXTS, es: ES });
+
 export default class ThemeSwitcher extends HTMLElement {
    static props = {
       themes: { type: 'array', default: ['LIGHT', 'DARK'] },
       variant: { type: 'string', default: 'button', allowedValues: ['button', 'menu-item'] },
       label: { type: 'string', default: 'Theme' },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: { type: 'object', default: null },
       // Per-theme presentation: `{ LIGHT: { label: 'Light', icon: 'sun' } }`.
       // Opt-in and empty by default, so the raw registered theme name keeps
       // showing unless the consumer supplies names — no surprise rename.
@@ -25,6 +40,9 @@ export default class ThemeSwitcher extends HTMLElement {
 
       // Keep every theme control in the app (selector, switcher, menus) in sync.
       this._onThemeChanged = (e) => this._sync(e.detail?.themeName);
+
+      this._label = null;
+      this._texts = {};
       this.$btn.addEventListener('click', () => this.cycle());
 
       slice.controller.setComponentProps(this, props);
@@ -32,6 +50,13 @@ export default class ThemeSwitcher extends HTMLElement {
 
    init() {
       document.addEventListener('themeChanged', this._onThemeChanged);
+      this._paintLabel();
+      // A language change repaints the label and the current theme name; the
+      // applied theme is not touched.
+      slice.translator?.watch?.(this, () => {
+         this._paintLabel();
+         this._sync();
+      });
       this._sync();
    }
 
@@ -130,11 +155,30 @@ export default class ThemeSwitcher extends HTMLElement {
    }
 
    set label(value) {
-      this._label = value || 'Theme';
-      if (this.$label) this.$label.textContent = this._label;
+      // 'Theme' is the English default, not an override: keeping null lets the
+      // built-in t('label') answer, so the word follows the translator.
+      const text = value ? String(value) : null;
+      this._label = text === ThemeSwitcher.props.label.default ? null : text;
+      this._paintLabel();
    }
    get label() {
-      return this._label;
+      return this._label ?? this._t('label');
+   }
+
+   get texts() {
+      return this._texts;
+   }
+   set texts(value) {
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this._paintLabel();
+   }
+
+   _t(key) {
+      return this._texts[key] ?? t(key);
+   }
+
+   _paintLabel() {
+      if (this.$label) this.$label.textContent = this._label ?? this._t('label');
    }
 
    set onChange(fn) {

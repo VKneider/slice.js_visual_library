@@ -66,4 +66,6 @@ user should be able to submit with a single keystroke, do not put a prompt on th
 that a stray Escape reads as a refusal.</div>
 <div class="callout callout-warning">Every instance subscribes to <code>confirm:request</code>. Two instances means two dialogs for one question,
 so build exactly one, or give the second a different <code>eventName</code>.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.confirmAction.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. <code>confirmLabel</code> and <code>cancelLabel</code> still win over the dictionary. Keys: <code>confirmLabel</code>, <code>cancelLabel</code>, <code>confirmVariant</code>, <code>eventName</code>.</p>
 </div>

@@ -43,5 +43,7 @@ consistent across <code>ThemeSwitcher</code>, <code>ThemeSelector</code>, and an
 <div class="callout callout-warning"><code>themes</code> must list theme names that actually exist under your themes folder. Cycling to
 an unregistered name makes <code>slice.setTheme</code> fail; the error is logged via
 <code>slice.logger.logError</code> and the displayed value falls back to the current theme.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.themeSwitcher.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. <code>label</code> and <code>texts</code> still win over the dictionary. Keys: <code>label</code>.</p>
 <div class="component-block" data-block-id="doc-block-8"></div>
 </div>

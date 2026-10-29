@@ -1,4 +1,5 @@
 import { SIZE_VALUES } from '../../shared/props.js';
+import { texts } from '../../shared/text/texts.js';
 
 // Loading — shows that the app is busy: over the whole page, or over one part
 // of it (a form, a card, a table).
@@ -40,6 +41,17 @@ const WELCOME_MIN_MS = 1200;
 const EXIT_MS = 220;
 const WELCOME_EXIT_MS = 320;
 
+const TEXTS = {
+   loading: 'Loading…',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   loading: 'Cargando…',
+};
+
+const t = texts('slice.loading', { en: TEXTS, es: ES });
+
 // Warns once per deprecated prop name.
 const deprecated = new Set();
 function deprecate(oldName, newName) {
@@ -80,6 +92,8 @@ export default class Loading extends HTMLElement {
       // The first-load view: { title, kicker, subtitle, logo, minVisibleMs,
       // component, props }, or false for none.
       welcome: { type: 'any' },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: { type: 'object', default: null },
       active: { type: 'boolean', default: false },
       isActive: { type: 'boolean', default: false },
       container: { type: 'object', default: null },
@@ -101,6 +115,7 @@ export default class Loading extends HTMLElement {
       // time calls start() from inside it.
       /** @type {Record<string, any>} values given as props; the rest come from sliceConfig */
       this._given = {};
+      this._texts = {};
       this._container = null;
       this._running = false;     // between start() and stop()
       this._visible = false;     // on screen (after delayMs)
@@ -118,6 +133,9 @@ export default class Loading extends HTMLElement {
 
    init() {
       this._applyLooks();
+      // A language change repaints the visible label and the status text; a
+      // running overlay stays up and its progress is not touched.
+      slice.translator?.watch?.(this, () => this._applyLooks());
    }
 
    // ── Options: prop, then sliceConfig.loading, then built-in ──────
@@ -193,6 +211,16 @@ export default class Loading extends HTMLElement {
 
    get container() { return this._container; }
    set container(value) { this._container = value instanceof HTMLElement ? value : null; }
+
+   get texts() { return this._texts; }
+   set texts(value) {
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this._applyLooks();
+   }
+
+   _t(key) {
+      return this._texts[key] ?? t(key);
+   }
 
    /** Whether it is on screen now (false while waiting for delayMs). */
    get visible() { return this._visible; }
@@ -375,7 +403,7 @@ export default class Loading extends HTMLElement {
       const label = this.label;
       this.$label.textContent = label;
       this.$label.hidden = !label;
-      this.$status.textContent = label || (this._welcomeShown ? this._welcomeText() : 'Loading…');
+      this.$status.textContent = label || (this._welcomeShown ? this._welcomeText() : this._t('loading'));
       const progress = this.progress;
       this.dataset.progress = progress === null ? 'indeterminate' : 'determinate';
       if (this.$bar) this.$bar.style.width = progress === null ? '' : `${progress * 100}%`;
@@ -386,7 +414,7 @@ export default class Loading extends HTMLElement {
       const texts = [...this.$welcome.querySelectorAll('[data-welcome]:not([hidden]):not(img)')]
          .map((node) => node.textContent.trim())
          .filter(Boolean);
-      return texts.join(' ') || 'Loading…';
+      return texts.join(' ') || this._t('loading');
    }
 
    // The first-load view is the markup in Loading.html (edit it in your copy

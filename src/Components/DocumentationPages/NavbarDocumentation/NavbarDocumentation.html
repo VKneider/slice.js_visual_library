@@ -45,5 +45,7 @@
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning"><code>position: 'fixed'</code> takes the bar out of the page. Either leave room for it yourself (a <code>padding-top</code> on your content) or pass <code>spacer: true</code>, but not both.</div>
 <div class="callout callout-warning"><code>hideOnScroll</code> and the scrolled state listen to the window's scroll. A bar inside a scrolling panel (not the page) will not see that panel scroll.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.navbar.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>openMenu</code>, <code>closeMenu</code>.</p>
 <div class="component-block" data-block-id="doc-block-7"></div>
 </div>

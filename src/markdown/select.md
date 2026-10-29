@@ -182,3 +182,11 @@ Turn on `searchable` once a list has more than about ten options; nobody wants t
 :::warning
 `value` keeps returning option objects for compatibility. Reading `select.value.value` works for a single select but not for a multiple one; `selected` has no such trap.
 :::
+
+## Language
+
+The built-in texts are `slice.select.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `noResultsText`, `loadingText`, `remove`, `selectAll`, `clearSelection`, `create`.

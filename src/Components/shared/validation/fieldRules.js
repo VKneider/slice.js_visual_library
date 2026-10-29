@@ -8,6 +8,8 @@
 // component's stylesheet carries the same rules (Textarea.spec.js holds them
 // to it), because a stylesheet is loaded per component.
 
+import { texts } from '../text/texts.js';
+
 export const DEFAULT_MESSAGES = {
    required: 'This field is required',
    email: 'Enter a valid email address',
@@ -20,6 +22,25 @@ export const DEFAULT_MESSAGES = {
    maxlength: 'Use at most {maxlength} characters',
    pattern: 'Doesn’t match the expected format',
 };
+
+const ES = {
+   required: 'Este campo es obligatorio',
+   email: 'Introduce un correo válido',
+   url: 'Introduce una URL válida',
+   number: 'Introduce un número',
+   min: 'Debe ser {min} o más',
+   max: 'Debe ser {max} o menos',
+   step: 'Debe ser múltiplo de {step}',
+   minlength: 'Usa al menos {minlength} caracteres',
+   maxlength: 'Usa como máximo {maxlength} caracteres',
+   pattern: 'No coincide con el formato esperado',
+};
+
+const t = texts('slice.validation', { en: DEFAULT_MESSAGES, es: ES });
+
+/** Defaults in the active locale; `rules.messages` still wins over every key. */
+const translatedDefaults = () =>
+   Object.fromEntries(Object.keys(DEFAULT_MESSAGES).map((key) => [key, t(key)]));
 
 export const VALIDATE_ON = ['blur', 'input', 'manual'];
 export const FIELD_VARIANTS = ['outlined', 'filled', 'ghost'];
@@ -78,7 +99,7 @@ export function compileConditions(conditions) {
  * @param {object}  [rules.messages]   overrides for DEFAULT_MESSAGES
  */
 export function validationMessage(value, rules = {}) {
-   const messages = { ...DEFAULT_MESSAGES, ...(rules.messages || {}) };
+   const messages = { ...translatedDefaults(), ...(rules.messages || {}) };
    const text = value ?? '';
    const empty = String(text).trim() === '';
 

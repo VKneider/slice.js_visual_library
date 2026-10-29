@@ -54,5 +54,7 @@
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning">Always pair <code>start()</code> with <code>stop()</code>, also when the work fails: put the <code>stop()</code> in a <code>finally</code>. A loader that never stops blocks the page for good.</div>
 <div class="callout callout-warning">Keep the welcome screen short. It is shown on every visit to the app, so <code>welcome.minVisibleMs</code> above 2 seconds makes the app feel slow, however nice it looks.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.loading.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>loading</code>.</p>
 <div class="component-block" data-block-id="doc-block-10"></div>
 </div>

@@ -22,6 +22,31 @@
 // typing jumps by label, Enter activates, Space toggles the check (or selects),
 // Shift+F10 / the context-menu key opens the row's actions.
 
+import { texts } from '../../shared/text/texts.js';
+
+const TEXTS = {
+   searchPlaceholder: 'Search…',
+   emptyMessage: 'Nothing matches.',
+   search: 'Search',
+   loading: 'Loading…',
+   actionsFor: 'Actions for {label}',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   searchPlaceholder: 'Buscar…',
+   emptyMessage: 'No hay coincidencias.',
+   search: 'Buscar',
+   loading: 'Cargando…',
+   actionsFor: 'Acciones de {label}',
+};
+
+const t = texts('slice.treeView', { en: TEXTS, es: ES });
+
+function fill(template, values) {
+   return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
+}
+
 let _sliceTreeViewSeq = 0;
 
 const _sliceDeprecated = new Set();
@@ -100,12 +125,12 @@ export default class TreeView extends HTMLElement {
       },
       searchPlaceholder: {
          type: 'string',
-         default: 'Search…',
+         default: null,
          required: false
       },
       emptyMessage: {
          type: 'string',
-         default: 'Nothing matches.',
+         default: null,
          required: false
       },
       // Rows are dragged to reorder them or move them into another branch.
@@ -164,6 +189,12 @@ export default class TreeView extends HTMLElement {
       },
       ariaLabel: {
          type: 'string',
+         default: null,
+         required: false
+      },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: {
+         type: 'object',
          default: null,
          required: false
       },
@@ -233,6 +264,7 @@ export default class TreeView extends HTMLElement {
       this._searchTimer = 0;
       this._rowSeq = 0;
       this._pendingSelected = null;
+      this._texts = {};
 
       for (const name of [
          '_handleClick', '_handleKeydown', '_handleFocusIn', '_handleContextMenu', '_handleScroll',
@@ -282,6 +314,12 @@ export default class TreeView extends HTMLElement {
       }
       this._restoreExpanded();
       if (this._activePath) this._activateByPath(this._activePath, true);
+      // A language change repaints the search box, the empty message and the
+      // rows' menus. The open branches, the selection and the focused row stay
+      // as they are.
+      slice.translator?.watch?.(this, () => {
+         this._retranslate();
+      });
       await this._render();
    }
 
@@ -385,15 +423,24 @@ export default class TreeView extends HTMLElement {
 
    get searchPlaceholder() { return this._searchPlaceholder; }
    set searchPlaceholder(value) {
-      this._searchPlaceholder = value ?? '';
-      this.$searchInput.placeholder = this._searchPlaceholder;
-      this.$searchInput.setAttribute('aria-label', this._searchPlaceholder || 'Search');
+      // Only the override is kept: no prop means the built-in (translated) text.
+      this._searchPlaceholder = value === null || value === undefined ? null : String(value);
+      this.$searchInput.placeholder = this._searchPlaceholder ?? this._t('searchPlaceholder');
+      this.$searchInput.setAttribute('aria-label', this._searchPlaceholder || this._t('search'));
    }
 
    get emptyMessage() { return this._emptyMessage; }
    set emptyMessage(value) {
-      this._emptyMessage = value ?? '';
-      this.$empty.textContent = this._emptyMessage;
+      this._emptyMessage = value === null || value === undefined ? null : String(value);
+      this.$empty.textContent = this._emptyMessage ?? this._t('emptyMessage');
+   }
+
+   get texts() { return this._texts; }
+   set texts(value) {
+      // Only the overrides are kept: every key left out falls back to the
+      // translator (or to the English default).
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      if (this._inited) this._retranslate();
    }
 
    get draggable() { return this._draggable === true; }
@@ -835,6 +882,31 @@ export default class TreeView extends HTMLElement {
 
    // ---------------------------------------------------------------- render
 
+   _t(key, values = {}) {
+      return fill(this._texts[key] ?? t(key), values);
+   }
+
+   /**
+    * Repaint everything that carries a built-in word: the search box, the empty
+    * message and the action menu of every row.
+    *
+    * Rows are cached by content, so they are dropped and rebuilt. What has to
+    * survive lives on the component, not on a row: the open branches and the
+    * selection are untouched, and the focused row gets its focus back without
+    * being scrolled anywhere.
+    */
+   _retranslate() {
+      this.$searchInput.placeholder = this._searchPlaceholder ?? this._t('searchPlaceholder');
+      this.$searchInput.setAttribute('aria-label', this._searchPlaceholder || this._t('search'));
+      this.$empty.textContent = this._emptyMessage ?? this._t('emptyMessage');
+      const focused = this.$treeView.contains(document.activeElement);
+      for (const row of this._rows.values()) this._releaseRow(row);
+      this._rows.clear();
+      this._render().then(() => {
+         if (focused) this._rows.get(this._focusKey)?.focus({ preventScroll: true });
+      });
+   }
+
    // The rows to show, in order: open branches only, or, while filtering,
    // every match and its ancestors (opened for the occasion).
    _computeVisible() {
@@ -1059,7 +1131,7 @@ export default class TreeView extends HTMLElement {
          holder.className = 'slice_treeview_actions';
          const menu = await slice.build('DropDown', {
             icon: 'dots-horizontal',
-            ariaLabel: `Actions for ${node.label}`,
+            ariaLabel: this._t('actionsFor', { label: node.label }),
             variant: 'ghost',
             size: 'sm',
             items: actions,
@@ -1165,7 +1237,18 @@ export default class TreeView extends HTMLElement {
       row.className = 'slice_treeview_row slice_treeview_row--loading';
       row.setAttribute('role', 'none');
       row.style.setProperty('--tv-level', String(entry.level));
-      row.innerHTML = '<div class="slice_treeview_content"><span class="slice_treeview_toggle slice_treeview_toggle--leaf"></span><span class="slice_treeview_spinner" aria-hidden="true"></span><span class="slice_treeview_label">Loading…</span></div>';
+      const content = document.createElement('div');
+      content.className = 'slice_treeview_content';
+      const toggle = document.createElement('span');
+      toggle.className = 'slice_treeview_toggle slice_treeview_toggle--leaf';
+      const spinner = document.createElement('span');
+      spinner.className = 'slice_treeview_spinner';
+      spinner.setAttribute('aria-hidden', 'true');
+      const label = document.createElement('span');
+      label.className = 'slice_treeview_label';
+      label.textContent = this._t('loading');
+      content.append(toggle, spinner, label);
+      row.appendChild(content);
       return row;
    }
 

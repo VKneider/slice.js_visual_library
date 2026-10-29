@@ -198,3 +198,11 @@ duplicating `items` arrays.
 Avoid non-clickable parent segments with empty `path` values if users are expected to navigate
 back from the breadcrumb trail.
 :::
+
+## Language
+
+The built-in texts are `slice.breadcrumbs.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `label`.

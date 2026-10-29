@@ -52,3 +52,34 @@ test('translator on but the key is missing: the English default still shows', ()
    assert.equal(t('home'), 'Go Home');
    delete globalThis.slice;
 });
+
+test('nested defaults fall back through the dotted path', () => {
+   delete globalThis.slice;
+   const t = texts('test.table', {
+      en: { operators: { contains: 'contains', is: 'is' } },
+      es: { operators: { contains: 'contiene', is: 'es' } }
+   });
+
+   assert.equal(t('operators.contains'), 'contains');
+   assert.equal(t('operators.is'), 'is');
+   assert.equal(t('operators.nope'), 'test.table.operators.nope');
+});
+
+test('the English fallback wins over a registered translation that returns the key', () => {
+   globalThis.slice = {
+      translator: {
+         enabled: true,
+         add: () => {},
+         // A key with a nested branch: the translator returns it unchanged when missing.
+         t: (key) => key
+      }
+   };
+
+   const t = texts('test.table.on', {
+      en: { operators: { contains: 'contains' } },
+      es: { operators: { contains: 'contiene' } }
+   });
+
+   assert.equal(t('operators.contains'), 'contains');
+   delete globalThis.slice;
+});

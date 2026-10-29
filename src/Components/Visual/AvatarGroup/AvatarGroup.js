@@ -1,3 +1,4 @@
+import { texts } from '../../shared/text/texts.js';
 // AvatarGroup — a few people as overlapping avatars, and "+N" for the rest.
 //
 //   await slice.build('AvatarGroup', { items: members, max: 4 });
@@ -12,6 +13,15 @@ const TEXTS = {
    more: 'and {count} more',
    moreLabel: '{count} more',
 };
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   label: '{count} personas: {names}',
+   more: 'y {count} más',
+   moreLabel: '{count} más',
+};
+
+const t = texts('slice.avatarGroup', { en: TEXTS, es: ES });
 
 function fill(template, values) {
    return String(template).replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -42,7 +52,7 @@ export default class AvatarGroup extends HTMLElement {
       this._shape = 'circle';
       this._tooltips = true;
       this._onMoreClick = null;
-      this._texts = { ...TEXTS };
+      this._texts = {};
       this._avatars = [];
       slice.controller.setComponentProps(this, props);
    }
@@ -51,6 +61,7 @@ export default class AvatarGroup extends HTMLElement {
       this._ready = true;
       this.setAttribute('role', 'group');
       await this._render();
+      slice.translator?.watch?.(this, () => this._ready && this._render());
       if (this._tooltips) {
          this._tips = await slice.build('ToolTipProvider', { singleton: true });
          if (this._ready) this._tips?.scope(this);
@@ -82,7 +93,11 @@ export default class AvatarGroup extends HTMLElement {
    set onMoreClick(value) { this._onMoreClick = typeof value === 'function' ? value : null; this._ready && this._render(); }
 
    get texts() { return this._texts; }
-   set texts(value) { this._texts = { ...TEXTS, ...(value && typeof value === 'object' ? value : {}) }; this._ready && this._render(); }
+   set texts(value) { this._texts = value && typeof value === 'object' ? { ...value } : {}; this._ready && this._render(); }
+
+   _t(key, values = {}) {
+      return fill(this._texts[key] ?? t(key), values);
+   }
 
    _destroyAvatars() {
       for (const avatar of this._avatars) slice.controller.destroyComponent(avatar);
@@ -127,7 +142,7 @@ export default class AvatarGroup extends HTMLElement {
          if (more instanceof HTMLButtonElement) {
             more.type = 'button';
             more.addEventListener('click', (event) => this._onMoreClick?.({ items: rest, group: this, event }));
-            more.setAttribute('aria-label', fill(this._texts.moreLabel, { count: rest.length }));
+            more.setAttribute('aria-label', this._t('moreLabel', { count: rest.length }));
          } else {
             more.setAttribute('aria-hidden', 'true');
          }
@@ -145,8 +160,8 @@ export default class AvatarGroup extends HTMLElement {
       this.dataset.shape = this._shape;
 
       const names = shown.map((i) => i.alt || i.name).filter(Boolean);
-      const listed = rest.length ? `${names.join(', ')} ${fill(this._texts.more, { count: rest.length })}` : names.join(', ');
-      this.setAttribute('aria-label', fill(this._texts.label, { count: items.length, names: listed }));
+      const listed = rest.length ? `${names.join(', ')} ${this._t('more', { count: rest.length })}` : names.join(', ');
+      this.setAttribute('aria-label', this._t('label', { count: items.length, names: listed }));
    }
 }
 

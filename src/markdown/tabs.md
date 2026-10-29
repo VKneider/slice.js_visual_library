@@ -340,3 +340,11 @@ Do not hide validation errors in a tab that is not open. If a tab holds an error
 :::warning
 Give every item a stable `id`. The tabs, their panels and what is remembered all go by it: an id that changes on every render rebuilds the panel each time, and throws away what was typed in it.
 :::
+
+## Language
+
+The built-in texts are `slice.tabs.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+`ariaLabel` and `texts` still win over the dictionary.
+Keys: `label`.

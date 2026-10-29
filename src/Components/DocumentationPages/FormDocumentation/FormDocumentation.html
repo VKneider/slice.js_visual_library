@@ -81,5 +81,7 @@ disappears from the payload. If a field is required, the usual validation is wha
 the <code>Form</code> itself through <code>slice.controller.destroyComponent(form)</code> / <code>destroyByContainer(node)</code> when you
 tear down whatever hosts it (a view). A <span data-inline-link="0"></span> destroys what is in its body when
 it is destroyed, so a Form in a Modal with <code>destroyOnClose: true</code> is taken care of.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.form.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>submit</code>, <code>next</code>, <code>back</code>, <code>remove</code>, <code>removeItem</code>, <code>add</code>, <code>item</code>, <code>itemNumber</code>, <code>required</code>, <code>progress</code>, <code>step</code>, <code>stepOf</code>.</p>
 <div class="component-block" data-block-id="doc-block-15"></div>
 </div>

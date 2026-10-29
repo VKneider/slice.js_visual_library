@@ -135,3 +135,11 @@ consistent across `ThemeSwitcher`, `ThemeSelector`, and any custom theme UI.
 an unregistered name makes `slice.setTheme` fail; the error is logged via
 `slice.logger.logError` and the displayed value falls back to the current theme.
 :::
+
+## Language
+
+The built-in texts are `slice.themeSwitcher.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+`label` and `texts` still win over the dictionary.
+Keys: `label`.

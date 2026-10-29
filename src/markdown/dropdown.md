@@ -235,3 +235,11 @@ Checkbox and radio items keep their state on the item objects (`checked` is flip
 :::warning
 An icon-only trigger has no visible text, so give it `ariaLabel`; otherwise screen readers announce an unnamed button.
 :::
+
+## Language
+
+The built-in texts are `slice.dropDown.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `noOptions`, `loading`, `backToPrevious`, `backToMenu`.

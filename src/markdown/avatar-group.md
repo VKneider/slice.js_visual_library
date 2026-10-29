@@ -83,3 +83,11 @@ Keep `max` small (3 to 5). The group says "these people and some more"; the full
 :::warning
 Give every person a `name`. Without one, the face has no tooltip and the group's name cannot list them.
 :::
+
+## Language
+
+The built-in texts are `slice.avatarGroup.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `label`, `more`, `moreLabel`.

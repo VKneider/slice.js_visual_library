@@ -235,3 +235,11 @@ For a navigation sidebar, pass `activePath` and a `stateKey`: the current page i
 :::warning
 `virtual` needs one row height: long labels are cut with an ellipsis, and a `description` line needs a bigger `rowHeight`.
 :::
+
+## Language
+
+The built-in texts are `slice.treeView.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `searchPlaceholder`, `emptyMessage`, `search`, `loading`, `actionsFor`.

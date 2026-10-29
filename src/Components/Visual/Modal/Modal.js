@@ -1,3 +1,5 @@
+import { texts } from '../../shared/text/texts.js';
+
 // A modal dialog on the native <dialog> element.
 //
 // showModal() gives the hard parts for free: the top layer (no z-index wars,
@@ -20,6 +22,17 @@
 // Form docs): the .slice-modal / __header / __title / __body / __footer /
 // __close classes, `open`, appendBody(), appendFooter(), close(), and
 // onClose({ returnValue }) firing synchronously from close().
+
+const TEXTS = {
+   close: 'Close',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+   close: 'Cerrar',
+};
+
+const t = texts('slice.modal', { en: TEXTS, es: ES });
 
 const TONE_ICONS = {
    info: 'info-circle',
@@ -78,6 +91,8 @@ export default class Modal extends HTMLElement {
       closeOnEscape: { type: 'boolean', default: true },
       closeLabel: { type: 'string', default: 'Close' },
       ariaLabel: { type: 'string', default: '' },
+      // Per-instance overrides of any built-in text (see TEXTS).
+      texts: { type: 'object', default: null },
       initialFocus: { type: 'string', default: '' },
       returnFocus: { type: 'boolean', default: true },
       scrollLock: { type: 'boolean', default: true },
@@ -141,8 +156,9 @@ export default class Modal extends HTMLElement {
       this._dismissable = true;
       this._closeOnBackdrop = true;
       this._closeOnEscape = true;
-      this._closeLabel = 'Close';
+      this._closeLabel = null;
       this._ariaLabel = '';
+      this._texts = {};
       this._initialFocus = '';
       this._returnFocus = true;
       this._scrollLockEnabled = true;
@@ -310,10 +326,19 @@ export default class Modal extends HTMLElement {
    get closeOnEscape() { return this._closeOnEscape; }
 
    set closeLabel(value) {
-      this._closeLabel = typeof value === 'string' && value ? value : 'Close';
-      if (this.$close) this.$close.setAttribute('aria-label', this._closeLabel);
+      // 'Close' is the English default, not an override: keeping null lets the
+      // built-in t('close') answer, so the label follows the translator.
+      const text = typeof value === 'string' && value ? value : null;
+      this._closeLabel = text === Modal.props.closeLabel.default ? null : text;
+      this._syncCloseLabel();
    }
-   get closeLabel() { return this._closeLabel; }
+   get closeLabel() { return this._closeLabel ?? this._t('close'); }
+
+   get texts() { return this._texts; }
+   set texts(value) {
+      this._texts = value && typeof value === 'object' ? { ...value } : {};
+      this._syncCloseLabel();
+   }
 
    set ariaLabel(value) {
       this._ariaLabel = typeof value === 'string' ? value : '';
@@ -483,6 +508,10 @@ export default class Modal extends HTMLElement {
       this.$handle.addEventListener('pointerdown', this._handleSwipeStart);
       this.$header.addEventListener('pointerdown', this._handleSwipeStart);
 
+      this._syncCloseLabel();
+      // A language change repaints the ✕ name; open/closed is not touched.
+      slice.translator?.watch?.(this, () => this._syncCloseLabel());
+
       this._inited = true;
       this._watchMedia();
       this._applyLayout();
@@ -539,6 +568,15 @@ export default class Modal extends HTMLElement {
    }
 
    // ── Rendering ──────────────────────────────────────────────────
+
+   _t(key) {
+      return this._texts[key] ?? t(key);
+   }
+
+   // The ✕ names itself; the template ships the English word, the locale may not.
+   _syncCloseLabel() {
+      if (this.$close) this.$close.setAttribute('aria-label', this._t('close'));
+   }
 
    // A header with nothing but the ✕ shrinks to a corner button, and with
    // nothing at all it disappears, so a content-only modal has no empty band.

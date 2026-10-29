@@ -475,3 +475,11 @@ Do not use it as a form to create a record. It edits the fields of a record that
 :::warning
 `percent` takes a fraction: `0.25` shows as 25%. Pass `25` and it shows 2,500%. If your data is already in percent, use `type: 'number'` with `unit: '%'`.
 :::
+
+## Language
+
+The built-in texts are `slice.descriptionList.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `empty`, `yes`, `no`, `edit`, `editing`, `copy`, `copied`, `save`, `cancel`, `saving`, `saved`, `saveError`, `error`, `retry`, `loading`, `expand`, `collapse`.

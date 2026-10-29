@@ -18,6 +18,22 @@
 const registered = new Set();
 
 /**
+ * Read a dotted path from a messages object (`operators.contains`), so a lookup
+ * can fall back to a nested English default exactly like the translator does.
+ * @param {Record<string, any>} source
+ * @param {string} path
+ * @returns {unknown}
+ */
+function readPath(source, path) {
+   let node = source;
+   for (const part of String(path).split('.')) {
+      if (node === null || node === undefined) return undefined;
+      node = node[part];
+   }
+   return node;
+}
+
+/**
  * Merge the library defaults into the translator's `defaults` layer, once per namespace.
  * @param {string} namespace e.g. 'slice.notFound'
  * @param {Record<string, Record<string, string>>} defaults locale → messages
@@ -58,7 +74,7 @@ export function texts(namespace, defaults) {
          const text = translator.t(full, params);
          if (text !== full) return text;
       }
-      const fallback = english[key];
+      const fallback = readPath(english, key);
       return fallback === undefined ? full : String(fallback);
    };
 }

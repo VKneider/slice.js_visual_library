@@ -20,6 +20,8 @@
 // tab survives an `items` update is kept, so re-setting items never throws
 // away what someone was working on.
 
+import { texts } from '../../shared/text/texts.js';
+
 const _sliceDeprecated = new Set();
 function deprecate(oldName, newName) {
   if (_sliceDeprecated.has(oldName)) return;
@@ -29,6 +31,17 @@ function deprecate(oldName, newName) {
 
 const VARIANT_ALIASES = { primary: 'underline', secondary: 'segmented' };
 const LEGACY_CLASS = { underline: 'primary', segmented: 'secondary' };
+
+const TEXTS = {
+  label: 'Tabs',
+};
+
+// Spanish mirrors TEXTS key by key; the app can override any of them with its dictionary.
+const ES = {
+  label: 'Pestañas',
+};
+
+const t = texts('slice.tabs', { en: TEXTS, es: ES });
 
 let uid = 0;
 
@@ -60,6 +73,8 @@ export default class Tabs extends HTMLElement {
     closable: { type: 'boolean', default: false },
     keepMounted: { type: 'boolean', default: true },
     ariaLabel: { type: 'string', default: 'Tabs' },
+    // Per-instance overrides of any built-in text (see TEXTS).
+    texts: { type: 'object', default: null },
     stateKey: { type: 'string', default: '' },
     urlParam: { type: 'string', default: '' },
     onChange: { type: 'function', default: null, required: false },
@@ -91,6 +106,8 @@ export default class Tabs extends HTMLElement {
     this._activation = 'auto';
     this._closable = false;
     this._keepMounted = true;
+    this._ariaLabel = null;
+    this._texts = {};
     this._stateKey = '';
     this._urlParam = '';
     this._onChange = null;
@@ -125,6 +142,9 @@ export default class Tabs extends HTMLElement {
       this._resizeObserver.observe(this.$list);
     }
     this._inited = true;
+    this._paintAriaLabel();
+    // A language change repaints the strip's name; the active tab is not touched.
+    slice.translator?.watch?.(this, () => this._paintAriaLabel());
     this.renderTabs();
   }
 
@@ -213,8 +233,20 @@ export default class Tabs extends HTMLElement {
   get keepMounted() { return this._keepMounted; }
   set keepMounted(value) { this._keepMounted = value !== false; }
 
-  get ariaLabel() { return this.$list.getAttribute('aria-label') || ''; }
-  set ariaLabel(value) { this.$list.setAttribute('aria-label', value || 'Tabs'); }
+  get ariaLabel() { return this._ariaLabel ?? this._t('label'); }
+  set ariaLabel(value) {
+    // 'Tabs' is the English default, not an override: keeping null lets the
+    // built-in t('label') answer, so the strip follows the translator.
+    const text = typeof value === 'string' && value ? value : null;
+    this._ariaLabel = text === Tabs.props.ariaLabel.default ? null : text;
+    this._paintAriaLabel();
+  }
+
+  get texts() { return this._texts; }
+  set texts(value) {
+    this._texts = value && typeof value === 'object' ? { ...value } : {};
+    this._paintAriaLabel();
+  }
 
   get stateKey() { return this._stateKey; }
   set stateKey(value) { this._stateKey = typeof value === 'string' ? value : ''; }
@@ -285,6 +317,14 @@ export default class Tabs extends HTMLElement {
   updateActiveButton() { this._syncSelection(); }
 
   // ── Rendering ──────────────────────────────────────────────────
+
+  _t(key) {
+    return this._texts[key] ?? t(key);
+  }
+
+  _paintAriaLabel() {
+    if (this.$list) this.$list.setAttribute('aria-label', this._ariaLabel ?? this._t('label'));
+  }
 
   renderTabs({ fallbackIndex = -1 } = {}) {
     if (!this.$list) return;

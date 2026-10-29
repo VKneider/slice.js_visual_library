@@ -296,3 +296,11 @@ Always pair `start()` with `stop()`, also when the work fails: put the `stop()` 
 :::warning
 Keep the welcome screen short. It is shown on every visit to the app, so `welcome.minVisibleMs` above 2 seconds makes the app feel slow, however nice it looks.
 :::
+
+## Language
+
+The built-in texts are `slice.loading.*` keys with English and Spanish defaults, registered by
+`shared/text/texts.js` in the translator's lowest layer: an app dictionary always wins, and the
+component keeps its English text when the translator is off.
+The text prop `texts` still wins over the dictionary.
+Keys: `loading`.

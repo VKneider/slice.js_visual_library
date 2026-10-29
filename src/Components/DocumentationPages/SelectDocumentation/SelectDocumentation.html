@@ -34,5 +34,7 @@
 <h2 id="pitfalls">Pitfalls</h2>
 <div class="callout callout-warning"><code>loadOptions</code> replaces the options on every query. Keep your option values stable between queries (a database id, not an index), or a picked value will not be recognised when it comes back.</div>
 <div class="callout callout-warning"><code>value</code> keeps returning option objects for compatibility. Reading <code>select.value.value</code> works for a single select but not for a multiple one; <code>selected</code> has no such trap.</div>
+<h2 id="language">Language</h2>
+<p>The built-in texts are <code>slice.select.*</code> keys with English and Spanish defaults, registered by <code>shared/text/texts.js</code> in the translator's lowest layer: an app dictionary always wins, and the component keeps its English text when the translator is off. The text prop <code>texts</code> still wins over the dictionary. Keys: <code>noResultsText</code>, <code>loadingText</code>, <code>remove</code>, <code>selectAll</code>, <code>clearSelection</code>, <code>create</code>.</p>
 <div class="component-block" data-block-id="doc-block-8"></div>
 </div>
