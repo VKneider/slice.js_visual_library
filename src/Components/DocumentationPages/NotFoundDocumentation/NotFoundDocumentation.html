@@ -7,14 +7,19 @@
    <span class="copy-md-slot" data-copy-md></span>
  </div>
 <h2 id="overview">Overview</h2>
-<p><code>NotFound</code> renders a 404 fallback page when no route matches the current URL. It sets the document title to "404 - Not Found" on initialization.</p>
+<p><code>NotFound</code> renders a 404 fallback page when no route matches the current URL. It sets the document title to its translated title on initialization.</p>
 <h2 id="api-and-behavior">API and Behavior</h2>
-<ul><li>No props required. Displays a static 404 message.</li><li>Automatically updates the page title on <code>init()</code>.</li><li>Composable inside <code>MultiRoute</code> as the default fallback view.</li></ul>
+<ul><li>No props required. Displays a static 404 message.</li><li>Routes: use it as the final route or as <code>MultiRoute</code>'s <code>fallback</code>.</li></ul>
+<h2 id="texts-and-translation">Texts and translation</h2>
+<p>The three texts are marked and ship their own defaults (English and Spanish), so the component works with the translator off and translates itself when it is on:</p>
+<div class="table-block" data-block-id="doc-block-1"></div>
+<p>An app dictionary that defines these keys wins; the defaults are registered in the translator's <code>defaults</code> layer, never overriding the app. The home button receives the key as a prop (<code>slice.translator.key</code>), so it follows a locale change.</p>
+<ul><li>Automatically updates the page title on <code>init()</code>.</li><li>Composable inside <code>MultiRoute</code> as the default fallback view.</li></ul>
 <h2 id="live-preview">Live Preview</h2>
-<div class="component-block" data-block-id="doc-block-1"></div>
+<div class="component-block" data-block-id="doc-block-2"></div>
 <h2 id="prop-scenarios">Prop Scenarios</h2>
-<div class="script-block" data-block-id="doc-block-2"></div>
 <div class="script-block" data-block-id="doc-block-3"></div>
+<div class="script-block" data-block-id="doc-block-4"></div>
 <h2 id="best-practices">Best Practices</h2>
 <div class="callout callout-tip">Use <code>NotFound</code> as the final route inside <code>MultiRoute</code> to catch unmatched paths.</div>
 <h2 id="pitfalls">Pitfalls</h2>

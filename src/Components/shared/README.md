@@ -23,6 +23,7 @@ when something here starts drawing its own interface, it becomes a component
 | `data/paths.js` | `getter`, `read`: a value by key, path (`'owner.name'`) or function. `readPath`, `writePath`: a path in a store's state, written without changing the original. | DataList, DescriptionList, Table |
 | `data/dates.js` | `toDate`, `relativeTime` ("3 hours ago"), `fullDate`. | DataList, DescriptionList, inlineControl |
 | `data/collection.js` | `insertItem`, `patchItem`, `removeItems`, `restoreItems`, `revertItem`: changes to an array that return a new one (for add / update / remove with rollback and undo). | DataList, Table |
+| `text/texts.js` | `texts(namespace, defaults)` / `registerTexts`: a component's built-in texts as the translator's lowest-priority layer, with the English default when it is off. | NotFound (and the components that adopt it) |
 | `editing/inlineControl.js` | Which control edits a value in place (Input, Textarea, Select, DatePicker), its props, and how to read its value back. The meaning of `edit: { … }`. | DescriptionList, Table |
 | `validation/fieldRules.js` | The validation rules and messages of the text fields, and when an error may show. | Input, Textarea, DatePicker, FileUpload |
 | `tooltip/tooltipCore.js` | The tooltip engine: the bubble, where it goes, when it shows. | ToolTip, ToolTipProvider |

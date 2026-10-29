@@ -2,7 +2,7 @@
 id: "0007"
 title: "Library texts through slice.translator, and routes through slice.router"
 repo: "slicejs-components"
-status: proposed
+status: in-progress
 area: components
 priority: medium
 created: 2026-10-28
@@ -180,3 +180,20 @@ content doubles.
 - 2026-10-28 — Library texts are defaults at the lowest priority; app dictionaries and instance
   props override them.
 - 2026-10-28 — The router migration ships with this feature, but is useful without any locale.
+- 2026-10-28 — Router migration done: Route, MultiRoute, Navbar, BottomNav, Breadcrumbs, SideMenu,
+  TreeView, Link, Card, DataList, DescriptionList, Pagination, ComponentsPage and
+  UnsavedChangesGuard read `slice.path` and build anchors with `slice.href()`.
+  - The first pass added `shared/router/paths.js`; it was **removed** in review: the router is
+    mandatory, so the shortcuts belong on the instance (`slice.path`, `slice.href()`) and components
+    import nothing extra (`slice get` copies less). `slice.href()` leaves fragments, schemes,
+    protocol-relative URLs and relative templates untouched.
+  - `NotFound` is the first component on the texts contract: `shared/text/texts.js` registers
+    `slice.notFound.*` (en/es) in the translator's defaults layer, the template is marked with
+    `data-t`, and the home button receives `slice.translator.key()`. `shared/data/dates.js` now uses
+    `translator.format` for relative/full dates when no explicit `locale` is passed.
+  - Proof: `slicejs-lab` runs with `routing: "prefix-except-default"`; its e2e covers `/en`,
+    `navigate({ locale })`, back/forward, `/es/...` canonicalization, an unknown prefix as a 404 and
+    the Spanish 404 defaults. `COMPONENT_API_STANDARDS.md` §16 records the contract.
+  - Remaining: the full text inventory of DataList, Table, DatePicker, Select and Pagination; the
+    docs site in English/Spanish; per-locale OG cards. The lib ships with the router migration, the
+    helper and the exemplar; those components keep today's English until their inventory lands.

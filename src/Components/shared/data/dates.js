@@ -26,6 +26,7 @@ const UNITS = [
 
 /**
  * "3 hours ago", "in 2 days", "just now" — in the page's language, or `locale`.
+ * With the translator enabled, its active locale wins unless `locale` is passed.
  * @param {any} value
  * @param {{ locale?: string, now?: Date, justNow?: string }} [options]
  */
@@ -34,7 +35,19 @@ export function relativeTime(value, { locale, now = new Date(), justNow } = {}) 
    if (!date) return '';
    const seconds = Math.round((date.getTime() - now.getTime()) / 1000);
    const abs = Math.abs(seconds);
-   const format = new Intl.RelativeTimeFormat(locale || document.documentElement.lang || undefined, { numeric: 'auto' });
+
+   const translator = globalThis.slice?.translator;
+   if (!locale && translator?.enabled) {
+      const { format } = translator;
+      if (abs < 45) return justNow || format.relative(0, 'second');
+      for (const [unit, size] of UNITS) {
+         if (abs >= size) return format.relative(Math.round(seconds / size), unit);
+      }
+      return format.relative(Math.round(seconds / 60), 'minute');
+   }
+
+   const pageLocale = globalThis.document?.documentElement?.lang;
+   const format = new Intl.RelativeTimeFormat(locale || pageLocale || undefined, { numeric: 'auto' });
    if (abs < 45) return justNow || format.format(0, 'second');
    for (const [unit, size] of UNITS) {
       if (abs >= size) return format.format(Math.round(seconds / size), unit);
@@ -46,5 +59,12 @@ export function relativeTime(value, { locale, now = new Date(), justNow } = {}) 
 export function fullDate(value, locale) {
    const date = toDate(value);
    if (!date) return '';
-   return new Intl.DateTimeFormat(locale || document.documentElement.lang || undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+
+   const translator = globalThis.slice?.translator;
+   if (!locale && translator?.enabled) {
+      return translator.format.date(date, { dateStyle: 'medium', timeStyle: 'short' });
+   }
+
+   const pageLocale = globalThis.document?.documentElement?.lang;
+   return new Intl.DateTimeFormat(locale || pageLocale || undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(date);
 }

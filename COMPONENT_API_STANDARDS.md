@@ -525,3 +525,35 @@ step, validate(value, record), parse(value) }`. The control is chosen by
       error with Try again; requests aborted on destroy (§13).
 - [ ] Changes data? `{ commit }` with rollback, never mutating the input (§13.4).
 - [ ] Code it shares lives in `shared/` (README updated), its private pieces in `parts/` (§14).
+- [ ] Built-in texts are `slice.*` keys with en/es defaults from `shared/text/texts.js`, marked with
+      `data-t`; text props win and routes use `slice.path` / `slice.href()` (§16).
+## 16. Built-in texts, formatting and routes under `slice.translator`
+
+A component that writes text by itself (a close label, "No results", "Try again") does not hardcode
+English. It ships **keys with defaults**, so it works in an app without the translator and translates
+itself when the app enables it.
+
+1. **Keys live under `slice.<namespace>`**: `slice.notFound.title`, `slice.table.noRows`. One
+   namespace per component keeps an app override obvious (`slice.modal.close`).
+2. **Defaults come from `shared/text/texts.js`**, at module scope (before the first template is
+   translated), with English **and** Spanish:
+   ```js
+   import { texts } from '../../shared/text/texts.js';
+   const t = texts('slice.notFound', {
+      en: { title: 'Page Not Found' },
+      es: { title: 'P�gina no encontrada' },
+   });
+   ```
+   They go to the translator's `defaults` layer: an app dictionary always wins, and with the
+   translator off `t()` returns the English default.
+3. **Templates are marked, not written**: `<h2 data-t="slice.notFound.title">Page Not Found</h2>`.
+   An attribute needs its own entry (`key.ariaLabel`) and `data-t` on the element.
+4. **Text props still win.** Read the prop when painting, not once in the constructor; when an
+   instance prop overrides a built-in text, write the prop's text and remove that element's `data-t`.
+5. **Text passed as a prop is a marker**: `slice.translator.key('slice.modal.close')`, so it is
+   re-assigned on a locale change.
+6. **Formatting** goes through `slice.translator.format.*` (dates, numbers, lists) unless the
+   component has an explicit `locale` prop for a fixed-format column � then that locale wins.
+7. **Routes and links**: read `slice.path` and build anchors with `slice.href(path)`, never
+   `window.location.pathname` or a raw `href`. The router owns locale prefixes and keeps `/en/x` out
+   of route matching.

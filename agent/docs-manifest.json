@@ -989,6 +989,33 @@
       "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/radio-group.md"
     },
     {
+      "id": "realtime-service",
+      "title": "RealtimeService",
+      "kind": "Service",
+      "component": "RealtimeService",
+      "sourcePath": "src/markdown/realtime-service.md",
+      "route": "/docs/services/realtime-service",
+      "section": "Services",
+      "group": "Networking",
+      "order": 32,
+      "description": "What the server tells the app without being asked. A WebSocket or Server-Sent Events connection that stays up — reconnecting with growing waits, channels with listeners that go with their component, subscribe frames sent again after a reconnect, a send queue, a heartbeat — and messages that make QueryService queries stale.",
+      "tags": [
+        "service",
+        "websocket",
+        "sse",
+        "server-sent events",
+        "realtime",
+        "live",
+        "push",
+        "reconnect",
+        "subscribe",
+        "channels",
+        "query",
+        "invalidate"
+      ],
+      "rawUrl": "https://raw.githubusercontent.com/VKneider/slicejs-components/master/src/markdown/realtime-service.md"
+    },
+    {
       "id": "route",
       "title": "Route",
       "kind": "Visual",
