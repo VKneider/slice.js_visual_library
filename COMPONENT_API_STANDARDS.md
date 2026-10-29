@@ -526,7 +526,7 @@ step, validate(value, record), parse(value) }`. The control is chosen by
 - [ ] Changes data? `{ commit }` with rollback, never mutating the input (§13.4).
 - [ ] Code it shares lives in `shared/` (README updated), its private pieces in `parts/` (§14).
 - [ ] Built-in texts are `slice.*` keys with en/es defaults from `shared/text/texts.js`, marked with
-      `data-t`; text props win and routes use `slice.path` / `slice.href()` (§16).
+      `data-t` or read through `texts()`; text props win and routes use `slice.path` / `slice.href()` (§16).
 ## 16. Built-in texts, formatting and routes under `slice.translator`
 
 A component that writes text by itself (a close label, "No results", "Try again") does not hardcode
@@ -573,8 +573,8 @@ Two shapes work; choose one **per component** and keep it consistent with the re
 | **Separate module** | `<Component>/texts.js` exporting `{ en, es }`, imported by `<Component>.js` | The component body stays focused and translation-only diffs are isolated. `slice get` / `slice sync` already follow relative `.js` imports, so the file ships and updates - but a failed helper download is only a **warning**, which leaves the component broken at runtime, and `slice get` lists three files, not four. |
 | **Shared module** (cross-component text only) | `shared/validation/fieldRules.js` | One namespace for messages several components use (`slice.validation.*`). Never duplicate a shared message per component. |
 
-Decision pending: keep the table **in place** until the migration is done - that is what the eleven
-components with a `TEXTS` / `DEFAULT_LABELS` table already do. A component with more than ~40 keys
+Decision pending: keep the table **in place** until the migration is done - that is what the components that already had a
+`TEXTS` / `DEFAULT_LABELS` table already did. A component with more than ~40 keys
 may move to `<Component>/texts.js` once the CLI treats a failed helper download as fatal. Record the
 choice in `features/0007-library-texts-through-slice-translator.md` before starting a component.
 

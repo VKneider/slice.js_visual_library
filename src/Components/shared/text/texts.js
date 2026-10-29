@@ -71,6 +71,10 @@ function ensureRegistered(namespace, defaults) {
 
 /**
  * A lookup for one component's built-in texts.
+ *
+ * The first call for a namespace registers its table and wins: a second module declaring the
+ * same namespace keeps the first defaults (the lookup still uses the table you passed). Call
+ * `texts()` once, at module scope.
  * @param {string} namespace e.g. 'slice.notFound'
  * @param {Record<string, Record<string, string>>} defaults locale → messages (must include `en`)
  * @returns {(key: string, params?: Record<string, any>) => string}

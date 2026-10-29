@@ -182,7 +182,16 @@ const t = texts('slice.table', { en: DEFAULT_LABELS, es: ES });
 // English default. One layer keeps the ~50 direct `this._text.<key>` reads in
 // the render path working without merging DEFAULT_LABELS into every instance.
 function textLayer(custom = {}) {
-  const overrides = { ...custom, operators: { ...(custom.operators || {}) } };
+  // `operators` is read directly in places (`this._text.operators[op]`), so it gets the
+  // same fallthrough as the top level; materializing it would return `undefined` for a
+  // partial override and only work because `_opLabel` also calls `t()`.
+  const operators = new Proxy({ ...(custom.operators || {}) }, {
+    get(target, key, receiver) {
+      if (typeof key === 'symbol' || key in target) return Reflect.get(target, key, receiver);
+      return t(`operators.${String(key)}`);
+    }
+  });
+  const overrides = { ...custom, operators };
   return new Proxy(overrides, {
     get(target, key, receiver) {
       if (typeof key === 'symbol' || key in target) return Reflect.get(target, key, receiver);
