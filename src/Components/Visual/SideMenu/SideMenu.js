@@ -1,5 +1,4 @@
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
-
 // SideMenu — a navigation menu whose items open more items, as deep as needed.
 //
 // Two ways to show the levels, with the same items:
@@ -671,7 +670,7 @@ export default class SideMenu extends HTMLElement {
       if (overview) row.dataset.overview = 'true';
       row.style.setProperty('--slice-side-menu-depth', String(this._view === 'tree' ? depth : 0));
       if (isLink) {
-         row.setAttribute('href', node.path || node.href);
+         row.setAttribute('href', node.path ? slice.href(node.path) : node.href);
          if (node.href && item.target) row.setAttribute('target', item.target);
          if (node.href && item.target === '_blank') row.setAttribute('rel', 'noopener noreferrer');
       } else {
@@ -1013,7 +1012,7 @@ export default class SideMenu extends HTMLElement {
    // ── Router ─────────────────────────────────────────────────────
 
    _currentRoutePath() {
-      return typeof window !== 'undefined' ? window.location.pathname : '';
+      return slice.path;
    }
 
    _handleRoute() {

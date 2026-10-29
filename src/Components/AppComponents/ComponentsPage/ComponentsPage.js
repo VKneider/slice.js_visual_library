@@ -46,7 +46,7 @@ export default class ComponentsPage extends HTMLElement {
           const treeItems = toTreeViewItems(filteredItems);
            const treeView = await slice.build('TreeView', {
               items: treeItems,
-              activePath: window.location.pathname,
+              activePath: slice.path,
               // Remember the open sections between visits.
               stateKey: 'docs-nav',
               ariaLabel: 'Documentation',
@@ -105,9 +105,9 @@ export default class ComponentsPage extends HTMLElement {
       this.appendChild(layOut);
 
       const defaultDocsPath = routesConfig?.defaultRoute?.path || '/docs';
-      const initialPath = resolveInitialDocsPath(window.location.pathname, defaultDocsPath);
+      const initialPath = resolveInitialDocsPath(slice.path, defaultDocsPath);
 
-      if (window.location.pathname !== initialPath) {
+      if (slice.path !== initialPath) {
          await slice.router.navigate(initialPath);
       }
 

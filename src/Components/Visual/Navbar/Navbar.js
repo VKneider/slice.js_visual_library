@@ -425,7 +425,7 @@ export default class Navbar extends HTMLElement {
          text.textContent = String(brand.text);
          this.$logoContainer.appendChild(text);
       }
-      if (brand.path) this.$logoContainer.setAttribute('href', brand.path);
+      if (brand.path) this.$logoContainer.setAttribute('href', slice.href(brand.path));
       else this.$logoContainer.removeAttribute('href');
    }
 
@@ -570,7 +570,7 @@ export default class Navbar extends HTMLElement {
    }
 
    _syncActive() {
-      const path = this._activePath ?? window.location.pathname;
+      const path = this._activePath ?? slice.path;
       let match = null;
       let best = -1;
       for (const entry of this._entries) {

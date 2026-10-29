@@ -165,7 +165,7 @@ test.describe('Navbar — content', () => {
       await c.component.evaluate((el) => { el.size = 'sm'; el.variant = 'nope'; });
       const sm = await c.locator('.slice_nav_header').evaluate((el) => el.getBoundingClientRect().height);
       expect(lg).toBeGreaterThan(sm);
-      await expect(c.component).toHaveAttribute('data-variant', 'solid');
+      await expect(c.component).toHaveAttribute('data-variant', 'filled');
    });
 });
 

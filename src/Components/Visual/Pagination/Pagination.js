@@ -1,6 +1,5 @@
 import DataGridEngine from '../../Service/DataGridEngine/DataGridEngine.js';
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
-
 // Pagination — moves through pages of a list, a table or search results.
 //
 //   [«] [‹ Previous] [1] … [4] [5] [6] … [20] [Next ›] [»]    21–40 of 400   Rows per page [20 ▾]
@@ -359,7 +358,7 @@ export default class Pagination extends HTMLElement {
    _control({ page, text = '', icon = '', aria, current = false, disabled = false, edge = false, dot = false, rel = '', iconAfter = false }) {
       const link = this._hrefTemplate && !disabled && !current && !this._disabled;
       const el = document.createElement(link ? 'a' : 'button');
-      if (link) el.href = fill(this._hrefTemplate, { page });
+      if (link) el.href = slice.href(fill(this._hrefTemplate, { page }));
       else el.type = 'button';
       el.className = 'slice-pagination__item';
       if (edge) el.classList.add('slice-pagination__item--edge');

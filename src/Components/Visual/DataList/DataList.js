@@ -1386,7 +1386,7 @@ export default class DataList extends HTMLElement {
       const el = document.createElement(path || href ? 'a' : clickable ? 'button' : 'span');
       el.className = 'slice-data-list__title';
       el.textContent = text;
-      if (el instanceof HTMLAnchorElement) el.href = String(path || href);
+      if (el instanceof HTMLAnchorElement) el.href = slice.href(String(path || href));
       if (el instanceof HTMLButtonElement) el.type = 'button';
       if (clickable) {
          el.dataset.open = '';

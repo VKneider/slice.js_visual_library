@@ -75,8 +75,8 @@ export default class MultiRoute extends HTMLElement {
    }
 
    async render() {
-      const currentPath = window.location.pathname;
-      const { route: routeMatch, params } = this.matchRoute(currentPath);
+      const routePath = slice.path;
+      const { route: routeMatch, params } = this.matchRoute(routePath);
 
       if (routeMatch) {
          const { component, metadata } = routeMatch;
@@ -125,7 +125,7 @@ export default class MultiRoute extends HTMLElement {
             bubbles: true,
             detail: { 
                component, 
-               path: currentPath,
+               path: routePath,
                params: params,
                metadata: metadata || {} // ✅ Incluir metadata en el evento
             }
@@ -159,8 +159,8 @@ export default class MultiRoute extends HTMLElement {
    }
 
    async renderIfCurrentRoute() {
-      const currentPath = window.location.pathname;
-      const { route: routeMatch } = this.matchRoute(currentPath);
+      const routePath = slice.path;
+      const { route: routeMatch } = this.matchRoute(routePath);
 
       if (routeMatch) {
          await this.render();
@@ -176,8 +176,8 @@ export default class MultiRoute extends HTMLElement {
    }
 
    removeComponent() {
-      const currentPath = window.location.pathname;
-      const { route: routeMatch } = this.matchRoute(currentPath);
+      const routePath = slice.path;
+      const { route: routeMatch } = this.matchRoute(routePath);
 
       if (routeMatch) {
          const { component } = routeMatch;

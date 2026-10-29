@@ -1,5 +1,4 @@
 import { applySize, SIZE_VALUES } from '../../shared/props.js';
-
 // A Card is one thing — a product, a person, a file, a project, a metric —
 // usually shown among others like it in a grid or a list. It sums the thing up
 // and, when it can be opened, leads to it.
@@ -313,7 +312,7 @@ export default class Card extends HTMLElement {
          let target;
          if (this._href) {
             target = document.createElement('a');
-            target.href = this._href;
+            target.href = slice.href(this._href);
             if (this._target) {
                target.target = this._target;
                if (this._target === '_blank') target.rel = 'noopener noreferrer';
@@ -381,7 +380,7 @@ export default class Card extends HTMLElement {
             target.removeAttribute('href');
             target.setAttribute('aria-disabled', 'true');
          } else {
-            target.href = this._href;
+            target.href = slice.href(this._href);
             target.removeAttribute('aria-disabled');
          }
       }

@@ -422,7 +422,7 @@ export default class BottomNav extends HTMLElement {
          text.textContent = String(brand.text);
          this.$logoContainer.appendChild(text);
       }
-      this.$logoContainer.setAttribute('href', brand.path || '#');
+      this.$logoContainer.setAttribute('href', brand.path ? slice.href(brand.path) : '#');
       this._balanceTabs();
    }
 
@@ -492,7 +492,7 @@ export default class BottomNav extends HTMLElement {
 
       const link = document.createElement('a');
       link.className = 'slice_bottomnav_link';
-      link.href = raw.path ?? raw.href ?? '#';
+      link.href = raw.path ? slice.href(raw.path) : (raw.href ?? '#');
       if (raw.target) link.target = raw.target;
       if (raw.target === '_blank') link.rel = 'noopener noreferrer';
 
@@ -527,7 +527,7 @@ export default class BottomNav extends HTMLElement {
       li.className = 'slice_bottomnav_fab';
       const button = document.createElement(raw.path ? 'a' : 'button');
       button.className = 'slice_bottomnav_fab_button';
-      if (raw.path) button.href = raw.path;
+      if (raw.path) button.href = slice.href(raw.path);
       else button.type = 'button';
       button.setAttribute('aria-label', String(raw.label ?? raw.text ?? 'Action'));
       if (raw.icon) {
@@ -653,7 +653,7 @@ export default class BottomNav extends HTMLElement {
       const iconName = typeof value.icon === 'string' ? value.icon : value.icon?.name;
       const node = document.createElement(value.path || value.href ? 'a' : 'button');
       node.className = 'slice_bottomnav_action';
-      if (value.path || value.href) node.href = value.path ?? value.href;
+      if (value.path || value.href) node.href = value.path ? slice.href(value.path) : value.href;
       else node.type = 'button';
       if (value.variant === 'ghost' || value.variant === 'outlined') node.classList.add('slice_bottomnav_action--quiet');
       if (iconName) {
@@ -695,7 +695,7 @@ export default class BottomNav extends HTMLElement {
    }
 
    _syncActiveFromLocation() {
-      const path = this._activePath ?? window.location.pathname;
+      const path = this._activePath ?? slice.path;
       // Exact match first, then the longest prefix (/docs/button keeps /docs);
       // '/' and `exact` tabs only match themselves.
       let match = null;

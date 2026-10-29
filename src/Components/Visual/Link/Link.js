@@ -58,7 +58,7 @@ export default class Link extends HTMLElement {
       } = props;
 
       const anchor = document.createElement('a');
-      anchor.setAttribute('href', path);
+      anchor.setAttribute('href', slice.href(path));
       anchor.setAttribute('data-route', '');
       if (classes) anchor.className = classes;
 

@@ -42,7 +42,7 @@ export default class Route extends HTMLElement {
     */
    matchesCurrentPath() {
       // Normalize trailing slash so '/about/' behaves like '/about' (keep root '/').
-      const raw = window.location.pathname;
+      const raw = slice.path;
       const currentPath = raw.length > 1 ? raw.replace(/\/+$/, '') : raw;
       const routePath = this.props.path.length > 1 ? this.props.path.replace(/\/+$/, '') : this.props.path;
 

@@ -1,7 +1,6 @@
 import { getter, read, readPath, writePath } from '../../shared/data/paths.js';
 import { relativeTime, fullDate, toDate } from '../../shared/data/dates.js';
 import { normalizeEdit, editKind, controlFor, readControl, validateValue, TEXT_KINDS } from '../../shared/editing/inlineControl.js';
-
 // DescriptionList — one record, shown as label → value pairs: the detail of
 // an order, a customer's profile, the settings of a project. Where DataList
 // shows many records with a few properties each, DescriptionList shows one
@@ -937,7 +936,7 @@ export default class DescriptionList extends HTMLElement {
       if ((path || href) && !['email', 'url', 'phone'].includes(field.type)) {
          const link = document.createElement('a');
          link.className = 'slice-description-list__link';
-         link.href = path || href;
+         link.href = slice.href(path || href);
          if (path) {
             link.addEventListener('click', (event) => {
                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return;

@@ -185,7 +185,7 @@ export default class Breadcrumbs extends HTMLElement {
     const rootChildren = Array.isArray(this._children) ? this._children : [];
     if (!rootChildren.length) return [];
 
-    const targetPath = this._normalizePath(this._currentPath || window.location.pathname || '');
+    const targetPath = this._normalizePath(this._currentPath || slice.path || '');
     if (!targetPath) return [];
 
     const makeLabel = (node, fallbackPath) => {
@@ -261,7 +261,7 @@ export default class Breadcrumbs extends HTMLElement {
     if (isNavigable) {
       const link = document.createElement('a');
       link.className = 'slice_breadcrumbs_link';
-      link.href = item.path;
+      link.href = slice.href(item.path);
       link.textContent = item.text;
       link.addEventListener('click', (event) => {
         event.preventDefault();

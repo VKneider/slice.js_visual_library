@@ -90,7 +90,7 @@ export default class UnsavedChangesGuard {
       this._keys.add(key);
       if (options.message) this._message = options.message;
       if (this._keys.size === 1) {
-         this._armedLocation = window.location.pathname + window.location.search;
+         this._armedLocation = (slice.path + window.location.search);
       }
       // Retried here because slice.router may not have existed at init().
       this._installRouterGuard();
@@ -217,7 +217,7 @@ export default class UnsavedChangesGuard {
       if (!this.isArmed || !this._armedLocation) return;
       if (this._restoring) return;
 
-      const here = window.location.pathname + window.location.search;
+      const here = (slice.path + window.location.search);
       if (here === this._armedLocation) return;   // landed back where we started
 
       // This path CANNOT use confirmLeave(): the history has already moved, and

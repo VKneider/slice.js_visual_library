@@ -1362,7 +1362,7 @@ export default class TreeView extends HTMLElement {
 
    _handleRoute() {
       if (!this._followRoute || !this._inited) return;
-      const path = window.location.pathname;
+      const path = slice.path;
       const node = [...this._nodes.values()].find((candidate) => candidate.path === path);
       if (!node) return;
       this._activateByPath(path, true);
