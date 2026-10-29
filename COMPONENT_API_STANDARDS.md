@@ -546,6 +546,11 @@ itself when the app enables it.
    ```
    They go to the translator's `defaults` layer: an app dictionary always wins, and with the
    translator off `t()` returns the English default.
+   The helper registers each namespace **once** at module load (before the first template is
+   translated), converts the dotted namespace into the nested branch the lookup expects, and is a
+   no-op when the translator is disabled - the component keeps working on an app without it.
+   `t('title', params)` is the component's lookup: it calls `slice.translator.t('slice.notFound.title',
+   params)` and falls back to the declared English default when the key is missing.
 3. **Templates are marked, not written**: `<h2 data-t="slice.notFound.title">Page Not Found</h2>`.
    An attribute needs its own entry (`key.ariaLabel`) and `data-t` on the element.
 4. **Text props still win.** Read the prop when painting, not once in the constructor; when an
@@ -557,3 +562,22 @@ itself when the app enables it.
 7. **Routes and links**: read `slice.path` and build anchors with `slice.href(path)`, never
    `window.location.pathname` or a raw `href`. The router owns locale prefixes and keeps `/en/x` out
    of route matching.
+
+### 16.1 Where the text table lives
+
+Two shapes work; choose one **per component** and keep it consistent with the rest of the file.
+
+| Shape | Example | Trade-offs |
+| --- | --- | --- |
+| **In place** (default) | `const TEXTS = { ... }` next to `static props`, then `texts('slice.table', { en: TEXTS, es: ... })` | One file per component, no extra download, the table sits next to the code that uses it. Adds 5-90 lines to an already large file (Table, DataList). |
+| **Separate module** | `<Component>/texts.js` exporting `{ en, es }`, imported by `<Component>.js` | The component body stays focused and translation-only diffs are isolated. `slice get` / `slice sync` already follow relative `.js` imports, so the file ships and updates - but a failed helper download is only a **warning**, which leaves the component broken at runtime, and `slice get` lists three files, not four. |
+| **Shared module** (cross-component text only) | `shared/validation/fieldRules.js` | One namespace for messages several components use (`slice.validation.*`). Never duplicate a shared message per component. |
+
+Decision pending: keep the table **in place** until the migration is done - that is what the eleven
+components with a `TEXTS` / `DEFAULT_LABELS` table already do. A component with more than ~40 keys
+may move to `<Component>/texts.js` once the CLI treats a failed helper download as fatal. Record the
+choice in `features/0007-library-texts-through-slice-translator.md` before starting a component.
+
+The prop that carries an app override keeps its historical name (`texts`, `labels`, `messages`,
+`closeLabel`, `emptyMessage`...). New text props are called `texts`; an existing prop is never
+renamed without an alias (section 7).

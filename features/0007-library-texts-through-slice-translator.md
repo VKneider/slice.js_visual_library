@@ -6,7 +6,7 @@ status: in-progress
 area: components
 priority: medium
 created: 2026-10-28
-updated: 2026-10-28
+updated: 2026-10-29
 target: "TBD"
 owners: []
 related:
@@ -80,7 +80,7 @@ app's dictionary → the library's default → the key.
 
 Built-in texts are **marked**, not written: a component puts `data-t="slice.modal.close"` (and
 `data-t-*` params) on the element, and the framework translates it now and on every locale change.
-Text props passed by the app as `slice.translator.key(…)` need nothing either: the framework
+Text props passed by the app as `slice.t.ref('…')` need nothing either: the framework
 re-assigns them. Only formatted dates and numbers inside a component (Table cells, DatePicker
 labels) repaint through `slice.translator.watch(this, …)`.
 
@@ -113,7 +113,7 @@ The components docs adopt `translator` with `routing: "prefix-except-default"` (
 today's URLs do not move; Spanish under `/es/`):
 
 - the shell (navigation, search, buttons, the copy-as-markdown menu, theme switcher, 404) through
-  `data-t` and `slice.translator.key()`;
+  `data-t` and `slice.t.ref()`;
 - `seo.json` defaults and the docs' generic metadata through `{ "t": … }`;
 - per-route OG cards per locale (CLI 0003 `seo images`).
 
@@ -121,10 +121,90 @@ Translating the **markdown content** of each page (a second set of `src/markdown
 locale) is a separate, later feature: the shell and SEO first, so the mechanism is proven before the
 content doubles.
 
+## Inventory (2026-10-29)
+
+Every string a component writes by itself, counted from the source. "Table" means the file already
+keeps a `TEXTS` / `DEFAULT_LABELS` / `MESSAGES` / `DP_TEXTS` / `DEFAULTS` object with an override prop;
+"inline" means defaults inside `static props` or literals in code/templates. **269 strings** in total
+(3 done, 226 behind a table, 30 inline, 10 shared).
+
+### Done — the reference migration
+
+| Component | Keys | Shape |
+| --- | --- | --- |
+| NotFound | 3 | `texts('slice.notFound')`, `data-t` in the template, `slice.t.ref()` for the button |
+
+### Table exists — only the translator wiring is missing
+
+| Component | Keys | Table | Override prop | Notes |
+| --- | --- | --- | --- | --- |
+| DataList | 46 | `TEXTS` | `texts` | Largest table: toolbar, filters, selection, undo, day groups, confirm |
+| Table | 58 + 21 operators | `DEFAULT_LABELS` | `labels` | Filters, export menu, density, row actions, cell edit, operators |
+| FileUpload | 19 + 6 | `TEXTS` + `MESSAGES` | `texts`, `messages` | Dropzone copy, per-file states, retry/remove/cancel |
+| DescriptionList | 17 | `TEXTS` | `texts` | Copy/edit tool labels, empty state, undo |
+| DatePicker | 17 | `DP_TEXTS` | `texts` | Month/year navigation, calendar and clear/choose aria |
+| Pagination | 13 | `TEXTS` | `texts` | First/previous/next/last labels and aria |
+| SideMenu | 9 | `TEXTS` | `texts` | Drill-in back, loading, empty, error |
+| ElementCarrousel | 8 | `TEXTS` | `texts` | Slide/prev/next/pause aria, counter |
+| Avatar | 5 | `TEXTS` | — | Initials/status fallbacks |
+| AvatarGroup | 3 | `TEXTS` | `texts` | More label and group summary (`{count} people: {names}`) |
+| ConfirmActionModal | 4 | `DEFAULTS` | `confirmLabel`, `cancelLabel` | Two buttons plus variants |
+
+### Inline text — needs a table first
+
+| Component | Keys | Where today | Notes |
+| --- | --- | --- | --- |
+| Form | 5 | prop defaults + literals | `Submit`, `Next`; `Back`, `Remove`, `Add {item}` are hardcoded |
+| TreeView | 5 | prop defaults + literals | `Search…`, `Nothing matches.`, `Search` aria, `Loading…`, `Actions for {label}` |
+| Select | 5 | prop defaults + literals | `No results`, `Loading…`, `Remove {label}`, `Select all`, `Clear selection` |
+| Modal | 1 | `closeLabel` | — |
+| Navbar | 2 | literals | `Open menu` / `Close menu` |
+| Tabs | 1 | `ariaLabel` default | `Tabs` |
+| Toast | 1 | template | `Close notification` |
+| Breadcrumbs | 1 | template | `Breadcrumb` |
+| Input | 2 | template | `Clear`, `Toggle password visibility` |
+| Textarea | 2 | template | Same two labels |
+| Loading | 1 | literal | `Loading…` fallback and aria |
+| DropDown | 2 | literals | `No options`, `Back to …` |
+| ThemeSwitcher | 1 | prop default | `Theme` |
+| ThemeSelector | 1 | template | `Toggle theme` |
+
+### Shared — one namespace for several components
+
+| Module | Keys | Consumed by |
+| --- | --- | --- |
+| `shared/validation/fieldRules.js` | 10 | Input, Textarea, DatePicker, FileUpload (`messages` prop overrides) |
+
+### Out of scope
+
+- Docs/dev components: `PropsTable`, `CodeVisualizer` (it already hardcodes Spanish `Copiar` /
+  `Copiado!`), `DemoBox`, `ComponentShowcase`, `MiniInspector`, `UpdateProbe`.
+- Services: no user-visible text. `ShortcutService` maps key names (`Backspace`, `Page Up`), which are
+  keyboard labels, not prose.
+- Components whose text is entirely props: Alert, Badge, Button, BottomNav, Card, Checkbox, Chip,
+  ColorPicker, Details, EmptyState, Grid, Icon, Layout, Link, MultiRoute, Route, Slider, Switch,
+  ToolTip, TreeItem.
+
+## Placement (decision pending)
+
+The question is where the table lives, not whether the mechanism works: `slice get` already follows
+relative `.js` imports and `installHelperFile` mirrors them into the app, and `slice sync` re-fetches
+them with `force`. The bundler inlines relative imports in both shapes.
+
+| Shape | Ships today | Trade-offs |
+| --- | --- | --- |
+| **In place** in `<Component>.js` | yes | One file per component; the table sits next to `static props`; it is what the eleven planned components already do. Adds 5–90 lines to an already large file (Table, DataList). |
+| **`<Component>/texts.js`** | yes, through the relative import | Component body stays focused and translation-only diffs are isolated. A failed helper download is only a **warning**, so the component installs broken; `slice get` still reports three files. |
+| **Shared module** (`shared/text/`, `shared/validation/`) | yes | Correct for text several components use; wrong for one component's chrome. |
+
+Recommendation: **in place by default**, because it is the existing convention, keeps the component
+self-contained and avoids the warn-only helper failure. Revisit for a component with more than ~40
+keys once the CLI treats a failed helper download as fatal. Record the decision here before the first
+component of the migration.
+
 ## Alternatives considered
 
 | Alternative | Why not |
-| --- | --- |
 | One `locales/slice.en.json` shipped with the library | `slice get` copies components, not the library; a central file would hold texts of components the app does not have, and need its own sync. |
 | Keep per-component text props only | Every app repeats the same Spanish strings, prop by prop, with different prop names per component. Props stay, as the highest priority. |
 | Translate in each component with `slice.t()` directly, no helper | Breaks with the translator disabled (the key shows instead of today's English text). |
@@ -174,6 +254,8 @@ content doubles.
 1. Key naming: `slice.modal.close` (namespace per component) or flat `slice.close` shared by every
    component that has a close button?
 2. Should the docs default to English (today's URLs stay) with Spanish under `/es/`, as proposed?
+3. Placement: the table in place in `<Component>.js` (recommended), a `<Component>/texts.js` module,
+   or a shared module? Both ship today; see "Placement".
 
 ## Decision log
 
@@ -189,11 +271,17 @@ content doubles.
     protocol-relative URLs and relative templates untouched.
   - `NotFound` is the first component on the texts contract: `shared/text/texts.js` registers
     `slice.notFound.*` (en/es) in the translator's defaults layer, the template is marked with
-    `data-t`, and the home button receives `slice.translator.key()`. `shared/data/dates.js` now uses
+    `data-t`, and the home button receives `slice.t.ref()`. `shared/data/dates.js` now uses
     `translator.format` for relative/full dates when no explicit `locale` is passed.
   - Proof: `slicejs-lab` runs with `routing: "prefix-except-default"`; its e2e covers `/en`,
     `navigate({ locale })`, back/forward, `/es/...` canonicalization, an unknown prefix as a 404 and
     the Spanish 404 defaults. `COMPONENT_API_STANDARDS.md` §16 records the contract.
-  - Remaining: the full text inventory of DataList, Table, DatePicker, Select and Pagination; the
-    docs site in English/Spanish; per-locale OG cards. The lib ships with the router migration, the
-    helper and the exemplar; those components keep today's English until their inventory lands.
+  - Remaining: the text migration of the components in the inventory above; the docs site in
+    English/Spanish; per-locale OG cards. The lib ships with the router migration, the helper and the
+    exemplar; those components keep today's English until their table lands.
+- 2026-10-29 - Full inventory recorded: 269 strings (3 done in NotFound, 226 already behind a table,
+  30 inline, 10 in the shared validation module) and the docs/dev components ruled out. The
+  placement question stays open with a recommendation: keep the table in place.
+- 2026-10-29 - The helper contract is documented in `COMPONENT_API_STANDARDS.md` §16/§16.1 and in the
+  translator docs page: registration once at module load, nested namespace, lowest priority, English
+  fallback, no-op with the translator off.
