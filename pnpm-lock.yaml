@@ -21,11 +21,11 @@ importers:
         specifier: ^3.15.0
         version: 3.15.0
       slicejs-cli:
-        specifier: ^4.4.0
-        version: 4.4.0(eslint@9.39.5)
+        specifier: ^4.5.0
+        version: 4.5.0(eslint@9.39.5)
       slicejs-web-framework:
-        specifier: ^4.1.1
-        version: 4.1.1
+        specifier: ^4.2.0
+        version: 4.2.0
       three:
         specifier: ^0.185.1
         version: 0.185.1
@@ -1320,17 +1320,17 @@ packages:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
 
-  slicejs-cli@4.4.0:
-    resolution: {integrity: sha512-Hcy5qezcOpHsNYYYES0iIuhQewiconX6mqJrjZMMm5Usm6BUKSqDX3XbzRKLp7ewSZVF+riYy2UqbjycRJfwuQ==}
+  slicejs-cli@4.5.0:
+    resolution: {integrity: sha512-r2HGxg4B/TtZVEi87mDLMxN1EHobByUFSvZj5EVd6YqRzm+Ce5DbnYPzcyljTGKQ7P4mNAoSYK0c/4AvIjabVQ==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  slicejs-web-framework@4.0.2:
-    resolution: {integrity: sha512-homVktLSEDQMBnDShGGsD1KdGHFc1A4SrB74G9DthKneZgYaA5pit2+83fRYTbFhGXpH/cn6I/HCpiXHZibhcQ==}
-    engines: {node: '>=20'}
-
   slicejs-web-framework@4.1.1:
     resolution: {integrity: sha512-WL2El655pJtnOq5uLrC6KvcDwZdh8IhJsx/ohNkdZn0GdI1kVruvbGtP54oLDBB+65paGbqANaz7CKmhicxA/w==}
+    engines: {node: '>=20'}
+
+  slicejs-web-framework@4.2.0:
+    resolution: {integrity: sha512-1uYeaFwXY5GPhOvsk+tP1E54aaHTXc/JhBjcYWyCnAo3JMJZbT8NdFek+YktXJrZam/qlCIVy3QRDDkkLprJjg==}
     engines: {node: '>=20'}
 
   source-map-support@0.5.21:
@@ -2708,7 +2708,7 @@ snapshots:
 
   signal-exit@4.1.0: {}
 
-  slicejs-cli@4.4.0(eslint@9.39.5):
+  slicejs-cli@4.5.0(eslint@9.39.5):
     dependencies:
       '@babel/parser': 7.29.7
       '@babel/traverse': 7.29.7
@@ -2724,14 +2724,14 @@ snapshots:
       html-minifier-terser: 7.2.0
       inquirer: 12.11.1
       ora: 8.2.0
-      slicejs-web-framework: 4.0.2
+      slicejs-web-framework: 4.1.1
       terser: 5.48.0
     transitivePeerDependencies:
       - '@types/node'
       - eslint
       - supports-color
 
-  slicejs-web-framework@4.0.2:
+  slicejs-web-framework@4.1.1:
     dependencies:
       compression: 1.8.1
       es-module-lexer: 2.3.1
@@ -2740,7 +2740,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  slicejs-web-framework@4.1.1:
+  slicejs-web-framework@4.2.0:
     dependencies:
       compression: 1.8.1
       es-module-lexer: 2.3.1
